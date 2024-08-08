@@ -1,6 +1,7 @@
 import { Prisma } from '@prisma/client';
 import { ArgsType, Field } from 'type-graphql';
 import { GraphQLJSONObject } from 'graphql-type-json';
+import _ from 'lodash';
 
 interface OrderBy {
   [key: string]: Prisma.SortOrder;
@@ -20,9 +21,9 @@ export abstract class QueryArgsBase<WhereType> {
   get orderBy(): OrderBy | OrderBy[] | undefined {
     return this.sort?.split(',').map((field) => {
       const order: Prisma.SortOrder = field.startsWith('-') ? 'asc' : 'desc';
-      return {
-        [field.replace('-', '')]: order,
-      };
+      const res = {};
+      _.set(res, field.replace('-', ''), order);
+      return res;
     });
   }
 
