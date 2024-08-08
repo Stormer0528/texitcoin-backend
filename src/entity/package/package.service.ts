@@ -42,15 +42,13 @@ export class PackageService {
         packageId: data.id,
       },
     });
-    if (sale) {
-      throw new Error('This package can not be updated');
-    }
 
+    const updateData = sale ? { productName: data.productName } : data;
     return this.prisma.package.update({
       where: {
         id: data.id,
       },
-      data,
+      data: updateData,
     });
   }
 
