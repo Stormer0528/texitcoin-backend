@@ -44,7 +44,7 @@ model Member {
   password         String  @default("$2a$12$iJYYra5MuxOQ9AwyG5CQauqCoE0NnSWHb7PzicO2C3L2/0J2VkQaO") @db.VarChar
   token            String? @unique(map: "index_members_on_token") @db.VarChar
 
-  sponsor Member? @relation("MemberSponsor", fields: [sponsorId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  sponsor Member? @relation("MemberSponsor", fields: [sponsorId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -68,8 +68,8 @@ model Sale {
   orderedAt     DateTime @default(now()) @db.Timestamptz(6)
   status        Boolean  @default(true)
 
-  member  Member?  @relation(fields: [memberId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  package Package? @relation(fields: [packageId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  member  Member?  @relation(fields: [memberId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  package Package? @relation(fields: [packageId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   statisticsSales StatisticsSale[]
 
@@ -207,8 +207,8 @@ model MemberWallet {
   address  String
   percent  Int    @default(0)
 
-  member Member? @relation(fields: [memberId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  payout Payout? @relation(fields: [payoutId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  member Member? @relation(fields: [memberId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  payout Payout? @relation(fields: [payoutId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -227,8 +227,8 @@ model MemberStatisticsWallet {
   issuedAt          DateTime @default(now())
   txc               BigInt   @default(0)
 
-  memberStatistic MemberStatistics? @relation(fields: [memberStatisticId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  memberWallet    MemberWallet?     @relation(fields: [memberWalletId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  memberStatistic MemberStatistics? @relation(fields: [memberStatisticId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  memberWallet    MemberWallet?     @relation(fields: [memberWalletId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
