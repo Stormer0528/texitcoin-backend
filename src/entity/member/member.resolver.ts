@@ -89,6 +89,7 @@ export class MemberResolver {
     const hashedPassword = await hashPassword(DEFAULT_PASSWORD);
     const member = await this.service.createMember({
       ..._.omit(data, 'wallets'),
+      email: data.email.toLowerCase(),
       password: hashedPassword,
     });
     await this.memberWalletService.createManyMemberWallets(
@@ -101,10 +102,13 @@ export class MemberResolver {
   @UseMiddleware(userPermission)
   @Mutation(() => Member)
   async updateMember(@Ctx() ctx: Context, @Arg('data') data: UpdateMemberInput): Promise<Member> {
-    const member = await this.service.updateMember({
+    let newData: UpdateMemberInput = {
       id: data.id ?? ctx.user.id,
       ..._.omit(data, 'wallets'),
-    });
+    };
+    if (data.email) newData.email = data.email.toLowerCase();
+
+    const member = await this.service.updateMember(newData);
     await this.memberWalletService.updateManyMemberWallet({
       memberId: data.id ?? ctx.user.id,
       wallets: data.wallets,
@@ -229,11 +233,11 @@ export class MemberResolver {
       await this.mailerService.sendForgetpasswordLink(
         email,
         fullName,
-        `${process.env.MEMBER_URL}/forgot-password?token=${token}`
+        `${process.env.MEMBER_URL}/reset-password?token=${token}`
       );
       return {
         result: SuccessResult.success,
-        message: `${process.env.MEMBER_URL}/forgot-password?token=${token}`,
+        message: `${process.env.MEMBER_URL}/reset-password?token=${token}`,
       };
     } else {
       return {
