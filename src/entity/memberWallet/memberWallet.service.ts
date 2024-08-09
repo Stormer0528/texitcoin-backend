@@ -8,6 +8,7 @@ import {
 } from './memberWallet.type';
 import Bluebird from 'bluebird';
 import { PERCENT } from '@/consts/db';
+import { IDInput } from '@/graphql/common.type';
 
 @Service()
 export class MemberWalletService {
@@ -87,6 +88,14 @@ export class MemberWalletService {
     if (sumPercent !== 100 * PERCENT) throw new Error('Sum of percent must be 100');
     return this.prisma.memberWallet.createMany({
       data,
+    });
+  }
+
+  async removeMemberWalletsByMemberId(data: IDInput) {
+    return this.prisma.memberWallet.deleteMany({
+      where: {
+        memberId: data.id,
+      },
     });
   }
 }

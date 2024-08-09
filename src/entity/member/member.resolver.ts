@@ -45,13 +45,15 @@ import { MemberWallet } from '../memberWallet/memberWallet.entity';
 import { MemberWalletService } from '../memberWallet/memberWallet.service';
 import _ from 'lodash';
 import { DEFAULT_PASSWORD } from '@/consts';
+import { SaleService } from '../sale/sale.service';
 
 @Service()
 @Resolver(() => Member)
 export class MemberResolver {
   constructor(
     private readonly service: MemberService,
-    private readonly memberWalletService: MemberWalletService
+    private readonly memberWalletService: MemberWalletService,
+    private readonly saleService: SaleService
   ) {}
 
   @Authorized([UserRole.Admin])
@@ -116,6 +118,18 @@ export class MemberResolver {
   @Authorized([UserRole.Admin])
   @Mutation(() => SuccessResponse)
   async removeMember(@Arg('data') data: IDInput): Promise<SuccessResponse> {
+    const salesCnt = this.saleService.getSalesCount({
+      where: {
+        memberId: data.id,
+      },
+      orderBy: [],
+      parsePage: {},
+    });
+    if (!salesCnt) {
+      throw new Error('There is a reward of this member');
+    }
+
+    await this.memberWalletService.removeMemberWalletsByMemberId(data);
     await this.service.removeMember(data.id);
     return {
       result: SuccessResult.success,
