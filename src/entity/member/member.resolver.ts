@@ -1,4 +1,4 @@
-import { Service } from 'typedi';
+import { Inject, Service } from 'typedi';
 import {
   Arg,
   Args,
@@ -27,25 +27,21 @@ import {
   MemberLoginInput,
   UpdateMemberPasswordInput,
   UpdateMemberPasswordInputById,
+  ResetPasswordTokenInput,
 } from './member.type';
 import { MemberService } from './member.service';
 import { Context } from '@/context';
 import { Sale } from '../sale/sale.entity';
 import { MemberStatistics } from '../memberStatistics/memberStatistics.entity';
 import { createAccessToken, hashPassword, verifyPassword } from '@/utils/auth';
-import {
-  EmailInput,
-  IDInput,
-  SuccessResponse,
-  SuccessResult,
-  TokenInput,
-} from '../../graphql/common.type';
+import { EmailInput, IDInput, SuccessResponse, SuccessResult } from '../../graphql/common.type';
 import { userPermission } from '../admin/admin.permission';
 import { MemberWallet } from '../memberWallet/memberWallet.entity';
 import { MemberWalletService } from '../memberWallet/memberWallet.service';
 import _ from 'lodash';
 import { DEFAULT_PASSWORD } from '@/consts';
 import { SaleService } from '../sale/sale.service';
+import { MailerService } from '@/service/mailer';
 
 @Service()
 @Resolver(() => Member)
@@ -53,7 +49,9 @@ export class MemberResolver {
   constructor(
     private readonly service: MemberService,
     private readonly memberWalletService: MemberWalletService,
-    private readonly saleService: SaleService
+    private readonly saleService: SaleService,
+    @Inject(() => MailerService)
+    private readonly mailerService: MailerService
   ) {}
 
   @Authorized([UserRole.Admin])
@@ -225,23 +223,28 @@ export class MemberResolver {
   }
 
   @Mutation(() => SuccessResponse)
-  async resetPasswordRequest(@Arg('data') data: IDInput): Promise<SuccessResponse> {
-    const { token } = await this.service.generateResetTokenById(data);
+  async resetPasswordRequest(@Arg('data') data: EmailInput): Promise<SuccessResponse> {
+    const { token, email, fullName } = await this.service.generateResetTokenByEmail(data);
     if (token) {
+      await this.mailerService.sendForgetpasswordLink(
+        email,
+        fullName,
+        `${process.env.MEMBER_URL}/forgot-password?token=${token}`
+      );
       return {
         result: SuccessResult.success,
-        message: `${process.env.MEMBER_URL}/resetpassword?token=${token}`,
+        message: `${process.env.MEMBER_URL}/forgot-password?token=${token}`,
       };
     } else {
       return {
         result: SuccessResult.failed,
-        message: 'creating token failed',
+        message: 'Creating token failed',
       };
     }
   }
 
   @Mutation(() => SuccessResponse)
-  async resetPasswordByToken(@Arg('data') data: TokenInput): Promise<SuccessResponse> {
+  async resetPasswordByToken(@Arg('data') data: ResetPasswordTokenInput): Promise<SuccessResponse> {
     await this.service.resetPasswordByToken(data);
     return {
       result: SuccessResult.success,

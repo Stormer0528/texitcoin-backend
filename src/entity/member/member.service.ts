@@ -2,10 +2,14 @@ import { Service, Inject } from 'typedi';
 
 import { PrismaService } from '@/service/prisma';
 
-import { CreateMemberInput, UpdateMemberInput, MemberQueryArgs } from './member.type';
-import { Prisma } from '@prisma/client';
-import { IDInput, TokenInput } from '@/graphql/common.type';
-import { createAccessToken, createResetPasswordToken, hashPassword } from '@/utils/auth';
+import {
+  CreateMemberInput,
+  UpdateMemberInput,
+  MemberQueryArgs,
+  ResetPasswordTokenInput,
+} from './member.type';
+import { EmailInput } from '@/graphql/common.type';
+import { createResetPasswordToken, hashPassword } from '@/utils/auth';
 import { DEFAULT_PASSWORD } from '@/consts';
 
 @Service()
@@ -95,11 +99,11 @@ export class MemberService {
     });
   }
 
-  async generateResetTokenById(data: IDInput) {
+  async generateResetTokenByEmail(data: EmailInput) {
     const token = createResetPasswordToken();
     return this.prisma.member.update({
       where: {
-        id: data.id,
+        email: data.email,
       },
       data: {
         token,
@@ -107,14 +111,15 @@ export class MemberService {
     });
   }
 
-  async resetPasswordByToken(data: TokenInput) {
-    const hashedPassword = await hashPassword(DEFAULT_PASSWORD);
+  async resetPasswordByToken(data: ResetPasswordTokenInput) {
+    const hashedPassword = await hashPassword(data.password);
     return this.prisma.member.update({
       where: {
         token: data.token,
       },
       data: {
         password: hashedPassword,
+        token: null,
       },
     });
   }

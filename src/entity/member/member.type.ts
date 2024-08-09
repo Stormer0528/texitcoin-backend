@@ -137,3 +137,12 @@ export class MemberLoginResponse {
   @Field()
   accessToken: string;
 }
+
+@InputType()
+export class ResetPasswordTokenInput {
+  @Field()
+  token: string;
+
+  @Field()
+  password: string;
+}

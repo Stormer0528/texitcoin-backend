@@ -62,7 +62,7 @@ export class MailerService {
     if (isEmail(to) && isEmail(SMTP_SENDER_EMAIL)) {
       const mailOption = {
         from: `"${SMTP_SENDER_NAME}" <${SMTP_SENDER_EMAIL}>`,
-        to: to,
+        to,
         subject: 'Reset Your Password',
         template: 'resetpassword',
         context: {
