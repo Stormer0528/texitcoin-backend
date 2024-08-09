@@ -237,7 +237,6 @@ export class MemberResolver {
       );
       return {
         result: SuccessResult.success,
-        message: `${process.env.MEMBER_URL}/reset-password?token=${token}`,
       };
     } else {
       return {
