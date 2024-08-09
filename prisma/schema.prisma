@@ -33,7 +33,7 @@ model Member {
   fullName         String  @db.VarChar
   sponsorId        String? @db.VarChar
   userId           Int     @unique(map: "index_members_on_userId") @db.Integer
-  email            String  @db.VarChar
+  email            String  @unique(map: "index_members_on_email") @db.VarChar
   mobile           String  @db.VarChar
   assetId          String  @unique(map: "index_members_on_assetId") @db.VarChar
   primaryAddress   String  @db.VarChar
