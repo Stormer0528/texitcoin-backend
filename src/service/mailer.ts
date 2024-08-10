@@ -1,6 +1,6 @@
+import path from 'path';
 import { Service } from 'typedi';
 import nodemailer, { SendMailOptions, Transporter } from 'nodemailer';
-import path from 'path';
 import hbs from 'nodemailer-express-handlebars';
 import { isEmail } from 'class-validator';
 
@@ -49,13 +49,8 @@ export class MailerService {
     );
   }
 
-  public sendMail(mailOption: SendMailOptions) {
-    this.transporter.sendMail(mailOption, (err: Error | null, info: any) => {
-      if (err) {
-        return console.log('Error:', err);
-      }
-      console.log('Message sent:', info.messageId);
-    });
+  public async sendMail(mailOption: SendMailOptions) {
+    return this.transporter.sendMail(mailOption);
   }
 
   public async sendForgetpasswordLink(to: string, name: string, resetLink: string) {
@@ -70,7 +65,10 @@ export class MailerService {
           resetLink,
         },
       };
-      this.sendMail(mailOption);
+      const sentMailInfo = await this.sendMail(mailOption);
+      console.log(
+        `Email was sent to ${to}, Type => Reset Password, Message ID => ${sentMailInfo.messageId}`
+      );
     }
   }
 }
