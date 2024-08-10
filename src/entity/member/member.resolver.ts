@@ -206,7 +206,7 @@ export class MemberResolver {
 
   @Mutation(() => MemberLoginResponse)
   async memberLogin(@Arg('data') data: MemberLoginInput): Promise<MemberLoginResponse> {
-    const member = await this.service.getMemberByEmail(data.email);
+    const member = await this.service.getMemberByEmail(data.email.toLowerCase());
 
     if (!member) {
       throw new Error('Invalid credentials are provided');
