@@ -59,7 +59,7 @@ const app = async () => {
   });
 
   const { url } = await startStandaloneServer<Context>(server, {
-    listen: { host: '0.0.0.0', port: 4000 },
+    listen: { host: process.env.APP_HOST ?? '0.0.0.0', port: +process.env.APP_PORT ?? 4000 },
     context,
   });
 
