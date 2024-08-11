@@ -146,3 +146,13 @@ export class ResetPasswordTokenInput {
   @Field()
   password: string;
 }
+
+@ObjectType()
+export class VerifyTokenResponse {
+  @Field()
+  @IsEmail()
+  email: string;
+
+  @Field()
+  token: string;
+}

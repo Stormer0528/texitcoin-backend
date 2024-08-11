@@ -7,10 +7,10 @@ import {
   UpdateMemberInput,
   MemberQueryArgs,
   ResetPasswordTokenInput,
+  VerifyTokenResponse,
 } from './member.type';
-import { EmailInput } from '@/graphql/common.type';
+import { EmailInput, TokenInput } from '@/graphql/common.type';
 import { createResetPasswordToken, hashPassword } from '@/utils/auth';
-import { DEFAULT_PASSWORD } from '@/consts';
 
 @Service()
 export class MemberService {
@@ -120,6 +120,21 @@ export class MemberService {
       data: {
         password: hashedPassword,
         token: null,
+      },
+    });
+  }
+
+  async verifyAndUpdateToken(data: TokenInput): Promise<VerifyTokenResponse> {
+    return this.prisma.member.update({
+      where: {
+        token: data.token,
+      },
+      data: {
+        token: createResetPasswordToken(),
+      },
+      select: {
+        email: true,
+        token: true,
       },
     });
   }

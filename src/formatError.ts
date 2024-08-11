@@ -39,5 +39,7 @@ export const formatError = (formattedError: GraphQLFormattedError, error: unknow
       return checkForeignKeyError(originalError.meta);
     }
   }
-  return formattedError;
+  return {
+    message: formattedError.message,
+  };
 };

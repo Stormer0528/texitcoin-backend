@@ -28,13 +28,20 @@ import {
   UpdateMemberPasswordInput,
   UpdateMemberPasswordInputById,
   ResetPasswordTokenInput,
+  VerifyTokenResponse,
 } from './member.type';
 import { MemberService } from './member.service';
 import { Context } from '@/context';
 import { Sale } from '../sale/sale.entity';
 import { MemberStatistics } from '../memberStatistics/memberStatistics.entity';
 import { createAccessToken, hashPassword, verifyPassword } from '@/utils/auth';
-import { EmailInput, IDInput, SuccessResponse, SuccessResult } from '../../graphql/common.type';
+import {
+  EmailInput,
+  IDInput,
+  SuccessResponse,
+  SuccessResult,
+  TokenInput,
+} from '../../graphql/common.type';
 import { userPermission } from '../admin/admin.permission';
 import { MemberWallet } from '../memberWallet/memberWallet.entity';
 import { MemberWalletService } from '../memberWallet/memberWallet.service';
@@ -252,5 +259,16 @@ export class MemberResolver {
     return {
       result: SuccessResult.success,
     };
+  }
+
+  @Mutation(() => VerifyTokenResponse)
+  async resetTokenVerify(@Arg('data') data: TokenInput): Promise<VerifyTokenResponse> {
+    try {
+      const member = await this.service.verifyAndUpdateToken(data);
+      if (member) return member;
+      else throw new Error('Invalid token');
+    } catch (err) {
+      throw new Error('Invalid token');
+    }
   }
 }
