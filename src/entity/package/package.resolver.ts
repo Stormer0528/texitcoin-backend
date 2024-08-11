@@ -25,7 +25,7 @@ import {
 } from './package.type';
 import { Context } from '@/context';
 import { Sale } from '../sale/sale.entity';
-import { IDInput } from '@/graphql/common.type';
+import { IDInput, SuccessResponse, SuccessResult } from '@/graphql/common.type';
 
 @Service()
 @Resolver(() => Package)
@@ -74,9 +74,12 @@ export class PackageResolver {
   }
 
   @Authorized([UserRole.Admin])
-  @Mutation(() => Package)
-  async removePackage(@Arg('data') data: IDInput): Promise<Package> {
-    return this.service.removePackage(data);
+  @Mutation(() => SuccessResponse)
+  async removePackage(@Arg('data') data: IDInput): Promise<SuccessResponse> {
+    await this.service.removePackage(data);
+    return {
+      result: SuccessResult.success,
+    };
   }
 
   @FieldResolver({ nullable: 'itemsAndList' })
