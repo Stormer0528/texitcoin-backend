@@ -63,8 +63,11 @@ export class CreateStatisticsInput {
 
 @InputType()
 export class ConfirmStatistics {
-  @Field()
+  @Field(() => ID)
   id: string;
+
+  @Field(() => ID)
+  transactionId: string;
 }
 
 @ObjectType()
@@ -91,4 +94,7 @@ export class UpdateStatisticsInput {
 
   @Field({ nullable: true })
   status?: boolean;
+
+  @Field(() => ID, { nullable: true })
+  transactionId?: string;
 }

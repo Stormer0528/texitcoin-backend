@@ -38,6 +38,9 @@ export class Statistics extends BaseEntity {
   @Field()
   to: Date;
 
+  @Field(() => ID, { nullable: true })
+  transactionId: string;
+
   @Field(() => [MemberStatistics], { nullable: 'itemsAndList' })
   memberStatistics?: MemberStatistics[];
 

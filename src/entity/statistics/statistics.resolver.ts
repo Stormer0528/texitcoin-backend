@@ -23,6 +23,7 @@ import {
   CreateStatisticsInput,
   UpdateStatisticsInput,
   CreateStatisticsMemberStatisticsInput,
+  ConfirmStatistics,
 } from './statistics.type';
 import { StatisticsService } from './statistics.service';
 import { Context } from '@/context';
@@ -159,10 +160,11 @@ export class StatisticsResolver {
 
   @Authorized([UserRole.Admin])
   @Mutation(() => Statistics)
-  async confirmStatistics(@Arg('data') data: IDInput): Promise<Statistics> {
+  async confirmStatistics(@Arg('data') data: ConfirmStatistics): Promise<Statistics> {
     const statistic = await this.statisticsService.updateStatistics({
       id: data.id,
       status: true,
+      transactionId: data.transactionId,
     });
     await this.memberStatisticsWalletService.createMemberStatisticsWalletByStatistic(statistic);
     return statistic;
