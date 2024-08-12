@@ -34,6 +34,11 @@ export const uniqueErrors = [
     path: ['assetId'],
     message: 'AssetId already exists',
   },
+  {
+    modelName: 'Statistics',
+    path: ['transactionId'],
+    message: 'TransactionId already exists',
+  },
 ];
 
 export const foreignKeyErrors = [
