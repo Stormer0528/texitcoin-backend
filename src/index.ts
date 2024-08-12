@@ -6,6 +6,8 @@ import { GraphQLScalarType } from 'graphql';
 import { DateTimeResolver } from 'graphql-scalars';
 import * as tq from 'type-graphql';
 import { Container } from 'typedi';
+import express from 'express';
+import { expressMiddleware } from '@apollo/server/express4';
 
 import { authChecker } from './authChecker';
 import { Context, context } from './context';
@@ -24,6 +26,7 @@ import { StatisticsSaleResolver } from './entity/statisticsSale/statisticsSale.r
 import { AdminResolver } from './entity/admin/admin.resolver';
 import { MemberWalletResolver } from './entity/memberWallet/memberWallet.resolver';
 import { MemberStatisticsWalletResolver } from './entity/memberStatisticsWallet/memberStatisticsWallet.resolver';
+import { AddressInfo } from 'net';
 
 // import "./env";
 
@@ -53,17 +56,26 @@ const app = async () => {
     container: Container,
   });
 
-  const server = new ApolloServer<Context>({
+  const apolloServer = new ApolloServer<Context>({
     schema,
     formatError,
   });
+  await apolloServer.start();
 
-  const { url } = await startStandaloneServer<Context>(server, {
-    listen: { host: process.env.APP_HOST ?? '0.0.0.0', port: +process.env.APP_PORT ?? 4000 },
-    context,
+  const mainServer = express();
+  mainServer.use(
+    '/graphql',
+    express.json(),
+    expressMiddleware(apolloServer, {
+      context,
+    })
+  );
+
+  const APP_HOST = process.env.APP_HOST ?? '0.0.0.0';
+  const APP_PORT = +process.env.APP_PORT ?? 4000;
+  mainServer.listen(APP_PORT, APP_HOST, () => {
+    console.log(`🚀 Server ready at: ${APP_HOST}:${APP_PORT}`);
   });
-
-  console.log(`🚀 Server ready at: ${url}`);
 };
 
 app();
