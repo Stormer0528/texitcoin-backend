@@ -90,6 +90,7 @@ model Statistics {
   totalMembers   Int?
   status         Boolean @default(true)
   txcShared      BigInt  @default(0)
+  transactionId  String? @unique(map: "index_statistics_on_transactionId")
 
   issuedAt DateTime @default(now())
   from     DateTime
