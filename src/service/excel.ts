@@ -13,9 +13,20 @@ const styles = {
       bold: true,
     },
   },
-  cellVTop: {
+  cellVTopNumber: {
     alignment: {
       vertical: 'top',
+    },
+    numberFormat: {
+      numFmt: '0',
+    },
+  },
+  cellVTopDate: {
+    alignment: {
+      vertical: 'top',
+    },
+    dateFormat: {
+      numFmt: 'mm/dd/yyyy',
     },
   },
 };
@@ -294,21 +305,25 @@ export class ExcelService {
       totalHashPower: {
         displayName: 'totalHashPower',
         headerStyle: styles.headerNormal,
+        cellStyle: styles.cellVTopNumber,
         width: 120,
       },
       totalMembers: {
         displayName: 'totalMembers',
         headerStyle: styles.headerNormal,
+        cellStyle: styles.cellVTopNumber,
         width: 120,
       },
       txcShared: {
         displayName: 'txcShared',
         headerStyle: styles.headerNormal,
+        cellStyle: styles.cellVTopNumber,
         width: 100,
       },
       issuedAt: {
         displayName: 'issuedAt',
         headerStyle: styles.headerNormal,
+        cellStyle: styles.cellVTopDate,
         width: 100,
       },
       memberName: {
