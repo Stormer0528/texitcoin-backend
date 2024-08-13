@@ -161,6 +161,9 @@ export class StatisticsResolver {
   @Authorized([UserRole.Admin])
   @Mutation(() => Statistics)
   async confirmStatistics(@Arg('data') data: ConfirmStatistics): Promise<Statistics> {
+    if (!data.transactionId) {
+      throw new Error('Transaction ID is required');
+    }
     const statistic = await this.statisticsService.updateStatistics({
       id: data.id,
       status: true,
