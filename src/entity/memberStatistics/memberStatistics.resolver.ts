@@ -43,7 +43,6 @@ export class MemberStatisticsResolver {
     private readonly memberService: MemberService
   ) {}
 
-  @Authorized()
   @Query(() => MemberStatisticsResponse)
   async memberStatistics(
     @Ctx() ctx: Context,
