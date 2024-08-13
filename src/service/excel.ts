@@ -294,25 +294,21 @@ export class ExcelService {
       totalHashPower: {
         displayName: 'totalHashPower',
         headerStyle: styles.headerNormal,
-        cellStyle: styles.cellVTop,
         width: 120,
       },
       totalMembers: {
         displayName: 'totalMembers',
         headerStyle: styles.headerNormal,
-        cellStyle: styles.cellVTop,
         width: 120,
       },
       txcShared: {
         displayName: 'txcShared',
         headerStyle: styles.headerNormal,
-        cellStyle: styles.cellVTop,
         width: 100,
       },
       issuedAt: {
         displayName: 'issuedAt',
         headerStyle: styles.headerNormal,
-        cellStyle: styles.cellVTop,
         width: 100,
       },
       memberName: {
