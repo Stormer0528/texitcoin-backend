@@ -61,7 +61,7 @@ export class MemberResolver {
     private readonly mailerService: MailerService
   ) {}
 
-  @Authorized([UserRole.Admin])
+  @Authorized()
   @Query(() => MembersResponse)
   async members(
     @Args() query: MemberQueryArgs,
