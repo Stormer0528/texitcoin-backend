@@ -7,6 +7,7 @@ import { GraphQLScalarType } from 'graphql';
 import { DateTimeResolver } from 'graphql-scalars';
 import * as tq from 'type-graphql';
 import { Container } from 'typedi';
+import cors from 'cors';
 
 import { authChecker } from './authChecker';
 import { Context, context } from './context';
@@ -63,6 +64,11 @@ const app = async () => {
   await apolloServer.start();
 
   const mainServer = express();
+  mainServer.use(
+    cors<cors.CorsRequest>({
+      origin: [process.env.ADMIN_URL, process.env.MEMBER_URL],
+    })
+  );
   mainServer.use(
     '/graphql',
     express.json(),
