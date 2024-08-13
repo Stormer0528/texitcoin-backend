@@ -26,6 +26,7 @@ import { AdminResolver } from './entity/admin/admin.resolver';
 import { MemberWalletResolver } from './entity/memberWallet/memberWallet.resolver';
 import { MemberStatisticsWalletResolver } from './entity/memberStatisticsWallet/memberStatisticsWallet.resolver';
 import router from './routes';
+import { adminAuthorized } from './middlewares/adminAuthorized.middleware';
 
 // import "./env";
 
@@ -69,7 +70,7 @@ const app = async () => {
       context,
     })
   );
-  mainServer.use('/api', router);
+  mainServer.use('/api', adminAuthorized, router);
 
   const APP_HOST = process.env.APP_HOST ?? '0.0.0.0';
   const APP_PORT = +process.env.APP_PORT ?? 4000;
