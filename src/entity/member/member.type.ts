@@ -56,6 +56,9 @@ export class CreateMemberInput {
   @Field(() => ID, { nullable: true })
   sponsorId?: string;
 
+  @Field(() => ID, { nullable: true })
+  placementParentId?: string;
+
   @Field(() => [MemberWalletDataInput])
   wallets: MemberWalletDataInput[];
 }
@@ -98,6 +101,9 @@ export class UpdateMemberInput {
 
   @Field({ nullable: true })
   zipCode?: string;
+
+  @Field(() => ID, { nullable: true })
+  placementParentId?: string;
 
   @Field(() => [MemberWalletDataInput], { nullable: 'itemsAndList' })
   wallets?: MemberWalletDataInput[];

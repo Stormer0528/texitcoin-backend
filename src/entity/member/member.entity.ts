@@ -48,6 +48,9 @@ export class Member extends BaseEntity {
   @Field({ nullable: true })
   zipCode?: string;
 
+  @Field(() => ID, { nullable: true })
+  placementParentId?: string;
+
   @Field(() => [Sale], { nullable: 'itemsAndList' })
   sales?: Sale[];
 
@@ -62,4 +65,10 @@ export class Member extends BaseEntity {
 
   @Field(() => [MemberWallet], { nullable: 'itemsAndList' })
   memberWallets?: MemberWallet[];
+
+  @Field(() => Member, { nullable: true })
+  placementParent?: Member;
+
+  @Field(() => [Member], { nullable: 'itemsAndList' })
+  placementChildren?: Member[];
 }
