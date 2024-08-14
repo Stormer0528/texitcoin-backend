@@ -65,9 +65,11 @@ const app = async () => {
 
   const mainServer = express();
   mainServer.use(
-    cors<cors.CorsRequest>({
-      origin: [process.env.ADMIN_URL, process.env.MEMBER_URL],
-    })
+    process.env.SERVER_TYPE === 'production'
+      ? cors<cors.CorsRequest>({
+          origin: [process.env.ADMIN_URL, process.env.MEMBER_URL],
+        })
+      : cors()
   );
   mainServer.use(
     '/graphql',
