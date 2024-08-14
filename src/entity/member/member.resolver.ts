@@ -172,6 +172,16 @@ export class MemberResolver {
     return ctx.dataLoader.get('memberWalletsForMemberLoader').load(member.id);
   }
 
+  @FieldResolver({ nullable: true })
+  async placementParent(@Root() member: Member, @Ctx() ctx: Context): Promise<Member> {
+    return ctx.dataLoader.get('placementParentForMemberLoader').load(member.placementParentId);
+  }
+
+  @FieldResolver({ nullable: 'itemsAndList' })
+  async placementChildren(@Root() member: Member, @Ctx() ctx: Context): Promise<Member[]> {
+    return ctx.dataLoader.get('placementChildrenForMemberLoader').load(member.id);
+  }
+
   @Authorized()
   @Query(() => Member)
   async memberMe(@Ctx() ctx: Context): Promise<Member> {

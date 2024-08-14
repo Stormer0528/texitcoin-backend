@@ -117,3 +117,46 @@ export const introduceMembersForMemberLoader = (parent: RootDataLoader) => {
     }
   );
 };
+
+export const placementParentForMemberLoader = (parent: RootDataLoader) => {
+  return new DataLoader<string, Member>(
+    async (placementParentIds: string[]) => {
+      const uniquePlacementParentIds = [...new Set(placementParentIds)];
+      const parents = await parent.prisma.member.findMany({
+        where: { id: { in: uniquePlacementParentIds } },
+      });
+
+      const parentMap: Record<string, Member> = {};
+      parents.forEach((parent) => {
+        parentMap[parent.id] = parent;
+      });
+
+      return uniquePlacementParentIds.map((id) => parentMap[id]);
+    },
+    {
+      ...parent.dataLoaderOptions,
+    }
+  );
+};
+
+export const placementChildrenForMemberLoader = (parent: RootDataLoader) => {
+  return new DataLoader<string, Member[]>(
+    async (memberIds: string[]) => {
+      const children = await parent.prisma.member.findMany({
+        where: { placementParentId: { in: memberIds } },
+      });
+
+      const childrenMap: Record<string, Member[]> = {};
+
+      children.forEach((child) => {
+        if (!childrenMap[child.sponsorId]) childrenMap[child.sponsorId] = [];
+        childrenMap[child.sponsorId].push(child);
+      });
+
+      return memberIds.map((id) => childrenMap[id] ?? []);
+    },
+    {
+      ...parent.dataLoaderOptions,
+    }
+  );
+};
