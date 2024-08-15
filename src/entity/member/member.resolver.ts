@@ -134,12 +134,34 @@ export class MemberResolver {
       orderBy: [],
       parsePage: {},
     });
+    const placementChildrenCount = await this.service.getMembersCount({
+      where: {
+        placementParentId: data.id,
+      },
+    });
+
     if (!salesCnt) {
       throw new Error('There is a reward of this member');
+    }
+    if (!placementChildrenCount) {
+      throw new Error('There are placement children');
     }
 
     await this.memberWalletService.removeMemberWalletsByMemberId(data);
     await this.service.removeMember(data.id);
+    return {
+      result: SuccessResult.success,
+    };
+  }
+
+  @Authorized([UserRole.Admin])
+  @Mutation(() => SuccessResponse)
+  async removeCompleteMemberPlacement(@Arg('data') data: IDInput): Promise<SuccessResponse> {
+    const placements = await this.service.getAllPlacementAncestorsById(data.id);
+    await this.service.updateManyMember(
+      { id: { in: placements.map((pmnt) => pmnt.id) } },
+      { placementParentId: null }
+    );
     return {
       result: SuccessResult.success,
     };

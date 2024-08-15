@@ -11,6 +11,8 @@ import {
 } from './member.type';
 import { EmailInput, TokenInput } from '@/graphql/common.type';
 import { createResetPasswordToken, hashPassword } from '@/utils/auth';
+import { Prisma } from '@prisma/client';
+import { Member } from './member.entity';
 
 @Service()
 export class MemberService {
@@ -54,6 +56,24 @@ export class MemberService {
     });
   }
 
+  async getAllPlacementAncestorsById(id: string | null) {
+    const res: Member[] = [];
+    let previousIDs: string[] = [id];
+    while (true) {
+      const children = await this.prisma.member.findMany({
+        where: {
+          placementParentId: {
+            in: previousIDs,
+          },
+        },
+      });
+      if (!children.length) break;
+      res.push(...children);
+      previousIDs = children.map((child) => child.id);
+    }
+    return res;
+  }
+
   async getMemberByUsername(username: string) {
     return this.prisma.member.findUnique({
       where: {
@@ -79,6 +99,13 @@ export class MemberService {
   async updateMember({ id, ...data }: UpdateMemberInput & { password?: string }) {
     return this.prisma.member.update({
       where: { id },
+      data,
+    });
+  }
+
+  async updateManyMember(where: Prisma.MemberWhereInput, data: UpdateMemberInput) {
+    return this.prisma.member.updateMany({
+      where,
       data,
     });
   }
