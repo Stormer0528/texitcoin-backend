@@ -196,7 +196,9 @@ export class MemberResolver {
 
   @FieldResolver({ nullable: true })
   async placementParent(@Root() member: Member, @Ctx() ctx: Context): Promise<Member> {
-    return ctx.dataLoader.get('placementParentForMemberLoader').load(member.placementParentId);
+    return member.placementParentId
+      ? ctx.dataLoader.get('placementParentForMemberLoader').load(member.placementParentId)
+      : null;
   }
 
   @FieldResolver({ nullable: 'itemsAndList' })
