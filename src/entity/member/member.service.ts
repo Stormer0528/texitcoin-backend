@@ -56,8 +56,8 @@ export class MemberService {
     });
   }
 
-  async getAllPlacementAncestorsById(id: string | null) {
-    const res: Member[] = [];
+  async getAllPlacementAncestorsById(id: string) {
+    const res: Member[] = [await this.prisma.member.findUnique({ where: { id } })];
     let previousIDs: string[] = [id];
     while (true) {
       const children = await this.prisma.member.findMany({
