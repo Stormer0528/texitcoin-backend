@@ -60,6 +60,7 @@ const app = async () => {
   const apolloServer = new ApolloServer<Context>({
     schema,
     formatError,
+    introspection: process.env.SERVER_TYPE !== 'production',
   });
   await apolloServer.start();
 
