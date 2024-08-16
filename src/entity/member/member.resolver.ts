@@ -116,10 +116,12 @@ export class MemberResolver {
     if (data.email) newData.email = data.email.toLowerCase();
 
     const member = await this.service.updateMember(newData);
-    await this.memberWalletService.updateManyMemberWallet({
-      memberId: data.id ?? ctx.user.id,
-      wallets: data.wallets,
-    });
+    if (data.wallets) {
+      await this.memberWalletService.updateManyMemberWallet({
+        memberId: data.id ?? ctx.user.id,
+        wallets: data.wallets,
+      });
+    }
 
     return member;
   }
