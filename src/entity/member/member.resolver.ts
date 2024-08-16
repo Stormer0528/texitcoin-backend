@@ -129,7 +129,7 @@ export class MemberResolver {
   @Authorized([UserRole.Admin])
   @Mutation(() => SuccessResponse)
   async removeMember(@Arg('data') data: IDInput): Promise<SuccessResponse> {
-    const salesCnt = this.saleService.getSalesCount({
+    const salesCnt = await this.saleService.getSalesCount({
       where: {
         memberId: data.id,
       },
@@ -143,10 +143,10 @@ export class MemberResolver {
     });
 
     if (salesCnt) {
-      throw new Error('There is a reward of this member');
+      throw new Error(`There are sales of this member`);
     }
     if (placementChildrenCount) {
-      throw new Error('There are placement children');
+      throw new Error(`There are placement children`);
     }
 
     await this.memberWalletService.removeMemberWalletsByMemberId(data);
