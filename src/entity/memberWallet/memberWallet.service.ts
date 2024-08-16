@@ -1,14 +1,15 @@
 import { Service, Inject } from 'typedi';
+import Bluebird from 'bluebird';
 
+import { PERCENT } from '@/consts/db';
 import { PrismaService } from '@/service/prisma';
+
+import { IDInput } from '@/graphql/common.type';
 import {
   CreateMemberWalletInput,
   MemberWalletQueryArgs,
   UpdateMemberWalletInput,
 } from './memberWallet.type';
-import Bluebird from 'bluebird';
-import { PERCENT } from '@/consts/db';
-import { IDInput } from '@/graphql/common.type';
 
 @Service()
 export class MemberWalletService {

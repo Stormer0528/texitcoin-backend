@@ -1,15 +1,7 @@
-import { Member, Prisma, PrismaClient, Sale, Statistics } from '@prisma/client';
-
-import { processStatistics } from '../utils/processData';
-import dayjs from 'dayjs';
-import { getMembers, getSales } from '@/utils/connectMlm';
+import { Prisma, PrismaClient, Statistics } from '@prisma/client';
 import Bluebird from 'bluebird';
-import { SaleSearchResult } from '@/type';
-import { formatDate } from '@/utils/common';
-import { hashPassword } from '@/utils/auth';
-import { payoutData } from 'prisma/seed/payout';
-import crypto from 'crypto';
-import { PERCENT, TXC } from '@/consts/db';
+
+import { PERCENT } from '@/consts/db';
 
 const prisma = new PrismaClient();
 

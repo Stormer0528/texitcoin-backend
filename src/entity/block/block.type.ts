@@ -1,8 +1,8 @@
 import { Prisma } from '@prisma/client';
-import { ObjectType, InputType, Field, ArgsType, ID, Authorized, Int } from 'type-graphql';
+import { ObjectType, InputType, Field, ArgsType } from 'type-graphql';
 
-import { PaginatedResponse } from '@/graphql/paginatedResponse';
 import { QueryArgsBase } from '@/graphql/queryArgs';
+import { PaginatedResponse } from '@/graphql/paginatedResponse';
 
 import { Block } from '@/entity/block/block.entity';
 

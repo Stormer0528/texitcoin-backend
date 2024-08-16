@@ -2,8 +2,8 @@ import { Service, Inject } from 'typedi';
 
 import { PrismaService } from '@/service/prisma';
 
-import { CreateSaleInput, SaleQueryArgs, UpdateSaleInput } from './sale.type';
 import { IDInput } from '@/graphql/common.type';
+import { CreateSaleInput, SaleQueryArgs, UpdateSaleInput } from './sale.type';
 
 @Service()
 export class SaleService {

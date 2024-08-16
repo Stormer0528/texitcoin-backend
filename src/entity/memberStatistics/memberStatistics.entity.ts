@@ -1,6 +1,7 @@
 import { ObjectType, Field, ID } from 'type-graphql';
 
 import { BaseEntity } from '@/graphql/baseEntity';
+
 import { Member } from '../member/member.entity';
 import { Statistics } from '../statistics/statistics.entity';
 import { MemberStatisticsWallet } from '../memberStatisticsWallet/memberStatisticsWallet.entity';

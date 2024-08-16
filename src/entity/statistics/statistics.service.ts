@@ -1,9 +1,9 @@
+import { Prisma } from '@prisma/client';
 import { Service, Inject } from 'typedi';
 
 import { PrismaService } from '@/service/prisma';
 
 import { StatisticsQueryArgs, UpdateStatisticsInput } from './statistics.type';
-import { Prisma } from '@prisma/client';
 
 @Service()
 export class StatisticsService {

@@ -1,8 +1,9 @@
 import { Service, Inject } from 'typedi';
 
 import { PrismaService } from '@/service/prisma';
-import { CreatePackageInput, PackageQueryArgs, UpdatePackageInput } from './package.type';
+
 import { IDInput } from '@/graphql/common.type';
+import { CreatePackageInput, PackageQueryArgs, UpdatePackageInput } from './package.type';
 
 @Service()
 export class PackageService {

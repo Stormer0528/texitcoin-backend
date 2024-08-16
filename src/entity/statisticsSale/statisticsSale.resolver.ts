@@ -15,19 +15,19 @@ import graphqlFields from 'graphql-fields';
 import { GraphQLResolveInfo } from 'graphql';
 
 import { UserRole } from '@/type';
+import { Context } from '@/context';
 
-import { StatisticsSale } from './statisticsSale.entity';
+import { IDInput, IDsInput, ManySuccessResponse } from '../../graphql/common.type';
 import {
   StatisticsSaleResponse,
   StatisticsSaleQueryArgs,
   CreateStatisticsSaleInput,
   CreateManyStatisticsSaleInput,
 } from './statisticsSale.type';
-import { StatisticsSaleService } from './statisticsSale.service';
-import { Context } from '@/context';
+import { StatisticsSale } from './statisticsSale.entity';
 import { Statistics } from '../statistics/statistics.entity';
 import { Sale } from '../sale/sale.entity';
-import { IDInput, IDsInput, ManySuccessResponse } from '../../graphql/common.type';
+import { StatisticsSaleService } from './statisticsSale.service';
 
 @Service()
 @Resolver(() => StatisticsSale)

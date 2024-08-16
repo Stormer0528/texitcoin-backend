@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { Inject, Service } from 'typedi';
 import {
   Arg,
@@ -15,9 +16,19 @@ import {
 import graphqlFields from 'graphql-fields';
 import { GraphQLResolveInfo } from 'graphql';
 
+import { DEFAULT_PASSWORD } from '@/consts';
 import { UserRole } from '@/type';
+import { Context } from '@/context';
+import { createAccessToken, hashPassword, verifyPassword } from '@/utils/auth';
+import { MailerService } from '@/service/mailer';
 
-import { Member } from './member.entity';
+import {
+  EmailInput,
+  IDInput,
+  SuccessResponse,
+  SuccessResult,
+  TokenInput,
+} from '../../graphql/common.type';
 import {
   MembersResponse,
   MemberQueryArgs,
@@ -30,25 +41,14 @@ import {
   ResetPasswordTokenInput,
   VerifyTokenResponse,
 } from './member.type';
-import { MemberService } from './member.service';
-import { Context } from '@/context';
+import { Member } from './member.entity';
 import { Sale } from '../sale/sale.entity';
 import { MemberStatistics } from '../memberStatistics/memberStatistics.entity';
-import { createAccessToken, hashPassword, verifyPassword } from '@/utils/auth';
-import {
-  EmailInput,
-  IDInput,
-  SuccessResponse,
-  SuccessResult,
-  TokenInput,
-} from '../../graphql/common.type';
-import { userPermission } from '../admin/admin.permission';
 import { MemberWallet } from '../memberWallet/memberWallet.entity';
+import { MemberService } from './member.service';
 import { MemberWalletService } from '../memberWallet/memberWallet.service';
-import _ from 'lodash';
-import { DEFAULT_PASSWORD } from '@/consts';
 import { SaleService } from '../sale/sale.service';
-import { MailerService } from '@/service/mailer';
+import { userPermission } from '../admin/admin.permission';
 
 @Service()
 @Resolver(() => Member)

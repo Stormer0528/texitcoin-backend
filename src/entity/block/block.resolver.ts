@@ -1,12 +1,12 @@
 import { Service } from 'typedi';
-import { Arg, Args, Resolver, Query, Mutation, Authorized, Ctx, Info } from 'type-graphql';
+import { Arg, Args, Resolver, Query, Mutation, Authorized, Info } from 'type-graphql';
 import graphqlFields from 'graphql-fields';
 import { GraphQLResolveInfo } from 'graphql';
 
 import { UserRole } from '@/type';
 
-import { Block } from './block.entity';
 import { BlocksResponse, BlockQueryArgs, CreateBlockInput } from './block.type';
+import { Block } from './block.entity';
 import { BlockService } from './block.service';
 
 @Service()

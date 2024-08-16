@@ -15,12 +15,12 @@ import graphqlFields from 'graphql-fields';
 import { GraphQLResolveInfo } from 'graphql';
 
 import { UserRole } from '@/type';
-import { PayoutService } from './payout.service';
+import { Context } from '@/context';
+
 import { CreatePayoutInput, PayoutQueryArgs, PayoutResponse } from './payout.type';
 import { Payout } from './payout.entity';
-import { Context } from '@/context';
-import { Member } from '../member/member.entity';
 import { MemberWallet } from '../memberWallet/memberWallet.entity';
+import { PayoutService } from './payout.service';
 
 @Service()
 @Resolver(() => Payout)

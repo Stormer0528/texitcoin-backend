@@ -1,9 +1,10 @@
-import { IsEmail, IsUrl } from 'class-validator';
 import type { Prisma } from '@prisma/client';
+import { IsEmail, IsUrl } from 'class-validator';
 import { ObjectType, InputType, Field, ArgsType, ID } from 'type-graphql';
 
-import { PaginatedResponse } from '@/graphql/paginatedResponse';
 import { QueryArgsBase } from '@/graphql/queryArgs';
+import { PaginatedResponse } from '@/graphql/paginatedResponse';
+
 import { Admin } from './admin.entity';
 
 // User Query Args

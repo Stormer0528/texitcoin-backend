@@ -15,17 +15,18 @@ import graphqlFields from 'graphql-fields';
 import { GraphQLResolveInfo } from 'graphql';
 
 import { UserRole } from '@/type';
-import { Package } from './package.entity';
-import { PackageService } from './package.service';
+import { Context } from '@/context';
+
+import { IDInput, SuccessResponse, SuccessResult } from '@/graphql/common.type';
 import {
   CreatePackageInput,
   PackageQueryArgs,
   PackageResponse,
   UpdatePackageInput,
 } from './package.type';
-import { Context } from '@/context';
+import { Package } from './package.entity';
 import { Sale } from '../sale/sale.entity';
-import { IDInput, SuccessResponse, SuccessResult } from '@/graphql/common.type';
+import { PackageService } from './package.service';
 
 @Service()
 @Resolver(() => Package)

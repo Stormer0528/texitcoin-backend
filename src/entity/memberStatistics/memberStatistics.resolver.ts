@@ -16,8 +16,8 @@ import graphqlFields from 'graphql-fields';
 import { GraphQLResolveInfo } from 'graphql';
 
 import { UserRole } from '@/type';
+import { Context } from '@/context';
 
-import { MemberStatistics } from './memberStatistics.entity';
 import {
   MemberStatisticsResponse,
   MemberStatisticsQueryArgs,
@@ -26,13 +26,13 @@ import {
   MemberOverviewInput,
   CreateManyMemberStatisticsInput,
 } from './memberStatistics.type';
-import { MemberStatisticsService } from './memberStatistics.service';
-import { Member } from '../member/member.entity';
-import { Context } from '@/context';
-import { Statistics } from '../statistics/statistics.entity';
-import { MemberService } from '../member/member.service';
 import { IDInput, IDsInput, ManySuccessResponse } from '../../graphql/common.type';
+import { MemberStatistics } from './memberStatistics.entity';
+import { Member } from '../member/member.entity';
+import { Statistics } from '../statistics/statistics.entity';
 import { MemberStatisticsWallet } from '../memberStatisticsWallet/memberStatisticsWallet.entity';
+import { MemberStatisticsService } from './memberStatistics.service';
+import { MemberService } from '../member/member.service';
 import { userPermission } from '../admin/admin.permission';
 
 @Service()

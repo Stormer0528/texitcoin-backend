@@ -3,12 +3,17 @@ import { Arg, Args, Resolver, Query, Mutation, Authorized, Ctx, Info } from 'typ
 import graphqlFields from 'graphql-fields';
 import { GraphQLResolveInfo } from 'graphql';
 
+import { DEFAULT_PASSWORD } from '@/consts';
 import { type Context } from '@/context';
 import { UserRole } from '@/type';
 import { createAccessToken, verifyPassword, hashPassword } from '@/utils/auth';
 
-import { Admin } from './admin.entity';
-import { AdminService } from './admin.service';
+import {
+  IDsInput,
+  ManySuccessResponse,
+  SuccessResponse,
+  SuccessResult,
+} from '@/graphql/common.type';
 import {
   AdminLoginInput,
   AdminLoginResponse,
@@ -19,13 +24,8 @@ import {
   UpdateAdminPasswordByIdInput,
   UpdateAdminPasswordInput,
 } from './admin.type';
-import {
-  IDsInput,
-  ManySuccessResponse,
-  SuccessResponse,
-  SuccessResult,
-} from '@/graphql/common.type';
-import { DEFAULT_PASSWORD } from '@/consts';
+import { Admin } from './admin.entity';
+import { AdminService } from './admin.service';
 
 @Service()
 @Resolver(() => Admin)

@@ -2,9 +2,9 @@ import { ObjectType, Field, ID } from 'type-graphql';
 import { IsEmail } from 'class-validator';
 
 import { BaseEntity } from '@/graphql/baseEntity';
+
 import { Sale } from '@/entity/sale/sale.entity';
 import { MemberStatistics } from '../memberStatistics/memberStatistics.entity';
-import { Payout } from '../payout/payout.entity';
 import { MemberWallet } from '../memberWallet/memberWallet.entity';
 
 @ObjectType()

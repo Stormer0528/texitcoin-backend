@@ -2,7 +2,6 @@ import { ObjectType, Field, ID } from 'type-graphql';
 
 import { BaseEntity } from '@/graphql/baseEntity';
 
-import { Sale } from '@/entity/sale/sale.entity';
 import { MemberStatistics } from '../memberStatistics/memberStatistics.entity';
 import { StatisticsSale } from '../statisticsSale/statisticsSale.entity';
 

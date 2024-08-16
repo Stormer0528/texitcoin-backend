@@ -1,13 +1,12 @@
 import { Service } from 'typedi';
-import { Arg, Args, Resolver, Query } from 'type-graphql';
+import { Arg, Resolver, Query } from 'type-graphql';
 import dayjs from 'dayjs';
-
-import { BlockService } from '@/entity/block/block.service';
-import { StatisticsService } from '@/entity/statistics/statistics.service';
-import { MemberService } from '@/entity/member/member.service';
 
 import { EntityStats } from './general.entity';
 import { LiveStatsArgs } from './general.type';
+import { BlockService } from '@/entity/block/block.service';
+import { StatisticsService } from '@/entity/statistics/statistics.service';
+import { MemberService } from '@/entity/member/member.service';
 
 @Service()
 @Resolver()

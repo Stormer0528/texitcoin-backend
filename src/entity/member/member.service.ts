@@ -1,5 +1,8 @@
+import { Prisma } from '@prisma/client';
 import { Service, Inject } from 'typedi';
 
+import { EmailInput, TokenInput } from '@/graphql/common.type';
+import { createResetPasswordToken, hashPassword } from '@/utils/auth';
 import { PrismaService } from '@/service/prisma';
 
 import {
@@ -9,9 +12,6 @@ import {
   ResetPasswordTokenInput,
   VerifyTokenResponse,
 } from './member.type';
-import { EmailInput, TokenInput } from '@/graphql/common.type';
-import { createResetPasswordToken, hashPassword } from '@/utils/auth';
-import { Prisma } from '@prisma/client';
 import { Member } from './member.entity';
 
 @Service()

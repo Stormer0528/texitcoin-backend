@@ -1,12 +1,12 @@
-import { IsEmail } from 'class-validator';
 import type { Prisma } from '@prisma/client';
+import { IsEmail } from 'class-validator';
 import { ObjectType, InputType, Field, ArgsType, ID } from 'type-graphql';
 
-import { PaginatedResponse } from '@/graphql/paginatedResponse';
 import { QueryArgsBase } from '@/graphql/queryArgs';
+import { PaginatedResponse } from '@/graphql/paginatedResponse';
 
 import { Member } from '@/entity/member/member.entity';
-import { CreateMemberWalletInput, MemberWalletDataInput } from '../memberWallet/memberWallet.type';
+import { MemberWalletDataInput } from '../memberWallet/memberWallet.type';
 
 // Member Query Args
 @ArgsType()

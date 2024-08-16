@@ -1,6 +1,7 @@
 import { Service, Inject } from 'typedi';
 
 import { PrismaService } from '@/service/prisma';
+
 import { AdminQueryArgs, CreateAdminInput, UpdateAdminInput } from './admin.type';
 
 @Service()
