@@ -142,10 +142,10 @@ export class MemberResolver {
       },
     });
 
-    if (!salesCnt) {
+    if (salesCnt) {
       throw new Error('There is a reward of this member');
     }
-    if (!placementChildrenCount) {
+    if (placementChildrenCount) {
       throw new Error('There are placement children');
     }
 
