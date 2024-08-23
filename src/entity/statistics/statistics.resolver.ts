@@ -34,6 +34,7 @@ import { BlockService } from '../block/block.service';
 import { MemberStatisticsService } from '../memberStatistics/memberStatistics.service';
 import { StatisticsSaleService } from '../statisticsSale/statisticsSale.service';
 import { MemberStatisticsWalletService } from '../memberStatisticsWallet/memberStatisticsWallet.service';
+import { MemberService } from '../member/member.service';
 
 @Service()
 @Resolver(() => Statistics)
@@ -43,7 +44,8 @@ export class StatisticsResolver {
     private readonly memberStatisticsService: MemberStatisticsService,
     private readonly statisticsSaleService: StatisticsSaleService,
     private readonly memberStatisticsWalletService: MemberStatisticsWalletService,
-    private readonly blockService: BlockService
+    private readonly blockService: BlockService,
+    private readonly memberService: MemberService
   ) {}
 
   @Query(() => StatisticsResponse)
@@ -85,6 +87,25 @@ export class StatisticsResolver {
   @Authorized([UserRole.Admin])
   @Mutation(() => Statistics)
   async createStatistics(@Arg('data') data: CreateStatisticsInput): Promise<Statistics> {
+    const members = await this.memberService.getMembers({
+      where: {
+        id: {
+          in: data.memberStatistics.map((memberstatistic) => memberstatistic.memberId),
+        },
+        memberWallets: {
+          none: {},
+        },
+      },
+      orderBy: [],
+      parsePage: {},
+    });
+
+    if (members.length) {
+      throw new Error(
+        `There are members with no wallets - ${members.map((mb) => mb.username).join(',')}`
+      );
+    }
+
     if (data.id) {
       this.memberStatisticsService.removeMemberStatisticsByStatisticId({
         id: data.id,
