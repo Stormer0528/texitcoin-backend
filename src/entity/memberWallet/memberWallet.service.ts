@@ -85,8 +85,15 @@ export class MemberWalletService {
   }
 
   async createManyMemberWallets(data: CreateMemberWalletInput[]) {
-    const sumPercent = data.reduce((prev, current) => prev + current.percent, 0);
+    const sumPercent = data.reduce((prev, current) => {
+      if (!current.payoutId) {
+        throw new Error('Not specified payout type');
+      }
+      return prev + current.percent;
+    }, 0);
+
     if (sumPercent !== 100 * PERCENT) throw new Error('Sum of percent must be 100');
+
     return this.prisma.memberWallet.createMany({
       data,
     });

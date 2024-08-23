@@ -49,6 +49,7 @@ import { MemberService } from './member.service';
 import { MemberWalletService } from '../memberWallet/memberWallet.service';
 import { SaleService } from '../sale/sale.service';
 import { userPermission } from '../admin/admin.permission';
+import { PERCENT } from '@/consts/db';
 
 @Service()
 @Resolver(() => Member)
@@ -93,6 +94,15 @@ export class MemberResolver {
   @Authorized([UserRole.Admin])
   @Mutation(() => Member)
   async createMember(@Arg('data') data: CreateMemberInput): Promise<Member> {
+    const sumPercent = data.wallets.reduce((prev, current) => {
+      if (!current.payoutId) {
+        throw new Error('Not specified payout type');
+      }
+      return prev + current.percent;
+    }, 0);
+
+    if (sumPercent !== 100 * PERCENT) throw new Error('Sum of percent must be 100');
+
     const hashedPassword = await hashPassword(DEFAULT_PASSWORD);
     const member = await this.service.createMember({
       ..._.omit(data, 'wallets'),
