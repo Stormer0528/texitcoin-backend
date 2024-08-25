@@ -53,4 +53,18 @@ export class SaleService {
       },
     });
   }
+
+  async getMemberHashPowerById(data: IDInput) {
+    const members = await this.prisma.sale.findMany({
+      where: {
+        memberId: data.id,
+      },
+      include: {
+        package: true,
+      },
+    });
+    return members.reduce((prev, current) => {
+      return prev + current.package.token;
+    }, 0);
+  }
 }

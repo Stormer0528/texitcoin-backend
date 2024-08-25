@@ -39,24 +39,6 @@ export class CreateMemberStatisticsInput {
   issuedAt: Date;
 }
 
-@InputType()
-export class MemberOverviewInput {
-  @Field(() => ID)
-  id: string;
-}
-
-@ObjectType()
-export class MemberOverview {
-  @Field()
-  lastHashPower: number;
-
-  @Field()
-  totalTXCShared: bigint;
-
-  @Field()
-  joinDate: Date;
-}
-
 // Create Multil UserStatistics Input and Response
 @InputType()
 export class CreateManyMemberStatisticsInput {

@@ -22,8 +22,6 @@ import {
   MemberStatisticsResponse,
   MemberStatisticsQueryArgs,
   CreateMemberStatisticsInput,
-  MemberOverview,
-  MemberOverviewInput,
   CreateManyMemberStatisticsInput,
 } from './memberStatistics.type';
 import { IDInput, IDsInput, ManySuccessResponse } from '../../graphql/common.type';
@@ -132,30 +130,5 @@ export class MemberStatisticsResolver {
     @Ctx() ctx: Context
   ): Promise<MemberStatisticsWallet[]> {
     return ctx.dataLoader.get('walletsForMemberStatisticsLoader').load(memberStatistics.id);
-  }
-
-  @Authorized()
-  @UseMiddleware(userPermission)
-  @Query(() => MemberOverview)
-  async memberOverview(@Arg('data') { id }: MemberOverviewInput): Promise<MemberOverview> {
-    const { txcShared: totalTXCShared } = await this.service.getTotalTXCShared(id);
-    const { hashPower: lastHashPower } = await this.service.getMemberStatistic({
-      where: {
-        memberId: id,
-      },
-      select: {
-        hashPower: true,
-      },
-      orderBy: {
-        issuedAt: 'desc',
-      },
-    });
-    const { createdAt: joinDate } = await this.memberService.getMemberById(id);
-
-    return {
-      lastHashPower,
-      totalTXCShared,
-      joinDate,
-    };
   }
 }

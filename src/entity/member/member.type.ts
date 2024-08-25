@@ -162,3 +162,21 @@ export class VerifyTokenResponse {
   @Field()
   token: string;
 }
+
+@InputType()
+export class MemberOverviewInput {
+  @Field(() => ID)
+  id: string;
+}
+
+@ObjectType()
+export class MemberOverview {
+  @Field()
+  currentHashPower: number;
+
+  @Field()
+  totalTXCShared: bigint;
+
+  @Field()
+  joinDate: Date;
+}

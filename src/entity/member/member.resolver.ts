@@ -40,6 +40,8 @@ import {
   UpdateMemberPasswordInputById,
   ResetPasswordTokenInput,
   VerifyTokenResponse,
+  MemberOverview,
+  MemberOverviewInput,
 } from './member.type';
 import { Member } from './member.entity';
 import { Sale } from '../sale/sale.entity';
@@ -48,6 +50,7 @@ import { MemberWallet } from '../memberWallet/memberWallet.entity';
 import { MemberService } from './member.service';
 import { MemberWalletService } from '../memberWallet/memberWallet.service';
 import { SaleService } from '../sale/sale.service';
+import { MemberStatisticsService } from '../memberStatistics/memberStatistics.service';
 import { userPermission } from '../admin/admin.permission';
 import { PERCENT } from '@/consts/db';
 
@@ -57,6 +60,7 @@ export class MemberResolver {
   constructor(
     private readonly service: MemberService,
     private readonly memberWalletService: MemberWalletService,
+    private readonly memberStatisticsService: MemberStatisticsService,
     private readonly saleService: SaleService,
     @Inject(() => MailerService)
     private readonly mailerService: MailerService
@@ -316,5 +320,20 @@ export class MemberResolver {
     } catch (err) {
       throw new Error('Invalid token');
     }
+  }
+
+  @Authorized()
+  @UseMiddleware(userPermission)
+  @Query(() => MemberOverview)
+  async memberOverview(@Arg('data') { id }: MemberOverviewInput): Promise<MemberOverview> {
+    const { txcShared: totalTXCShared } = await this.memberStatisticsService.getTotalTXCShared(id);
+    const currentHashPower = await this.saleService.getMemberHashPowerById({ id });
+    const { createdAt: joinDate } = await this.service.getMemberById(id);
+
+    return {
+      currentHashPower,
+      totalTXCShared,
+      joinDate,
+    };
   }
 }
