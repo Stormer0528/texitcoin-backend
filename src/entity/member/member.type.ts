@@ -59,6 +59,9 @@ export class CreateMemberInput {
   @Field(() => ID, { nullable: true })
   placementParentId?: string;
 
+  @Field({ nullable: true })
+  placementPosition?: PLACEMENT_POSITION;
+
   @Field(() => [MemberWalletDataInput])
   wallets: MemberWalletDataInput[];
 }
@@ -104,6 +107,9 @@ export class UpdateMemberInput {
 
   @Field(() => ID, { nullable: true })
   placementParentId?: string;
+
+  @Field({ nullable: true })
+  placementPosition?: PLACEMENT_POSITION;
 
   @Field(() => [MemberWalletDataInput], { nullable: 'itemsAndList' })
   wallets?: MemberWalletDataInput[];
@@ -179,4 +185,15 @@ export class MemberOverview {
 
   @Field()
   joinDate: Date;
+}
+
+export type PLACEMENT_POSITION = 'LEFT' | 'RIGHT' | 'NONE';
+
+@ObjectType()
+export class PlacementPositionCountResponse {
+  @Field()
+  leftCount: number;
+
+  @Field()
+  rightCount: number;
 }

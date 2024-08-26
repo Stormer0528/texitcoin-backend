@@ -6,6 +6,7 @@ import { BaseEntity } from '@/graphql/baseEntity';
 import { Sale } from '@/entity/sale/sale.entity';
 import { MemberStatistics } from '../memberStatistics/memberStatistics.entity';
 import { MemberWallet } from '../memberWallet/memberWallet.entity';
+import { PLACEMENT_POSITION } from './member.type';
 
 @ObjectType()
 export class Member extends BaseEntity {
@@ -50,6 +51,9 @@ export class Member extends BaseEntity {
 
   @Field(() => ID, { nullable: true })
   placementParentId?: string;
+
+  @Field({ nullable: true })
+  placementPosition?: PLACEMENT_POSITION;
 
   @Field(() => [Sale], { nullable: 'itemsAndList' })
   sales?: Sale[];

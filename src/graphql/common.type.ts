@@ -45,3 +45,9 @@ export class TokenInput {
   @Field()
   token: string;
 }
+
+@ObjectType()
+export class CountResponse {
+  @Field()
+  count: number;
+}

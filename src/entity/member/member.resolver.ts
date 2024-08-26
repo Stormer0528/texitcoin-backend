@@ -23,6 +23,7 @@ import { createAccessToken, hashPassword, verifyPassword } from '@/utils/auth';
 import { MailerService } from '@/service/mailer';
 
 import {
+  CountResponse,
   EmailInput,
   IDInput,
   SuccessResponse,
@@ -42,6 +43,7 @@ import {
   VerifyTokenResponse,
   MemberOverview,
   MemberOverviewInput,
+  PlacementPositionCountResponse,
 } from './member.type';
 import { Member } from './member.entity';
 import { Sale } from '../sale/sale.entity';
@@ -176,7 +178,7 @@ export class MemberResolver {
     const placements = await this.service.getAllPlacementAncestorsById(data.id);
     await this.service.updateManyMember(
       { id: { in: placements.map((pmnt) => pmnt.id) } },
-      { placementParentId: null }
+      { placementParentId: null, placementPosition: 'NONE' }
     );
     return {
       result: SuccessResult.success,
@@ -334,6 +336,56 @@ export class MemberResolver {
       currentHashPower,
       totalTXCShared,
       joinDate,
+    };
+  }
+
+  @Authorized([UserRole.Admin])
+  @Query(() => CountResponse)
+  async countLeftMembers(@Arg('data') data: IDInput): Promise<CountResponse> {
+    const count = await this.service.getMembersCount({
+      where: {
+        placementParentId: data.id,
+        placementPosition: 'LEFT',
+      },
+    });
+    return {
+      count,
+    };
+  }
+
+  @Authorized([UserRole.Admin])
+  @Query(() => CountResponse)
+  async countRightMembers(@Arg('data') data: IDInput): Promise<CountResponse> {
+    const count = await this.service.getMembersCount({
+      where: {
+        placementParentId: data.id,
+        placementPosition: 'RIGHT',
+      },
+    });
+    return {
+      count,
+    };
+  }
+
+  @Authorized([UserRole.Admin])
+  @Query(() => PlacementPositionCountResponse)
+  async countBelowMembers(@Arg('data') data: IDInput): Promise<PlacementPositionCountResponse> {
+    const leftCount = await this.service.getMembersCount({
+      where: {
+        placementParentId: data.id,
+        placementPosition: 'LEFT',
+      },
+    });
+    const rightCount = await this.service.getMembersCount({
+      where: {
+        placementParentId: data.id,
+        placementPosition: 'RIGHT',
+      },
+    });
+
+    return {
+      leftCount,
+      rightCount,
     };
   }
 }
