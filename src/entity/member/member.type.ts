@@ -187,7 +187,7 @@ export class MemberOverview {
   joinDate: Date;
 }
 
-export type PLACEMENT_POSITION = 'LEFT' | 'RIGHT' | 'NONE';
+export type PLACEMENT_POSITION = 'LEFT' | 'RIGHT';
 
 @ObjectType()
 export class PlacementPositionCountResponse {

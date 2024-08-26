@@ -178,7 +178,7 @@ export class MemberResolver {
     const placements = await this.service.getAllPlacementAncestorsById(data.id);
     await this.service.updateManyMember(
       { id: { in: placements.map((pmnt) => pmnt.id) } },
-      { placementParentId: null, placementPosition: 'NONE' }
+      { placementParentId: null, placementPosition: null }
     );
     return {
       result: SuccessResult.success,
