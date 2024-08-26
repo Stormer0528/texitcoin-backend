@@ -13,6 +13,12 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum PlacementPosition {
+  LEFT
+  RIGHT
+  NONE
+}
+
 model Admin {
   id       String  @id @default(uuid())
   username String  @unique(map: "index_admins_on_username") @db.VarChar
@@ -28,22 +34,23 @@ model Admin {
 }
 
 model Member {
-  id                String  @id @default(uuid())
-  username          String  @unique(map: "index_members_on_username") @db.VarChar
-  fullName          String  @db.VarChar
-  sponsorId         String? @db.VarChar
-  userId            Int     @unique(map: "index_members_on_userId") @db.Integer
-  email             String  @unique(map: "index_members_on_email") @db.VarChar
-  mobile            String  @db.VarChar
-  assetId           String  @unique(map: "index_members_on_assetId") @db.VarChar
-  primaryAddress    String  @db.VarChar
-  secondaryAddress  String? @db.VarChar
-  city              String? @db.VarChar
-  state             String? @db.VarChar
-  zipCode           String? @db.VarChar
-  password          String  @default("$2a$12$iJYYra5MuxOQ9AwyG5CQauqCoE0NnSWHb7PzicO2C3L2/0J2VkQaO") @db.VarChar
-  token             String? @unique(map: "index_members_on_token") @db.VarChar
-  placementParentId String? @db.VarChar
+  id                String             @id @default(uuid())
+  username          String             @unique(map: "index_members_on_username") @db.VarChar
+  fullName          String             @db.VarChar
+  sponsorId         String?            @db.VarChar
+  userId            Int                @unique(map: "index_members_on_userId") @db.Integer
+  email             String             @unique(map: "index_members_on_email") @db.VarChar
+  mobile            String             @db.VarChar
+  assetId           String             @unique(map: "index_members_on_assetId") @db.VarChar
+  primaryAddress    String             @db.VarChar
+  secondaryAddress  String?            @db.VarChar
+  city              String?            @db.VarChar
+  state             String?            @db.VarChar
+  zipCode           String?            @db.VarChar
+  password          String             @default("$2a$12$iJYYra5MuxOQ9AwyG5CQauqCoE0NnSWHb7PzicO2C3L2/0J2VkQaO") @db.VarChar
+  token             String?            @unique(map: "index_members_on_token") @db.VarChar
+  placementParentId String?            @db.VarChar
+  placementPosition PlacementPosition? @default(NONE)
 
   sponsor         Member? @relation("MemberSponsor", fields: [sponsorId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   placementParent Member? @relation("MemberPlacementParent", fields: [placementParentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
