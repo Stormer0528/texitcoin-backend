@@ -53,7 +53,7 @@ export class Member extends BaseEntity {
   placementParentId?: string;
 
   @Field({ nullable: true })
-  placementPosition?: PLACEMENT_POSITION;
+  placementPosition?: string;
 
   @Field(() => [Sale], { nullable: 'itemsAndList' })
   sales?: Sale[];
