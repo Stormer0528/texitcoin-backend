@@ -16,6 +16,11 @@ export const uniqueErrors = [
   },
   {
     modelName: 'Member',
+    path: ['email'],
+    message: 'Email already exists',
+  },
+  {
+    modelName: 'Member',
     path: ['userId'],
     message: 'UserId already exists',
   },
