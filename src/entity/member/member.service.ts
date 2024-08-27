@@ -130,7 +130,7 @@ export class MemberService {
     const token = createResetPasswordToken();
     return this.prisma.member.update({
       where: {
-        email: data.email,
+        email: data.email.toLowerCase(),
       },
       data: {
         token,
