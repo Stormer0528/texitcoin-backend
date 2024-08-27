@@ -334,7 +334,7 @@ export class MemberResolver {
 
     return {
       currentHashPower,
-      totalTXCShared,
+      totalTXCShared: totalTXCShared ?? BigInt(0),
       joinDate,
     };
   }
