@@ -34,6 +34,9 @@ export class CreatePackageInput {
 
   @Field()
   token: number;
+
+  @Field({ nullable: true })
+  point?: number;
 }
 
 @InputType()
@@ -55,4 +58,7 @@ export class UpdatePackageInput {
 
   @Field({ nullable: true })
   token?: number;
+
+  @Field({ nullable: true })
+  point?: number;
 }

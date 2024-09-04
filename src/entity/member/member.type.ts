@@ -62,6 +62,9 @@ export class CreateMemberInput {
   @Field({ nullable: true })
   placementPosition?: PLACEMENT_POSITION;
 
+  @Field({ nullable: true })
+  point?: number;
+
   @Field(() => [MemberWalletDataInput])
   wallets: MemberWalletDataInput[];
 }
@@ -110,6 +113,9 @@ export class UpdateMemberInput {
 
   @Field({ nullable: true })
   placementPosition?: PLACEMENT_POSITION;
+
+  @Field({ nullable: true })
+  point?: number;
 
   @Field(() => [MemberWalletDataInput], { nullable: 'itemsAndList' })
   wallets?: MemberWalletDataInput[];

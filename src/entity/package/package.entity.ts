@@ -24,6 +24,9 @@ export class Package extends BaseEntity {
   @Field()
   token: number;
 
+  @Field()
+  point: number;
+
   @Field(() => [Sale], { nullable: 'itemsAndList' })
   sales?: Sale[];
 }
