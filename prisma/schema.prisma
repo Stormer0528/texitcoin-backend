@@ -50,6 +50,7 @@ model Member {
   token             String?            @unique(map: "index_members_on_token") @db.VarChar
   placementParentId String?            @db.VarChar
   placementPosition PlacementPosition? @default(LEFT)
+  point             Int                @default(0)
 
   sponsor         Member? @relation("MemberSponsor", fields: [sponsorId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   placementParent Member? @relation("MemberPlacementParent", fields: [placementParentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -182,6 +183,7 @@ model Package {
   status      Boolean  @default(true)
   date        DateTime @default(now())
   token       Int
+  point       Int      @default(0)
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
