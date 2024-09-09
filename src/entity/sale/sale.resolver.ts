@@ -24,11 +24,15 @@ import { Member } from '../member/member.entity';
 import { Package } from '../package/package.entity';
 import { StatisticsSale } from '../statisticsSale/statisticsSale.entity';
 import { SaleService } from './sale.service';
+import { MemberService } from '../member/member.service';
 
 @Service()
 @Resolver(() => Sale)
 export class SaleResolver {
-  constructor(private readonly service: SaleService) {}
+  constructor(
+    private readonly service: SaleService,
+    private readonly memberService: MemberService
+  ) {}
 
   @Query(() => SalesResponse)
   async sales(
@@ -70,19 +74,26 @@ export class SaleResolver {
   @Authorized([UserRole.Admin])
   @Mutation(() => Sale)
   async createSale(@Arg('data') data: CreateSaleInput): Promise<Sale> {
-    return this.service.createSale({ ...data });
+    const sale = await this.service.createSale({ ...data });
+    await this.memberService.updateMemberPointByMemberId(sale.memberId);
+    return sale;
   }
 
   @Authorized([UserRole.Admin])
   @Mutation(() => Sale)
   async updateSale(@Arg('data') data: UpdateSaleInput): Promise<Sale> {
-    return this.service.updateSale({ ...data });
+    const oldsale = await this.service.getSaleById(data.id);
+    const newsale = await this.service.updateSale({ ...data });
+    await this.memberService.updateMemberPointByMemberId(oldsale.memberId);
+    await this.memberService.updateMemberPointByMemberId(newsale.memberId);
+    return newsale;
   }
 
   @Authorized([UserRole.Admin])
   @Mutation(() => SuccessResponse)
   async removeSale(@Arg('data') data: IDInput): Promise<SuccessResponse> {
-    await this.service.removeSale(data);
+    const sale = await this.service.removeSale(data);
+    await this.memberService.updateMemberPointByMemberId(sale.memberId);
     return {
       result: SuccessResult.success,
     };

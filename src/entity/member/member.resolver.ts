@@ -224,11 +224,6 @@ export class MemberResolver {
     return ctx.dataLoader.get('placementChildrenForMemberLoader').load(member.id);
   }
 
-  @FieldResolver({ nullable: true })
-  async point(@Root() member: Member, @Ctx() ctx: Context): Promise<number> {
-    return ctx.dataLoader.get('pointForMemberLoader').load(member.id);
-  }
-
   @Authorized()
   @Query(() => Member)
   async memberMe(@Ctx() ctx: Context): Promise<Member> {

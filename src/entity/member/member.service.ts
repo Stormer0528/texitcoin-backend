@@ -165,4 +165,24 @@ export class MemberService {
       },
     });
   }
+
+  async updateMemberPointByMemberId(id: string): Promise<void> {
+    const sales = await this.prisma.sale.findMany({
+      where: {
+        memberId: id,
+      },
+      include: {
+        package: true,
+      },
+    });
+    const newpoint = sales.reduce((prev, cur) => prev + cur.package.point, 0);
+    await this.prisma.member.update({
+      where: {
+        id,
+      },
+      data: {
+        point: newpoint,
+      },
+    });
+  }
 }

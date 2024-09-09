@@ -55,8 +55,8 @@ export class Member extends BaseEntity {
   @Field({ nullable: true })
   placementPosition?: string;
 
-  @Field({ nullable: true })
-  point?: number;
+  @Field()
+  point: number;
 
   @Field(() => [Sale], { nullable: 'itemsAndList' })
   sales?: Sale[];

@@ -160,26 +160,3 @@ export const placementChildrenForMemberLoader = (parent: RootDataLoader) => {
     }
   );
 };
-
-export const pointForMemberLoader = (parent: RootDataLoader) => {
-  return new DataLoader<string, number>(
-    async (memberIds: string[]) => {
-      const sales = await parent.prisma.sale.findMany({
-        where: { memberId: { in: memberIds } },
-        include: { package: true },
-      });
-
-      const pointsMap: Record<string, number> = {};
-
-      sales.forEach((sale) => {
-        if (!pointsMap[sale.memberId]) pointsMap[sale.memberId] = 0;
-        pointsMap[sale.memberId] = pointsMap[sale.memberId] + sale.package.point;
-      });
-
-      return memberIds.map((id) => pointsMap[id] ?? 0);
-    },
-    {
-      ...parent.dataLoaderOptions,
-    }
-  );
-};
