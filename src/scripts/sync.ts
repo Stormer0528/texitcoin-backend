@@ -1,62 +1,53 @@
-import { Prisma, PrismaClient, Statistics } from '@prisma/client';
+import { Prisma, PrismaClient } from '@prisma/client';
 import Bluebird from 'bluebird';
-
-import { PERCENT } from '@/consts/db';
 
 const prisma = new PrismaClient();
 
-const createStatisticsWallets = async (statistic: Statistics) => {
-  const memberStatistics = await prisma.memberStatistics.findMany({
-    where: {
-      statisticsId: statistic.id,
+const createPoint = async () => {
+  console.log('updating point is started');
+  await prisma.member.updateMany({
+    data: {
+      point: 0,
     },
+  });
+  console.log('reseting all member point finished');
+
+  const sales = await prisma.sale.findMany({
+    include: {
+      package: true,
+    },
+  });
+  const membersMap: Record<string, number> = {};
+  sales.forEach((sale) => {
+    if (!membersMap[sale.memberId]) membersMap[sale.memberId] = 0;
+    membersMap[sale.memberId] += sale.package.point;
   });
 
   await Bluebird.map(
-    memberStatistics,
-    async (memberStatistic) => {
-      const memberWallets = await prisma.memberWallet.findMany({
+    Object.entries(membersMap),
+    async (memberMap) => {
+      await prisma.member.update({
         where: {
-          memberId: memberStatistic.memberId,
+          id: memberMap[0],
+        },
+        data: {
+          point: memberMap[1],
         },
       });
-
-      const memberStatisticsWalletData: Prisma.MemberStatisticsWalletUncheckedCreateInput[] =
-        memberWallets.map((wallet) => {
-          return {
-            memberStatisticId: memberStatistic.id,
-            memberWalletId: wallet.id,
-            txc: Math.floor((wallet.percent / PERCENT / 100) * Number(memberStatistic.txcShared)),
-            issuedAt: memberStatistic.issuedAt,
-          };
-        });
-
-      await prisma.memberStatisticsWallet.createMany({
-        data: memberStatisticsWalletData,
-      });
     },
-    { concurrency: 10 }
+    {
+      concurrency: 10,
+    }
   );
-};
 
-const createMemberStatisticsWallets = async () => {
-  const statistics = await prisma.statistics.findMany({
-    where: {
-      status: true,
-    },
-  });
-  await Bluebird.map(statistics, async (statistic) => {
-    await createStatisticsWallets(statistic);
-  });
-
-  console.log('Finished memberStatisticswallets');
+  console.log('updating point is finished');
 };
 
 async function sync() {
   console.log('sync is started');
-  await createMemberStatisticsWallets();
+  await createPoint();
 
-  console.log('Finished rewarding operation');
+  console.log('Finished sync operation');
 }
 
 sync();
