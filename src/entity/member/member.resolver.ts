@@ -330,12 +330,13 @@ export class MemberResolver {
   async memberOverview(@Arg('data') { id }: MemberOverviewInput): Promise<MemberOverview> {
     const { txcShared: totalTXCShared } = await this.memberStatisticsService.getTotalTXCShared(id);
     const currentHashPower = await this.saleService.getMemberHashPowerById({ id });
-    const { createdAt: joinDate } = await this.service.getMemberById(id);
+    const { createdAt: joinDate, point } = await this.service.getMemberById(id);
 
     return {
       currentHashPower,
       totalTXCShared: totalTXCShared ?? BigInt(0),
       joinDate,
+      point,
     };
   }
 

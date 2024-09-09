@@ -185,6 +185,9 @@ export class MemberOverview {
 
   @Field()
   joinDate: Date;
+
+  @Field()
+  point: number;
 }
 
 export type PLACEMENT_POSITION = 'LEFT' | 'RIGHT';
