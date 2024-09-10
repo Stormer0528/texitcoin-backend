@@ -28,6 +28,9 @@ import { MemberWalletResolver } from './entity/memberWallet/memberWallet.resolve
 import { MemberStatisticsWalletResolver } from './entity/memberStatisticsWallet/memberStatisticsWallet.resolver';
 import router from './routes';
 import { adminAuthorized } from './middlewares/adminAuthorized.middleware';
+import { DailyBlockResolver } from './entity/dailyblock/dailyblock.resolver';
+import { WeeklyBlockResolver } from './entity/weeklyblock/weeklyblock.resolver';
+import { MonthlyBlockResolver } from './entity/monthlyblock/monthlyblock.resolver';
 
 // import "./env";
 
@@ -46,6 +49,9 @@ const app = async () => {
       PayoutResolver,
       MemberWalletResolver,
       MemberStatisticsWalletResolver,
+      DailyBlockResolver,
+      WeeklyBlockResolver,
+      MonthlyBlockResolver,
     ],
     authChecker,
     scalarsMap: [
