@@ -13,7 +13,7 @@ export class MonthlyBlockResolver {
   constructor(private readonly service: MonthlyBlockService) {}
 
   @Query(() => MonthlyBlocksResponse)
-  async dailyblocks(
+  async monthlyblocks(
     @Args() query: MonthlyBlockQueryArgs,
     @Info() info: GraphQLResolveInfo
   ): Promise<MonthlyBlocksResponse> {

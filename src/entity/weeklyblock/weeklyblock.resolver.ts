@@ -13,7 +13,7 @@ export class WeeklyBlockResolver {
   constructor(private readonly service: WeeklyBlockService) {}
 
   @Query(() => WeeklyBlocksResponse)
-  async dailyblocks(
+  async weeklyblocks(
     @Args() query: WeeklyBlockQueryArgs,
     @Info() info: GraphQLResolveInfo
   ): Promise<WeeklyBlocksResponse> {
