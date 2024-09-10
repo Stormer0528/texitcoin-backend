@@ -13,5 +13,5 @@ export class MonthlyBlockQueryArgs extends QueryArgsBase<Prisma.MonthlyBlockWher
 @ObjectType()
 export class MonthlyBlocksResponse extends PaginatedResponse {
   @Field(() => [MonthlyBlock], { nullable: 'itemsAndList' })
-  blocks?: MonthlyBlock[];
+  monthlyblocks?: MonthlyBlock[];
 }

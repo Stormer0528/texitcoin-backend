@@ -13,5 +13,5 @@ export class DailyBlockQueryArgs extends QueryArgsBase<Prisma.DailyBlockWhereInp
 @ObjectType()
 export class DailyBlocksResponse extends PaginatedResponse {
   @Field(() => [DailyBlock], { nullable: 'itemsAndList' })
-  blocks?: DailyBlock[];
+  dailyblocks?: DailyBlock[];
 }
