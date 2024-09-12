@@ -55,3 +55,8 @@ export const GET_BLOCK_COUNT = 'getblockcount';
 export const GET_NETWORK_HASH_PS = 'getnetworkhashps';
 
 export const DEFAULT_PASSWORD = '123456789';
+
+export const DAILYBLOCK_LIMIT = 14;
+export const WEEKLYBLOCK_LIMIT = 12;
+export const MONTHLYBLOCK_LIMIT = 12;
+export const BLOCK_LIMIT = 50;

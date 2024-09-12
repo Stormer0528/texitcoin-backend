@@ -1,4 +1,5 @@
-import { ObjectType, Field, Int } from 'type-graphql';
+import { ObjectType, Field, Int, InputType } from 'type-graphql';
+import { BLOCKSTATETYPE } from './general.type';
 
 @ObjectType()
 export class DailyStats {
@@ -19,4 +20,16 @@ export class EntityStats {
 
   @Field({ nullable: true })
   meta?: number;
+}
+
+@ObjectType()
+export class BlockStatsResponse {
+  @Field()
+  hashRate: number;
+
+  @Field()
+  difficulty: number;
+
+  @Field()
+  base: string;
 }

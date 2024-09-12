@@ -2,11 +2,16 @@ import { Service } from 'typedi';
 import { Arg, Resolver, Query } from 'type-graphql';
 import dayjs from 'dayjs';
 
-import { EntityStats } from './general.entity';
-import { LiveStatsArgs } from './general.type';
+import { BLOCK_LIMIT, DAILYBLOCK_LIMIT, MONTHLYBLOCK_LIMIT, WEEKLYBLOCK_LIMIT } from '@/consts';
+
+import { BlockStatsResponse, EntityStats } from './general.entity';
+import { BlockStatsArgs, LiveStatsArgs } from './general.type';
 import { BlockService } from '@/entity/block/block.service';
 import { StatisticsService } from '@/entity/statistics/statistics.service';
 import { MemberService } from '@/entity/member/member.service';
+import { DailyBlockService } from '../dailyblock/dailyblock.service';
+import { WeeklyBlockService } from '../weeklyblock/weeklyblock.service';
+import { MonthlyBlockService } from '../monthlyblock/monthlyblock.service';
 
 @Service()
 @Resolver()
@@ -14,7 +19,10 @@ export class GeneralResolver {
   constructor(
     private readonly blockService: BlockService,
     private readonly statisticsService: StatisticsService,
-    private readonly memberService: MemberService
+    private readonly memberService: MemberService,
+    private readonly dailyBlockService: DailyBlockService,
+    private readonly weeklyBlockService: WeeklyBlockService,
+    private readonly monthlyBlockService: MonthlyBlockService
   ) {}
 
   @Query(() => EntityStats)
@@ -102,5 +110,81 @@ export class GeneralResolver {
       })),
       meta: pastMonthUsers,
     };
+  }
+
+  @Query(() => [BlockStatsResponse])
+  async blocksdata(@Arg('data') data: BlockStatsArgs): Promise<BlockStatsResponse[]> {
+    switch (data.type) {
+      case 'day':
+        const daydata = await this.dailyBlockService.getDailyBlocks({
+          orderBy: {
+            issuedAt: 'desc',
+          },
+          parsePage: {
+            skip: 0,
+            take: DAILYBLOCK_LIMIT,
+          },
+          where: {},
+        });
+        return daydata.map((dt) => ({
+          hashRate: dt.hashRate,
+          difficulty: dt.difficulty,
+          base: dayjs(dt.issuedAt.toISOString().split('T')[0]).format('MM/DD/YYYY'),
+        }));
+      case 'week':
+        const weekdata = await this.weeklyBlockService.getWeeklyBlocks({
+          orderBy: {
+            issuedAt: 'desc',
+          },
+          parsePage: {
+            skip: 0,
+            take: WEEKLYBLOCK_LIMIT,
+          },
+          where: {},
+        });
+        return weekdata.map((dt) => {
+          const endWeek = dayjs(dt.issuedAt.toISOString().split('T')[0]).endOf('week');
+          const now = dayjs();
+          return {
+            hashRate: dt.hashRate,
+            difficulty: dt.difficulty,
+            base: (endWeek > now ? now : endWeek).format('MM/DD/YYYY'),
+          };
+        });
+      case 'month':
+        const monthdata = await this.monthlyBlockService.getMonthlyBlocks({
+          orderBy: {
+            issuedAt: 'desc',
+          },
+          parsePage: {
+            skip: 0,
+            take: MONTHLYBLOCK_LIMIT,
+          },
+          where: {},
+        });
+        return monthdata.map((dt) => ({
+          hashRate: dt.hashRate,
+          difficulty: dt.difficulty,
+          base: dayjs(dt.issuedAt.toISOString().split('T')[0]).format('MM/YYYY'),
+        }));
+      case 'block':
+        const blockdata = await this.blockService.getBlocks({
+          orderBy: {
+            blockNo: 'desc',
+          },
+          parsePage: {
+            skip: 0,
+            take: BLOCK_LIMIT,
+          },
+          where: {},
+        });
+        return blockdata.map((dt) => ({
+          hashRate: dt.hashRate,
+          difficulty: dt.difficulty,
+          base: dt.blockNo.toString(),
+        }));
+      default:
+        return [];
+    }
   }
 }
