@@ -113,7 +113,7 @@ export class GeneralResolver {
   }
 
   @Query(() => [BlockStatsResponse])
-  async blocksdata(@Arg('data') data: BlockStatsArgs): Promise<BlockStatsResponse[]> {
+  async blocksData(@Arg('data') data: BlockStatsArgs): Promise<BlockStatsResponse[]> {
     switch (data.type) {
       case 'day':
         const daydata = await this.dailyBlockService.getDailyBlocks({
