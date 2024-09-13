@@ -1,14 +1,11 @@
-import { Member, Prisma, PrismaClient, Statistics } from '@prisma/client';
+import { Prisma, PrismaClient, Statistics } from '@prisma/client';
 import dayjs from 'dayjs';
 import Bluebird from 'bluebird';
 
 import { PERCENT, TXC } from '@/consts/db';
 import { SaleSearchResult } from '@/type';
-import { payoutData } from 'prisma/seed/payout';
 
-import { getMembers, getSales } from '@/utils/connectMlm';
 import { formatDate } from '@/utils/common';
-import { generateRandomString, hashPassword } from '@/utils/auth';
 
 const prisma = new PrismaClient();
 
@@ -141,17 +138,37 @@ const createStatisticSales = async (
   });
 };
 
+const isBefore = (date1: Date, date2: Date) => {
+  const strDate1 = date1.toISOString().split('T')[0].split('-');
+  const strDate2 = date2.toISOString().split('T')[0].split('-');
+  return (
+    +strDate1[0] < +strDate2[0] ||
+    (+strDate1[0] === +strDate2[0] && +strDate1[1] < +strDate2[1]) ||
+    (+strDate1[0] === +strDate2[0] && +strDate1[1] === +strDate2[1] && +strDate1[2] < +strDate2[2])
+  );
+};
+
 const createStatisticsAndMemberStatistics = async () => {
   console.log('Creating statistics & memberStatistics...');
 
+  const lastReward = await prisma.statistics.findFirst({
+    orderBy: {
+      issuedAt: 'desc',
+    },
+  });
+
   const now = dayjs();
-  for (let iDate = dayjs('2024-04-01'); iDate.isBefore(now); iDate = iDate.add(1, 'day')) {
+  for (
+    let iDate = dayjs(lastReward.issuedAt).add(1, 'day');
+    isBefore(iDate.toDate(), now.toDate());
+    iDate = iDate.add(1, 'day')
+  ) {
     const date = new Date(formatDate(iDate.toDate()));
-    console.log(`Creating ${formatDate(iDate.toDate())}...`);
+    console.log(`Creating ${formatDate(date)}...`);
     const sales: SaleSearchResult[] = await prisma.sale.findMany({
       where: {
         orderedAt: {
-          lt: new Date(iDate.add(1, 'day').toDate()),
+          lt: iDate.add(1, 'day').toDate(),
         },
       },
       select: {
@@ -173,123 +190,8 @@ const createStatisticsAndMemberStatistics = async () => {
   console.log('Finished creating statistics & memberStatistics');
 };
 
-const toMember = (
-  complexMember: any,
-  hashedPassword: string
-): Prisma.MemberUncheckedCreateInput => {
-  return {
-    assetId: complexMember.assetId,
-    email: complexMember.email,
-    fullName: complexMember.fullName,
-    mobile: complexMember.mobile,
-    primaryAddress: complexMember.primaryAddress,
-    secondaryAddress: complexMember.secondaryAddress,
-    userId: complexMember.userId,
-    username: complexMember.username,
-    city: complexMember.city,
-    password: hashedPassword,
-    state: complexMember.state,
-    zipCode: complexMember.zipCode,
-  };
-};
-
-const syncMembers = async () => {
-  try {
-    console.log('Syncing members...');
-
-    const mlmMembers = await getMembers();
-    const hashedPassword = await hashPassword('123456789');
-    const members = await Bluebird.map(
-      mlmMembers,
-      async (member) => {
-        let assetId: string = member.assetId;
-        while (
-          mlmMembers.findIndex((mb) => mb.assetId === assetId && mb.userId !== member.userId) >= 0
-        ) {
-          assetId = generateRandomString(6);
-        }
-        const result = await prisma.member.create({
-          data: {
-            ...toMember(member, hashedPassword),
-            assetId,
-          },
-        });
-
-        const wallets: Prisma.MemberWalletUncheckedCreateInput[] = [];
-        for (const [column, value] of Object.entries(member)) {
-          const payout = payoutData.find((pyData) => pyData.name === column);
-          if (payout && value && value !== 'NA') {
-            wallets.push({
-              address: value as string,
-              memberId: result.id,
-              payoutId: payout.id,
-            });
-          }
-        }
-
-        await prisma.memberWallet.createMany({
-          data: wallets.map((wallet, idx) => {
-            const unit = Math.floor((100 / wallets.length) * PERCENT);
-            return {
-              ...wallet,
-              percent:
-                idx === wallets.length - 1 ? 100 * PERCENT - unit * (wallets.length - 1) : unit,
-            };
-          }),
-        });
-
-        return result;
-      },
-      { concurrency: 10 }
-    );
-
-    console.log(`Successfully synced ${members.length} members`);
-
-    return members;
-  } catch (err) {
-    console.log('error => ', err);
-  }
-};
-
-const syncSales = async (members: Member[]) => {
-  try {
-    console.log('Syncing sales...');
-
-    const mlmSales = await getSales(members);
-
-    const sales = await prisma.sale.createManyAndReturn({ data: mlmSales });
-
-    console.log('Successfully created sales');
-
-    return sales;
-  } catch (err) {
-    console.log('error => ', err);
-  }
-};
-
 async function rewardTXC() {
   console.log('Started rewarding operation');
-
-  console.log('Removing statisticsSale');
-  await prisma.statisticsSale.deleteMany({});
-  console.log('Removing sales');
-  await prisma.sale.deleteMany();
-
-  console.log('Removing memberStatisticsWallet');
-  await prisma.memberStatisticsWallet.deleteMany({});
-  console.log('Removing memberWallet');
-  await prisma.memberWallet.deleteMany({});
-  console.log('Removing memberStatistics');
-  await prisma.memberStatistics.deleteMany({});
-  console.log('Removing member');
-  await prisma.member.deleteMany({});
-
-  console.log('Removing statistics');
-  await prisma.statistics.deleteMany({});
-  console.log('Successfully deleted current database.');
-
-  const members = await syncMembers();
-  const _sales = await syncSales(members);
 
   await createStatisticsAndMemberStatistics();
 
