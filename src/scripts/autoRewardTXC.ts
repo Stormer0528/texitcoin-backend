@@ -87,7 +87,7 @@ const createMemberStatisticsAndStatisticsWallets = async (
       const txcShared: number = Math.floor((percent / 100 / PERCENT) * totalTxcShared);
       const hashPower: number = membersWithHashPower[memberId];
       const statisticsId: string = statistic.id;
-      const memberStatistic = await prisma.memberStatistics.create({
+      await prisma.memberStatistics.create({
         data: {
           txcShared,
           hashPower,
@@ -96,27 +96,6 @@ const createMemberStatisticsAndStatisticsWallets = async (
           issuedAt,
           memberId,
         },
-      });
-
-      const memberWallets = await prisma.memberWallet.findMany({
-        where: {
-          memberId: memberId,
-          deletedAt: null,
-        },
-      });
-
-      const memberStatisticsWalletData: Prisma.MemberStatisticsWalletUncheckedCreateInput[] =
-        memberWallets.map((wallet) => {
-          return {
-            memberStatisticId: memberStatistic.id,
-            memberWalletId: wallet.id,
-            txc: Math.floor((wallet.percent / PERCENT / 100) * Number(memberStatistic.txcShared)),
-            issuedAt: memberStatistic.issuedAt,
-          };
-        });
-
-      await prisma.memberStatisticsWallet.createMany({
-        data: memberStatisticsWalletData,
       });
     },
     { concurrency: 10 }
@@ -170,6 +149,7 @@ const createStatisticsAndMemberStatistics = async () => {
         orderedAt: {
           lt: iDate.add(1, 'day').toDate(),
         },
+        status: true,
       },
       select: {
         id: true,
