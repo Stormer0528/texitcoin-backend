@@ -75,7 +75,7 @@ export class BlockService {
         date ASC`;
   }
 
-  async getTimeTookForBlock(range: { start: Date; end: Date }) {
+  async getTimeTookForBlock(range: { start: Date; end: Date }, blockLimit: number = 10) {
     return this.prisma.$queryRaw<{ blockNo: number; timeTookInSeconds: number }[]>`
       SELECT 
         "blockNo",
@@ -85,7 +85,8 @@ export class BlockService {
       WHERE 
         "createdAt" BETWEEN ${range.start} AND ${range.end}
       ORDER BY
-        "blockNo" DESC`;
+        "blockNo" DESC
+      LIMIT ${blockLimit}`;
   }
 
   async createBlock(data: CreateBlockInput) {
