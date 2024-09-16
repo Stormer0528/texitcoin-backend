@@ -1,6 +1,9 @@
 import { Service } from 'typedi';
 import { Arg, Resolver, Query } from 'type-graphql';
 import dayjs from 'dayjs';
+import weekOfYear from 'dayjs/plugin/weekOfYear';
+
+dayjs.extend(weekOfYear);
 
 import { BLOCK_LIMIT, DAILYBLOCK_LIMIT, MONTHLYBLOCK_LIMIT, WEEKLYBLOCK_LIMIT } from '@/consts';
 
@@ -143,12 +146,12 @@ export class GeneralResolver {
           where: {},
         });
         return weekdata.map((dt) => {
-          const endWeek = dayjs(dt.issuedAt.toISOString().split('T')[0]).endOf('week');
-          const now = dayjs();
+          const weekNumber = dayjs(dt.issuedAt.toISOString().split('T')[0]).week();
+          const month = dayjs(dt.issuedAt.toISOString().split('T')[0]).format('MMM');
           return {
             hashRate: dt.hashRate,
             difficulty: dt.difficulty,
-            base: (endWeek > now ? now : endWeek).format('MM/DD/YYYY'),
+            base: `${month}-${weekNumber}`,
           };
         });
       case 'month':
