@@ -15,6 +15,7 @@
   "description": "",
   "dependencies": {
     "@apollo/server": "^4.10.4",
+    "@elastic/elasticsearch": "^8.15.0",
     "@prisma/adapter-pg": "^5.14.0",
     "@prisma/client": "^5.15.0",
     "@types/bluebird": "^3.5.42",
