@@ -78,7 +78,7 @@ const createMemberStatisticsAndStatisticsWallets = async (
   const totalHashPower: number = statistic.totalHashPower;
   const totalTxcShared: number = Number(statistic.txcShared);
 
-  await Bluebird.map(
+  return await Bluebird.map(
     memberIds,
     async (memberId: string) => {
       const percent: number = Math.floor(
@@ -87,7 +87,7 @@ const createMemberStatisticsAndStatisticsWallets = async (
       const txcShared: number = Math.floor((percent / 100 / PERCENT) * totalTxcShared);
       const hashPower: number = membersWithHashPower[memberId];
       const statisticsId: string = statistic.id;
-      await prisma.memberStatistics.create({
+      return await prisma.memberStatistics.create({
         data: {
           txcShared,
           hashPower,
@@ -99,7 +99,7 @@ const createMemberStatisticsAndStatisticsWallets = async (
       });
     },
     { concurrency: 10 }
-  );
+  ).reduce((prev: bigint, cur) => prev + cur.txcShared, BigInt(0));
 };
 const createStatisticSales = async (
   statistic: Statistics,
@@ -158,12 +158,22 @@ const createStatisticsAndMemberStatistics = async () => {
       },
     });
     const { statistic, memberIds, membersWithHashPower } = await createStatistic(date, sales);
-    await createMemberStatisticsAndStatisticsWallets(
+    const txcShared = await createMemberStatisticsAndStatisticsWallets(
       statistic,
       memberIds,
       membersWithHashPower,
       date
     );
+
+    await prisma.statistics.update({
+      where: {
+        id: statistic.id,
+      },
+      data: {
+        txcShared,
+      },
+    });
+
     await createStatisticSales(statistic, sales, date);
     console.log(`Finished ${formatDate(iDate.toDate())}`);
   }
