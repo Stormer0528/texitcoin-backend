@@ -1,6 +1,7 @@
 import { Service } from 'typedi';
 
 import { Client } from '@elastic/elasticsearch';
+import { Username } from '@elastic/elasticsearch/lib/api/types';
 
 const ELASTIC_SEARCH_URL = process.env.ELASTIC_SEARCH_URL ?? 'http://127.0.0.1:9200';
 const ELASTIC_LOG_INDEX = 'log';
@@ -22,19 +23,21 @@ export class ElasticSearchService {
     who: string,
     role: ELASTIC_LOG_OWNER_ROLE,
     entity: string,
+    target: string,
     action: ELASTIC_LOG_TYPE,
     status: ELASTIC_LOG_ACTION_STATUS,
     after: any,
     before: any
   ) {
     try {
-      const res = await this.client.index({
+      await this.client.index({
         index: ELASTIC_LOG_INDEX,
         document: {
           who,
           role,
-          when: new Date().toISOString().split(/[T.]/).slice(0, 2).join(' '),
+          when: new Date().toISOString(),
           entity,
+          target,
           action,
           status,
           before,
@@ -44,5 +47,18 @@ export class ElasticSearchService {
     } catch (_err) {
       console.log('Elastic Error => ', _err.message);
     }
+  }
+  async getLogByMinerUsername(username: string, limit: number) {
+    return this.client.search({
+      query: {
+        match: {
+          target: username,
+        },
+      },
+      sort: {
+        when: 'desc',
+      },
+      size: limit,
+    });
   }
 }

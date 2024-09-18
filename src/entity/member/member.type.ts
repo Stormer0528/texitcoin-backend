@@ -7,6 +7,12 @@ import { PaginatedResponse } from '@/graphql/paginatedResponse';
 
 import { Member } from '@/entity/member/member.entity';
 import { MemberWalletDataInput } from '../memberWallet/memberWallet.type';
+import {
+  ELASTIC_LOG_ACTION_STATUS,
+  ELASTIC_LOG_OWNER_ROLE,
+  ELASTIC_LOG_TYPE,
+} from '@/service/elasticsearch';
+import GraphQLJSON from 'graphql-type-json';
 
 // Member Query Args
 @ArgsType()
@@ -199,4 +205,34 @@ export class PlacementPositionCountResponse {
 
   @Field()
   rightCount: number;
+}
+
+@ObjectType()
+export class MemberLog {
+  @Field()
+  id: string;
+
+  @Field()
+  who: string;
+
+  @Field()
+  role: string;
+
+  @Field()
+  when: Date;
+
+  @Field()
+  entity: string;
+
+  @Field()
+  action: string;
+
+  @Field()
+  status: string;
+
+  @Field(() => GraphQLJSON, { nullable: true })
+  before?: any;
+
+  @Field(() => GraphQLJSON, { nullable: true })
+  after?: any;
 }

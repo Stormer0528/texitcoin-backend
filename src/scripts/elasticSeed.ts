@@ -7,38 +7,15 @@ const client = new Client({
   node: ELASTIC_SEARCH_URL,
 });
 
-const LogIndexMapping = {
-  mappings: {
-    properties: {
-      who: { type: 'text' },
-      when: {
-        type: 'date',
-        format: 'yyyy-MM-dd hh:mm:ss',
-      },
-      entity: { type: 'text' },
-      action: { type: 'keyword' },
-      before: { type: 'object' },
-      after: { type: 'object' },
-    },
-  },
-};
-
-// client.index({
-//   index: ELASTIC_LOG_INDEX,
-//   document: LogIndexMapping,
-// });
-
 client.indices.create({
   index: ELASTIC_LOG_INDEX,
   mappings: {
     properties: {
       who: { type: 'text' },
-      when: {
-        type: 'date',
-        format: 'yyyy-MM-dd hh:mm:ss',
-      },
+      when: { type: 'date' },
       role: { type: 'keyword' },
       entity: { type: 'text' },
+      target: { type: 'text' },
       action: { type: 'keyword' },
       status: { type: 'keyword' },
       before: { type: 'object' },

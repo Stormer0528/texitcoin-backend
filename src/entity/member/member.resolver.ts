@@ -45,6 +45,7 @@ import {
   MemberOverview,
   MemberOverviewInput,
   PlacementPositionCountResponse,
+  MemberLog,
 } from './member.type';
 import { Member } from './member.entity';
 import { Sale } from '../sale/sale.entity';
@@ -72,7 +73,7 @@ export class MemberResolver {
     private readonly mailerService: MailerService
   ) {}
 
-  @Authorized()
+  // @Authorized()
   @Query(() => MembersResponse)
   async members(
     @Args() query: MemberQueryArgs,
@@ -395,5 +396,14 @@ export class MemberResolver {
       leftCount,
       rightCount,
     };
+  }
+
+  @FieldResolver(() => [MemberLog])
+  async logs(@Root() member: Member, @Arg('logsize') logsize: number) {
+    const logres = await this.elasticService.getLogByMinerUsername(member.username, logsize);
+    return logres.hits.hits.map((hit) => ({
+      id: hit._id,
+      ...(hit._source as object),
+    }));
   }
 }

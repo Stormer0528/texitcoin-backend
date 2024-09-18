@@ -1,4 +1,4 @@
-import { ObjectType, Field, ID } from 'type-graphql';
+import { ObjectType, Field, ID, Args, Authorized } from 'type-graphql';
 import { IsEmail } from 'class-validator';
 
 import { BaseEntity } from '@/graphql/baseEntity';
@@ -6,7 +6,8 @@ import { BaseEntity } from '@/graphql/baseEntity';
 import { Sale } from '@/entity/sale/sale.entity';
 import { MemberStatistics } from '../memberStatistics/memberStatistics.entity';
 import { MemberWallet } from '../memberWallet/memberWallet.entity';
-import { PLACEMENT_POSITION } from './member.type';
+import { MemberLog, PLACEMENT_POSITION } from './member.type';
+import { UserRole } from '@/type';
 
 @ObjectType()
 export class Member extends BaseEntity {
@@ -78,4 +79,8 @@ export class Member extends BaseEntity {
 
   @Field(() => [Member], { nullable: 'itemsAndList' })
   placementChildren?: Member[];
+
+  @Authorized([UserRole.Admin])
+  @Field(() => [MemberLog], { nullable: 'itemsAndList' })
+  logs?: MemberLog[];
 }
