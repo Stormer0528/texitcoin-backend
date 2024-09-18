@@ -27,3 +27,22 @@ const LogIndexMapping = {
 //   index: ELASTIC_LOG_INDEX,
 //   document: LogIndexMapping,
 // });
+
+client.indices.create({
+  index: ELASTIC_LOG_INDEX,
+  mappings: {
+    properties: {
+      who: { type: 'text' },
+      when: {
+        type: 'date',
+        format: 'yyyy-MM-dd hh:mm:ss',
+      },
+      role: { type: 'keyword' },
+      entity: { type: 'text' },
+      action: { type: 'keyword' },
+      status: { type: 'keyword' },
+      before: { type: 'object' },
+      after: { type: 'object' },
+    },
+  },
+});

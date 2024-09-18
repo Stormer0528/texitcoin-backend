@@ -21,6 +21,7 @@ import { UserRole } from '@/type';
 import { Context } from '@/context';
 import { createAccessToken, hashPassword, verifyPassword } from '@/utils/auth';
 import { MailerService } from '@/service/mailer';
+import { minerLog } from '@/middlewares';
 
 import {
   CountResponse,
@@ -55,6 +56,7 @@ import { SaleService } from '../sale/sale.service';
 import { MemberStatisticsService } from '../memberStatistics/memberStatistics.service';
 import { userPermission } from '../admin/admin.permission';
 import { PERCENT } from '@/consts/db';
+import { ElasticSearchService } from '@/service/elasticsearch';
 
 @Service()
 @Resolver(() => Member)
@@ -64,6 +66,8 @@ export class MemberResolver {
     private readonly memberWalletService: MemberWalletService,
     private readonly memberStatisticsService: MemberStatisticsService,
     private readonly saleService: SaleService,
+    @Inject(() => ElasticSearchService)
+    private readonly elasticService: ElasticSearchService,
     @Inject(() => MailerService)
     private readonly mailerService: MailerService
   ) {}
@@ -98,6 +102,7 @@ export class MemberResolver {
   }
 
   @Authorized([UserRole.Admin])
+  @UseMiddleware(minerLog('create'))
   @Mutation(() => Member)
   async createMember(@Arg('data') data: CreateMemberInput): Promise<Member> {
     const sumPercent = data.wallets.reduce((prev, current) => {
@@ -123,6 +128,7 @@ export class MemberResolver {
 
   @Authorized()
   @UseMiddleware(userPermission)
+  @UseMiddleware(minerLog('update'))
   @Mutation(() => Member)
   async updateMember(@Ctx() ctx: Context, @Arg('data') data: UpdateMemberInput): Promise<Member> {
     let newData: UpdateMemberInput = {
@@ -143,6 +149,7 @@ export class MemberResolver {
   }
 
   @Authorized([UserRole.Admin])
+  @UseMiddleware(minerLog('remove'))
   @Mutation(() => SuccessResponse)
   async removeMember(@Arg('data') data: IDInput): Promise<SuccessResponse> {
     const salesCnt = await this.saleService.getSalesCount({
