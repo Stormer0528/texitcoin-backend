@@ -9,52 +9,58 @@ export function minerLog(action: ELASTIC_LOG_TYPE) {
   return async ({ context, args: { data } }: ResolverData<Context>, next: NextFn) => {
     try {
       const res = await next();
-      let before: any = {};
-      let after: any = {};
-      if (action === 'create' || action === 'update') {
-        after = await context.prisma.member.findUnique({
-          where: {
-            id: res.id,
-          },
-        });
-      }
-      if (action === 'remove' || action === 'update') {
-        before = await context.prisma.member.findUnique({
-          where: {
-            id: data.id,
-          },
-        });
-      }
-      elasticsearch.addLog(
-        context.user.username,
-        context.isAdmin ? 'admin' : 'miner',
-        'member',
-        action,
-        'success',
-        after,
-        before
-      );
+
+      (async () => {
+        let before: any = {};
+        let after: any = {};
+        if (action === 'create' || action === 'update') {
+          after = await context.prisma.member.findUnique({
+            where: {
+              id: res.id,
+            },
+          });
+        }
+        if (action === 'remove' || action === 'update') {
+          before = await context.prisma.member.findUnique({
+            where: {
+              id: data.id,
+            },
+          });
+        }
+        elasticsearch.addLog(
+          context.user.username,
+          context.isAdmin ? 'admin' : 'miner',
+          'member',
+          action,
+          'success',
+          after,
+          before
+        );
+      })();
+
       return res;
     } catch (err) {
-      let before = {};
+      (async () => {
+        let before = {};
 
-      if (action === 'remove' || action === 'update') {
-        before = await context.prisma.member.findUnique({
-          where: {
-            id: data.id,
-          },
-        });
-      }
+        if (action === 'remove' || action === 'update') {
+          before = await context.prisma.member.findUnique({
+            where: {
+              id: data.id,
+            },
+          });
+        }
 
-      elasticsearch.addLog(
-        context.user.username,
-        context.isAdmin ? 'admin' : 'miner',
-        'member',
-        action,
-        'failed',
-        {},
-        before
-      );
+        elasticsearch.addLog(
+          context.user.username,
+          context.isAdmin ? 'admin' : 'miner',
+          'member',
+          action,
+          'failed',
+          {},
+          before
+        );
+      })();
 
       throw err;
     }
