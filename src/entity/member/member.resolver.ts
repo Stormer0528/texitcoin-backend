@@ -399,7 +399,7 @@ export class MemberResolver {
   }
 
   @FieldResolver(() => [MemberLog])
-  async logs(@Root() member: Member, @Arg('logsize') logsize: number) {
+  async logs(@Root() member: Member, @Arg('logsize', { defaultValue: 10 }) logsize: number) {
     const logres = await this.elasticService.getLogByMinerUsername(member.username, logsize);
     return logres.hits.hits.map((hit) => ({
       id: hit._id,
