@@ -49,16 +49,18 @@ export class ElasticSearchService {
     }
   }
   async getLogByMinerUsername(username: string, limit: number) {
-    return this.client.search({
-      query: {
-        match: {
-          target: username,
+    return this.client
+      .search({
+        query: {
+          match: {
+            target: username,
+          },
         },
-      },
-      sort: {
-        when: 'desc',
-      },
-      size: limit,
-    });
+        sort: {
+          when: 'desc',
+        },
+        size: limit,
+      })
+      .catch(() => null);
   }
 }
