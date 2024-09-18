@@ -81,17 +81,15 @@ const createMemberStatisticsAndStatisticsWallets = async (
   return await Bluebird.map(
     memberIds,
     async (memberId: string) => {
-      const percent: number = Math.floor(
-        (membersWithHashPower[memberId] / totalHashPower) * 100 * PERCENT
-      );
-      const txcShared: number = Math.floor((percent / 100 / PERCENT) * totalTxcShared);
+      const percent: number = membersWithHashPower[memberId] / totalHashPower;
+      const txcShared: number = Math.floor(percent * totalTxcShared);
       const hashPower: number = membersWithHashPower[memberId];
       const statisticsId: string = statistic.id;
       return await prisma.memberStatistics.create({
         data: {
           txcShared,
           hashPower,
-          percent,
+          percent: Math.floor(percent * 100 * PERCENT),
           statisticsId,
           issuedAt,
           memberId,
