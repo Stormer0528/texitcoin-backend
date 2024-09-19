@@ -1,7 +1,7 @@
 import { Client } from '@elastic/elasticsearch';
 
 const ELASTIC_SEARCH_URL = process.env.ELASTIC_SEARCH_URL ?? 'http://127.0.0.1:9200';
-const ELASTIC_LOG_INDEX = 'log';
+const ELASTIC_LOG_INDEX = process.env.ELASTIC_LOG_INDEX ?? 'logtest';
 
 const client = new Client({
   node: ELASTIC_SEARCH_URL,

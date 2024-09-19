@@ -1,10 +1,9 @@
 import { Service } from 'typedi';
 
 import { Client } from '@elastic/elasticsearch';
-import { Username } from '@elastic/elasticsearch/lib/api/types';
 
 const ELASTIC_SEARCH_URL = process.env.ELASTIC_SEARCH_URL ?? 'http://127.0.0.1:9200';
-const ELASTIC_LOG_INDEX = 'log';
+const ELASTIC_LOG_INDEX = process.env.ELASTIC_LOG_INDEX ?? 'logtest';
 
 export type ELASTIC_LOG_TYPE = 'create' | 'update' | 'remove';
 export type ELASTIC_LOG_OWNER_ROLE = 'admin' | 'miner';
