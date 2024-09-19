@@ -13,10 +13,76 @@ export function minerLog(action: ELASTIC_LOG_TYPE) {
 
     try {
       if (action === 'remove' || action === 'update') {
-        const { id, password, token, sponsorId, createdAt, updatedAt, deletedAt, ...rest } =
-          await context.prisma.member.findUnique({
+        const {
+          id,
+          password,
+          token,
+          sponsorId,
+          placementParentId,
+          createdAt,
+          updatedAt,
+          deletedAt,
+          ...rest
+        } = await context.prisma.member.findUnique({
+          where: {
+            id: data.id,
+          },
+          include: {
+            memberWallets: {
+              select: {
+                payout: {
+                  select: {
+                    method: true,
+                    status: true,
+                    name: true,
+                    display: true,
+                  },
+                },
+                address: true,
+                percent: true,
+              },
+              where: {
+                deletedAt: null,
+              },
+            },
+            sponsor: {
+              select: {
+                fullName: true,
+                username: true,
+              },
+            },
+            placementParent: {
+              select: {
+                fullName: true,
+                username: true,
+              },
+            },
+          },
+        });
+
+        before = rest;
+        target = before.username;
+      }
+
+      const res = await next();
+
+      (async () => {
+        let after: any = {};
+
+        if (action === 'create' || action === 'update' || action === 'signup') {
+          const {
+            id,
+            password,
+            token,
+            sponsorId,
+            placementParentId,
+            createdAt,
+            updatedAt,
+            deletedAt,
+            ...rest
+          } = await context.prisma.member.findUnique({
             where: {
-              id: data.id,
+              id: res.id,
             },
             include: {
               memberWallets: {
@@ -42,50 +108,14 @@ export function minerLog(action: ELASTIC_LOG_TYPE) {
                   username: true,
                 },
               },
+              placementParent: {
+                select: {
+                  fullName: true,
+                  username: true,
+                },
+              },
             },
           });
-
-        before = rest;
-        target = before.username;
-      }
-
-      const res = await next();
-
-      (async () => {
-        let after: any = {};
-
-        if (action === 'create' || action === 'update' || action === 'signup') {
-          const { id, password, token, sponsorId, createdAt, updatedAt, deletedAt, ...rest } =
-            await context.prisma.member.findUnique({
-              where: {
-                id: res.id,
-              },
-              include: {
-                memberWallets: {
-                  select: {
-                    payout: {
-                      select: {
-                        method: true,
-                        status: true,
-                        name: true,
-                        display: true,
-                      },
-                    },
-                    address: true,
-                    percent: true,
-                  },
-                  where: {
-                    deletedAt: null,
-                  },
-                },
-                sponsor: {
-                  select: {
-                    fullName: true,
-                    username: true,
-                  },
-                },
-              },
-            });
 
           after = rest;
           target = after.username;
