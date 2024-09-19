@@ -94,7 +94,7 @@ export function minerLog(action: ELASTIC_LOG_TYPE) {
     } catch (err) {
       (async () => {
         elasticsearch.addLog(
-          context.user.username,
+          action === 'signup' ? 'unknown' : context.user.username,
           context.isAdmin ? 'admin' : 'miner',
           'member',
           target,
