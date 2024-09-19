@@ -9,12 +9,12 @@ export function minerLog(action: ELASTIC_LOG_TYPE) {
 
   return async ({ context, args: { data } }: ResolverData<Context>, next: NextFn) => {
     let before: any = {};
-    let target: string = '';
+    let targetId: string = '';
+    let targetUsername: string = '';
 
     try {
       if (action === 'remove' || action === 'update') {
         const {
-          id,
           password,
           token,
           sponsorId,
@@ -61,7 +61,8 @@ export function minerLog(action: ELASTIC_LOG_TYPE) {
         });
 
         before = rest;
-        target = before.username;
+        targetId = before.id;
+        targetUsername = before.username;
       }
 
       const res = await next();
@@ -71,7 +72,6 @@ export function minerLog(action: ELASTIC_LOG_TYPE) {
 
         if (action === 'create' || action === 'update' || action === 'signup') {
           const {
-            id,
             password,
             token,
             sponsorId,
@@ -118,13 +118,15 @@ export function minerLog(action: ELASTIC_LOG_TYPE) {
           });
 
           after = rest;
-          target = after.username;
+          targetId = after.id;
+          targetUsername = after.username;
         }
         elasticsearch.addLog(
           action === 'signup' ? after.username : context.user.username,
           context.isAdmin ? 'admin' : 'miner',
           'member',
-          target,
+          targetId,
+          targetUsername,
           action,
           'success',
           after,
@@ -139,7 +141,8 @@ export function minerLog(action: ELASTIC_LOG_TYPE) {
           action === 'signup' ? 'unknown' : context.user.username,
           context.isAdmin ? 'admin' : 'miner',
           'member',
-          target,
+          targetId,
+          targetUsername,
           action,
           'failed',
           {},

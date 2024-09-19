@@ -22,7 +22,8 @@ export class ElasticSearchService {
     who: string,
     role: ELASTIC_LOG_OWNER_ROLE,
     entity: string,
-    target: string,
+    targetId: string,
+    targetUsername: string,
     action: ELASTIC_LOG_TYPE,
     status: ELASTIC_LOG_ACTION_STATUS,
     after: any,
@@ -36,7 +37,8 @@ export class ElasticSearchService {
           role,
           when: new Date().toISOString(),
           entity,
-          target,
+          targetId,
+          targetUsername,
           action,
           status,
           before,
@@ -47,13 +49,13 @@ export class ElasticSearchService {
       console.log('Elastic Error => ', _err.message);
     }
   }
-  async getLogByMinerUsername(username: string, limit: number) {
+  async getLogByMinerUsername(id: string, limit: number) {
     return this.client
       .search({
         index: ELASTIC_LOG_INDEX,
         query: {
           match: {
-            target: username,
+            targetId: id,
           },
         },
         sort: {
