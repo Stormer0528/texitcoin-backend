@@ -236,3 +236,9 @@ export class MemberLog {
   @Field(() => GraphQLJSON, { nullable: true })
   after?: any;
 }
+
+@ObjectType()
+export class ReferenceLink {
+  @Field()
+  link: string;
+}

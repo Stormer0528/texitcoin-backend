@@ -46,6 +46,7 @@ import {
   MemberOverviewInput,
   PlacementPositionCountResponse,
   MemberLog,
+  ReferenceLink,
 } from './member.type';
 import { Member } from './member.entity';
 import { Sale } from '../sale/sale.entity';
@@ -125,6 +126,12 @@ export class MemberResolver {
       data.wallets.map((wallet) => ({ ...wallet, memberId: member.id }))
     );
     return member;
+  }
+
+  @UseMiddleware(minerLog('signup'))
+  @Mutation(() => Member)
+  async signUpMember(@Arg('data') data: CreateMemberInput): Promise<Member> {
+    return this.createMember(data);
   }
 
   @Authorized()
@@ -408,5 +415,12 @@ export class MemberResolver {
           ...(hit._source as object),
         }))
       : [];
+  }
+
+  @Query(() => ReferenceLink)
+  generateReferenceLink(@Ctx() ctx: Context): ReferenceLink {
+    return {
+      link: `${process.env.MEMBER_URL}/signup?reference=${ctx.user.username}`,
+    };
   }
 }

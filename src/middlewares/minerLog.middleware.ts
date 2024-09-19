@@ -48,7 +48,7 @@ export function minerLog(action: ELASTIC_LOG_TYPE) {
       (async () => {
         let after: any = {};
 
-        if (action === 'create' || action === 'update') {
+        if (action === 'create' || action === 'update' || action === 'signup') {
           const { id, password, token, createdAt, updatedAt, deletedAt, ...rest } =
             await context.prisma.member.findUnique({
               where: {
@@ -79,7 +79,7 @@ export function minerLog(action: ELASTIC_LOG_TYPE) {
           target = after.username;
         }
         elasticsearch.addLog(
-          context.user.username,
+          action === 'signup' ? after.username : context.user.username,
           context.isAdmin ? 'admin' : 'miner',
           'member',
           target,

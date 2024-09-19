@@ -20,8 +20,8 @@ export const context: ContextFunction<[StandaloneServerContextFunctionArgument],
   req,
 }): Promise<Context> => {
   const token = req.headers.authorization?.split(' ')[1];
-  let user: Member | Admin;
-  let isAdmin: boolean;
+  let user: Member | Admin = null;
+  let isAdmin: boolean = false;
   if (token) {
     const { id, isAdmin: admin } = verifyToken(token) as any;
     isAdmin = admin;
