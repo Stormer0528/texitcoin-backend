@@ -25,6 +25,7 @@
     "class-validator": "^0.14.1",
     "dataloader": "^2.2.2",
     "dayjs": "^1.11.11",
+    "dotenv": "^16.4.5",
     "graphql": "^16.8.1",
     "graphql-fields": "^2.0.3",
     "graphql-scalars": "^1.23.0",
