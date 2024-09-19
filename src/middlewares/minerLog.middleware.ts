@@ -32,6 +32,9 @@ export function minerLog(action: ELASTIC_LOG_TYPE) {
                   address: true,
                   percent: true,
                 },
+                where: {
+                  deletedAt: null,
+                },
               },
             },
           });
@@ -64,6 +67,9 @@ export function minerLog(action: ELASTIC_LOG_TYPE) {
                     },
                     address: true,
                     percent: true,
+                  },
+                  where: {
+                    deletedAt: null,
                   },
                 },
               },
