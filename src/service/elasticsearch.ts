@@ -50,6 +50,7 @@ export class ElasticSearchService {
   async getLogByMinerUsername(username: string, limit: number) {
     return this.client
       .search({
+        index: ELASTIC_LOG_INDEX,
         query: {
           match: {
             target: username,
