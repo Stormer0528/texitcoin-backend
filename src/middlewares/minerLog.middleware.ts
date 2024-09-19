@@ -13,7 +13,7 @@ export function minerLog(action: ELASTIC_LOG_TYPE) {
 
     try {
       if (action === 'remove' || action === 'update') {
-        const { id, password, token, createdAt, updatedAt, deletedAt, ...rest } =
+        const { id, password, token, sponsorId, createdAt, updatedAt, deletedAt, ...rest } =
           await context.prisma.member.findUnique({
             where: {
               id: data.id,
@@ -36,6 +36,12 @@ export function minerLog(action: ELASTIC_LOG_TYPE) {
                   deletedAt: null,
                 },
               },
+              sponsor: {
+                select: {
+                  fullName: true,
+                  username: true,
+                },
+              },
             },
           });
 
@@ -49,7 +55,7 @@ export function minerLog(action: ELASTIC_LOG_TYPE) {
         let after: any = {};
 
         if (action === 'create' || action === 'update' || action === 'signup') {
-          const { id, password, token, createdAt, updatedAt, deletedAt, ...rest } =
+          const { id, password, token, sponsorId, createdAt, updatedAt, deletedAt, ...rest } =
             await context.prisma.member.findUnique({
               where: {
                 id: res.id,
@@ -70,6 +76,12 @@ export function minerLog(action: ELASTIC_LOG_TYPE) {
                   },
                   where: {
                     deletedAt: null,
+                  },
+                },
+                sponsor: {
+                  select: {
+                    fullName: true,
+                    username: true,
                   },
                 },
               },
