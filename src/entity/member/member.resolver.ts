@@ -430,6 +430,7 @@ export class MemberResolver {
       : [];
   }
 
+  @Authorized()
   @Query(() => ReferenceLink)
   generateReferenceLink(@Ctx() ctx: Context): ReferenceLink {
     return {
