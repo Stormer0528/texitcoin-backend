@@ -110,6 +110,8 @@ export class MemberResolver {
     const sumPercent = data.wallets.reduce((prev, current) => {
       if (!current.payoutId) {
         throw new Error('Not specified payout type');
+      } else if (!current.address) {
+        throw new Error('Not specified wallet address');
       }
       return prev + current.percent;
     }, 0);
@@ -139,6 +141,17 @@ export class MemberResolver {
   @UseMiddleware(minerLog('update'))
   @Mutation(() => Member)
   async updateMember(@Ctx() ctx: Context, @Arg('data') data: UpdateMemberInput): Promise<Member> {
+    const sumPercent = data.wallets.reduce((prev, current) => {
+      if (!current.payoutId) {
+        throw new Error('Not specified payout type');
+      } else if (!current.address) {
+        throw new Error('Not specified wallet address');
+      }
+      return prev + current.percent;
+    }, 0);
+
+    if (sumPercent !== 100 * PERCENT) throw new Error('Sum of percent must be 100');
+
     let newData: UpdateMemberInput = {
       id: data.id ?? ctx.user.id,
       ..._.omit(data, 'wallets'),

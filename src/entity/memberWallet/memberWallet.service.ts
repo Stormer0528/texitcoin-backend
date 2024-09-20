@@ -50,6 +50,8 @@ export class MemberWalletService {
     const sumPercent = data.wallets.reduce((prev, current) => {
       if (!current.payoutId) {
         throw new Error('Not specified payout type');
+      } else if (!current.address) {
+        throw new Error('Not specified wallet address');
       }
       return prev + current.percent;
     }, 0);
@@ -94,6 +96,8 @@ export class MemberWalletService {
     const sumPercent = data.reduce((prev, current) => {
       if (!current.payoutId) {
         throw new Error('Not specified payout type');
+      } else if (!current.address) {
+        throw new Error('Not specified wallet address');
       }
       return prev + current.percent;
     }, 0);
