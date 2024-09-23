@@ -62,6 +62,9 @@ export class Member extends BaseEntity {
   @Field()
   emailVerified: boolean;
 
+  @Field()
+  status: boolean;
+
   @Field(() => [Sale], { nullable: 'itemsAndList' })
   sales?: Sale[];
 
