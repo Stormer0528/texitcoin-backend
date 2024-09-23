@@ -2,7 +2,12 @@ import { Prisma } from '@prisma/client';
 import { Service, Inject } from 'typedi';
 
 import { EmailInput, TokenInput } from '@/graphql/common.type';
-import { createVerificationToken, generateRandomString, hashPassword } from '@/utils/auth';
+import {
+  createVerificationToken,
+  generateRandomString,
+  hashPassword,
+  verifyToken,
+} from '@/utils/auth';
 import { PrismaService } from '@/service/prisma';
 
 import {
@@ -130,14 +135,24 @@ export class MemberService {
   async generateResetTokenByEmail(data: EmailInput) {
     const randomLength = Math.floor(Math.random() * 60) + 40;
     const token = createVerificationToken(generateRandomString(randomLength));
-    return this.prisma.member.update({
+    const member = await this.prisma.member.findUnique({
       where: {
         email: data.email.toLowerCase(),
       },
-      data: {
-        token,
-      },
     });
+
+    if (member.emailVerified) {
+      return this.prisma.member.update({
+        where: {
+          email: data.email.toLowerCase(),
+        },
+        data: {
+          token,
+        },
+      });
+    } else {
+      throw new Error('Email is not verified');
+    }
   }
 
   async resetPasswordByToken(data: ResetPasswordTokenInput) {
@@ -154,20 +169,33 @@ export class MemberService {
   }
 
   async verifyAndUpdateToken(data: TokenInput): Promise<VerifyTokenResponse> {
-    const randomLength = Math.floor(Math.random() * 60) + 40;
+    try {
+      const { verification } = verifyToken(data.token) as any;
+      if (!verification) {
+        throw new Error('Invalid Token');
+      }
 
-    return this.prisma.member.update({
-      where: {
-        token: data.token,
-      },
-      data: {
-        token: generateRandomString(randomLength),
-      },
-      select: {
-        email: true,
-        token: true,
-      },
-    });
+      const randomLength = Math.floor(Math.random() * 60) + 40;
+
+      return this.prisma.member.update({
+        where: {
+          token: data.token,
+        },
+        data: {
+          token: generateRandomString(randomLength),
+        },
+        select: {
+          email: true,
+          token: true,
+        },
+      });
+    } catch (err) {
+      if (err.name === 'TokenExpiredError') {
+        throw new Error('Token is expired');
+      } else {
+        throw err;
+      }
+    }
   }
 
   async updateMemberPointByMemberId(id: string): Promise<void> {
@@ -210,15 +238,34 @@ export class MemberService {
   }
 
   async verifyEmailDigit(data: EmailVerificationInput) {
-    return this.prisma.member.update({
-      where: {
-        token: data.token,
-        email: data.email,
-      },
-      data: {
-        token: null,
-        emailVerified: true,
-      },
-    });
+    try {
+      const { verification } = verifyToken(data.token) as any;
+      if (!verification) {
+        throw new Error('Invalid Token');
+      }
+      if (verification === data.digit) {
+        throw new Error('Invalid Code');
+      }
+
+      return this.prisma.member.update({
+        where: {
+          token: data.token,
+          email: data.email,
+        },
+        data: {
+          token: null,
+          emailVerified: true,
+        },
+        select: {
+          email: true,
+        },
+      });
+    } catch (err) {
+      if (err.name === 'TokenExpiredError') {
+        throw new Error('Token is expired');
+      } else {
+        throw err;
+      }
+    }
   }
 }

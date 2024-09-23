@@ -28,5 +28,5 @@ export const generateRandomString = (length: number) => {
 };
 
 export const createVerificationToken = (verification: string | number) => {
-  return sign({ verification }, process.env.JWT_SECRET!, { expiresIn: '10m', algorithm: 'HS256' });
+  return sign({ verification }, process.env.JWT_SECRET!, { expiresIn: '10m' });
 };

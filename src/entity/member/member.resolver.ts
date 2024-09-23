@@ -156,6 +156,7 @@ export class MemberResolver {
       password: hashedPassword,
       status: false,
       signupFormRequest: data,
+      emailVerified: false,
     });
   }
 
@@ -172,7 +173,8 @@ export class MemberResolver {
 
   @Mutation(() => SuccessResponse)
   async emailVerify(@Arg('data') data: EmailVerificationInput): Promise<SuccessResponse> {
-    const member = await this.service.verifyAndUpdateToken(data);
+    const member = await this.service.verifyEmailDigit(data);
+
     if (member) {
       return {
         result: SuccessResult.success,
