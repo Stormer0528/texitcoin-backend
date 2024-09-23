@@ -166,6 +166,9 @@ const createStatisticsAndMemberStatistics = async (tranPrisma: PrismaClient) => 
         orderedAt: {
           lt: iDate.add(1, 'day').toDate(),
         },
+        member: {
+          status: true,
+        },
         status: true,
       },
       select: {
