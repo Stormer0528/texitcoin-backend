@@ -52,6 +52,7 @@ model Member {
   placementPosition PlacementPosition? @default(LEFT)
   point             Int                @default(0)
   status            Boolean            @default(true) @db.Boolean
+  signupFormRequest Json?              @db.Json
 
   sponsor         Member? @relation("MemberSponsor", fields: [sponsorId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   placementParent Member? @relation("MemberPlacementParent", fields: [placementParentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
