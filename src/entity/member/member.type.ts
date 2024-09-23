@@ -1,5 +1,5 @@
 import type { Prisma } from '@prisma/client';
-import { IsAlpha, IsEmail, Length } from 'class-validator';
+import { IsAlpha, IsEmail, IsNotEmpty, Length } from 'class-validator';
 import { ObjectType, InputType, Field, ArgsType, ID } from 'type-graphql';
 
 import { QueryArgsBase } from '@/graphql/queryArgs';
@@ -30,6 +30,7 @@ export class MembersResponse extends PaginatedResponse {
 @InputType()
 export class CreateMemberInput {
   @Field()
+  @IsNotEmpty()
   username: string;
 
   @Field()
@@ -79,6 +80,7 @@ export class CreateMemberInput {
 @InputType()
 export class SignupFormInput {
   @Field()
+  @IsNotEmpty()
   username: string;
 
   @Field()
