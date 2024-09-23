@@ -21,7 +21,7 @@ import { UserRole } from '@/type';
 import { Context } from '@/context';
 import { createAccessToken, hashPassword, verifyPassword } from '@/utils/auth';
 import { MailerService } from '@/service/mailer';
-import { minerLog } from '@/middlewares';
+import { minerLog } from '@/graphql/middlewares';
 
 import {
   CountResponse,

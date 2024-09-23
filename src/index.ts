@@ -27,7 +27,7 @@ import { AdminResolver } from './entity/admin/admin.resolver';
 import { MemberWalletResolver } from './entity/memberWallet/memberWallet.resolver';
 import { MemberStatisticsWalletResolver } from './entity/memberStatisticsWallet/memberStatisticsWallet.resolver';
 import router from './routes';
-import { adminAuthorized } from './middlewares/adminAuthorized.middleware';
+import { adminAuthorized } from './graphql/middlewares/adminAuthorized.middleware';
 import { DailyBlockResolver } from './entity/dailyblock/dailyblock.resolver';
 import { WeeklyBlockResolver } from './entity/weeklyblock/weeklyblock.resolver';
 import { MonthlyBlockResolver } from './entity/monthlyblock/monthlyblock.resolver';
