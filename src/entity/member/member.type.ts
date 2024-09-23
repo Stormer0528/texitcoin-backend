@@ -76,7 +76,41 @@ export class CreateMemberInput {
 }
 
 @InputType()
-export class SignupFormInput extends CreateMemberInput {
+export class SignupFormInput {
+  @Field()
+  username: string;
+
+  @Field()
+  fullName: string;
+
+  @Field()
+  primaryAddress: string;
+
+  @Field({ nullable: true })
+  secondaryAddress?: string;
+
+  @Field({ nullable: true })
+  city?: string;
+
+  @Field({ nullable: true })
+  state?: string;
+
+  @Field({ nullable: true })
+  zipCode?: string;
+
+  @Field()
+  @IsEmail()
+  email: string;
+
+  @Field()
+  mobile: string;
+
+  @Field()
+  assetId: string;
+
+  @Field(() => ID, { nullable: true })
+  sponsorId?: string;
+
   @Field(() => ID)
   packageId?: string;
 

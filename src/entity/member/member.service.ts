@@ -82,7 +82,7 @@ export class MemberService {
     });
   }
 
-  async createMember(data: CreateMemberInput & { password: string }) {
+  async createMember(data: CreateMemberInput & { password: string; signupFormRequest: any }) {
     const maxUserId = await this.prisma.member.aggregate({
       _max: {
         userId: true,

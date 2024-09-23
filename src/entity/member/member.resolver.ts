@@ -153,6 +153,7 @@ export class MemberResolver {
       email: data.email.toLowerCase(),
       password: hashedPassword,
       status: false,
+      signupFormRequest: data,
     });
 
     return member;
