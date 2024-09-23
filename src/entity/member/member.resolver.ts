@@ -127,7 +127,7 @@ export class MemberResolver {
 
     const hashedPassword = await hashPassword(DEFAULT_PASSWORD);
     const member = await this.service.createMember({
-      ..._.omit(data, ['wallets', 'packageId', 'paymentMenthod']),
+      ..._.omit(data, 'wallets'),
       email: data.email.toLowerCase(),
       password: hashedPassword,
     });
@@ -147,21 +147,13 @@ export class MemberResolver {
   @Transaction()
   @Mutation(() => Member)
   async signUpMember(@Arg('data') data: SignupFormInput): Promise<Member> {
-    const member = await this.createMember(data);
-    if (data.packageId) {
-      if (data.paymentMenthod) {
-        await this.saleService.createSale({
-          memberId: member.id,
-          orderedAt: new Date(),
-          packageId: data.packageId,
-          paymentMethod: data.paymentMenthod,
-          status: true,
-        });
-        await this.service.updateMemberPointByMemberId(member.id);
-      } else {
-        throw new Error('Sale can not be created - no paymentMethod');
-      }
-    }
+    const hashedPassword = await hashPassword(DEFAULT_PASSWORD);
+    const member = await this.service.createMember({
+      ..._.omit(data, ['packageId', 'paymentMenthod']),
+      email: data.email.toLowerCase(),
+      password: hashedPassword,
+      status: false,
+    });
 
     return member;
   }
