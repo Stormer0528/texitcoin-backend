@@ -116,10 +116,10 @@ export class SignupFormInput {
   @Length(6)
   password: string;
 
-  @Field(() => ID)
+  @Field(() => ID, { nullable: true })
   packageId?: string;
 
-  @Field()
+  @Field({ nullable: true })
   paymentMethod?: string;
 }
 
