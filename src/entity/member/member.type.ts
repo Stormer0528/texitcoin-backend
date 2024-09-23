@@ -120,7 +120,7 @@ export class SignupFormInput {
   packageId?: string;
 
   @Field()
-  paymentMenthod?: string;
+  paymentMethod?: string;
 }
 
 @InputType()
