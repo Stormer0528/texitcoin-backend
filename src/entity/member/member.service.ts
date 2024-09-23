@@ -227,7 +227,7 @@ export class MemberService {
   }
 
   async generateVerificationTokenAndDigitByEmail(data: EmailInput) {
-    const randomDigit = Math.floor(Math.random() * 899999) + 100000;
+    const randomDigit = `${Math.floor(Math.random() * 899999) + 100000}`;
     const token = createVerificationToken(randomDigit);
 
     const member = await this.prisma.member.update({

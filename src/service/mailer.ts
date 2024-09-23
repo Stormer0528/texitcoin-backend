@@ -72,7 +72,7 @@ export class MailerService {
     }
   }
 
-  public async sendEmailVerificationCode(to: string, name: string, code: number) {
+  public async sendEmailVerificationCode(to: string, name: string, code: string) {
     if (isEmail(to) && isEmail(SMTP_SENDER_EMAIL)) {
       const mailOption = {
         from: `"${SMTP_SENDER_NAME}" <${SMTP_SENDER_EMAIL}>`,

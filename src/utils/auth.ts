@@ -27,6 +27,6 @@ export const generateRandomString = (length: number) => {
     .replace(/\//g, '0'); // Replace '/' with '0' to ensure a valid URL-safe string
 };
 
-export const createVerificationToken = (verification: string | number) => {
+export const createVerificationToken = (verification: string) => {
   return sign({ verification }, process.env.JWT_SECRET!, { expiresIn: '10m' });
 };

@@ -311,5 +311,5 @@ export class EmailVerificationInput extends EmailInput {
   token: string;
 
   @Field()
-  digit: number;
+  digit: string;
 }
