@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Email Verification</title>
+</head>
+
+<body>
+  <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f4;">
+    <div
+      style="max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+      <h2 style="color: #333;">Verify Your Email Address</h2>
+      <p>Hi {{name}},</p>
+      <p>Thank you for signing up with Texitcoin! Please verify your email address by entering the 6-digit code
+        below:</p>
+
+      <h3
+        style="text-align: center; font-size: 24px; letter-spacing: 4px; background-color: #f0f0f0; padding: 10px; border-radius: 5px;">
+        {{verificationCode}}
+      </h3>
+
+      <p>This code will expire in 30 minutes. If you didn't request this, please ignore this email.</p>
+
+      <p>Thank you,</p>
+      <p>The Texitcoin Team</p>
+    </div>
+  </div>
+</body>
+
+</html>

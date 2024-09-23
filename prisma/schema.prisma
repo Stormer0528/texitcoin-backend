@@ -53,6 +53,7 @@ model Member {
   point             Int                @default(0)
   status            Boolean            @default(true) @db.Boolean
   signupFormRequest Json?              @db.Json
+  emailVerified     Boolean            @default(true) @db.Boolean
 
   sponsor         Member? @relation("MemberSponsor", fields: [sponsorId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   placementParent Member? @relation("MemberPlacementParent", fields: [placementParentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
