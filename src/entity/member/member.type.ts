@@ -1,5 +1,5 @@
 import type { Prisma } from '@prisma/client';
-import { IsEmail } from 'class-validator';
+import { IsAlpha, IsEmail, Length } from 'class-validator';
 import { ObjectType, InputType, Field, ArgsType, ID } from 'type-graphql';
 
 import { QueryArgsBase } from '@/graphql/queryArgs';
@@ -111,6 +111,10 @@ export class SignupFormInput {
 
   @Field(() => ID, { nullable: true })
   sponsorUserId?: number;
+
+  @Field()
+  @Length(6)
+  password: string;
 
   @Field(() => ID)
   packageId?: string;

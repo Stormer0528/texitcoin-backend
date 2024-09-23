@@ -149,7 +149,7 @@ export class MemberResolver {
   @Transaction()
   @Mutation(() => Member)
   async signUpMember(@Arg('data') data: SignupFormInput): Promise<Member> {
-    const hashedPassword = await hashPassword(DEFAULT_PASSWORD);
+    const hashedPassword = await hashPassword(data.password);
     const member = await this.service.getMemberByUserId(data.sponsorUserId);
     return await this.service.createMember({
       ..._.omit(data, ['packageId', 'paymentMenthod', 'sponsorUserId']),
