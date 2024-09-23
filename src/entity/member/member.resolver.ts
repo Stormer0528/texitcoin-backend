@@ -49,6 +49,8 @@ import {
   MemberLog,
   ReferenceLink,
   SignupFormInput,
+  EmailVerificationResponse,
+  EmailVerificationInput,
 } from './member.type';
 import { Member } from './member.entity';
 import { Sale } from '../sale/sale.entity';
@@ -148,15 +150,39 @@ export class MemberResolver {
   @Mutation(() => Member)
   async signUpMember(@Arg('data') data: SignupFormInput): Promise<Member> {
     const hashedPassword = await hashPassword(DEFAULT_PASSWORD);
-    const member = await this.service.createMember({
+    return await this.service.createMember({
       ..._.omit(data, ['packageId', 'paymentMenthod']),
       email: data.email.toLowerCase(),
       password: hashedPassword,
       status: false,
       signupFormRequest: data,
     });
+  }
 
-    return member;
+  @Mutation(() => EmailVerificationResponse)
+  async sendEmailVerification(@Arg('data') data: EmailInput): Promise<EmailVerificationResponse> {
+    const { token, digit, name } =
+      await this.service.generateVerificationTokenAndDigitByEmail(data);
+    await this.mailerService.sendEmailVerificationCode(data.email, name, digit);
+
+    return {
+      token,
+    };
+  }
+
+  @Mutation(() => SuccessResponse)
+  async emailVerify(@Arg('data') data: EmailVerificationInput): Promise<SuccessResponse> {
+    const member = await this.service.verifyAndUpdateToken(data);
+    if (member) {
+      return {
+        result: SuccessResult.success,
+      };
+    } else {
+      return {
+        result: SuccessResult.failed,
+        message: 'Can not verify email',
+      };
+    }
   }
 
   @Authorized()

@@ -2,7 +2,7 @@ import { Prisma } from '@prisma/client';
 import { Service, Inject } from 'typedi';
 
 import { EmailInput, TokenInput } from '@/graphql/common.type';
-import { createResetPasswordToken, hashPassword } from '@/utils/auth';
+import { createVerificationToken, generateRandomString, hashPassword } from '@/utils/auth';
 import { PrismaService } from '@/service/prisma';
 
 import {
@@ -11,6 +11,7 @@ import {
   MemberQueryArgs,
   ResetPasswordTokenInput,
   VerifyTokenResponse,
+  EmailVerificationInput,
 } from './member.type';
 import { Member } from './member.entity';
 
@@ -127,7 +128,8 @@ export class MemberService {
   }
 
   async generateResetTokenByEmail(data: EmailInput) {
-    const token = createResetPasswordToken();
+    const randomLength = Math.floor(Math.random() * 60) + 40;
+    const token = createVerificationToken(generateRandomString(randomLength));
     return this.prisma.member.update({
       where: {
         email: data.email.toLowerCase(),
@@ -152,12 +154,14 @@ export class MemberService {
   }
 
   async verifyAndUpdateToken(data: TokenInput): Promise<VerifyTokenResponse> {
+    const randomLength = Math.floor(Math.random() * 60) + 40;
+
     return this.prisma.member.update({
       where: {
         token: data.token,
       },
       data: {
-        token: createResetPasswordToken(),
+        token: generateRandomString(randomLength),
       },
       select: {
         email: true,
@@ -182,6 +186,38 @@ export class MemberService {
       },
       data: {
         point: newpoint,
+      },
+    });
+  }
+
+  async generateVerificationTokenAndDigitByEmail(data: EmailInput) {
+    const randomDigit = Math.floor(Math.random() * 899999) + 100000;
+    const token = createVerificationToken(randomDigit);
+
+    const member = await this.prisma.member.update({
+      where: {
+        email: data.email.toLowerCase(),
+      },
+      data: {
+        token,
+      },
+    });
+    return {
+      token,
+      digit: randomDigit,
+      name: member.fullName,
+    };
+  }
+
+  async verifyEmailDigit(data: EmailVerificationInput) {
+    return this.prisma.member.update({
+      where: {
+        token: data.token,
+        email: data.email,
+      },
+      data: {
+        token: null,
+        emailVerified: true,
       },
     });
   }

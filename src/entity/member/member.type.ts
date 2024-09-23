@@ -13,6 +13,7 @@ import {
   ELASTIC_LOG_TYPE,
 } from '@/service/elasticsearch';
 import GraphQLJSON from 'graphql-type-json';
+import { EmailInput, TokenInput } from '@/graphql/common.type';
 
 // Member Query Args
 @ArgsType()
@@ -290,4 +291,19 @@ export class MemberLog {
 export class ReferenceLink {
   @Field()
   link: string;
+}
+
+@ObjectType()
+export class EmailVerificationResponse {
+  @Field()
+  token: string;
+}
+
+@InputType()
+export class EmailVerificationInput extends EmailInput {
+  @Field()
+  token: string;
+
+  @Field()
+  digit: number;
 }
