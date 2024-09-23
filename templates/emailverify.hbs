@@ -5,26 +5,77 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Email Verification</title>
+  <style>
+    .logo-container {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .logo-container img {
+      max-width: 100px;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      color: #333;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+
+    .section {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      color: #007bff;
+      font-size: 24px;
+    }
+
+    p {
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    h3.code {
+      text-align: center;
+      font-size: 24px;
+      letter-spacing: 4px;
+      background-color: #f0f0f0;
+      padding: 10px;
+      border-radius: 5px;
+    }
+
+    footer {
+      margin-top: 20px;
+      font-size: 14px;
+      color: #666;
+    }
+  </style>
 </head>
 
 <body>
-  <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f4;">
-    <div
-      style="max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
-      <h2 style="color: #333;">Verify Your Email Address</h2>
-      <p>Hi {{name}},</p>
+  <div class="section">
+    <div class="logo-container">
+      <a href="https://payout.minetxc.com" target="_blank"><img src="https://minetxc.com/images/texit_logo_v4.png"
+          alt="Texitcoin" /></a>
+    </div>
+    <div class="container">
+      <h1>Verify Your Email Address</h1>
+      <p>Hello {{name}},</p>
       <p>Thank you for signing up with Texitcoin! Please verify your email address by entering the 6-digit code
         below:</p>
-
-      <h3
-        style="text-align: center; font-size: 24px; letter-spacing: 4px; background-color: #f0f0f0; padding: 10px; border-radius: 5px;">
-        {{verificationCode}}
-      </h3>
-
-      <p>This code will expire in 30 minutes. If you didn't request this, please ignore this email.</p>
-
-      <p>Thank you,</p>
-      <p>The Texitcoin Team</p>
+      <h3 class="code">{{verificationCode}}</h3>
+      <p>This code will expire in 10 minutes. If you didn't request this, please ignore this email.</p>
+      <footer>
+        <p>Thank you,</p>
+        <p>The Texitcoin Team</p>
+      </footer>
     </div>
   </div>
 </body>
