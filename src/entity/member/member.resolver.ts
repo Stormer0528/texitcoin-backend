@@ -154,6 +154,7 @@ export class MemberResolver {
           paymentMethod: data.paymentMenthod,
           status: true,
         });
+        await this.service.updateMemberPointByMemberId(member.id);
       } else {
         throw new Error('Sale can not be created - no paymentMethod');
       }
@@ -167,16 +168,19 @@ export class MemberResolver {
   @UseMiddleware(minerLog('update'))
   @Mutation(() => Member)
   async updateMember(@Ctx() ctx: Context, @Arg('data') data: UpdateMemberInput): Promise<Member> {
-    const sumPercent = data.wallets.reduce((prev, current) => {
-      if (!current.payoutId) {
-        throw new Error('Not specified payout type');
-      } else if (!current.address) {
-        throw new Error('Not specified wallet address');
-      }
-      return prev + current.percent;
-    }, 0);
-
-    if (sumPercent !== 100 * PERCENT) throw new Error('Sum of percent must be 100');
+    if (data.wallets) {
+      const sumPercent = data.wallets.reduce((prev, current) => {
+        if (!current.payoutId) {
+          throw new Error('Not specified payout type');
+        } else if (!current.address) {
+          throw new Error('Not specified wallet address');
+        }
+        return prev + current.percent;
+      }, 0);
+      if (sumPercent !== 100 * PERCENT) throw new Error('Sum of percent must be 100');
+    } else {
+      throw new Error('No wallet data');
+    }
 
     let newData: UpdateMemberInput = {
       id: data.id ?? ctx.user.id,
@@ -190,6 +194,8 @@ export class MemberResolver {
         memberId: data.id ?? ctx.user.id,
         wallets: data.wallets,
       });
+    } else {
+      throw new Error('No wallet data');
     }
 
     return member;
