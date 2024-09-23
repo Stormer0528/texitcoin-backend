@@ -9,8 +9,8 @@ import { formatDate } from '@/utils/common';
 
 const prisma = new PrismaClient();
 
-const createStatistic = async (date: Date, sales: SaleSearchResult[]) => {
-  const totalBlocks: number = await prisma.block.count({
+const createStatistic = async (tranPrisma: PrismaClient, date: Date, sales: SaleSearchResult[]) => {
+  const totalBlocks: number = await tranPrisma.block.count({
     where: {
       issuedAt: {
         lte: date,
@@ -22,7 +22,7 @@ const createStatistic = async (date: Date, sales: SaleSearchResult[]) => {
     _min: { createdAt: from },
     _max: { createdAt: to },
     _count: newBlocks,
-  } = await prisma.block.aggregate({
+  } = await tranPrisma.block.aggregate({
     _min: {
       createdAt: true,
     },
@@ -49,7 +49,7 @@ const createStatistic = async (date: Date, sales: SaleSearchResult[]) => {
   const totalMembers: number = memberIds.length;
   const txcShared: number = newBlocks * 254 * TXC;
   const issuedAt: Date = date;
-  const statistic: Statistics = await prisma.statistics.create({
+  const statistic: Statistics = await tranPrisma.statistics.create({
     data: {
       newBlocks,
       totalBlocks,
@@ -70,6 +70,7 @@ const createStatistic = async (date: Date, sales: SaleSearchResult[]) => {
 };
 
 const createMemberStatisticsAndStatisticsWallets = async (
+  tranPrisma: PrismaClient,
   statistic: Statistics,
   memberIds: string[],
   membersWithHashPower: Record<string, number>,
@@ -78,6 +79,23 @@ const createMemberStatisticsAndStatisticsWallets = async (
   const totalHashPower: number = statistic.totalHashPower;
   const totalTxcShared: number = Number(statistic.txcShared);
 
+  const members = await tranPrisma.member.findMany({
+    where: {
+      id: {
+        in: memberIds,
+      },
+      memberWallets: {
+        none: {},
+      },
+    },
+  });
+
+  if (members.length) {
+    throw new Error(
+      `There are members with no wallets - ${members.map((mb) => mb.username).join(',')}`
+    );
+  }
+
   return await Bluebird.map(
     memberIds,
     async (memberId: string) => {
@@ -85,7 +103,7 @@ const createMemberStatisticsAndStatisticsWallets = async (
       const txcShared: number = Math.floor(percent * totalTxcShared);
       const hashPower: number = membersWithHashPower[memberId];
       const statisticsId: string = statistic.id;
-      return await prisma.memberStatistics.create({
+      return await tranPrisma.memberStatistics.create({
         data: {
           txcShared,
           hashPower,
@@ -100,11 +118,12 @@ const createMemberStatisticsAndStatisticsWallets = async (
   ).reduce((prev: bigint, cur) => prev + cur.txcShared, BigInt(0));
 };
 const createStatisticSales = async (
+  tranPrisma: PrismaClient,
   statistic: Statistics,
   sales: SaleSearchResult[],
   issuedAt: Date
 ) => {
-  await prisma.statisticsSale.createMany({
+  await tranPrisma.statisticsSale.createMany({
     data: sales.map((sale: SaleSearchResult) => {
       return {
         saleId: sale.id,
@@ -125,10 +144,10 @@ const isBefore = (date1: Date, date2: Date) => {
   );
 };
 
-const createStatisticsAndMemberStatistics = async () => {
+const createStatisticsAndMemberStatistics = async (tranPrisma: PrismaClient) => {
   console.log('Creating statistics & memberStatistics...');
 
-  const lastReward = await prisma.statistics.findFirst({
+  const lastReward = await tranPrisma.statistics.findFirst({
     orderBy: {
       issuedAt: 'desc',
     },
@@ -142,7 +161,7 @@ const createStatisticsAndMemberStatistics = async () => {
   ) {
     const date = new Date(formatDate(iDate.toDate()));
     console.log(`Creating ${formatDate(date)}...`);
-    const sales: SaleSearchResult[] = await prisma.sale.findMany({
+    const sales: SaleSearchResult[] = await tranPrisma.sale.findMany({
       where: {
         orderedAt: {
           lt: iDate.add(1, 'day').toDate(),
@@ -155,15 +174,20 @@ const createStatisticsAndMemberStatistics = async () => {
         package: true,
       },
     });
-    const { statistic, memberIds, membersWithHashPower } = await createStatistic(date, sales);
+    const { statistic, memberIds, membersWithHashPower } = await createStatistic(
+      tranPrisma,
+      date,
+      sales
+    );
     const txcShared = await createMemberStatisticsAndStatisticsWallets(
+      tranPrisma,
       statistic,
       memberIds,
       membersWithHashPower,
       date
     );
 
-    await prisma.statistics.update({
+    await tranPrisma.statistics.update({
       where: {
         id: statistic.id,
       },
@@ -172,18 +196,20 @@ const createStatisticsAndMemberStatistics = async () => {
       },
     });
 
-    await createStatisticSales(statistic, sales, date);
+    await createStatisticSales(tranPrisma, statistic, sales, date);
     console.log(`Finished ${formatDate(iDate.toDate())}`);
   }
   console.log('Finished creating statistics & memberStatistics');
 };
 
-async function rewardTXC() {
+async function rewardTXC(tranPrisma: PrismaClient) {
   console.log('Started rewarding operation');
 
-  await createStatisticsAndMemberStatistics();
+  await createStatisticsAndMemberStatistics(tranPrisma);
 
   console.log('Finished rewarding operation');
 }
 
-rewardTXC();
+prisma.$transaction(async (tranPrisma: PrismaClient) => {
+  await rewardTXC(tranPrisma);
+});
