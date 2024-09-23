@@ -358,6 +358,8 @@ export class MemberResolver {
 
     if (!member) {
       throw new Error('Invalid credentials are provided');
+    } else if (!member.emailVerified) {
+      throw new Error('Your email is not verified');
     }
 
     const isValidPassword = await verifyPassword(data.password, member.password);
