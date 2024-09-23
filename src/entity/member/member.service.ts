@@ -88,6 +88,14 @@ export class MemberService {
     });
   }
 
+  async getMemberByUserId(userId: number) {
+    return this.prisma.member.findUnique({
+      where: {
+        userId,
+      },
+    });
+  }
+
   async createMember(data: CreateMemberInput & { password: string; signupFormRequest: any }) {
     const maxUserId = await this.prisma.member.aggregate({
       _max: {

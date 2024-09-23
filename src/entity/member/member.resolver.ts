@@ -150,13 +150,15 @@ export class MemberResolver {
   @Mutation(() => Member)
   async signUpMember(@Arg('data') data: SignupFormInput): Promise<Member> {
     const hashedPassword = await hashPassword(DEFAULT_PASSWORD);
+    const member = await this.service.getMemberByUserId(data.sponsorUserId);
     return await this.service.createMember({
-      ..._.omit(data, ['packageId', 'paymentMenthod']),
+      ..._.omit(data, ['packageId', 'paymentMenthod', 'sponsorUserId']),
       email: data.email.toLowerCase(),
       password: hashedPassword,
       status: false,
       signupFormRequest: data,
       emailVerified: false,
+      sponsorId: member ? member.id : null,
     });
   }
 
@@ -493,7 +495,7 @@ export class MemberResolver {
   @Query(() => ReferenceLink)
   generateReferenceLink(@Ctx() ctx: Context): ReferenceLink {
     return {
-      link: `${process.env.MEMBER_URL}/signup?reference=${ctx.user.username}`,
+      link: `${process.env.MEMBER_URL}/signup?reference=${ctx.isAdmin ? ctx.user.username : (ctx.user as Member).userId}`,
     };
   }
 }
