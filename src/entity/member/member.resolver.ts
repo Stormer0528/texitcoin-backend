@@ -141,6 +141,7 @@ export class MemberResolver {
     } else {
       throw new Error('No wallet data');
     }
+    await this.service.calculateSponsorBonous(data.sponsorId);
 
     return member;
   }
@@ -222,6 +223,7 @@ export class MemberResolver {
     };
     if (data.email) newData.email = data.email.toLowerCase();
 
+    const { sponsorId: prevSponsorID } = await this.service.getMemberById(newData.id);
     const member = await this.service.updateMember(newData);
     if (data.wallets) {
       await this.memberWalletService.updateManyMemberWallet({
@@ -230,6 +232,11 @@ export class MemberResolver {
       });
     } else {
       throw new Error('No wallet data');
+    }
+
+    if (prevSponsorID !== member.sponsorId) {
+      await this.service.calculateSponsorBonous(prevSponsorID);
+      await this.service.calculateSponsorBonous(member.sponsorId);
     }
 
     return member;

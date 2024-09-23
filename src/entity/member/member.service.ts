@@ -9,6 +9,7 @@ import {
   verifyToken,
 } from '@/utils/auth';
 import { PrismaService } from '@/service/prisma';
+import { FREE_PACKAGE_SHARE_1, FREE_PACKAGE_SHARE_2, SPONSOR_BONOUS_CNT } from '@/consts';
 
 import {
   CreateMemberInput,
@@ -274,6 +275,57 @@ export class MemberService {
       } else {
         throw err;
       }
+    }
+  }
+
+  async calculateSponsorBonous(id: string): Promise<void> {
+    const sponsortMembersCnt = await this.prisma.member.count({ where: { sponsorId: id } });
+    const sponsorRewardCnt = Math.floor(sponsortMembersCnt / SPONSOR_BONOUS_CNT);
+    const saleCnt = await this.prisma.sale.count({
+      where: {
+        memberId: id,
+        packageId: {
+          in: [FREE_PACKAGE_SHARE_1, FREE_PACKAGE_SHARE_2],
+        },
+      },
+    });
+    if (sponsorRewardCnt < saleCnt) {
+      const remain = saleCnt - sponsorRewardCnt;
+      const sales = await this.prisma.sale.findMany({
+        where: {
+          memberId: id,
+          packageId: {
+            in: [FREE_PACKAGE_SHARE_1, FREE_PACKAGE_SHARE_2],
+          },
+        },
+        orderBy: {
+          orderedAt: 'desc',
+        },
+        take: remain,
+      });
+
+      await this.prisma.sale.deleteMany({
+        where: {
+          id: {
+            in: sales.map((sale) => sale.id),
+          },
+        },
+      });
+    } else if (sponsorRewardCnt > saleCnt) {
+      const { invoiceNo: maxInvoiceNo } = await this.prisma.sale.findFirst({
+        orderBy: {
+          orderedAt: 'desc',
+        },
+      });
+
+      await this.prisma.sale.createMany({
+        data: new Array(sponsorRewardCnt - saleCnt).fill(0).map((_, idx) => ({
+          memberId: id,
+          packageId: FREE_PACKAGE_SHARE_1,
+          paymentMethod: 'free',
+          invoiceNo: maxInvoiceNo + idx + 1,
+        })),
+      });
     }
   }
 }

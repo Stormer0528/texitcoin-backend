@@ -60,3 +60,7 @@ export const DAILYBLOCK_LIMIT = 30;
 export const WEEKLYBLOCK_LIMIT = 13;
 export const MONTHLYBLOCK_LIMIT = 12;
 export const BLOCK_LIMIT = 200;
+
+export const SPONSOR_BONOUS_CNT = 3;
+export const FREE_PACKAGE_SHARE_1 = 'aa8604b3-3f2a-4f9c-9ee5-1c9d1d76d726';
+export const FREE_PACKAGE_SHARE_2 = 'c62357db-0572-4600-98dc-43d92621cfa5';
