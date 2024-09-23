@@ -32,8 +32,18 @@ export class SaleService {
   }
 
   async createSale(data: CreateSaleInput) {
+    let invoiceNo = data.invoiceNo;
+    if (data.invoiceNo) {
+      const { invoiceNo: maxInvoiceNo } = await this.prisma.sale.findFirst({
+        orderBy: { invoiceNo: 'desc' },
+      });
+      invoiceNo = maxInvoiceNo + 1;
+    }
     return this.prisma.sale.create({
-      data,
+      data: {
+        invoiceNo,
+        ...data,
+      },
     });
   }
 

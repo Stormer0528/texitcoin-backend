@@ -24,7 +24,7 @@ export class CreateSaleInput {
   memberId: string;
 
   @Field()
-  invoiceNo: number;
+  invoiceNo?: number;
 
   @Field(() => ID)
   packageId: string;

@@ -47,6 +47,7 @@ import {
   PlacementPositionCountResponse,
   MemberLog,
   ReferenceLink,
+  SignupFormInput,
 } from './member.type';
 import { Member } from './member.entity';
 import { Sale } from '../sale/sale.entity';
@@ -107,33 +108,58 @@ export class MemberResolver {
   @UseMiddleware(minerLog('create'))
   @Mutation(() => Member)
   async createMember(@Arg('data') data: CreateMemberInput): Promise<Member> {
-    const sumPercent = data.wallets.reduce((prev, current) => {
-      if (!current.payoutId) {
-        throw new Error('Not specified payout type');
-      } else if (!current.address) {
-        throw new Error('Not specified wallet address');
-      }
-      return prev + current.percent;
-    }, 0);
+    if (data.wallets) {
+      const sumPercent = data.wallets.reduce((prev, current) => {
+        if (!current.payoutId) {
+          throw new Error('Not specified payout type');
+        } else if (!current.address) {
+          throw new Error('Not specified wallet address');
+        }
+        return prev + current.percent;
+      }, 0);
 
-    if (sumPercent !== 100 * PERCENT) throw new Error('Sum of percent must be 100');
+      if (sumPercent !== 100 * PERCENT) throw new Error('Sum of percent must be 100');
+    } else {
+      throw new Error('No wallet data');
+    }
 
     const hashedPassword = await hashPassword(DEFAULT_PASSWORD);
     const member = await this.service.createMember({
-      ..._.omit(data, 'wallets'),
+      ..._.omit(data, ['wallets', 'packageId', 'paymentMenthod']),
       email: data.email.toLowerCase(),
       password: hashedPassword,
     });
-    await this.memberWalletService.createManyMemberWallets(
-      data.wallets.map((wallet) => ({ ...wallet, memberId: member.id }))
-    );
+
+    if (data.wallets) {
+      await this.memberWalletService.createManyMemberWallets(
+        data.wallets.map((wallet) => ({ ...wallet, memberId: member.id }))
+      );
+    } else {
+      throw new Error('No wallet data');
+    }
+
     return member;
   }
 
   @UseMiddleware(minerLog('signup'))
   @Mutation(() => Member)
-  async signUpMember(@Arg('data') data: CreateMemberInput): Promise<Member> {
-    return this.createMember(data);
+  async signUpMember(@Arg('data') data: SignupFormInput): Promise<Member> {
+    const member = await this.createMember(data);
+    if (data.packageId) {
+      if (data.paymentMenthod) {
+        await this.saleService.createSale({
+          memberId: member.id,
+          orderedAt: new Date(),
+          packageId: data.packageId,
+          paymentMethod: data.paymentMenthod,
+          status: true,
+        });
+      } else {
+        throw new Error('Sale can not be created - no paymentMethod');
+      }
+    }
+
+    return member;
   }
 
   @Authorized()

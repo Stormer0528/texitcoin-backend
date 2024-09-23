@@ -73,6 +73,15 @@ export class CreateMemberInput {
 }
 
 @InputType()
+export class SignupFormInput extends CreateMemberInput {
+  @Field(() => ID)
+  packageId?: string;
+
+  @Field()
+  paymentMenthod?: string;
+}
+
+@InputType()
 export class UpdateMemberInput {
   @Field(() => ID, { nullable: true })
   id?: string;
