@@ -251,7 +251,7 @@ export class MemberService {
       if (!verification) {
         throw new Error('Invalid Token');
       }
-      if (verification === data.digit) {
+      if (verification !== data.digit) {
         throw new Error('Invalid Code');
       }
 
