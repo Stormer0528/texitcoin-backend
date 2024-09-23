@@ -35,6 +35,7 @@ import { MemberStatisticsService } from '../memberStatistics/memberStatistics.se
 import { StatisticsSaleService } from '../statisticsSale/statisticsSale.service';
 import { MemberStatisticsWalletService } from '../memberStatisticsWallet/memberStatisticsWallet.service';
 import { MemberService } from '../member/member.service';
+import { Transaction } from '@/graphql/decorator';
 
 @Service()
 @Resolver(() => Statistics)
@@ -85,6 +86,7 @@ export class StatisticsResolver {
   }
 
   @Authorized([UserRole.Admin])
+  @Transaction()
   @Mutation(() => Statistics)
   async createStatistics(@Arg('data') data: CreateStatisticsInput): Promise<Statistics> {
     const members = await this.memberService.getMembers({
@@ -180,6 +182,7 @@ export class StatisticsResolver {
   }
 
   @Authorized([UserRole.Admin])
+  @Transaction()
   @Mutation(() => Statistics)
   async confirmStatistics(@Arg('data') data: ConfirmStatistics): Promise<Statistics> {
     if (!data.transactionId) {
@@ -195,6 +198,7 @@ export class StatisticsResolver {
   }
 
   @Authorized([UserRole.Admin])
+  @Transaction()
   @Mutation(() => ManySuccessResponse)
   async removeManyStatistics(@Arg('data') data: IDsInput): Promise<ManySuccessResponse> {
     await this.memberStatisticsService.removeMemberStatisticsByStatisticIds(data);

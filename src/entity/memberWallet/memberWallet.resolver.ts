@@ -28,6 +28,7 @@ import { Member } from '../member/member.entity';
 import { Payout } from '../payout/payout.entity';
 import { MemberStatisticsWallet } from '../memberStatisticsWallet/memberStatisticsWallet.entity';
 import { MemberWalletService } from './memberWallet.service';
+import { Transaction } from '@/graphql/decorator';
 
 @Service()
 @Resolver(() => MemberWallet)
@@ -63,6 +64,7 @@ export class MemberWalletResolver {
   }
 
   @Authorized([UserRole.Admin])
+  @Transaction()
   @Mutation(() => SuccessResponse)
   async updateMemberWallet(@Arg('data') data: UpdateMemberWalletInput): Promise<SuccessResponse> {
     await this.service.updateManyMemberWallet(data);

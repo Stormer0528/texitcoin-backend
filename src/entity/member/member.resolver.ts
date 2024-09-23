@@ -22,6 +22,7 @@ import { Context } from '@/context';
 import { createAccessToken, hashPassword, verifyPassword } from '@/utils/auth';
 import { MailerService } from '@/service/mailer';
 import { minerLog } from '@/graphql/middlewares';
+import { Transaction } from '@/graphql/decorator';
 
 import {
   CountResponse,
@@ -106,6 +107,7 @@ export class MemberResolver {
 
   @Authorized([UserRole.Admin])
   @UseMiddleware(minerLog('create'))
+  @Transaction()
   @Mutation(() => Member)
   async createMember(@Arg('data') data: CreateMemberInput): Promise<Member> {
     if (data.wallets) {
@@ -142,6 +144,7 @@ export class MemberResolver {
   }
 
   @UseMiddleware(minerLog('signup'))
+  @Transaction()
   @Mutation(() => Member)
   async signUpMember(@Arg('data') data: SignupFormInput): Promise<Member> {
     const member = await this.createMember(data);
@@ -166,6 +169,7 @@ export class MemberResolver {
   @Authorized()
   @UseMiddleware(userPermission)
   @UseMiddleware(minerLog('update'))
+  @Transaction()
   @Mutation(() => Member)
   async updateMember(@Ctx() ctx: Context, @Arg('data') data: UpdateMemberInput): Promise<Member> {
     if (data.wallets) {
@@ -203,6 +207,7 @@ export class MemberResolver {
 
   @Authorized([UserRole.Admin])
   @UseMiddleware(minerLog('remove'))
+  @Transaction()
   @Mutation(() => SuccessResponse)
   async removeMember(@Arg('data') data: IDInput): Promise<SuccessResponse> {
     const salesCnt = await this.saleService.getSalesCount({
@@ -233,6 +238,7 @@ export class MemberResolver {
   }
 
   @Authorized([UserRole.Admin])
+  @Transaction()
   @Mutation(() => SuccessResponse)
   async removeCompleteMemberPlacement(@Arg('data') data: IDInput): Promise<SuccessResponse> {
     const placements = await this.service.getAllPlacementAncestorsById(data.id);
