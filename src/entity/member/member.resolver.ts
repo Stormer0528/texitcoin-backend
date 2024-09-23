@@ -209,7 +209,7 @@ export class MemberResolver {
 
     let newData: UpdateMemberInput = {
       id: data.id ?? ctx.user.id,
-      ..._.omit(data, 'wallets'),
+      ..._.omit(data, ['wallets', ctx.isAdmin ? null : 'sponsorId']),
     };
     if (data.email) newData.email = data.email.toLowerCase();
 
