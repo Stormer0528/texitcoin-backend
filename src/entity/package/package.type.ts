@@ -37,6 +37,9 @@ export class CreatePackageInput {
 
   @Field({ nullable: true })
   point?: number;
+
+  @Field()
+  isFreeShare: boolean;
 }
 
 @InputType()
@@ -61,4 +64,7 @@ export class UpdatePackageInput {
 
   @Field({ nullable: true })
   point?: number;
+
+  @Field({ nullable: true })
+  isFreeShare?: boolean;
 }

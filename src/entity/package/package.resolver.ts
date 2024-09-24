@@ -17,6 +17,7 @@ import { GraphQLResolveInfo } from 'graphql';
 import { UserRole } from '@/type';
 import { Context } from '@/context';
 
+import { Transaction } from '@/graphql/decorator';
 import { IDInput, SuccessResponse, SuccessResult } from '@/graphql/common.type';
 import {
   CreatePackageInput,
@@ -81,6 +82,13 @@ export class PackageResolver {
     return {
       result: SuccessResult.success,
     };
+  }
+
+  @Authorized([UserRole.Admin])
+  @Transaction()
+  @Mutation(() => Package)
+  async makePrimaryFreeShare(@Arg('data') data: IDInput): Promise<Package> {
+    return this.service.makePrimaryFreeShare(data);
   }
 
   @FieldResolver({ nullable: 'itemsAndList' })
