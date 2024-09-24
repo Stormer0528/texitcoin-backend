@@ -160,7 +160,7 @@ export class MemberResolver {
       emailVerified: false,
       sponsorId: data.sponsorUserId && member ? member.id : null,
     });
-    await this.mailerService.sendEmailVerificationLink(
+    this.mailerService.sendEmailVerificationLink(
       newmember.email,
       newmember.fullName,
       `${process.env.MEMBER_URL}/verify`
@@ -173,7 +173,7 @@ export class MemberResolver {
   async sendEmailVerification(@Arg('data') data: EmailInput): Promise<EmailVerificationResponse> {
     const { token, digit, name } =
       await this.service.generateVerificationTokenAndDigitByEmail(data);
-    await this.mailerService.sendEmailVerificationCode(data.email, name, digit);
+    this.mailerService.sendEmailVerificationCode(data.email, name, digit);
 
     return {
       token,
@@ -387,7 +387,7 @@ export class MemberResolver {
   async resetPasswordRequest(@Arg('data') data: EmailInput): Promise<SuccessResponse> {
     const { token, email, fullName } = await this.service.generateResetTokenByEmail(data);
     if (token) {
-      await this.mailerService.sendForgetpasswordLink(
+      this.mailerService.sendForgetpasswordLink(
         email,
         fullName,
         `${process.env.MEMBER_URL}/reset-password?token=${token}`
