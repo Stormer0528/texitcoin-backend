@@ -86,7 +86,26 @@ export class MailerService {
       };
       const sentMailInfo = await this.sendMail(mailOption);
       console.log(
-        `Email was sent to ${to}, Type => Email Verification, Message ID => ${sentMailInfo.messageId}`
+        `Email was sent to ${to}, Type => Email Verification Code, Message ID => ${sentMailInfo.messageId}`
+      );
+    }
+  }
+
+  public async sendEmailVerificationLink(to: string, name: string, link: string) {
+    if (isEmail(to) && isEmail(SMTP_SENDER_EMAIL)) {
+      const mailOption = {
+        from: `"${SMTP_SENDER_NAME}" <${SMTP_SENDER_EMAIL}>`,
+        to,
+        subject: 'Email Verification',
+        template: 'emailverifylink',
+        context: {
+          name,
+          verificationLink: link,
+        },
+      };
+      const sentMailInfo = await this.sendMail(mailOption);
+      console.log(
+        `Email was sent to ${to}, Type => Email Verification Link, Message ID => ${sentMailInfo.messageId}`
       );
     }
   }

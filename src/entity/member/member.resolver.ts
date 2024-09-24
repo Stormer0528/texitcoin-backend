@@ -151,7 +151,7 @@ export class MemberResolver {
   async signUpMember(@Arg('data') data: SignupFormInput): Promise<Member> {
     const hashedPassword = await hashPassword(data.password);
     const member = data.sponsorUserId && (await this.service.getMemberByUserId(data.sponsorUserId));
-    return await this.service.createMember({
+    const newmember = await this.service.createMember({
       ..._.omit(data, ['packageId', 'paymentMenthod', 'sponsorUserId']),
       email: data.email.toLowerCase(),
       password: hashedPassword,
@@ -160,6 +160,13 @@ export class MemberResolver {
       emailVerified: false,
       sponsorId: data.sponsorUserId && member ? member.id : null,
     });
+    await this.mailerService.sendEmailVerificationLink(
+      newmember.email,
+      newmember.fullName,
+      `${process.env.MEMBER_URL}/verify`
+    );
+
+    return newmember;
   }
 
   @Mutation(() => EmailVerificationResponse)
