@@ -222,14 +222,15 @@ model MonthlyBlock {
 }
 
 model Package {
-  id          String   @id @default(uuid())
-  productName String
-  amount      Int
-  status      Boolean  @default(true)
-  date        DateTime @default(now())
-  token       Int
-  point       Int      @default(0)
-  freeShare   Int      @default(0) // 0: premium, 1: free, 2: primary free
+  id               String   @id @default(uuid())
+  productName      String
+  amount           Int
+  status           Boolean  @default(true)
+  date             DateTime @default(now())
+  token            Int
+  point            Int      @default(0)
+  isFreeShare      Boolean  @default(false) @db.Boolean
+  primaryFreeShare Boolean  @default(false) @db.Boolean
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
