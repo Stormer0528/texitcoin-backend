@@ -27,6 +27,12 @@ export class Package extends BaseEntity {
   @Field()
   point: number;
 
+  @Field()
+  isFreeShare: boolean;
+
+  @Field()
+  primaryFreeShare: boolean;
+
   @Field(() => [Sale], { nullable: 'itemsAndList' })
   sales?: Sale[];
 }
