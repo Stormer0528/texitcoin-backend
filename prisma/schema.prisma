@@ -229,6 +229,7 @@ model Package {
   date        DateTime @default(now())
   token       Int
   point       Int      @default(0)
+  freeShare   Int      @default(0) // 0: premium, 1: free, 2: primary free
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
