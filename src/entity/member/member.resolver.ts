@@ -163,7 +163,7 @@ export class MemberResolver {
     this.mailerService.sendEmailVerificationLink(
       newmember.email,
       newmember.fullName,
-      `${process.env.MEMBER_URL}/verify`
+      `${process.env.MEMBER_URL}/verify-email?email=${encodeURIComponent(member.email)}`
     );
 
     return newmember;
