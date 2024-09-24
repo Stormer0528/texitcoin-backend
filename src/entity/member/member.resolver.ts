@@ -367,6 +367,8 @@ export class MemberResolver {
       throw new Error('Invalid credentials are provided');
     } else if (!member.emailVerified) {
       throw new Error('Your email is not verified');
+    } else if (!member.status) {
+      throw new Error('You are not allowed by admin');
     }
 
     const isValidPassword = await verifyPassword(data.password, member.password);
