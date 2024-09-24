@@ -284,18 +284,9 @@ export class MemberService {
     const saleCnt = await this.prisma.sale.count({
       where: {
         memberId: id,
-        OR: [
-          {
-            package: {
-              freeShare: 1,
-            },
-          },
-          {
-            package: {
-              freeShare: 2,
-            },
-          },
-        ],
+        package: {
+          isFreeShare: true,
+        },
       },
     });
 
@@ -304,18 +295,9 @@ export class MemberService {
       const sales = await this.prisma.sale.findMany({
         where: {
           memberId: id,
-          OR: [
-            {
-              package: {
-                freeShare: 1,
-              },
-            },
-            {
-              package: {
-                freeShare: 2,
-              },
-            },
-          ],
+          package: {
+            isFreeShare: true,
+          },
         },
         orderBy: {
           orderedAt: 'desc',
@@ -338,7 +320,7 @@ export class MemberService {
       });
       const { id: packageId } = await this.prisma.package.findFirst({
         where: {
-          freeShare: 2,
+          primaryFreeShare: true,
         },
       });
 
