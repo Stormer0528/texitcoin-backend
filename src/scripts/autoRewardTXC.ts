@@ -130,6 +130,7 @@ const createMemberStatistics = async (
           memberId,
         },
         select: {
+          id: true,
           memberId: true,
           txcShared: true,
         },
@@ -212,7 +213,13 @@ const createStatisticsAndMemberStatistics = async (tranPrisma: PrismaClient) => 
     );
     const txcShared = statistics.reduce((prev: bigint, cur) => prev + cur.txcShared, BigInt(0));
     const mapMemberStatistics = {};
-    statistics.forEach((st) => (mapMemberStatistics[st.memberId] = Number(st.txcShared)));
+    statistics.forEach(
+      (st) =>
+        (mapMemberStatistics[st.memberId] = {
+          txc: Number(st.txcShared),
+          id: st.id,
+        })
+    );
 
     await tranPrisma.statistics.update({
       where: {
@@ -232,6 +239,7 @@ const createStatisticsAndMemberStatistics = async (tranPrisma: PrismaClient) => 
         deletedAt: null,
       },
       select: {
+        id: true,
         address: true,
         percent: true,
         memberId: true,
@@ -239,16 +247,33 @@ const createStatisticsAndMemberStatistics = async (tranPrisma: PrismaClient) => 
     });
 
     const chunked = _.chunk(wallets, TRANSACTION_ADDRESS_LIMIT);
+    const memberStatisticsWallet: Prisma.MemberStatisticsWalletUncheckedCreateInput[] = [];
     const transactionIDS = chunked
       .map((chunkWallets) => {
         const paramJSON = {};
         chunkWallets.forEach((wallet) => {
-          if (wallet.percent === 0) return;
-          paramJSON[wallet.address] =
-            Math.floor((mapMemberStatistics[wallet.memberId] * wallet.percent) / (PERCENT * 100)) /
-            TXC;
+          if (wallet.percent === 0) {
+            memberStatisticsWallet.push({
+              memberStatisticId: mapMemberStatistics[wallet.memberId].id,
+              memberWalletId: wallet.id,
+              txc: 0,
+              issuedAt: statistic.issuedAt,
+            });
+            return;
+          }
+          const txc = Math.floor(
+            (mapMemberStatistics[wallet.memberId].txc * wallet.percent) / (PERCENT * 100 * 100)
+          );
+          paramJSON[wallet.address] = txc / TXC;
+          memberStatisticsWallet.push({
+            memberStatisticId: mapMemberStatistics[wallet.memberId].id,
+            memberWalletId: wallet.id,
+            txc,
+            issuedAt: statistic.issuedAt,
+          });
         });
-        const shellCommand = `texitcoin-cli sendmany "" "${JSON.stringify(paramJSON).replaceAll('"', '\\"')}"`;
+
+        const shellCommand = `/home/dev/newmergemining/texitcoin-cli sendmany "" "${JSON.stringify(paramJSON).replaceAll('"', '\\"')}"`;
         const { stdout: transactionID, stderr: error } = shelljs.exec(shellCommand);
         elastic.index({
           index: ELASTIC_LOG_INDEX,
@@ -279,6 +304,9 @@ const createStatisticsAndMemberStatistics = async (tranPrisma: PrismaClient) => 
           transactionId: transactionIDS.join(','),
           status: transactionIDS.length === chunked.length,
         },
+      });
+      await tranPrisma.memberStatisticsWallet.createMany({
+        data: memberStatisticsWallet,
       });
     }
 
