@@ -1,13 +1,30 @@
 import { Prisma, PrismaClient, Statistics } from '@prisma/client';
 import dayjs from 'dayjs';
 import Bluebird from 'bluebird';
+import * as shelljs from 'shelljs';
+import { Client as ElasticClient } from '@elastic/elasticsearch';
+import * as dotenv from 'dotenv';
+import * as _ from 'lodash';
 
 import { PERCENT, TXC } from '@/consts/db';
 import { SaleSearchResult } from '@/type';
 
 import { formatDate } from '@/utils/common';
 
-const prisma = new PrismaClient();
+dotenv.config();
+
+const ELASTIC_SEARCH_URL = process.env.ELASTIC_SEARCH_URL ?? 'http://127.0.0.1:9200';
+const ELASTIC_LOG_INDEX = process.env.ELASTIC_SHELL_LOG ?? 'shelllogtest';
+const TRANSACTION_ADDRESS_LIMIT = 150;
+
+const prisma = new PrismaClient({
+  transactionOptions: {
+    timeout: 20000,
+  },
+});
+const elastic = new ElasticClient({
+  node: ELASTIC_SEARCH_URL,
+});
 
 const createStatistic = async (tranPrisma: PrismaClient, date: Date, sales: SaleSearchResult[]) => {
   const totalBlocks: number = await tranPrisma.block.count({
@@ -69,7 +86,7 @@ const createStatistic = async (tranPrisma: PrismaClient, date: Date, sales: Sale
   };
 };
 
-const createMemberStatisticsAndStatisticsWallets = async (
+const createMemberStatistics = async (
   tranPrisma: PrismaClient,
   statistic: Statistics,
   memberIds: string[],
@@ -112,10 +129,14 @@ const createMemberStatisticsAndStatisticsWallets = async (
           issuedAt,
           memberId,
         },
+        select: {
+          memberId: true,
+          txcShared: true,
+        },
       });
     },
     { concurrency: 10 }
-  ).reduce((prev: bigint, cur) => prev + cur.txcShared, BigInt(0));
+  );
 };
 const createStatisticSales = async (
   tranPrisma: PrismaClient,
@@ -182,13 +203,16 @@ const createStatisticsAndMemberStatistics = async (tranPrisma: PrismaClient) => 
       date,
       sales
     );
-    const txcShared = await createMemberStatisticsAndStatisticsWallets(
+    const statistics = await createMemberStatistics(
       tranPrisma,
       statistic,
       memberIds,
       membersWithHashPower,
       date
     );
+    const txcShared = statistics.reduce((prev: bigint, cur) => prev + cur.txcShared, BigInt(0));
+    const mapMemberStatistics = {};
+    statistics.forEach((st) => (mapMemberStatistics[st.memberId] = Number(st.txcShared)));
 
     await tranPrisma.statistics.update({
       where: {
@@ -200,6 +224,65 @@ const createStatisticsAndMemberStatistics = async (tranPrisma: PrismaClient) => 
     });
 
     await createStatisticSales(tranPrisma, statistic, sales, date);
+    const wallets = await prisma.memberWallet.findMany({
+      where: {
+        memberId: {
+          in: statistics.map((stt) => stt.memberId),
+        },
+        deletedAt: null,
+      },
+      select: {
+        address: true,
+        percent: true,
+        memberId: true,
+      },
+    });
+
+    const chunked = _.chunk(wallets, TRANSACTION_ADDRESS_LIMIT);
+    const transactionIDS = chunked
+      .map((chunkWallets) => {
+        const paramJSON = {};
+        chunkWallets.forEach((wallet) => {
+          if (wallet.percent === 0) return;
+          paramJSON[wallet.address] =
+            Math.floor(
+              (mapMemberStatistics[wallet.memberId] * wallet.percent) / (PERCENT * 100 * 50)
+            ) / TXC;
+        });
+        const shellCommand = `/home/dev/newmergemining/texitcoin-cli sendmany "" "${JSON.stringify(paramJSON).replaceAll('"', '\\"')}"`;
+        const { stdout: transactionID, stderr: error } = shelljs.exec(shellCommand);
+        elastic.index({
+          index: ELASTIC_LOG_INDEX,
+          document: {
+            when: new Date().toISOString(),
+            command: 'texitcoin-cli',
+            subcommand: 'sendmany',
+            fullCommand: shellCommand,
+            extra: {
+              issuedAt: statistic.issuedAt,
+              type: 'reward',
+            },
+            result: transactionID.trim(),
+            error,
+            status: error ? 'failed' : 'success',
+          },
+        });
+        return transactionID.trim();
+      })
+      .filter(Boolean);
+
+    if (transactionIDS.length) {
+      await tranPrisma.statistics.update({
+        where: {
+          id: statistic.id,
+        },
+        data: {
+          transactionId: transactionIDS.join(','),
+          status: transactionIDS.length === chunked.length,
+        },
+      });
+    }
+
     console.log(`Finished ${formatDate(iDate.toDate())}`);
   }
   console.log('Finished creating statistics & memberStatistics');
