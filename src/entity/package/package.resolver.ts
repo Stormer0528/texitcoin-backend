@@ -64,12 +64,14 @@ export class PackageResolver {
   }
 
   @Authorized([UserRole.Admin])
+  @Transaction()
   @Mutation(() => Package)
   async createPackage(@Arg('data') data: CreatePackageInput): Promise<Package> {
     return this.service.createPackage(data);
   }
 
   @Authorized([UserRole.Admin])
+  @Transaction()
   @Mutation(() => Package)
   async updatePackage(@Arg('data') data: UpdatePackageInput): Promise<Package> {
     return this.service.updatePackage(data);
