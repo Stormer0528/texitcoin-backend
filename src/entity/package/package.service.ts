@@ -44,7 +44,13 @@ export class PackageService {
       },
     });
 
-    const updateData = sale ? { productName: data.productName } : data;
+    const updateData = sale
+      ? {
+          productName: data.productName,
+          freePeriodFrom: data.freePeriodFrom,
+          freePeriodTo: data.freePeriodTo,
+        }
+      : data;
     return this.prisma.package.update({
       where: {
         id: data.id,
