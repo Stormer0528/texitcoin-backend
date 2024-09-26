@@ -246,11 +246,11 @@ export class MemberResolver {
   @Authorized([UserRole.Admin])
   @Transaction()
   async approveMember(@Arg('data') data: IDInput): Promise<SuccessResponse> {
-    await this.service.updateMember({
+    const member = await this.service.updateMember({
       id: data.id,
       status: true,
     });
-    await this.service.calculateSponsorBonous(data.id);
+    await this.service.calculateSponsorBonous(member.sponsorId);
     return {
       result: SuccessResult.success,
     };
