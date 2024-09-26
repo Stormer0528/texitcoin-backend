@@ -112,7 +112,7 @@ export class SignupFormInput {
   assetId: string;
 
   @Field(() => ID, { nullable: true })
-  sponsorUserId?: number;
+  sponsorUserId?: string;
 
   @Field()
   @Length(6)

@@ -153,7 +153,7 @@ export class MemberResolver {
   async signUpMember(@Arg('data') data: SignupFormInput): Promise<Member> {
     const hashedPassword = await hashPassword(data.password);
     const member = data.sponsorUserId
-      ? await this.service.getMemberByUserId(data.sponsorUserId)
+      ? await this.service.getMemberByUserId(+data.sponsorUserId)
       : null;
     const newmember = await this.service.createMember({
       ..._.omit(data, ['packageId', 'paymentMenthod', 'sponsorUserId']),
