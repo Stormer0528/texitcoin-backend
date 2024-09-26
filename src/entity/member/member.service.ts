@@ -150,7 +150,9 @@ export class MemberService {
       },
     });
 
-    if (member.emailVerified) {
+    if (!member) {
+      throw new Error('Can not find email');
+    } else if (member.emailVerified) {
       return this.prisma.member.update({
         where: {
           email: data.email.toLowerCase(),
