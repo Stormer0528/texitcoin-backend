@@ -85,10 +85,10 @@ export class PackageService {
         AND pkg2."isFreeShare" IS TRUE
         AND pkg1.status IS TRUE
         AND pkg2.status IS TRUE
-        AND pkg1."freePeriodFrom" IS NOT null
-        AND pkg1."freePeriodTo" IS NOT null
-        AND pkg2."freePeriodFrom" IS NOT null
-        AND pkg2."freePeriodTo" IS NOT null
+        AND pkg1."freePeriodFrom" IS NOT NULL
+        AND pkg1."freePeriodTo" IS NOT NULL
+        AND pkg2."freePeriodFrom" IS NOT NULL
+        AND pkg2."freePeriodTo" IS NOT NULL
     `;
     if (res.length) {
       throw new Error(
@@ -101,8 +101,8 @@ export class PackageService {
       WHERE "freePeriodFrom" >= "freePeriodTo"
         AND "isFreeShare" IS TRUE
         AND "status" IS TRUE 
-        AND "freePeriodFrom" IS NOT null
-        AND "freePeriodTo" IS NOT null
+        AND "freePeriodFrom" IS NOT NULL
+        AND "freePeriodTo" IS NOT NULL
     `;
     if (resPeriod.length) {
       throw new Error(
