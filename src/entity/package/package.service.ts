@@ -36,7 +36,7 @@ export class PackageService {
     const pkg = await this.prisma.package.create({
       data,
     });
-    await this.checkIntersection();
+    await this.checkIntersectionAndPeriod();
     return pkg;
   }
 
@@ -60,14 +60,14 @@ export class PackageService {
       },
       data: updateData,
     });
-    await this.checkIntersection();
+    await this.checkIntersectionAndPeriod();
     return pkg;
   }
 
-  private async checkIntersection() {
+  private async checkIntersectionAndPeriod() {
     // check intersection
-    const res = await this.prisma.$queryRaw<Package[]>`
-      SELECT pkg1."productName", pkg2."productName"
+    const res = await this.prisma.$queryRaw<any[]>`
+      SELECT pkg1."productName" as "productName1", pkg2."productName" as "productName2"
       FROM packages pkg1
       JOIN packages pkg2
         ON pkg1.from < pkg2.to
@@ -77,7 +77,19 @@ export class PackageService {
         AND pkg2.isFreeShare IS TRUE
     `;
     if (res.length) {
-      throw new Error('Period intersection exists ');
+      throw new Error(
+        `Period intersection exists - ${res.map((pkg) => `(${pkg.productName1}, ${pkg.productName2})`).join(',')}`
+      );
+    }
+    const resPeriod = await this.prisma.$queryRaw<any[]>`
+      SELECT "productName"
+      FROM packages
+      WHERE "freePeriodFrom" = "freePeriodTo"
+    `;
+    if (resPeriod.length) {
+      throw new Error(
+        `Some products have no period - ${resPeriod.map((pkg) => pkg.productName).join(',')}`
+      );
     }
   }
 
