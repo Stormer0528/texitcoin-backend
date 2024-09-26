@@ -116,7 +116,10 @@ export class MemberService {
     });
   }
 
-  async updateMember({ id, ...data }: UpdateMemberInput & { password?: string }) {
+  async updateMember({
+    id,
+    ...data
+  }: UpdateMemberInput & { password?: string; introducerCount?: number }) {
     return this.prisma.member.update({
       where: { id },
       data,
@@ -287,36 +290,17 @@ export class MemberService {
 
   async calculateSponsorBonous(id: string): Promise<void> {
     if (!id) return;
-    const sponsortMembersCnt = await this.prisma.member.count({ where: { sponsorId: id } });
-    const sponsorRewardCnt = Math.floor(sponsortMembersCnt / SPONSOR_BONOUS_CNT);
-    const saleCnt = await this.prisma.sale.count({
-      where: {
-        memberId: id,
-        OR: [
-          {
-            packageId: FREE_SHARE_ID_1,
-          },
-          {
-            packageId: FREE_SHARE_ID_2,
-          },
-        ],
-        status: true,
-      },
+    const { introducerCount, freeShareSaleCount } = await this.prisma.member.findUnique({
+      where: { id },
     });
+    const actualSaleCount = Math.floor(introducerCount / SPONSOR_BONOUS_CNT);
 
-    if (sponsorRewardCnt < saleCnt) {
-      const remain = saleCnt - sponsorRewardCnt;
+    if (actualSaleCount < freeShareSaleCount) {
+      const remain = freeShareSaleCount - actualSaleCount;
       const sales = await this.prisma.sale.findMany({
         where: {
           memberId: id,
-          OR: [
-            {
-              packageId: FREE_SHARE_ID_1,
-            },
-            {
-              packageId: FREE_SHARE_ID_2,
-            },
-          ],
+          freeShareSale: true,
         },
         orderBy: {
           createdAt: 'desc',
@@ -347,7 +331,15 @@ export class MemberService {
           status: false,
         },
       });
-    } else if (sponsorRewardCnt > saleCnt) {
+      await this.prisma.member.update({
+        where: {
+          id,
+        },
+        data: {
+          freeShareSaleCount: actualSaleCount,
+        },
+      });
+    } else if (actualSaleCount > freeShareSaleCount) {
       const { invoiceNo: maxInvoiceNo } = await this.prisma.sale.findFirst({
         orderBy: {
           invoiceNo: 'desc',
@@ -361,13 +353,38 @@ export class MemberService {
       const packageId = member.createdAt < FREE_SHARE_DIVIDER1 ? FREE_SHARE_ID_1 : FREE_SHARE_ID_2;
 
       await this.prisma.sale.createMany({
-        data: new Array(sponsorRewardCnt - saleCnt).fill(0).map((_, idx) => ({
+        data: new Array(actualSaleCount - freeShareSaleCount).fill(0).map((_, idx) => ({
           memberId: id,
           packageId: packageId,
           paymentMethod: 'free',
           invoiceNo: maxInvoiceNo + idx + 1,
+          freeShareSale: true,
         })),
       });
+      await this.prisma.member.update({
+        where: {
+          id,
+        },
+        data: {
+          freeShareSaleCount: actualSaleCount,
+        },
+      });
     }
+  }
+
+  async incraseIntroducerCount(id: string): Promise<void> {
+    await this.prisma.$queryRaw`
+    UPDATE members
+      SET "introducerCount" = "introducerCount" + 1
+      WHERE id=${id}
+    `;
+  }
+
+  async decreaseIntroducerCount(id: string): Promise<void> {
+    await this.prisma.$queryRaw`
+    UPDATE members
+      SET "introducerCount" = GREATEST("introducerCount" - 1, 0)
+      WHERE id=${id}
+    `;
   }
 }

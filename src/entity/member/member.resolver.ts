@@ -142,7 +142,10 @@ export class MemberResolver {
       throw new Error('No wallet data');
     }
 
-    await this.service.calculateSponsorBonous(data.sponsorId);
+    if (data.sponsorId) {
+      await this.service.incraseIntroducerCount(data.sponsorId);
+      await this.service.calculateSponsorBonous(data.sponsorId);
+    }
 
     return member;
   }
@@ -241,8 +244,14 @@ export class MemberResolver {
     }
 
     if (prevSponsorID !== member.sponsorId) {
-      await this.service.calculateSponsorBonous(prevSponsorID);
-      await this.service.calculateSponsorBonous(member.sponsorId);
+      if (prevSponsorID) {
+        await this.service.decreaseIntroducerCount(prevSponsorID);
+        await this.service.calculateSponsorBonous(prevSponsorID);
+      }
+      if (member.sponsorId) {
+        await this.service.incraseIntroducerCount(member.sponsorId);
+        await this.service.calculateSponsorBonous(member.sponsorId);
+      }
     }
 
     return member;
@@ -256,10 +265,13 @@ export class MemberResolver {
       id: data.id,
       status: true,
     });
-    await this.service.calculateSponsorBonous(member.sponsorId);
-    return {
-      result: SuccessResult.success,
-    };
+    if (member.sponsorId) {
+      await this.service.incraseIntroducerCount(member.sponsorId);
+      await this.service.calculateSponsorBonous(member.sponsorId);
+      return {
+        result: SuccessResult.success,
+      };
+    }
   }
 
   @Authorized([UserRole.Admin])
