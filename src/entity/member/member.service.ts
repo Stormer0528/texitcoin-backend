@@ -287,6 +287,7 @@ export class MemberService {
         package: {
           isFreeShare: true,
         },
+        deletedAt: null,
       },
     });
 
@@ -302,14 +303,30 @@ export class MemberService {
         orderBy: {
           orderedAt: 'desc',
         },
+        include: {
+          statisticsSales: true,
+        },
         take: remain,
       });
+
+      const permanentDelete = sales.filter((sale) => sale.statisticsSales.length === 0);
+      const softDelete = sales.filter((sale) => sale.statisticsSales.length > 0);
 
       await this.prisma.sale.deleteMany({
         where: {
           id: {
-            in: sales.map((sale) => sale.id),
+            in: permanentDelete.map((sale) => sale.id),
           },
+        },
+      });
+      await this.prisma.sale.updateMany({
+        where: {
+          id: {
+            in: softDelete.map((sale) => sale.id),
+          },
+        },
+        data: {
+          deletedAt: new Date(),
         },
       });
     } else if (sponsorRewardCnt > saleCnt) {
