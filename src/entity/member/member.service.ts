@@ -287,7 +287,7 @@ export class MemberService {
         package: {
           isFreeShare: true,
         },
-        deletedAt: null,
+        status: true,
       },
     });
 
@@ -326,7 +326,7 @@ export class MemberService {
           },
         },
         data: {
-          deletedAt: new Date(),
+          status: false,
         },
       });
     } else if (sponsorRewardCnt > saleCnt) {
