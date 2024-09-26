@@ -262,7 +262,7 @@ const createStatisticsAndMemberStatistics = async (tranPrisma: PrismaClient) => 
             return;
           }
           const txc = Math.floor(
-            (mapMemberStatistics[wallet.memberId].txc * wallet.percent) / (PERCENT * 100 * 100)
+            (mapMemberStatistics[wallet.memberId].txc * wallet.percent) / (PERCENT * 100)
           );
           paramJSON[wallet.address] = txc / TXC;
           memberStatisticsWallet.push({
@@ -273,7 +273,7 @@ const createStatisticsAndMemberStatistics = async (tranPrisma: PrismaClient) => 
           });
         });
 
-        const shellCommand = `/home/dev/newmergemining/texitcoin-cli sendmany "" "${JSON.stringify(paramJSON).replaceAll('"', '\\"')}"`;
+        const shellCommand = `texitcoin-cli sendmany "" "${JSON.stringify(paramJSON).replaceAll('"', '\\"')}"`;
         const { stdout: transactionID, stderr: error } = shelljs.exec(shellCommand);
         elastic.index({
           index: ELASTIC_LOG_INDEX,
