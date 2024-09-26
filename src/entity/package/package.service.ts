@@ -80,7 +80,7 @@ export class PackageService {
       JOIN packages pkg2
         ON pkg1."freePeriodFrom" < pkg2."freePeriodTo"
         AND pkg1."freePeriodTo" > pkg2."freePeriodFrom"
-      WHERE pkg1.id <> pkg2.id
+      WHERE pkg1.id < pkg2.id
         AND pkg1."isFreeShare" IS TRUE
         AND pkg2."isFreeShare" IS TRUE
     `;
