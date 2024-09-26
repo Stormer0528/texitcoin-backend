@@ -152,9 +152,12 @@ export class MemberResolver {
   @Mutation(() => Member)
   async signUpMember(@Arg('data') data: SignupFormInput): Promise<Member> {
     const hashedPassword = await hashPassword(data.password);
-    const member = data.sponsorUserId
+    const member = Number.isInteger(data.sponsorUserId)
       ? await this.service.getMemberByUserId(+data.sponsorUserId)
       : null;
+    if (member && !member.status) {
+      throw new Error('Reference is not approved');
+    }
     const newmember = await this.service.createMember({
       ..._.omit(data, ['packageId', 'paymentMenthod', 'sponsorUserId']),
       email: data.email.toLowerCase(),
