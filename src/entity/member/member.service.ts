@@ -279,6 +279,7 @@ export class MemberService {
   }
 
   async calculateSponsorBonous(id: string): Promise<void> {
+    if (!id) return;
     const sponsortMembersCnt = await this.prisma.member.count({ where: { sponsorId: id } });
     const sponsorRewardCnt = Math.floor(sponsortMembersCnt / SPONSOR_BONOUS_CNT);
     const saleCnt = await this.prisma.sale.count({
