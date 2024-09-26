@@ -6,5 +6,5 @@
 */
 -- AlterTable
 ALTER TABLE "packages" DROP COLUMN "primaryFreeShare",
-ADD COLUMN     "freePeriodFrom" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-ADD COLUMN     "freePeriodTo" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;
+ADD COLUMN     "freePeriodFrom" TIMESTAMP(3),
+ADD COLUMN     "freePeriodTo" TIMESTAMP(3);
