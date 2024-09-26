@@ -368,6 +368,9 @@ export class MemberService {
         const { id: packageId } = await this.prisma.package.findFirst({
           where: {
             isFreeShare: true,
+            freePeriodFrom: {
+              lte: member.createdAt,
+            },
           },
           orderBy: {
             freePeriodFrom: 'desc',
