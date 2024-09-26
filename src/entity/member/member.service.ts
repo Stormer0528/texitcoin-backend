@@ -9,7 +9,12 @@ import {
   verifyToken,
 } from '@/utils/auth';
 import { PrismaService } from '@/service/prisma';
-import { SPONSOR_BONOUS_CNT } from '@/consts';
+import {
+  FREE_SHARE_DIVIDER1,
+  FREE_SHARE_ID_1,
+  FREE_SHARE_ID_2,
+  SPONSOR_BONOUS_CNT,
+} from '@/consts';
 
 import {
   CreateMemberInput,
@@ -287,9 +292,14 @@ export class MemberService {
     const saleCnt = await this.prisma.sale.count({
       where: {
         memberId: id,
-        package: {
-          isFreeShare: true,
-        },
+        OR: [
+          {
+            packageId: FREE_SHARE_ID_1,
+          },
+          {
+            packageId: FREE_SHARE_ID_2,
+          },
+        ],
         status: true,
       },
     });
@@ -299,9 +309,14 @@ export class MemberService {
       const sales = await this.prisma.sale.findMany({
         where: {
           memberId: id,
-          package: {
-            isFreeShare: true,
-          },
+          OR: [
+            {
+              packageId: FREE_SHARE_ID_1,
+            },
+            {
+              packageId: FREE_SHARE_ID_2,
+            },
+          ],
         },
         orderBy: {
           createdAt: 'desc',
@@ -343,52 +358,16 @@ export class MemberService {
           id,
         },
       });
-      const { id: packageId } = await this.prisma.package.findFirst({
-        where: {
-          freePeriodFrom: {
-            not: null,
-            lte: member.createdAt,
-          },
-          freePeriodTo: {
-            not: null,
-            gt: member.createdAt,
-          },
-          isFreeShare: true,
-        },
+      const packageId = member.createdAt < FREE_SHARE_DIVIDER1 ? FREE_SHARE_ID_1 : FREE_SHARE_ID_2;
+
+      await this.prisma.sale.createMany({
+        data: new Array(sponsorRewardCnt - saleCnt).fill(0).map((_, idx) => ({
+          memberId: id,
+          packageId: packageId,
+          paymentMethod: 'free',
+          invoiceNo: maxInvoiceNo + idx + 1,
+        })),
       });
-
-      if (packageId) {
-        await this.prisma.sale.createMany({
-          data: new Array(sponsorRewardCnt - saleCnt).fill(0).map((_, idx) => ({
-            memberId: id,
-            packageId: packageId,
-            paymentMethod: 'free',
-            invoiceNo: maxInvoiceNo + idx + 1,
-          })),
-        });
-      } else {
-        const { id: packageId } = await this.prisma.package.findFirst({
-          where: {
-            isFreeShare: true,
-            freePeriodFrom: {
-              not: null,
-              lte: member.createdAt,
-            },
-          },
-          orderBy: {
-            freePeriodFrom: 'desc',
-          },
-        });
-
-        await this.prisma.sale.createMany({
-          data: new Array(sponsorRewardCnt - saleCnt).fill(0).map((_, idx) => ({
-            memberId: id,
-            packageId: packageId,
-            paymentMethod: 'free',
-            invoiceNo: maxInvoiceNo + idx + 1,
-          })),
-        });
-      }
     }
   }
 }
