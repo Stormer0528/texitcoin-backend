@@ -33,6 +33,10 @@ export class PackageService {
   }
 
   async createPackage(data: CreatePackageInput) {
+    if (data.freePeriodFrom >= data.freePeriodTo) {
+      throw new Error('Period is at lead 1 day');
+    }
+
     const pkg = await this.prisma.package.create({
       data,
     });
@@ -41,6 +45,10 @@ export class PackageService {
   }
 
   async updatePackage(data: UpdatePackageInput) {
+    if (data.freePeriodFrom >= data.freePeriodTo) {
+      throw new Error('Period is at lead 1 day');
+    }
+
     const sale = await this.prisma.sale.findFirst({
       where: {
         packageId: data.id,
@@ -84,7 +92,7 @@ export class PackageService {
     const resPeriod = await this.prisma.$queryRaw<any[]>`
       SELECT "productName"
       FROM packages
-      WHERE "freePeriodFrom" = "freePeriodTo"
+      WHERE "freePeriodFrom" >= "freePeriodTo"
     `;
     if (resPeriod.length) {
       throw new Error(
