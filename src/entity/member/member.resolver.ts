@@ -222,8 +222,6 @@ export class MemberResolver {
         return prev + current.percent;
       }, 0);
       if (sumPercent !== 100 * PERCENT) throw new Error('Sum of percent must be 100');
-    } else {
-      throw new Error('No wallet data');
     }
 
     let newData: UpdateMemberInput = {
@@ -239,8 +237,6 @@ export class MemberResolver {
         memberId: data.id ?? ctx.user.id,
         wallets: data.wallets,
       });
-    } else {
-      throw new Error('No wallet data');
     }
 
     if (prevSponsorID !== member.sponsorId) {
