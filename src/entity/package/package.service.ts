@@ -83,6 +83,12 @@ export class PackageService {
       WHERE pkg1.id < pkg2.id
         AND pkg1."isFreeShare" IS TRUE
         AND pkg2."isFreeShare" IS TRUE
+        AND pkg1.status IS TRUE
+        AND pkg2.status IS TRUE
+        AND pkg1."freePeriodFrom" IS NOT null
+        AND pkg1."freePeriodTo" IS NOT null
+        AND pkg2."freePeriodFrom" IS NOT null
+        AND pkg2."freePeriodTo" IS NOT null
     `;
     if (res.length) {
       throw new Error(
@@ -93,6 +99,10 @@ export class PackageService {
       SELECT "productName"
       FROM packages
       WHERE "freePeriodFrom" >= "freePeriodTo"
+        AND "isFreeShare" IS TRUE
+        AND "status" IS TRUE 
+        AND "freePeriodFrom" IS NOT null
+        AND "freePeriodTo" IS NOT null
     `;
     if (resPeriod.length) {
       throw new Error(
