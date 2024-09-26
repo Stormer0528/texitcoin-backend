@@ -53,27 +53,6 @@ export class PackageService {
     });
   }
 
-  async makePrimaryFreeShare(data: IDInput) {
-    await this.prisma.package.updateMany({
-      where: {
-        primaryFreeShare: true,
-      },
-      data: {
-        primaryFreeShare: false,
-      },
-    });
-
-    return await this.prisma.package.update({
-      where: {
-        id: data.id,
-      },
-      data: {
-        isFreeShare: true,
-        primaryFreeShare: true,
-      },
-    });
-  }
-
   async removePackage(data: IDInput) {
     return this.prisma.package.delete({
       where: {

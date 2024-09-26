@@ -40,6 +40,12 @@ export class CreatePackageInput {
 
   @Field()
   isFreeShare: boolean;
+
+  @Field({ nullable: true })
+  freePeriodFrom?: Date;
+
+  @Field({ nullable: true })
+  freePeriodTo?: Date;
 }
 
 @InputType()
@@ -67,4 +73,10 @@ export class UpdatePackageInput {
 
   @Field({ nullable: true })
   isFreeShare?: boolean;
+
+  @Field({ nullable: true })
+  freePeriodFrom?: Date;
+
+  @Field({ nullable: true })
+  freePeriodTo?: Date;
 }

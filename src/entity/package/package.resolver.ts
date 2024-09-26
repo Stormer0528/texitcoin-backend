@@ -84,13 +84,6 @@ export class PackageResolver {
     };
   }
 
-  @Authorized([UserRole.Admin])
-  @Transaction()
-  @Mutation(() => Package)
-  async makePrimaryFreeShare(@Arg('data') data: IDInput): Promise<Package> {
-    return this.service.makePrimaryFreeShare(data);
-  }
-
   @FieldResolver({ nullable: 'itemsAndList' })
   async sales(@Root() pkg: Package, @Ctx() ctx: Context): Promise<Sale[]> {
     return ctx.dataLoader.get('salesForPackageLoader').load(pkg.id);

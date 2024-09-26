@@ -304,7 +304,7 @@ export class MemberService {
           },
         },
         orderBy: {
-          orderedAt: 'desc',
+          createdAt: 'desc',
         },
         include: {
           statisticsSales: true,
@@ -338,20 +338,51 @@ export class MemberService {
           createdAt: 'desc',
         },
       });
+      const member = await this.prisma.member.findUnique({
+        where: {
+          id,
+        },
+      });
       const { id: packageId } = await this.prisma.package.findFirst({
         where: {
-          primaryFreeShare: true,
+          freePeriodFrom: {
+            lte: member.createdAt,
+          },
+          freePeriodTo: {
+            gt: member.createdAt,
+          },
+          isFreeShare: true,
         },
       });
 
-      await this.prisma.sale.createMany({
-        data: new Array(sponsorRewardCnt - saleCnt).fill(0).map((_, idx) => ({
-          memberId: id,
-          packageId: packageId,
-          paymentMethod: 'free',
-          invoiceNo: maxInvoiceNo + idx + 1,
-        })),
-      });
+      if (packageId) {
+        await this.prisma.sale.createMany({
+          data: new Array(sponsorRewardCnt - saleCnt).fill(0).map((_, idx) => ({
+            memberId: id,
+            packageId: packageId,
+            paymentMethod: 'free',
+            invoiceNo: maxInvoiceNo + idx + 1,
+          })),
+        });
+      } else {
+        const { id: packageId } = await this.prisma.package.findFirst({
+          where: {
+            isFreeShare: true,
+          },
+          orderBy: {
+            freePeriodFrom: 'desc',
+          },
+        });
+
+        await this.prisma.sale.createMany({
+          data: new Array(sponsorRewardCnt - saleCnt).fill(0).map((_, idx) => ({
+            memberId: id,
+            packageId: packageId,
+            paymentMethod: 'free',
+            invoiceNo: maxInvoiceNo + idx + 1,
+          })),
+        });
+      }
     }
   }
 }
