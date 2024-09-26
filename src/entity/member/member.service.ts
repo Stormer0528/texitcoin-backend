@@ -350,7 +350,7 @@ export class MemberService {
     } else if (sponsorRewardCnt > saleCnt) {
       const { invoiceNo: maxInvoiceNo } = await this.prisma.sale.findFirst({
         orderBy: {
-          createdAt: 'desc',
+          invoiceNo: 'desc',
         },
       });
       const member = await this.prisma.member.findUnique({

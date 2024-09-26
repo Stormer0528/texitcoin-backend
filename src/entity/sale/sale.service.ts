@@ -35,7 +35,7 @@ export class SaleService {
     let invoiceNo = data.invoiceNo;
     if (data.invoiceNo) {
       const { invoiceNo: maxInvoiceNo } = await this.prisma.sale.findFirst({
-        orderBy: { createdAt: 'desc' },
+        orderBy: { invoiceNo: 'desc' },
       });
       invoiceNo = maxInvoiceNo + 1;
     }
