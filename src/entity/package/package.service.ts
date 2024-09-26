@@ -78,11 +78,11 @@ export class PackageService {
       SELECT pkg1."productName" as "productName1", pkg2."productName" as "productName2"
       FROM packages pkg1
       JOIN packages pkg2
-        ON pkg1.from < pkg2.to
-        AND pkg1.to > pkg2.from
+        ON pkg1."freePeriodFrom" < pkg2."freePeriodTo"
+        AND pkg1."freePeriodTo" > pkg2."freePeriodFrom"
       WHERE pkg1.id <> pkg2.id
-        AND pkg1.isFreeShare IS TRUE
-        AND pkg2.isFreeShare IS TRUE
+        AND pkg1."isFreeShare" IS TRUE
+        AND pkg2."isFreeShare" IS TRUE
     `;
     if (res.length) {
       throw new Error(
