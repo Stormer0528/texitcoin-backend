@@ -192,6 +192,7 @@ const createStatisticsAndMemberStatistics = async (tranPrisma: PrismaClient) => 
           status: true,
         },
         status: true,
+        deletedAt: null,
       },
       select: {
         id: true,
