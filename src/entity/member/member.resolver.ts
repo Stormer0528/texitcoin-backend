@@ -541,7 +541,7 @@ export class MemberResolver {
   @Query(() => ReferenceLink)
   generateReferenceLink(@Ctx() ctx: Context): ReferenceLink {
     return {
-      link: `${process.env.MEMBER_URL}/signup?reference=${ctx.isAdmin ? ctx.user.username : (ctx.user as Member).userId}`,
+      link: `${process.env.MEMBER_URL}/sign-up?reference=${ctx.isAdmin ? ctx.user.username : (ctx.user as Member).userId}`,
     };
   }
 }
