@@ -78,6 +78,10 @@ export class SaleResolver {
   async createSale(@Arg('data') data: CreateSaleInput): Promise<Sale> {
     const sale = await this.service.createSale({ ...data });
     await this.memberService.updateMemberPointByMemberId(sale.memberId);
+    await this.memberService.updateMember({
+      id: data.memberId,
+      status: true,
+    });
     return sale;
   }
 
