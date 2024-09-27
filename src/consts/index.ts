@@ -66,3 +66,5 @@ export const SPONSOR_BONOUS_CNT = 3;
 export const FREE_SHARE_ID_1 = 'c62357db-0572-4600-98dc-43d92621cfa5';
 export const FREE_SHARE_ID_2 = 'aa8604b3-3f2a-4f9c-9ee5-1c9d1d76d726';
 export const FREE_SHARE_DIVIDER1 = new Date('2024-06-28');
+
+export const PLACEMENT_ROOT = '03ee869f-8726-48a7-80f8-286221d6436e';

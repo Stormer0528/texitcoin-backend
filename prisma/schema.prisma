@@ -299,12 +299,14 @@ model MemberStatisticsWallet {
 }
 
 model WeeklyCommission {
-  id            String   @id @default(uuid())
-  memberId      String
-  weekStartDate DateTime
-  leftPoint     Int      @default(0)
-  rightPoint    Int      @default(0)
-  commission    Int      @default(0)
+  id                   String   @id @default(uuid())
+  memberId             String
+  weekStartDate        DateTime
+  leftPoint            Int      @default(0)
+  rightPoint           Int      @default(0)
+  calculatedLeftPoint  Int      @default(0)
+  calculatedRightPoint Int      @default(0)
+  commission           Int      @default(0)
 
   member Member? @relation(fields: [memberId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
