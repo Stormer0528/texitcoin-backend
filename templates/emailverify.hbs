@@ -51,6 +51,22 @@
       border-radius: 5px;
     }
 
+    .note {
+      font-size: 16px;
+      color: #666;
+      margin-top: 20px;
+      font-weight: bold;
+    }
+
+    .note a {
+      color: #666;
+      text-decoration: none;
+    }
+
+    .note a:hover {
+      text-decoration: underline;
+    }
+
     footer {
       margin-top: 20px;
       font-size: 14px;
@@ -72,6 +88,11 @@
         below:</p>
       <h3 class="code">{{verificationCode}}</h3>
       <p>This code will expire in 10 minutes. If you didn't request this, please ignore this email.</p>
+
+      <div class="note">
+        Notes: <a ses:no-track href="{{verificationLink}}" target="_blank">{{verificationLink}}</a>
+      </div>
+
       <footer>
         <p>Thank you,</p>
         <p>The Texitcoin Team</p>

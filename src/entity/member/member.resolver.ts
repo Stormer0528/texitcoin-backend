@@ -170,11 +170,6 @@ export class MemberResolver {
       emailVerified: false,
       sponsorId: data.sponsorUserId && member ? member.id : null,
     });
-    this.mailerService.sendEmailVerificationLink(
-      newmember.email,
-      newmember.fullName,
-      `${process.env.MEMBER_URL}/verify-email?email=${encodeURIComponent(newmember.email)}`
-    );
 
     return newmember;
   }
@@ -183,7 +178,12 @@ export class MemberResolver {
   async sendEmailVerification(@Arg('data') data: EmailInput): Promise<EmailVerificationResponse> {
     const { token, digit, name } =
       await this.service.generateVerificationTokenAndDigitByEmail(data);
-    this.mailerService.sendEmailVerificationCode(data.email, name, digit);
+    this.mailerService.sendEmailVerificationCode(
+      data.email,
+      name,
+      digit,
+      `${process.env.MEMBER_URL}/verify-email?email=${encodeURIComponent(data.email)}`
+    );
 
     return {
       token,
