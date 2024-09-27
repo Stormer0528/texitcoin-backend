@@ -264,10 +264,10 @@ export class MemberResolver {
     if (member.sponsorId) {
       await this.service.incraseIntroducerCount(member.sponsorId);
       await this.service.calculateSponsorBonous(member.sponsorId);
-      return {
-        result: SuccessResult.success,
-      };
     }
+    return {
+      result: SuccessResult.success,
+    };
   }
 
   @Authorized([UserRole.Admin])
