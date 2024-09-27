@@ -7,7 +7,7 @@ export const salesForPackageLoader = (parent: RootDataLoader) => {
   return new DataLoader<string, Sale[]>(
     async (packageIds: string[]) => {
       const sales = await parent.prisma.sale.findMany({
-        where: { packageId: { in: packageIds } },
+        where: { packageId: { in: packageIds }, status: true },
       });
 
       const salesMap: Record<string, Sale[]> = {};

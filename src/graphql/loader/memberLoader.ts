@@ -14,6 +14,7 @@ export const salesForMemberLoader = (parent: RootDataLoader) => {
           memberId: {
             in: memberIds,
           },
+          status: true,
         },
       });
       const membersWithSalesMap: Record<string, Sale[]> = {};

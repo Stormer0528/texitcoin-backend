@@ -153,6 +153,7 @@ const createStatisticsAndMemberStatistics = async () => {
         orderedAt: {
           lt: new Date(iDate.add(1, 'day').toDate()),
         },
+        status: true,
       },
       select: {
         id: true,

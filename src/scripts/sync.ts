@@ -13,6 +13,9 @@ const createPoint = async () => {
   console.log('reseting all member point finished');
 
   const sales = await prisma.sale.findMany({
+    where: {
+      status: true,
+    },
     include: {
       package: true,
     },

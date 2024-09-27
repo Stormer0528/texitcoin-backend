@@ -301,6 +301,7 @@ export class MemberService {
         where: {
           memberId: id,
           freeShareSale: true,
+          status: true,
         },
         orderBy: {
           createdAt: 'desc',

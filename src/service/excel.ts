@@ -145,6 +145,9 @@ export class ExcelService {
   }
   public async exportSales() {
     const sales = await this.prisma.sale.findMany({
+      where: {
+        status: true,
+      },
       include: {
         member: true,
         package: true,
