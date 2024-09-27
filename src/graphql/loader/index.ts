@@ -12,6 +12,7 @@ import * as payoutLoader from './payoutLoader';
 import * as statisticsSaleLoader from './statisticsSaleLoader';
 import * as memberStatisticsWalletLoader from './memberStatisticsWalletLoader';
 import * as memberWalletLoader from './memberWalletLoader';
+import * as weeklyCommissionLoader from './weeklyCommissionLoader';
 import { Member } from '@/entity/member/member.entity';
 import { Admin } from '@/entity/admin/admin.entity';
 
@@ -30,6 +31,7 @@ const loaderMakers = {
   ...statisticsSaleLoader,
   ...memberStatisticsWalletLoader,
   ...memberWalletLoader,
+  ...weeklyCommissionLoader,
 } as const;
 
 type LoaderMakers = typeof loaderMakers;

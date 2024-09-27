@@ -31,6 +31,7 @@ import { adminAuthorized } from './graphql/middlewares/adminAuthorized.middlewar
 import { DailyBlockResolver } from './entity/dailyblock/dailyblock.resolver';
 import { WeeklyBlockResolver } from './entity/weeklyblock/weeklyblock.resolver';
 import { MonthlyBlockResolver } from './entity/monthlyblock/monthlyblock.resolver';
+import { WeeklyCommissionResolver } from './entity/weeklycommission/weeklycommission.resolver';
 
 // import "./env";
 
@@ -52,6 +53,7 @@ const app = async () => {
       DailyBlockResolver,
       WeeklyBlockResolver,
       MonthlyBlockResolver,
+      WeeklyCommissionResolver,
     ],
     authChecker,
     scalarsMap: [
