@@ -1,5 +1,5 @@
 import type { Prisma } from '@prisma/client';
-import { IsAlpha, IsEmail, IsNotEmpty, Length } from 'class-validator';
+import { IsEmail, IsNotEmpty, Length } from 'class-validator';
 import { ObjectType, InputType, Field, ArgsType, ID } from 'type-graphql';
 
 import { QueryArgsBase } from '@/graphql/queryArgs';
@@ -7,11 +7,7 @@ import { PaginatedResponse } from '@/graphql/paginatedResponse';
 
 import { Member } from '@/entity/member/member.entity';
 import { MemberWalletDataInput } from '../memberWallet/memberWallet.type';
-import {
-  ELASTIC_LOG_ACTION_STATUS,
-  ELASTIC_LOG_OWNER_ROLE,
-  ELASTIC_LOG_TYPE,
-} from '@/service/elasticsearch';
+
 import GraphQLJSON from 'graphql-type-json';
 import { EmailInput, TokenInput } from '@/graphql/common.type';
 
@@ -109,6 +105,7 @@ export class SignupFormInput {
   mobile: string;
 
   @Field()
+  @Length(6)
   assetId: string;
 
   @Field(() => ID, { nullable: true })
