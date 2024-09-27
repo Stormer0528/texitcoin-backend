@@ -70,6 +70,7 @@ model Member {
   introduceMembers  Member[]           @relation("MemberSponsor")
   memberWallets     MemberWallet[]
   placementChildren Member[]           @relation("MemberPlacementParent")
+  WeeklyCommission  WeeklyCommission[]
 
   @@map("members")
 }
@@ -295,4 +296,21 @@ model MemberStatisticsWallet {
   deletedAt DateTime?
 
   @@map("memberstatisticswallets")
+}
+
+model WeeklyCommission {
+  id            String   @id @default(uuid())
+  memberId      String
+  weekStartDate DateTime
+  leftPoint     Int      @default(0)
+  rightPoint    Int      @default(0)
+  commission    Int      @default(0)
+
+  member Member? @relation(fields: [memberId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@map("weeklycommissions")
 }
