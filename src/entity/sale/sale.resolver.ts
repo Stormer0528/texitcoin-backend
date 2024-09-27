@@ -76,6 +76,11 @@ export class SaleResolver {
   @Transaction()
   @Mutation(() => Sale)
   async createSale(@Arg('data') data: CreateSaleInput): Promise<Sale> {
+    const { emailVerified } = await this.memberService.getMemberById(data.memberId);
+    if (!emailVerified) {
+      throw new Error('This member did not verify the email');
+    }
+
     const sale = await this.service.createSale({ ...data });
     await this.memberService.updateMemberPointByMemberId(sale.memberId);
     await this.memberService.updateMember({
