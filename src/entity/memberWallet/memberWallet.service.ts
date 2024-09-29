@@ -97,6 +97,7 @@ export class MemberWalletService {
       },
       { concurrency: 10 }
     );
+    await this.validationByMemberId(data.memberId);
   }
 
   async createManyMemberWallets(data: CreateMemberWalletInput[]) {
@@ -111,9 +112,18 @@ export class MemberWalletService {
 
     if (sumPercent !== 100 * PERCENT) throw new Error('Sum of percent must be 100');
 
-    return this.prisma.memberWallet.createMany({
+    const res = this.prisma.memberWallet.createMany({
       data,
     });
+    await Bluebird.map(
+      [...new Set(data.map((dt) => dt.memberId))],
+      async (memberId) => {
+        await this.validationByMemberId(memberId);
+      },
+      { concurrency: 10 }
+    );
+
+    return res;
   }
 
   async removeMemberWalletsByMemberId(data: IDInput) {
@@ -122,5 +132,14 @@ export class MemberWalletService {
         memberId: data.id,
       },
     });
+  }
+
+  async validationByMemberId(id: string) {
+    const wallets = await this.prisma.memberWallet.findMany({
+      where: { memberId: id, deletedAt: null },
+    });
+    if (wallets.reduce((prev, cur) => prev + cur.percent, 0) !== 100 * PERCENT)
+      throw new Error('Sum of percent should be 100');
+    return true;
   }
 }
