@@ -7,6 +7,7 @@ import { PrismaService } from '@/service/prisma';
 import { IDInput } from '@/graphql/common.type';
 import {
   CreateMemberWalletInput,
+  MemberWalletDataInput,
   MemberWalletQueryArgs,
   UpdateMemberWalletInput,
 } from './memberWallet.type';
@@ -66,9 +67,15 @@ export class MemberWalletService {
         deletedAt: new Date(),
       },
     });
+    const unionSameWallet: Record<string, MemberWalletDataInput> = {};
+    data.wallets.forEach((wallet) => {
+      const ky = `${wallet.payoutId}-${wallet.address}`;
+      if (!unionSameWallet[ky]) unionSameWallet[ky] = wallet;
+      else unionSameWallet[ky].percent += wallet.percent;
+    });
 
     await Bluebird.map(
-      data.wallets,
+      Object.values(unionSameWallet),
       async (wallet) => {
         await this.prisma.memberWallet.upsert({
           where: {
