@@ -112,9 +112,10 @@ export class MemberWalletService {
 
     if (sumPercent !== 100 * PERCENT) throw new Error('Sum of percent must be 100');
 
-    const res = this.prisma.memberWallet.createMany({
+    const res = await this.prisma.memberWallet.createMany({
       data,
     });
+
     await Bluebird.map(
       [...new Set(data.map((dt) => dt.memberId))],
       async (memberId) => {
