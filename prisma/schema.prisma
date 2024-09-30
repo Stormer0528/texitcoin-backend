@@ -55,6 +55,7 @@ model Member {
   signupFormRequest  Json?              @db.Json
   emailVerified      Boolean            @default(true) @db.Boolean
   introducerCount    Int                @default(0) @db.Integer
+  totalIntroducers   Int                @default(0) @db.Integer
   freeShareSaleCount Int                @default(0) @db.Integer
 
   sponsor         Member? @relation("MemberSponsor", fields: [sponsorId], references: [id], onDelete: NoAction, onUpdate: NoAction)
