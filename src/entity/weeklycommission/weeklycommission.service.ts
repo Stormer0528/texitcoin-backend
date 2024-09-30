@@ -2,7 +2,8 @@ import { Service, Inject } from 'typedi';
 
 import { PrismaService } from '@/service/prisma';
 
-import { WeeklyCommissionQueryArgs } from './weeklycommission.type';
+import { WeeklyCommissionQueryArgs, WeeklyCommissionUpdateInput } from './weeklycommission.type';
+import { WeeklyCommission } from './weeklycommission.entity';
 
 @Service()
 export class WeeklyCommissionService {
@@ -20,5 +21,14 @@ export class WeeklyCommissionService {
 
   async getWeeklyCommissionsCount(params: WeeklyCommissionQueryArgs): Promise<number> {
     return this.prisma.weeklyCommission.count({ where: params.where });
+  }
+
+  async updateWeeklyCommission(data: WeeklyCommissionUpdateInput): Promise<WeeklyCommission> {
+    return this.prisma.weeklyCommission.update({
+      where: {
+        id: data.id,
+      },
+      data,
+    });
   }
 }

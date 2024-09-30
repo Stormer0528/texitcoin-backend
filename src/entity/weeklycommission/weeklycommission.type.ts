@@ -16,3 +16,21 @@ export class WeeklyCommissionResponse extends PaginatedResponse {
   @Field(() => [WeeklyCommission], { nullable: 'itemsAndList' })
   weeklyCommissions?: WeeklyCommission[];
 }
+
+@InputType()
+export class WeeklyCommissionUpdateInput {
+  @Field(() => ID)
+  id: string;
+
+  @Field({ nullable: true })
+  calculatedLeftPoint?: number;
+
+  @Field({ nullable: true })
+  calculatedRightPoint?: number;
+
+  @Field({ nullable: true })
+  commission?: number;
+
+  @Field({ nullable: true })
+  status?: boolean;
+}

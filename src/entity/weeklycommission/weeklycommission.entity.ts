@@ -30,6 +30,9 @@ export class WeeklyCommission extends BaseEntity {
   @Field()
   commission: number;
 
-  @Field(() => Member)
-  member: Member;
+  @Field()
+  status: boolean;
+
+  @Field(() => Member, { nullable: true })
+  member?: Member;
 }

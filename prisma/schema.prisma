@@ -307,6 +307,7 @@ model WeeklyCommission {
   calculatedLeftPoint  Int      @default(0)
   calculatedRightPoint Int      @default(0)
   commission           Int      @default(0)
+  status               Boolean  @default(false)
 
   member Member? @relation(fields: [memberId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
