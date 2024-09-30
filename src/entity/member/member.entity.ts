@@ -65,6 +65,9 @@ export class Member extends BaseEntity {
   @Field()
   status: boolean;
 
+  @Field()
+  totalIntroducers: number;
+
   @Field(() => [Sale], { nullable: 'itemsAndList' })
   sales?: Sale[];
 

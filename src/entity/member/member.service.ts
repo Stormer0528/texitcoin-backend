@@ -376,7 +376,7 @@ export class MemberService {
   async incraseIntroducerCount(id: string): Promise<void> {
     await this.prisma.$queryRaw`
     UPDATE members
-      SET "introducerCount" = "introducerCount" + 1
+      SET "introducerCount" = "introducerCount" + 1, "totalIntroducers" = "totalIntroducers" + 1
       WHERE id=${id}
     `;
   }
@@ -384,7 +384,7 @@ export class MemberService {
   async decreaseIntroducerCount(id: string): Promise<void> {
     await this.prisma.$queryRaw`
     UPDATE members
-      SET "introducerCount" = GREATEST("introducerCount" - 1, 0)
+      SET "introducerCount" = GREATEST("introducerCount" - 1, 0), "totalIntroducers" = GREATEST("totalIntroducers" - 1, 0)
       WHERE id=${id}
     `;
   }
