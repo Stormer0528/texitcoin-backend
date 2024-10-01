@@ -16,7 +16,7 @@ import {
 import graphqlFields from 'graphql-fields';
 import { GraphQLResolveInfo } from 'graphql';
 
-import { DEFAULT_PASSWORD } from '@/consts';
+import { DEFAULT_PASSWORD, PLACEMENT_ROOT } from '@/consts';
 import { UserRole } from '@/type';
 import { Context } from '@/context';
 import { createAccessToken, hashPassword, verifyPassword } from '@/utils/auth';
@@ -222,6 +222,10 @@ export class MemberResolver {
         return prev + current.percent;
       }, 0);
       if (sumPercent !== 100 * PERCENT) throw new Error('Sum of percent must be 100');
+    }
+
+    if (data.id === PLACEMENT_ROOT && data.placementParentId !== PLACEMENT_ROOT) {
+      throw new Error('You can not change parent of root node');
     }
 
     let newData: UpdateMemberInput = {
