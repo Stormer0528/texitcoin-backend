@@ -255,7 +255,7 @@ const createStatisticsAndMemberStatistics = async (tranPrisma: PrismaClient) => 
           const txc = Math.floor(
             (mapMemberStatistics[wallet.memberId].txc * wallet.percent) / (PERCENT * 100)
           );
-          paramJSON[wallet.address] = txc / TXC;
+          paramJSON[wallet.address] = (paramJSON[wallet.address] ?? 0) + txc / TXC;
           memberStatisticsWallet.push({
             memberStatisticId: mapMemberStatistics[wallet.memberId].id,
             memberWalletId: wallet.id,
