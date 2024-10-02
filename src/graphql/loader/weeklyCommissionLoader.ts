@@ -7,7 +7,7 @@ export const memberForWeeklyCommissionLoader = (parent: RootDataLoader) => {
   return new DataLoader<string, Member>(
     async (weeklyCommissionIds: string[]) => {
       const weeklyCommissionsWithMember = await parent.prisma.weeklyCommission.findMany({
-        where: { memberId: { in: weeklyCommissionIds } },
+        where: { id: { in: weeklyCommissionIds } },
         include: {
           member: true,
         },

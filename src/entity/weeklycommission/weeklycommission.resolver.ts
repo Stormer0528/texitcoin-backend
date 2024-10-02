@@ -32,6 +32,7 @@ import { IDInput } from '@/graphql/common.type';
 export class WeeklyCommissionResolver {
   constructor(private readonly service: WeeklyCommissionService) {}
 
+  @Authorized([UserRole.Admin])
   @Query(() => WeeklyCommissionResponse)
   async weeklyCommissions(
     @Args() query: WeeklyCommissionQueryArgs,
