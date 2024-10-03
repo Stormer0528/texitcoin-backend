@@ -11,6 +11,7 @@ import {
   MemberWalletQueryArgs,
   UpdateMemberWalletInput,
 } from './memberWallet.type';
+import { validateAddresses } from '@/utils/validateAddress';
 
 @Service()
 export class MemberWalletService {
@@ -74,6 +75,13 @@ export class MemberWalletService {
       else unionSameWallet[ky].percent += wallet.percent;
     });
 
+    const [verified, invalidAddresses] = validateAddresses(
+      data.wallets.map((wallet) => wallet.address)
+    );
+    if (!verified) {
+      throw new Error(`Invalid Address - ${invalidAddresses.join(',')}`);
+    }
+
     await Bluebird.map(
       Object.values(unionSameWallet),
       async (wallet) => {
@@ -111,6 +119,11 @@ export class MemberWalletService {
     }, 0);
 
     if (sumPercent !== 100 * PERCENT) throw new Error('Sum of percent must be 100');
+
+    const [verified, invalidAddresses] = validateAddresses(data.map((dt) => dt.address));
+    if (!verified) {
+      throw new Error(`Invalid Address - ${invalidAddresses.join(',')}`);
+    }
 
     const res = await this.prisma.memberWallet.createMany({
       data,
