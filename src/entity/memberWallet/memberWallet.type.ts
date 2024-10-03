@@ -23,14 +23,8 @@ export class CreateMemberWalletInput {
   @Field(() => ID)
   memberId: string;
 
-  @Field()
-  payoutId: string;
-
-  @Field()
-  address: string;
-
-  @Field()
-  percent: number;
+  @Field(() => [MemberWalletDataInput])
+  wallets: MemberWalletDataInput[];
 }
 
 @InputType()

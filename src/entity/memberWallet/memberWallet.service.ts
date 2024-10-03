@@ -12,6 +12,7 @@ import {
   UpdateMemberWalletInput,
 } from './memberWallet.type';
 import { validateAddresses } from '@/utils/validateAddress';
+import { GraphQLError } from 'graphql';
 
 @Service()
 export class MemberWalletService {
@@ -108,8 +109,8 @@ export class MemberWalletService {
     await this.validationByMemberId(data.memberId);
   }
 
-  async createManyMemberWallets(data: CreateMemberWalletInput[]) {
-    const sumPercent = data.reduce((prev, current) => {
+  async createManyMemberWallets(data: CreateMemberWalletInput) {
+    const sumPercent = data.wallets.reduce((prev, current) => {
       if (!current.payoutId) {
         throw new Error('Not specified payout type');
       } else if (!current.address) {
@@ -120,22 +121,23 @@ export class MemberWalletService {
 
     if (sumPercent !== 100 * PERCENT) throw new Error('Sum of percent must be 100');
 
-    const [verified, invalidAddresses] = validateAddresses(data.map((dt) => dt.address));
+    const [verified, invalidAddresses] = validateAddresses(
+      data.wallets.map((wallet) => wallet.address)
+    );
     if (!verified) {
-      throw new Error(`Invalid Address - ${invalidAddresses.join(',')}`);
+      throw new GraphQLError(`Invalid Address - ${invalidAddresses.join(',')}`, {
+        path: invalidAddresses.map(
+          (addr) =>
+            `wallets/address[${data.wallets.findIndex((wallet) => wallet.address === addr)}]`
+        ),
+      });
     }
 
     const res = await this.prisma.memberWallet.createMany({
-      data,
+      data: data.wallets.map((wallet) => ({ ...wallet, memberId: data.memberId })),
     });
 
-    await Bluebird.map(
-      [...new Set(data.map((dt) => dt.memberId))],
-      async (memberId) => {
-        await this.validationByMemberId(memberId);
-      },
-      { concurrency: 10 }
-    );
+    await this.validationByMemberId(data.memberId);
 
     return res;
   }

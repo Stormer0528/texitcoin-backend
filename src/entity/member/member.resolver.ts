@@ -135,9 +135,10 @@ export class MemberResolver {
     });
 
     if (data.wallets) {
-      await this.memberWalletService.createManyMemberWallets(
-        data.wallets.map((wallet) => ({ ...wallet, memberId: member.id }))
-      );
+      await this.memberWalletService.createManyMemberWallets({
+        memberId: member.id,
+        wallets: data.wallets,
+      });
     } else {
       throw new Error('No wallet data');
     }
