@@ -21,9 +21,6 @@ async function sync() {
           address: {
             in: invalidAddresses,
           },
-          percent: {
-            gt: 0,
-          },
         },
         include: {
           member: {
