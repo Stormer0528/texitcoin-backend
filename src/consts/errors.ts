@@ -31,8 +31,13 @@ export const uniqueErrors = [
   },
   {
     modelName: 'MemberWallet',
-    path: ['memberId', 'payoutId', 'address', 'deletedAt'],
+    path: ['memberId', 'payoutId', 'address'],
     message: 'Wallet already exists',
+  },
+  {
+    modelName: 'MemberWallet',
+    path: ['address', 'deletedAt'],
+    message: 'Wallet address already exists',
   },
   {
     modelName: 'Member',
