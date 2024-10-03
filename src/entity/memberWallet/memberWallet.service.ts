@@ -80,7 +80,12 @@ export class MemberWalletService {
       data.wallets.map((wallet) => wallet.address)
     );
     if (!verified) {
-      throw new Error(`Invalid Address - ${invalidAddresses.join(',')}`);
+      throw new GraphQLError(`Invalid Address - ${invalidAddresses.join(',')}`, {
+        path: invalidAddresses.map(
+          (addr) =>
+            `wallets/address[${data.wallets.findIndex((wallet) => wallet.address === addr)}]`
+        ),
+      });
     }
 
     await Bluebird.map(
