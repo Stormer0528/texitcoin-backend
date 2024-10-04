@@ -81,10 +81,12 @@ export class MemberWalletService {
     );
     if (!verified) {
       throw new GraphQLError(`Invalid Address - ${invalidAddresses.join(',')}`, {
-        path: invalidAddresses.map(
-          (addr) =>
-            `wallets/address[${data.wallets.findIndex((wallet) => wallet.address === addr)}]`
-        ),
+        extensions: {
+          path: invalidAddresses.map(
+            (addr) =>
+              `wallets/address[${data.wallets.findIndex((wallet) => wallet.address === addr)}]`
+          ),
+        },
       });
     }
 
@@ -131,10 +133,12 @@ export class MemberWalletService {
     );
     if (!verified) {
       throw new GraphQLError(`Invalid Address - ${invalidAddresses.join(',')}`, {
-        path: invalidAddresses.map(
-          (addr) =>
-            `wallets/address[${data.wallets.findIndex((wallet) => wallet.address === addr)}]`
-        ),
+        extensions: {
+          path: invalidAddresses.map(
+            (addr) =>
+              `wallets/address[${data.wallets.findIndex((wallet) => wallet.address === addr)}]`
+          ),
+        },
       });
     }
 
