@@ -55,5 +55,6 @@ export const formatError = (formattedError: GraphQLFormattedError, error: unknow
   }
   return {
     message: formattedError.message,
+    path: (formattedError.extensions.path ?? []) as any[],
   };
 };
