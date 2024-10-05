@@ -152,7 +152,7 @@ export class MemberResolver {
     }
 
     // sendy
-    this.sendyService.addSubscriber(member.email);
+    this.sendyService.addSubscriber(member.email, member.fullName);
 
     return member;
   }
@@ -265,7 +265,7 @@ export class MemberResolver {
 
     if (oldEmail !== member.email) {
       this.sendyService.removeSubscriber(oldEmail);
-      this.sendyService.addSubscriber(member.email);
+      this.sendyService.addSubscriber(member.email, member.fullName);
     }
 
     return member;
@@ -285,7 +285,7 @@ export class MemberResolver {
     }
 
     // sendy
-    this.sendyService.addSubscriber(member.email);
+    this.sendyService.addSubscriber(member.email, member.fullName);
 
     return {
       result: SuccessResult.success,
