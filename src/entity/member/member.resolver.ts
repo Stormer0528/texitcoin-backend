@@ -63,6 +63,7 @@ import { MemberStatisticsService } from '../memberStatistics/memberStatistics.se
 import { userPermission } from '../admin/admin.permission';
 import { PERCENT } from '@/consts/db';
 import { ElasticSearchService } from '@/service/elasticsearch';
+import { SendyService } from '@/service/sendy';
 
 @Service()
 @Resolver(() => Member)
@@ -75,7 +76,9 @@ export class MemberResolver {
     @Inject(() => ElasticSearchService)
     private readonly elasticService: ElasticSearchService,
     @Inject(() => MailerService)
-    private readonly mailerService: MailerService
+    private readonly mailerService: MailerService,
+    @Inject(() => SendyService)
+    private readonly sendyService: SendyService
   ) {}
 
   // @Authorized()
@@ -147,6 +150,9 @@ export class MemberResolver {
       await this.service.incraseIntroducerCount(data.sponsorId);
       await this.service.calculateSponsorBonous(data.sponsorId);
     }
+
+    // sendy
+    this.sendyService.addSubscriber(member.email);
 
     return member;
   }
@@ -235,7 +241,9 @@ export class MemberResolver {
     };
     if (data.email) newData.email = data.email.toLowerCase();
 
-    const { sponsorId: prevSponsorID } = await this.service.getMemberById(newData.id);
+    const { sponsorId: prevSponsorID, email: oldEmail } = await this.service.getMemberById(
+      newData.id
+    );
     const member = await this.service.updateMember(newData);
     if (data.wallets) {
       await this.memberWalletService.updateManyMemberWallet({
@@ -255,6 +263,11 @@ export class MemberResolver {
       }
     }
 
+    if (oldEmail !== member.email) {
+      this.sendyService.removeSubscriber(oldEmail);
+      this.sendyService.addSubscriber(member.email);
+    }
+
     return member;
   }
 
@@ -270,6 +283,10 @@ export class MemberResolver {
       await this.service.incraseIntroducerCount(member.sponsorId);
       await this.service.calculateSponsorBonous(member.sponsorId);
     }
+
+    // sendy
+    this.sendyService.addSubscriber(member.email);
+
     return {
       result: SuccessResult.success,
     };
@@ -301,7 +318,11 @@ export class MemberResolver {
     }
 
     await this.memberWalletService.removeMemberWalletsByMemberId(data);
-    await this.service.removeMember(data.id);
+    const member = await this.service.removeMember(data.id);
+
+    // sendy
+    this.sendyService.removeSubscriber(member.email);
+
     return {
       result: SuccessResult.success,
     };
