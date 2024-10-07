@@ -279,7 +279,6 @@ model MemberWallet {
   memberStatisticsWallets MemberStatisticsWallet[]
 
   @@unique([memberId, payoutId, address], map: "unique_index_on_memberwallets")
-  @@unique([address, deletedAt], map: "unique_index_address_on_memberwallets")
   @@map("memberwallets")
 }
 
