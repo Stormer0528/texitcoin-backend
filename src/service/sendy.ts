@@ -18,7 +18,7 @@ export class SendyService {
       {
         api_key: SENDY_APIKEY,
         email,
-        list: SENDY_LISTID,
+        list_id: SENDY_LISTID,
       },
       {
         headers: {
