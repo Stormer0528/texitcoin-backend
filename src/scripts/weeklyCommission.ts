@@ -36,15 +36,23 @@ async function getSalesByWeekStart(tranPrisma: PrismaClient, startDate: Date) {
 
 async function addPoint(
   tranPrisma: PrismaClient,
-  mapMembers,
+  mapMembers: Record<string, any>,
   sale: { id: string; point: number },
-  addedLeftPoint,
-  addedRightPoint
+  addedLeftPoint: Record<string, number>,
+  addedRightPoint: Record<string, number>,
+  weekStartDate: Date
 ) {
   if (!sale.point) return;
   let iID = sale.id;
   const ids: { id: string; position: string }[] = [];
   while (iID !== PLACEMENT_ROOT && iID) {
+    const memberWeekStartDate = new Date(
+      formatDate(dayjs(mapMembers[iID].createdAt).startOf('week').toDate())
+    );
+    if (memberWeekStartDate > weekStartDate) {
+      break;
+    }
+
     ids.push({
       id: mapMembers[iID].placementParentId,
       position: mapMembers[iID].placementPosition,
@@ -118,7 +126,8 @@ async function weeklyCommission(tranPrisma: PrismaClient) {
           point: sale.package.point,
         },
         addedLeftPoint,
-        addedRightPoint
+        addedRightPoint,
+        iStartDate.toDate()
       );
     });
 
