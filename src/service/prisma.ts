@@ -1,13 +1,23 @@
 import { Service } from 'typedi';
 import { Prisma, PrismaClient } from '@prisma/client';
+import { DefaultArgs } from '@prisma/client/runtime/library';
 import { AsyncLocalStorage } from 'node:async_hooks';
 
 @Service()
-export class PrismaService extends PrismaClient {
+export class PrismaService extends PrismaClient<
+  {
+    log: {
+      emit: 'event';
+      level: 'query';
+    }[];
+  },
+  'query',
+  DefaultArgs
+> {
   constructor() {
-    super();
+    super({ log: [{ emit: 'event', level: 'query' }] });
 
-    const prisma = new PrismaClient({ log: [{ emit: 'event', level: 'query' }] });
+    const prisma = this;
 
     prisma.$on('query', (e) => {
       console.log(e);

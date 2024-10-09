@@ -1,12 +1,6 @@
 import { IsEmail } from 'class-validator';
 import { Field, ID, InputType, ObjectType } from 'type-graphql';
 
-@ObjectType()
-export class ManySuccessResponse {
-  @Field()
-  count: number;
-}
-
 @InputType()
 export class IDInput {
   @Field(() => ID)
@@ -24,15 +18,6 @@ export enum SuccessResult {
   failed = 'failed',
 }
 
-@ObjectType()
-export class SuccessResponse {
-  @Field()
-  result: SuccessResult;
-
-  @Field({ nullable: true })
-  message?: string;
-}
-
 @InputType()
 export class EmailInput {
   @Field()
@@ -44,6 +29,21 @@ export class EmailInput {
 export class TokenInput {
   @Field()
   token: string;
+}
+
+@ObjectType()
+export class SuccessResponse {
+  @Field()
+  result: SuccessResult;
+
+  @Field({ nullable: true })
+  message?: string;
+}
+
+@ObjectType()
+export class ManySuccessResponse {
+  @Field()
+  count: number;
 }
 
 @ObjectType()

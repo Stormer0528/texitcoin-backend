@@ -130,3 +130,5 @@ export const foreignKeyErrors = [
     path: ['memberWalletId'],
   },
 ];
+
+export const JWT_TOKENEXPIRED = 'TokenExpiredError';

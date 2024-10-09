@@ -31,7 +31,6 @@ import { Statistics } from '../statistics/statistics.entity';
 import { MemberStatisticsWallet } from '../memberStatisticsWallet/memberStatisticsWallet.entity';
 import { MemberStatisticsService } from './memberStatistics.service';
 import { MemberService } from '../member/member.service';
-import { userPermission } from '../admin/admin.permission';
 
 @Service()
 @Resolver(() => MemberStatistics)

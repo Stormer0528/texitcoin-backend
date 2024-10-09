@@ -2,7 +2,6 @@ import { Context } from '@/context';
 import { ELASTIC_LOG_TYPE, ElasticSearchService } from '@/service/elasticsearch';
 import { NextFn, ResolverData } from 'type-graphql';
 import Container from 'typedi';
-import _ from 'lodash';
 
 export function minerLog(action: ELASTIC_LOG_TYPE) {
   const elasticsearch = Container.get(ElasticSearchService);
