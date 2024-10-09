@@ -51,6 +51,8 @@ import {
   SignupFormInput,
   EmailVerificationResponse,
   EmailVerificationInput,
+  SponsorResponse,
+  Sponsor,
 } from './member.type';
 import { Member } from './member.entity';
 import { Sale } from '../sale/sale.entity';
@@ -81,7 +83,7 @@ export class MemberResolver {
     private readonly sendyService: SendyService
   ) {}
 
-  // @Authorized()
+  @Authorized()
   @Query(() => MembersResponse)
   async members(
     @Args() query: MemberQueryArgs,
@@ -102,6 +104,40 @@ export class MemberResolver {
     const result = await Promise.all(Object.entries(promises));
 
     let response: { total?: number; members?: Member[] } = {};
+
+    for (let [key, value] of result) {
+      response[key] = value;
+    }
+
+    return response;
+  }
+
+  @Authorized()
+  @Query(() => SponsorResponse)
+  async sponsors(
+    @Ctx() ctx: Context,
+    @Args() query: MemberQueryArgs,
+    @Info() info: GraphQLResolveInfo
+  ): Promise<SponsorResponse> {
+    const fields = graphqlFields(info);
+
+    let promises: { total?: Promise<number>; sponsors?: Promise<Sponsor[]> } = {};
+    query.filter = {
+      ...query.filter,
+      sponsorId: ctx.user.id,
+    };
+
+    if ('total' in fields) {
+      promises.total = this.service.getMembersCount(query);
+    }
+
+    if ('sponsors' in fields) {
+      promises.sponsors = this.service.getMembers(query);
+    }
+
+    const result = await Promise.all(Object.entries(promises));
+
+    let response: { total?: number; sponsors?: Sponsor[] } = {};
 
     for (let [key, value] of result) {
       response[key] = value;
@@ -236,7 +272,7 @@ export class MemberResolver {
     }
 
     let newData: UpdateMemberInput = {
-      id: data.id ?? ctx.user.id,
+      id: ctx.isAdmin ? data.id : ctx.user.id,
       ..._.omit(data, ['wallets', ctx.isAdmin ? null : 'sponsorId']),
     };
     if (data.email) newData.email = data.email.toLowerCase();

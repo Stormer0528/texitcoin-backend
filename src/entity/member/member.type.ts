@@ -22,6 +22,24 @@ export class MembersResponse extends PaginatedResponse {
   members?: Member[];
 }
 
+@ObjectType()
+export class Sponsor {
+  @Field()
+  username: string;
+
+  @Field()
+  fullName: string;
+
+  @Field()
+  createdAt: Date;
+}
+
+@ObjectType()
+export class SponsorResponse extends PaginatedResponse {
+  @Field(() => [Sponsor], { nullable: 'itemsAndList' })
+  sponsors?: Sponsor[];
+}
+
 // Create Member Input and Response
 @InputType()
 export class CreateMemberInput {

@@ -1,4 +1,4 @@
-import { ObjectType, Field, ID } from 'type-graphql';
+import { ObjectType, Field, ID, Authorized } from 'type-graphql';
 
 import { BaseEntity } from '@/graphql/baseEntity';
 
@@ -37,12 +37,15 @@ export class Statistics extends BaseEntity {
   @Field()
   to: Date;
 
+  @Authorized()
   @Field(() => ID, { nullable: true })
   transactionId: string;
 
+  @Authorized()
   @Field(() => [MemberStatistics], { nullable: 'itemsAndList' })
   memberStatistics?: MemberStatistics[];
 
+  @Authorized()
   @Field(() => [StatisticsSale], { nullable: 'itemsAndList' })
   statisticsSales?: StatisticsSale[];
 }
