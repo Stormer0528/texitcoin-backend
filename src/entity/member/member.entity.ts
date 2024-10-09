@@ -8,6 +8,7 @@ import { MemberStatistics } from '../memberStatistics/memberStatistics.entity';
 import { MemberWallet } from '../memberWallet/memberWallet.entity';
 import { MemberLog, PLACEMENT_POSITION } from './member.type';
 import { UserRole } from '@/type';
+import { PlacementPosition } from '@/graphql/enum';
 
 @ObjectType()
 export class Member extends BaseEntity {
@@ -53,8 +54,8 @@ export class Member extends BaseEntity {
   @Field(() => ID, { nullable: true })
   placementParentId?: string;
 
-  @Field({ nullable: true })
-  placementPosition?: string;
+  @Field(() => PlacementPosition, { nullable: true })
+  placementPosition?: PLACEMENT_POSITION;
 
   @Field()
   point: number;

@@ -1,15 +1,15 @@
 import type { Prisma } from '@prisma/client';
+import GraphQLJSON from 'graphql-type-json';
 import { IsEmail, IsNotEmpty, Length } from 'class-validator';
 import { ObjectType, InputType, Field, ArgsType, ID } from 'type-graphql';
 
 import { QueryArgsBase } from '@/graphql/queryArgs';
 import { PaginatedResponse } from '@/graphql/paginatedResponse';
+import { EmailInput } from '@/graphql/common.type';
+import { PlacementPosition } from '@/graphql/enum';
 
 import { Member } from '@/entity/member/member.entity';
 import { MemberWalletDataInput } from '../memberWallet/memberWallet.type';
-
-import GraphQLJSON from 'graphql-type-json';
-import { EmailInput, TokenInput } from '@/graphql/common.type';
 
 // Member Query Args
 @ArgsType()
@@ -84,8 +84,8 @@ export class CreateMemberInput {
   @Field(() => ID, { nullable: true })
   placementParentId?: string;
 
-  @Field({ nullable: true })
-  placementPosition?: PLACEMENT_POSITION;
+  @Field(() => PlacementPosition, { nullable: true })
+  placementPosition?: PlacementPosition;
 
   @Field({ nullable: true, defaultValue: true })
   status?: boolean;
@@ -185,8 +185,8 @@ export class UpdateMemberInput {
   @Field(() => ID, { nullable: true })
   placementParentId?: string;
 
-  @Field({ nullable: true })
-  placementPosition?: PLACEMENT_POSITION;
+  @Field(() => PlacementPosition, { nullable: true })
+  placementPosition?: PlacementPosition;
 
   @Field({ nullable: true })
   status?: boolean;
