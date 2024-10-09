@@ -51,8 +51,8 @@ import {
   SignupFormInput,
   EmailVerificationResponse,
   EmailVerificationInput,
-  SponsorResponse,
-  Sponsor,
+  IntroducersResponse,
+  Introducer,
 } from './member.type';
 import { Member } from './member.entity';
 import { Sale } from '../sale/sale.entity';
@@ -113,15 +113,15 @@ export class MemberResolver {
   }
 
   @Authorized()
-  @Query(() => SponsorResponse)
-  async sponsors(
+  @Query(() => IntroducersResponse)
+  async introducers(
     @Ctx() ctx: Context,
     @Args() query: MemberQueryArgs,
     @Info() info: GraphQLResolveInfo
-  ): Promise<SponsorResponse> {
+  ): Promise<IntroducersResponse> {
     const fields = graphqlFields(info);
 
-    let promises: { total?: Promise<number>; sponsors?: Promise<Sponsor[]> } = {};
+    let promises: { total?: Promise<number>; introducers?: Promise<Introducer[]> } = {};
     query.filter = {
       ...query.filter,
       sponsorId: ctx.user.id,
@@ -131,13 +131,13 @@ export class MemberResolver {
       promises.total = this.service.getMembersCount(query);
     }
 
-    if ('sponsors' in fields) {
-      promises.sponsors = this.service.getMembers(query);
+    if ('introducers' in fields) {
+      promises.introducers = this.service.getMembers(query);
     }
 
     const result = await Promise.all(Object.entries(promises));
 
-    let response: { total?: number; sponsors?: Sponsor[] } = {};
+    let response: { total?: number; introducers?: Introducer[] } = {};
 
     for (let [key, value] of result) {
       response[key] = value;

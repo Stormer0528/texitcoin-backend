@@ -23,7 +23,10 @@ export class MembersResponse extends PaginatedResponse {
 }
 
 @ObjectType()
-export class Sponsor {
+export class Introducer {
+  @Field(() => ID)
+  id: string;
+
   @Field()
   username: string;
 
@@ -35,9 +38,9 @@ export class Sponsor {
 }
 
 @ObjectType()
-export class SponsorResponse extends PaginatedResponse {
-  @Field(() => [Sponsor], { nullable: 'itemsAndList' })
-  sponsors?: Sponsor[];
+export class IntroducersResponse extends PaginatedResponse {
+  @Field(() => [Introducer], { nullable: 'itemsAndList' })
+  introducers?: Introducer[];
 }
 
 // Create Member Input and Response
