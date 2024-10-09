@@ -18,6 +18,12 @@ enum PlacementPosition {
   RIGHT
 }
 
+enum Confirmation3Status {
+  PENDING
+  CONFIRM
+  BLOCK
+}
+
 model Admin {
   id       String  @id @default(uuid())
   username String  @unique(map: "index_admins_on_username") @db.VarChar
@@ -300,16 +306,16 @@ model MemberStatisticsWallet {
 }
 
 model WeeklyCommission {
-  id                   String   @id @default(uuid())
+  id                   String              @id @default(uuid())
   memberId             String
   weekStartDate        DateTime
-  leftPoint            Int      @default(0)
-  rightPoint           Int      @default(0)
-  calculatedLeftPoint  Int      @default(0)
-  calculatedRightPoint Int      @default(0)
-  commission           Int      @default(0)
-  status               Boolean  @default(false)
-  note                 String?  @default("")
+  leftPoint            Int                 @default(0)
+  rightPoint           Int                 @default(0)
+  calculatedLeftPoint  Int                 @default(0)
+  calculatedRightPoint Int                 @default(0)
+  commission           Int                 @default(0)
+  status               Confirmation3Status @default(PENDING)
+  note                 String?             @default("")
 
   member                 Member?                 @relation(fields: [memberId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   WeeklyCommissionStatus WeeklyCommissionStatus?
