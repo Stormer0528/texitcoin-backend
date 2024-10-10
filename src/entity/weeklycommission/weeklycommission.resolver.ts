@@ -64,11 +64,11 @@ export class WeeklyCommissionResolver {
 
   @Authorized([UserRole.Admin])
   async updateCommissionStatus(@Arg('data') data: WeeklyCommissionUpdateInput) {
-    return this.service.getWeeklyCommissions;
+    return this.service.updateWeeklyCommission(data);
   }
 
   @FieldResolver({ nullable: true })
   async member(@Root() weeklyCommision: WeeklyCommission, @Ctx() ctx: Context): Promise<Member> {
-    return ctx.dataLoader.get('memberForWeeklyCommissionLoader').load(weeklyCommision.id);
+    return ctx.dataLoader.get('memberForWeeklyCommissionLoader').load(weeklyCommision.memberId);
   }
 }

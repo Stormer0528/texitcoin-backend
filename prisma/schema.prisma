@@ -72,12 +72,13 @@ model Member {
   deletedAt DateTime?
 
   // Relations
-  sales             Sale[]
-  statistics        MemberStatistics[]
-  introduceMembers  Member[]           @relation("MemberSponsor")
-  memberWallets     MemberWallet[]
-  placementChildren Member[]           @relation("MemberPlacementParent")
-  WeeklyCommission  WeeklyCommission[]
+  sales                  Sale[]
+  statistics             MemberStatistics[]
+  introduceMembers       Member[]                 @relation("MemberSponsor")
+  memberWallets          MemberWallet[]
+  placementChildren      Member[]                 @relation("MemberPlacementParent")
+  WeeklyCommission       WeeklyCommission[]
+  WeeklyCommissionStatus WeeklyCommissionStatus[]
 
   @@map("members")
 }
@@ -332,8 +333,10 @@ model WeeklyCommissionStatus {
   weeklyCommissionId String? @unique
   leftPoint          Int     @default(0)
   rightPoint         Int     @default(0)
+  memberId           String
 
   weeklyCommission WeeklyCommission? @relation(fields: [weeklyCommissionId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  member           Member?           @relation(fields: [memberId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
