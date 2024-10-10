@@ -1,11 +1,11 @@
 import { Service, Inject } from 'typedi';
-import { WeeklyCommissionStatus } from '@prisma/client';
 
 import { PrismaService } from '@/service/prisma';
 import {
   WeeklyCommissionStatusQueryArgs,
   WeeklyCommissionStatusUpdateInput,
 } from './weeklyCommissionStatus.type';
+import { WeeklyCommissionStatus } from './weeklyCommissionStatus.entity';
 
 @Service()
 export class WeeklyCommissionStatusService {

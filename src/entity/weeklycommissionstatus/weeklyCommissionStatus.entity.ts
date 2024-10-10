@@ -6,7 +6,7 @@ import { Member } from '../member/member.entity';
 import { WeeklyCommission } from '../weeklycommission/weeklycommission.entity';
 
 @ObjectType()
-export class weeklyCommissionStatus extends BaseEntity {
+export class WeeklyCommissionStatus extends BaseEntity {
   @Field(() => ID)
   id: string;
 

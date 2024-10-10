@@ -9,6 +9,8 @@ import { MemberWallet } from '../memberWallet/memberWallet.entity';
 import { MemberLog, PLACEMENT_POSITION } from './member.type';
 import { UserRole } from '@/type';
 import { PlacementPosition } from '@/graphql/enum';
+import { WeeklyCommission } from '../weeklycommission/weeklycommission.entity';
+import { WeeklyCommissionStatus } from '../weeklycommissionstatus/weeklyCommissionStatus.entity';
 
 @ObjectType()
 export class Member extends BaseEntity {
@@ -89,6 +91,12 @@ export class Member extends BaseEntity {
 
   @Field(() => [Member], { nullable: 'itemsAndList' })
   placementChildren?: Member[];
+
+  @Field(() => [WeeklyCommission], { nullable: 'itemsAndList' })
+  weeklyCommissions?: WeeklyCommission[];
+
+  @Field(() => [WeeklyCommissionStatus], { nullable: 'itemsAndList' })
+  weeklyCommissionStatuses?: WeeklyCommissionStatus[];
 
   @Authorized([UserRole.Admin])
   @Field(() => [MemberLog], { nullable: 'itemsAndList' })

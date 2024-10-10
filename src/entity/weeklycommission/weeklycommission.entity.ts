@@ -5,6 +5,7 @@ import { Confirmation3Status } from '@/graphql/enum';
 
 import { Member } from '../member/member.entity';
 import { CONFIRMATION3STATUS } from './weeklycommission.type';
+import { WeeklyCommissionStatus } from '../weeklycommissionstatus/weeklyCommissionStatus.entity';
 
 @ObjectType()
 export class WeeklyCommission extends BaseEntity {
@@ -37,4 +38,7 @@ export class WeeklyCommission extends BaseEntity {
 
   @Field(() => Member, { nullable: true })
   member?: Member;
+
+  @Field(() => WeeklyCommissionStatus, { nullable: true })
+  weeklyCommissionStatus?: WeeklyCommissionStatus;
 }

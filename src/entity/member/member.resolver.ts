@@ -58,6 +58,8 @@ import { Member } from './member.entity';
 import { Sale } from '../sale/sale.entity';
 import { MemberStatistics } from '../memberStatistics/memberStatistics.entity';
 import { MemberWallet } from '../memberWallet/memberWallet.entity';
+import { WeeklyCommission } from '../weeklycommission/weeklycommission.entity';
+import { WeeklyCommissionStatus } from '../weeklycommissionstatus/weeklyCommissionStatus.entity';
 import { MemberService } from './member.service';
 import { MemberWalletService } from '../memberWallet/memberWallet.service';
 import { SaleService } from '../sale/sale.service';
@@ -605,5 +607,21 @@ export class MemberResolver {
     return {
       link: `${process.env.MEMBER_URL}/sign-up?reference=${ctx.isAdmin ? ctx.user.username : (ctx.user as Member).userId}`,
     };
+  }
+
+  @FieldResolver(() => [WeeklyCommission])
+  async weeklyCommissions(
+    @Root() member: Member,
+    @Ctx() ctx: Context
+  ): Promise<WeeklyCommission[]> {
+    return ctx.dataLoader.get('weeklyCommissionsForMemberLoader').load(member.id);
+  }
+
+  @FieldResolver(() => [WeeklyCommissionStatus])
+  async weeklyCommissionStatuses(
+    @Root() member: Member,
+    @Ctx() ctx: Context
+  ): Promise<WeeklyCommissionStatus[]> {
+    return ctx.dataLoader.get('weeklyCommissionStatusesForMemberLoader').load(member.id);
   }
 }

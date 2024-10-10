@@ -4,7 +4,6 @@ import { PrismaService } from '@/service/prisma';
 
 import { IDInput } from '@/graphql/common.type';
 import { CreatePackageInput, PackageQueryArgs, UpdatePackageInput } from './package.type';
-import { Package } from '@prisma/client';
 import { FREE_SHARE_ID_1, FREE_SHARE_ID_2 } from '@/consts';
 
 @Service()

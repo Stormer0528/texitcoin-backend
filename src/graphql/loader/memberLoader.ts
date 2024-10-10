@@ -5,6 +5,7 @@ import { Sale } from '@/entity/sale/sale.entity';
 import { MemberStatistics } from '@/entity/memberStatistics/memberStatistics.entity';
 import { MemberWallet } from '@/entity/memberWallet/memberWallet.entity';
 import { Member } from '@/entity/member/member.entity';
+import { WeeklyCommission, WeeklyCommissionStatus } from '@prisma/client';
 
 export const salesForMemberLoader = (parent: RootDataLoader) => {
   return new DataLoader<string, Sale[]>(
@@ -155,6 +156,63 @@ export const placementChildrenForMemberLoader = (parent: RootDataLoader) => {
       });
 
       return memberIds.map((id) => childrenMap[id] ?? []);
+    },
+    {
+      ...parent.dataLoaderOptions,
+    }
+  );
+};
+
+export const weeklyCommissionsForMemberLoader = (parent: RootDataLoader) => {
+  return new DataLoader<string, WeeklyCommission[]>(
+    async (memberIds: string[]) => {
+      const weeklyCommissions = await parent.prisma.weeklyCommission.findMany({
+        where: {
+          memberId: {
+            in: memberIds,
+          },
+          status: {
+            in: parent.isAdmin ? ['BLOCK', 'CONFIRM', 'PENDING'] : ['BLOCK', 'CONFIRM'],
+          },
+        },
+      });
+
+      const weeklyCommissionMap: Record<string, WeeklyCommission[]> = {};
+
+      weeklyCommissions.forEach((weeklyCommission) => {
+        if (!weeklyCommissionMap[weeklyCommission.memberId])
+          weeklyCommissionMap[weeklyCommission.memberId] = [];
+        weeklyCommissionMap[weeklyCommission.memberId].push(weeklyCommission);
+      });
+
+      return memberIds.map((id) => weeklyCommissionMap[id] ?? []);
+    },
+    {
+      ...parent.dataLoaderOptions,
+    }
+  );
+};
+
+export const weeklyCommissionStatusesForMemberLoader = (parent: RootDataLoader) => {
+  return new DataLoader<string, WeeklyCommissionStatus[]>(
+    async (memberIds: string[]) => {
+      const weeklyCommissionStatuses = await parent.prisma.weeklyCommissionStatus.findMany({
+        where: {
+          memberId: {
+            in: memberIds,
+          },
+        },
+      });
+
+      const weeklyCommissionStatusMap: Record<string, WeeklyCommissionStatus[]> = {};
+
+      weeklyCommissionStatuses.forEach((weeklyCommissionStatus) => {
+        if (!weeklyCommissionStatusMap[weeklyCommissionStatus.memberId])
+          weeklyCommissionStatusMap[weeklyCommissionStatus.memberId] = [];
+        weeklyCommissionStatusMap[weeklyCommissionStatus.memberId].push(weeklyCommissionStatus);
+      });
+
+      return memberIds.map((id) => weeklyCommissionStatusMap[id] ?? []);
     },
     {
       ...parent.dataLoaderOptions,

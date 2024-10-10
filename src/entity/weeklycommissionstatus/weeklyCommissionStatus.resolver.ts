@@ -12,22 +12,22 @@ import {
 } from 'type-graphql';
 import graphqlFields from 'graphql-fields';
 import { GraphQLResolveInfo } from 'graphql';
-import { WeeklyCommissionStatus } from '@prisma/client';
 
 import { Context } from '@/context';
 
 import { Member } from '../member/member.entity';
 import { UserRole } from '@/type';
-import { weeklyCommissionStatus } from './weeklyCommissionStatus.entity';
+import { WeeklyCommissionStatus } from './weeklyCommissionStatus.entity';
 import { WeeklyCommissionStatusService } from './weeklyCommissionStatus.service';
 import {
   WeeklyCommissionStatusQueryArgs,
   WeeklyCommissionStatusResponse,
   WeeklyCommissionStatusUpdateInput,
 } from './weeklyCommissionStatus.type';
+import { WeeklyCommission } from '../weeklycommission/weeklycommission.entity';
 
 @Service()
-@Resolver(() => weeklyCommissionStatus)
+@Resolver(() => WeeklyCommissionStatus)
 export class WeeklyCommissionStatusResolver {
   constructor(private readonly service: WeeklyCommissionStatusService) {}
 
@@ -74,5 +74,15 @@ export class WeeklyCommissionStatusResolver {
     return ctx.dataLoader
       .get('memberForWeeklyCommissionStatusLoader')
       .load(weeklyCommissionStatus.memberId);
+  }
+
+  @FieldResolver({ nullable: true })
+  async weeklyCommission(
+    @Root() weeklyCommisionStatus: WeeklyCommissionStatus,
+    @Ctx() ctx: Context
+  ): Promise<WeeklyCommission> {
+    return ctx.dataLoader
+      .get('weeklyCommissionsForWeeklyCommissionStatusLoader')
+      .load(weeklyCommisionStatus.weeklyCommissionId);
   }
 }
