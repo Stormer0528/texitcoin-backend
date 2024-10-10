@@ -329,11 +329,12 @@ model WeeklyCommission {
 }
 
 model WeeklyCommissionStatus {
-  id                 String  @id @default(uuid())
-  weeklyCommissionId String? @unique
-  leftPoint          Int     @default(0)
-  rightPoint         Int     @default(0)
+  id                 String   @id @default(uuid())
+  weeklyCommissionId String?  @unique
+  leftPoint          Int      @default(0)
+  rightPoint         Int      @default(0)
   memberId           String
+  weekStartDate      DateTime
 
   weeklyCommission WeeklyCommission? @relation(fields: [weeklyCommissionId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   member           Member?           @relation(fields: [memberId], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -341,4 +342,6 @@ model WeeklyCommissionStatus {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
+
+  @@map("weeklycommissionstatuses")
 }

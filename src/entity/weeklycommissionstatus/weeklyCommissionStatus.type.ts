@@ -34,4 +34,7 @@ export class WeeklyCommissionStatusUpdateInput {
 
   @Field({ nullable: true })
   memberId?: string;
+
+  @Field({ nullable: true })
+  weekStartDate: Date;
 }

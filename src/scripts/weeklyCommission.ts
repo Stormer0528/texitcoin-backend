@@ -131,80 +131,91 @@ async function weeklyCommission(tranPrisma: PrismaClient) {
       );
     });
 
-    const resultMap: Record<string, { left: number; right: number }> = {};
-
-    await Bluebird.map(
-      Object.keys(addedLeftPoint),
-      async (id) => {
-        const lastCommission = await tranPrisma.weeklyCommission.findFirst({
-          where: {
-            id,
-          },
-          orderBy: {
-            weekStartDate: 'desc',
-          },
-        });
-        if (lastCommission) {
-          resultMap[id] = {
-            left:
-              (lastCommission.commission > 0 ? 0 : Math.min(9, lastCommission.leftPoint)) +
-              addedLeftPoint[id],
-            right: lastCommission.commission > 0 ? 0 : Math.min(9, lastCommission.rightPoint),
-          };
-        } else {
-          resultMap[id] = {
-            left: addedLeftPoint[id],
-            right: 0,
-          };
-        }
+    const prevWeekStartDate = new Date(formatDate(iStartDate.subtract(1, 'week').toDate()));
+    const lastWeeklyCommissionStatuses = await prisma.weeklyCommissionStatus.findMany({
+      where: {
+        weekStartDate: prevWeekStartDate,
       },
-      { concurrency: 10 }
-    );
+    });
+    const resultMap: Record<string, { left: number; right: number }> = {}; //initial with previous status
+    if (lastWeeklyCommissionStatuses.length > 0) {
+      lastWeeklyCommissionStatuses.forEach((commissionstatus) => {
+        resultMap[commissionstatus.memberId] = {
+          left: commissionstatus.leftPoint,
+          right: commissionstatus.rightPoint,
+        };
+      });
+    } else {
+      const members = await prisma.member.findMany({
+        where: {
+          createdAt: {
+            lt: new Date(formatDate(iStartDate.add(1, 'week').toDate())),
+          },
+        },
+      });
+      members.forEach((member) => (resultMap[member.id] = { left: 0, right: 0 }));
+    }
 
+    const commissionMap: Record<string, { left: number; right: number }> = {};
+    const combinedMap: Record<string, { left: number; right: number }> = {};
+
+    Object.keys(addedLeftPoint).forEach((id) => {
+      combinedMap[id] = {
+        left: (combinedMap[id]?.left ?? 0) + addedLeftPoint[id],
+        right: combinedMap[id]?.right ?? 0,
+      };
+    });
+
+    Object.keys(addedRightPoint).forEach((id) => {
+      combinedMap[id] = {
+        left: combinedMap[id]?.left ?? 0,
+        right: (combinedMap[id]?.right ?? 0) + addedRightPoint[id],
+      };
+    });
+
+    Object.keys(combinedMap).forEach((id) => {
+      commissionMap[id] = {
+        left: (resultMap[id]?.left ?? 0) + combinedMap[id].left,
+        right: (resultMap[id]?.right ?? 0) + combinedMap[id].right,
+      };
+
+      resultMap[id] = {
+        left: (resultMap[id]?.left ?? 0) + combinedMap[id].left,
+        right: (resultMap[id]?.right ?? 0) + combinedMap[id].right,
+      };
+    });
+
+    const newCommissionMap: Record<string, string> = {};
     await Bluebird.map(
-      Object.keys(addedRightPoint),
-      async (id) => {
-        const lastCommission = await tranPrisma.weeklyCommission.findFirst({
-          where: {
-            id,
-          },
-          orderBy: {
-            weekStartDate: 'desc',
-          },
-        });
-
-        if (lastCommission) {
-          resultMap[id] = {
-            left: resultMap[id]
-              ? resultMap[id].left
-              : lastCommission.commission > 0
-                ? 0
-                : Math.min(9, lastCommission.leftPoint),
-            right:
-              (lastCommission.commission > 0 ? 0 : Math.min(9, lastCommission.rightPoint)) +
-              addedRightPoint[id],
-          };
-        } else {
-          resultMap[id] = {
-            left: resultMap[id] ? resultMap[id].left : 0,
-            right: addedRightPoint[id],
-          };
-        }
-      },
-      { concurrency: 10 }
-    );
-
-    await tranPrisma.weeklyCommission.createMany({
-      data: Object.entries(resultMap).map(([id, points]) => {
+      Object.entries(commissionMap),
+      async ([id, points]) => {
         const [left, right, commission] = calculatePoint(points);
+        const newCommission = await prisma.weeklyCommission.create({
+          data: {
+            memberId: id,
+            calculatedLeftPoint: left,
+            calculatedRightPoint: right,
+            commission,
+            leftPoint: points.left,
+            rightPoint: points.right,
+            status: 'PENDING',
+            weekStartDate: iStartDate.toDate(),
+          },
+        });
+        newCommissionMap[id] = newCommission.id;
+        return newCommission;
+      },
+      { concurrency: 10 }
+    );
+
+    await tranPrisma.weeklyCommissionStatus.createMany({
+      data: Object.entries(resultMap).map(([id, points]) => {
+        const [left, right] = calculatePoint(points);
         return {
+          leftPoint: left,
+          rightPoint: right,
+          weeklyCommissionId: newCommissionMap[id],
           memberId: id,
-          calculatedLeftPoint: left,
-          calculatedRightPoint: right,
-          commission,
-          leftPoint: points.left,
-          rightPoint: points.right,
-          status: 'PENDING',
           weekStartDate: iStartDate.toDate(),
         };
       }),

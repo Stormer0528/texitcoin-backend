@@ -22,6 +22,9 @@ export class weeklyCommissionStatus extends BaseEntity {
   @Field()
   memberId: string;
 
+  @Field()
+  weekStartDate: Date;
+
   @Field(() => WeeklyCommission, { nullable: true })
   weeklyCommission?: WeeklyCommission;
 
