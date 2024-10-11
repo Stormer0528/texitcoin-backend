@@ -1,5 +1,6 @@
 import { ObjectType, Field, Int, InputType } from 'type-graphql';
 import { BLOCKSTATETYPE } from './general.type';
+import { PaginatedResponse } from '@/graphql/paginatedResponse';
 
 @ObjectType()
 export class DailyStats {
@@ -32,4 +33,25 @@ export class BlockStatsResponse {
 
   @Field()
   base: string;
+}
+
+@ObjectType()
+export class CommissionOverview {
+  @Field()
+  weekStartDate: Date;
+
+  @Field(() => Int)
+  totalSale: number;
+
+  @Field(() => Int)
+  totalMember: number;
+
+  @Field(() => Int)
+  totalAmount: number;
+}
+
+@ObjectType()
+export class CommissionOverviewResponse extends PaginatedResponse {
+  @Field(() => [CommissionOverview], { nullable: 'itemsAndList' })
+  commissions?: CommissionOverview[];
 }

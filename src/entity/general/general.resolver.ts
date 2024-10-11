@@ -1,13 +1,19 @@
-import { Service } from 'typedi';
-import { Arg, Resolver, Query } from 'type-graphql';
+import { Inject, Service } from 'typedi';
+import { Arg, Resolver, Query, Args, Info, Authorized } from 'type-graphql';
 import dayjs from 'dayjs';
 import weekOfYear from 'dayjs/plugin/weekOfYear';
 
 dayjs.extend(weekOfYear);
 
 import { BLOCK_LIMIT, DAILYBLOCK_LIMIT, MONTHLYBLOCK_LIMIT, WEEKLYBLOCK_LIMIT } from '@/consts';
+import { QueryOrderPagination } from '@/graphql/queryArgs';
 
-import { BlockStatsResponse, EntityStats } from './general.entity';
+import {
+  BlockStatsResponse,
+  CommissionOverview,
+  CommissionOverviewResponse,
+  EntityStats,
+} from './general.entity';
 import { BlockStatsArgs, LiveStatsArgs } from './general.type';
 import { BlockService } from '@/entity/block/block.service';
 import { StatisticsService } from '@/entity/statistics/statistics.service';
@@ -15,6 +21,9 @@ import { MemberService } from '@/entity/member/member.service';
 import { DailyBlockService } from '../dailyblock/dailyblock.service';
 import { WeeklyBlockService } from '../weeklyblock/weeklyblock.service';
 import { MonthlyBlockService } from '../monthlyblock/monthlyblock.service';
+import { GraphQLResolveInfo } from 'graphql';
+import { PrismaService } from '@/service/prisma';
+import graphqlFields from 'graphql-fields';
 
 @Service()
 @Resolver()
@@ -25,7 +34,9 @@ export class GeneralResolver {
     private readonly memberService: MemberService,
     private readonly dailyBlockService: DailyBlockService,
     private readonly weeklyBlockService: WeeklyBlockService,
-    private readonly monthlyBlockService: MonthlyBlockService
+    private readonly monthlyBlockService: MonthlyBlockService,
+    @Inject(() => PrismaService)
+    private readonly prisma: PrismaService
   ) {}
 
   @Query(() => EntityStats)
@@ -189,5 +200,62 @@ export class GeneralResolver {
       default:
         return [];
     }
+  }
+
+  @Authorized()
+  @Query(() => CommissionOverviewResponse)
+  async commissionsByWeek(
+    @Args() query: QueryOrderPagination,
+    @Info() info: GraphQLResolveInfo
+  ): Promise<CommissionOverviewResponse> {
+    const fields = graphqlFields(info);
+
+    let promises: { total?: Promise<number>; commissions?: Promise<CommissionOverview[]> } = {};
+
+    if ('total' in fields) {
+      promises.total = this.prisma.$queryRaw`
+        SELECT 
+          COUNT(DISTINCT commission."weekStartDate")::INTEGER AS "totalCount"
+        FROM 
+          WeeklyCommissionStatuses commission;
+      `.then((res) => res[0].totalCount);
+    }
+
+    if ('commissions' in fields) {
+      promises.commissions = this.prisma.$queryRaw<CommissionOverview[]>`
+        SELECT 
+          c."weekStartDate" AS "weekStartDate",
+          COUNT(s.id)::INTEGER AS "totalSale",
+          COUNT(m.id) FILTER (WHERE m."createdAt" < c."weekStartDate" + INTERVAL '7 days')::INTEGER AS "totalMember",
+          SUM(COALESCE(wc.commission, 0))::INTEGER AS "totalAmount"
+        FROM 
+          WeeklyCommissionStatuses c
+        LEFT JOIN 
+          Sales s ON s."orderedAt" >= c."weekStartDate" AND s."orderedAt" < c."weekStartDate" + INTERVAL '7 days'
+        LEFT JOIN
+          Members m ON m."createdAt" < c."weekStartDate" + INTERVAL '7 days'
+        LEFT JOIN
+          WeeklyCommissions wc ON wc.id = c."weeklyCommissionId"
+        GROUP BY 
+          c."weekStartDate"
+        ORDER BY 
+          c."weekStartDate" DESC
+        LIMIT 
+          ${query.parsePage.take}
+        OFFSET
+          ${query.parsePage.skip};
+      `;
+      console.log(await promises.commissions);
+    }
+
+    const result = await Promise.all(Object.entries(promises));
+
+    let response: { total?: number; commissions?: CommissionOverview[] } = {};
+
+    for (let [key, value] of result) {
+      response[key] = value;
+    }
+
+    return response;
   }
 }

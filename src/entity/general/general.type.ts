@@ -1,4 +1,6 @@
-import { InputType, Field, ObjectType } from 'type-graphql';
+import { QueryArgsBase } from '@/graphql/queryArgs';
+import { InputType, Field, ArgsType } from 'type-graphql';
+import { Prisma } from '@prisma/client';
 
 @InputType()
 export class LiveStatsArgs {

@@ -8,24 +8,12 @@ interface OrderBy {
 }
 
 @ArgsType()
-export abstract class QueryArgsBase<WhereType> {
+export abstract class QueryOrderPagination {
   @Field({ nullable: true })
   sort?: string;
 
   @Field({ nullable: true })
   page?: string;
-
-  @Field(() => GraphQLJSONObject, { nullable: true })
-  filter?: Record<string, any>;
-
-  get orderBy(): OrderBy | OrderBy[] | undefined {
-    return this.sort?.split(',').map((field) => {
-      const order: Prisma.SortOrder = field.startsWith('-') ? 'asc' : 'desc';
-      const res = {};
-      _.set(res, field.replace('-', ''), order);
-      return res;
-    });
-  }
 
   get parsePage(): { take?: number; skip?: number } {
     if (!this.page) {
@@ -39,6 +27,21 @@ export abstract class QueryArgsBase<WhereType> {
       skip: page * limit - limit,
     };
   }
+
+  get orderBy(): OrderBy | OrderBy[] | undefined {
+    return this.sort?.split(',').map((field) => {
+      const order: Prisma.SortOrder = field.startsWith('-') ? 'asc' : 'desc';
+      const res = {};
+      _.set(res, field.replace('-', ''), order);
+      return res;
+    });
+  }
+}
+
+@ArgsType()
+export abstract class QueryArgsBase<WhereType> extends QueryOrderPagination {
+  @Field(() => GraphQLJSONObject, { nullable: true })
+  filter?: Record<string, any>;
 
   // This is for type generation, does not validate any actual inputs
   get where(): WhereType | undefined {

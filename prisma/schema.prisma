@@ -89,7 +89,7 @@ model Sale {
   invoiceNo     Int      @unique(map: "index_sales_on_invoiceNo") @default(0)
   packageId     String
   paymentMethod String
-  orderedAt     DateTime @default(now()) @db.Timestamptz(6)
+  orderedAt     DateTime @default(now())
   status        Boolean  @default(true)
   freeShareSale Boolean  @default(false) @db.Boolean
 
