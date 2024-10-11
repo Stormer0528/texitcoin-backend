@@ -223,21 +223,44 @@ export class GeneralResolver {
 
     if ('commissions' in fields) {
       promises.commissions = this.prisma.$queryRaw<CommissionOverview[]>`
+        WITH sales_count AS (
+          SELECT
+            c."weekStartDate",
+            COUNT(DISTINCT s.id) AS "totalSale"
+          FROM
+            WeeklyCommissionStatuses c
+          LEFT JOIN
+            Sales s ON s."orderedAt" >= c."weekStartDate"
+            AND s."orderedAt" < c."weekStartDate" + INTERVAL '7 days'
+          GROUP BY
+            c."weekStartDate"
+        ),
+        members_count AS (
+          SELECT
+            c."weekStartDate",
+            COUNT(DISTINCT m.id) AS "totalMember"
+          FROM
+            WeeklyCommissionStatuses c
+          LEFT JOIN
+            Members m ON m."createdAt" < c."weekStartDate" + INTERVAL '7 days'
+          GROUP BY
+            c."weekStartDate"
+        )
         SELECT 
           c."weekStartDate" AS "weekStartDate",
-          COUNT(s.id)::INTEGER AS "totalSale",
-          COUNT(m.id) FILTER (WHERE m."createdAt" < c."weekStartDate" + INTERVAL '7 days')::INTEGER AS "totalMember",
+          COALESCE(sales_count."totalSale", 0)::INTEGER AS "totalSale",
+          COALESCE(members_count."totalMember", 0)::INTEGER AS "totalMember",
           SUM(COALESCE(wc.commission, 0))::INTEGER AS "totalAmount"
         FROM 
           WeeklyCommissionStatuses c
         LEFT JOIN 
-          Sales s ON s."orderedAt" >= c."weekStartDate" AND s."orderedAt" < c."weekStartDate" + INTERVAL '7 days'
+          sales_count ON sales_count."weekStartDate" = c."weekStartDate"
         LEFT JOIN
-          Members m ON m."createdAt" < c."weekStartDate" + INTERVAL '7 days'
+          members_count ON members_count."weekStartDate" = c."weekStartDate"
         LEFT JOIN
           WeeklyCommissions wc ON wc.id = c."weeklyCommissionId"
         GROUP BY 
-          c."weekStartDate"
+          c."weekStartDate", sales_count."totalSale", members_count."totalMember"
         ORDER BY 
           c."weekStartDate" DESC
         LIMIT 
