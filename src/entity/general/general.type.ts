@@ -1,6 +1,6 @@
-import { QueryArgsBase } from '@/graphql/queryArgs';
+import { QueryOrderPagination } from '@/graphql/queryArgs';
 import { InputType, Field, ArgsType } from 'type-graphql';
-import { Prisma } from '@prisma/client';
+import dayjs from 'dayjs';
 
 @InputType()
 export class LiveStatsArgs {
@@ -14,4 +14,10 @@ export type BLOCKSTATETYPE = 'day' | 'week' | 'month' | 'block';
 export class BlockStatsArgs {
   @Field()
   type: BLOCKSTATETYPE;
+}
+
+@ArgsType()
+export class CommissionOverviewQueryArgs extends QueryOrderPagination {
+  @Field({ nullable: true, defaultValue: new Date() })
+  weekStartDate?: Date;
 }

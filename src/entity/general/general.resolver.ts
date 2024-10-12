@@ -14,7 +14,7 @@ import {
   CommissionOverviewResponse,
   EntityStats,
 } from './general.entity';
-import { BlockStatsArgs, LiveStatsArgs } from './general.type';
+import { BlockStatsArgs, CommissionOverviewQueryArgs, LiveStatsArgs } from './general.type';
 import { BlockService } from '@/entity/block/block.service';
 import { StatisticsService } from '@/entity/statistics/statistics.service';
 import { MemberService } from '@/entity/member/member.service';
@@ -205,7 +205,7 @@ export class GeneralResolver {
   @Authorized()
   @Query(() => CommissionOverviewResponse)
   async commissionsByWeek(
-    @Args() query: QueryOrderPagination,
+    @Args() query: CommissionOverviewQueryArgs,
     @Info() info: GraphQLResolveInfo
   ): Promise<CommissionOverviewResponse> {
     const fields = graphqlFields(info);
@@ -259,6 +259,8 @@ export class GeneralResolver {
           members_count ON members_count."weekStartDate" = c."weekStartDate"
         LEFT JOIN
           WeeklyCommissions wc ON wc.id = c."weeklyCommissionId"
+        WHERE
+          c."weekStartDate" <= ${query.weekStartDate}
         GROUP BY 
           c."weekStartDate", sales_count."totalSale", members_count."totalMember"
         ORDER BY 
