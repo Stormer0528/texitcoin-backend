@@ -218,6 +218,8 @@ export class GeneralResolver {
           COUNT(DISTINCT commission."weekStartDate")::INTEGER AS "totalCount"
         FROM 
           WeeklyCommissionStatuses commission;
+        WHERE
+          commission."weekStartDate" < ${query.weekStartDate}
       `.then((res) => res[0].totalCount);
     }
 
