@@ -219,7 +219,7 @@ export class GeneralResolver {
         FROM 
           WeeklyCommissionStatuses commission;
         WHERE
-          commission."weekStartDate" < ${query.weekStartDate}
+          commission."weekStartDate" <= ${query.weekStartDate}
       `.then((res) => res[0].totalCount);
     }
 
