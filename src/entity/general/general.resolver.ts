@@ -217,9 +217,9 @@ export class GeneralResolver {
         SELECT 
           COUNT(DISTINCT commission."weekStartDate")::INTEGER AS "totalCount"
         FROM 
-          WeeklyCommissionStatuses commission;
+          WeeklyCommissionStatuses commission
         WHERE
-          commission."weekStartDate" <= ${query.weekStartDate}
+          commission."weekStartDate" <= ${query.weekStartDate};
       `.then((res) => res[0].totalCount);
     }
 
