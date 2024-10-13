@@ -18,7 +18,8 @@ enum PlacementPosition {
   RIGHT
 }
 
-enum Confirmation3Status {
+enum Confirmation4Status {
+  NONE
   PENDING
   CONFIRM
   BLOCK
@@ -315,7 +316,7 @@ model WeeklyCommission {
   calculatedLeftPoint  Int                 @default(0)
   calculatedRightPoint Int                 @default(0)
   commission           Int                 @default(0)
-  status               Confirmation3Status @default(PENDING)
+  status               Confirmation4Status @default(NONE)
   note                 String?             @default("")
 
   member                 Member?                 @relation(fields: [memberId], references: [id], onDelete: NoAction, onUpdate: NoAction)

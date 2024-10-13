@@ -198,7 +198,7 @@ async function weeklyCommission(tranPrisma: PrismaClient) {
             commission,
             leftPoint: points.left,
             rightPoint: points.right,
-            status: 'PENDING',
+            status: commission > 0 ? 'PENDING' : 'NONE',
             weekStartDate: iStartDate.toDate(),
           },
         });
