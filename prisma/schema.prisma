@@ -331,8 +331,10 @@ model WeeklyCommission {
 model WeeklyCommissionStatus {
   id                 String   @id @default(uuid())
   weeklyCommissionId String?  @unique
-  leftPoint          Int      @default(0)
-  rightPoint         Int      @default(0)
+  beforeLeftPoint    Int      @default(0)
+  beforeRightPoint   Int      @default(0)
+  afterLeftPoint     Int      @default(0)
+  afterRightPoint    Int      @default(0)
   memberId           String
   weekStartDate      DateTime
 

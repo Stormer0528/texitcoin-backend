@@ -14,10 +14,16 @@ export class WeeklyCommissionStatus extends BaseEntity {
   weeklyCommissionId: string;
 
   @Field()
-  leftPoint: number;
+  beforeLeftPoint: number;
 
   @Field()
-  rightPoint: number;
+  beforeRightPoint: number;
+
+  @Field()
+  afterLeftPoint: number;
+
+  @Field()
+  afterRightPoint: number;
 
   @Field()
   memberId: string;

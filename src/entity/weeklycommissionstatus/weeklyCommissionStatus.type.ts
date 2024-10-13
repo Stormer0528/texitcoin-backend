@@ -27,10 +27,16 @@ export class WeeklyCommissionStatusUpdateInput {
   weeklyCommissionId?: string;
 
   @Field({ nullable: true })
-  leftPoint?: number;
+  beforeLeftPoint: number;
 
   @Field({ nullable: true })
-  rightPoint?: number;
+  beforeRightPoint: number;
+
+  @Field({ nullable: true })
+  afterLeftPoint: number;
+
+  @Field({ nullable: true })
+  afterRightPoint: number;
 
   @Field({ nullable: true })
   memberId?: string;

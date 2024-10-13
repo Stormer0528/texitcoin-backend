@@ -10,6 +10,7 @@ import {
   Ctx,
   UseMiddleware,
   Authorized,
+  Mutation,
 } from 'type-graphql';
 import graphqlFields from 'graphql-fields';
 import { GraphQLResolveInfo } from 'graphql';
@@ -64,6 +65,7 @@ export class WeeklyCommissionResolver {
   }
 
   @Authorized([UserRole.Admin])
+  @Mutation(() => WeeklyCommission)
   async updateCommissionStatus(@Arg('data') data: WeeklyCommissionUpdateInput) {
     return this.service.updateWeeklyCommission(data);
   }

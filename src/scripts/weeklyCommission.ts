@@ -87,7 +87,7 @@ function calculatePoint(points: { left: number; right: number }) {
 async function weeklyCommission(tranPrisma: PrismaClient) {
   console.log('Started weekly commission operation');
 
-  const lastWeeklyCommission = await tranPrisma.weeklyCommission.findFirst({
+  const lastWeeklyCommission = await tranPrisma.weeklyCommissionStatus.findFirst({
     orderBy: {
       weekStartDate: 'desc',
     },
@@ -141,8 +141,8 @@ async function weeklyCommission(tranPrisma: PrismaClient) {
     if (lastWeeklyCommissionStatuses.length > 0) {
       lastWeeklyCommissionStatuses.forEach((commissionstatus) => {
         resultMap[commissionstatus.memberId] = {
-          left: commissionstatus.leftPoint,
-          right: commissionstatus.rightPoint,
+          left: commissionstatus.afterLeftPoint,
+          right: commissionstatus.afterRightPoint,
         };
       });
     } else {
@@ -210,10 +210,18 @@ async function weeklyCommission(tranPrisma: PrismaClient) {
 
     await tranPrisma.weeklyCommissionStatus.createMany({
       data: Object.entries(resultMap).map(([id, points]) => {
-        const [left, right] = calculatePoint(points);
+        const [left, right, commission] = calculatePoint(points);
+        let resLeft = points.left;
+        let resRight = points.right;
+        if (commission > 0) {
+          resLeft = 0;
+          resRight = 0;
+        }
         return {
-          leftPoint: left,
-          rightPoint: right,
+          beforeLeftPoint: points.left,
+          beforeRightPoint: points.right,
+          afterLeftPoint: resLeft,
+          afterRightPoint: resRight,
           weeklyCommissionId: newCommissionMap[id],
           memberId: id,
           weekStartDate: iStartDate.toDate(),
