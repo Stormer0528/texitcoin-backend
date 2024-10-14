@@ -272,7 +272,6 @@ export class GeneralResolver {
         OFFSET
           ${query.parsePage.skip};
       `;
-      console.log(await promises.commissions);
     }
 
     const result = await Promise.all(Object.entries(promises));
