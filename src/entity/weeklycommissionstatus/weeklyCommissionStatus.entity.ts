@@ -10,7 +10,7 @@ export class WeeklyCommissionStatus extends BaseEntity {
   @Field(() => ID)
   id: string;
 
-  @Field(() => ID)
+  @Field(() => ID, { nullable: true })
   weeklyCommissionId: string;
 
   @Field()

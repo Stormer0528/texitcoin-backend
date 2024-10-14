@@ -14,7 +14,7 @@ export class WeeklyCommissionStatusQueryArgs extends QueryArgsBase<Prisma.Weekly
 @ObjectType()
 export class WeeklyCommissionStatusResponse extends PaginatedResponse {
   @Field(() => [WeeklyCommissionStatus], { nullable: 'itemsAndList' })
-  weeklyCommissions?: WeeklyCommissionStatus[];
+  weeklyCommissionStatuses?: WeeklyCommissionStatus[];
 }
 
 @InputType()

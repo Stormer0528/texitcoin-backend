@@ -29,7 +29,7 @@ export class CreateSaleInput {
   @Field(() => ID)
   packageId: string;
 
-  @Field(() => ID)
+  @Field()
   paymentMethod: string;
 
   @Field()

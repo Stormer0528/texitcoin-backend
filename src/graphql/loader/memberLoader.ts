@@ -172,7 +172,7 @@ export const weeklyCommissionsForMemberLoader = (parent: RootDataLoader) => {
             in: memberIds,
           },
           status: {
-            in: parent.isAdmin ? ['BLOCK', 'CONFIRM', 'PENDING'] : ['BLOCK', 'CONFIRM'],
+            in: parent.isAdmin ? ['BLOCK', 'CONFIRM', 'PENDING', 'NONE'] : ['BLOCK', 'CONFIRM'],
           },
         },
       });

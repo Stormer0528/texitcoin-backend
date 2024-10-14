@@ -33,10 +33,11 @@ export const weeklyCommissionsForWeeklyCommissionStatusLoader = (parent: RootDat
             in: commissionIds,
           },
           status: {
-            in: parent.isAdmin ? ['BLOCK', 'CONFIRM', 'PENDING'] : ['BLOCK', 'CONFIRM'],
+            in: parent.isAdmin ? ['BLOCK', 'CONFIRM', 'PENDING', 'NONE'] : ['BLOCK', 'CONFIRM'],
           },
         },
       });
+      console.log(weeklyCommissions);
 
       const resMap: Record<string, WeeklyCommission> = {};
       weeklyCommissions.forEach((commission) => {
