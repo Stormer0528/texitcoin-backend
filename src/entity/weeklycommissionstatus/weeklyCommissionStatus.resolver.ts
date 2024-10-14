@@ -31,7 +31,7 @@ import { WeeklyCommission } from '../weeklycommission/weeklycommission.entity';
 export class WeeklyCommissionStatusResolver {
   constructor(private readonly service: WeeklyCommissionStatusService) {}
 
-  // @Authorized([UserRole.Admin])
+  @Authorized([UserRole.Admin])
   @Query(() => WeeklyCommissionStatusResponse)
   async weeklyCommissionStatuses(
     @Args() query: WeeklyCommissionStatusQueryArgs,
