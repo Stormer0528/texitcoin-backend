@@ -28,6 +28,7 @@ import { Member } from '../member/member.entity';
 import { UserRole } from '@/type';
 import { IDInput } from '@/graphql/common.type';
 import { WeeklyCommissionStatus } from '../weeklycommissionstatus/weeklyCommissionStatus.entity';
+import { Confirmation4Status } from '@/graphql/enum';
 
 @Service()
 @Resolver(() => WeeklyCommission)
@@ -67,6 +68,20 @@ export class WeeklyCommissionResolver {
   @Authorized([UserRole.Admin])
   @Mutation(() => WeeklyCommission)
   async updateCommissionStatus(@Arg('data') data: WeeklyCommissionUpdateInput) {
+    const prevCommission = await this.service.getWeeklyCommissionById({ id: data.id });
+    if (data.status === Confirmation4Status.CONFIRM) {
+      if (prevCommission.status === Confirmation4Status.PENDING) {
+        return this.service.updateWeeklyCommission(data);
+      } else {
+        throw new Error('You can only confirm the pending commissions');
+      }
+    } else if (data.status === Confirmation4Status.BLOCK) {
+      if (prevCommission.status === Confirmation4Status.PENDING) {
+        return this.service.updateWeeklyCommission(data);
+      } else {
+        throw new Error('You can only block the pending commissions');
+      }
+    }
     return this.service.updateWeeklyCommission(data);
   }
 
