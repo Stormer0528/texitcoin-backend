@@ -217,7 +217,7 @@ export class GeneralResolver {
         SELECT 
           COUNT(DISTINCT commission."weekStartDate")::INTEGER AS "totalCount"
         FROM 
-          WeeklyCommissionStatuses commission
+          WeeklyCommissions commission
         WHERE
           commission."weekStartDate" <= ${query.weekStartDate};
       `.then((res) => res[0].totalCount);
@@ -230,7 +230,7 @@ export class GeneralResolver {
             c."weekStartDate",
             COUNT(DISTINCT s.id) AS "totalSale"
           FROM
-            WeeklyCommissionStatuses c
+            WeeklyCommissions c
           LEFT JOIN
             Sales s ON s."orderedAt" >= c."weekStartDate"
             AND s."orderedAt" < c."weekStartDate" + INTERVAL '7 days'
@@ -242,7 +242,7 @@ export class GeneralResolver {
             c."weekStartDate",
             COUNT(DISTINCT m.id) AS "totalMember"
           FROM
-            WeeklyCommissionStatuses c
+            WeeklyCommissions c
           LEFT JOIN
             Members m ON m."createdAt" < c."weekStartDate" + INTERVAL '7 days'
           GROUP BY
@@ -252,15 +252,13 @@ export class GeneralResolver {
           c."weekStartDate" AS "weekStartDate",
           COALESCE(sales_count."totalSale", 0)::INTEGER AS "totalSale",
           COALESCE(members_count."totalMember", 0)::INTEGER AS "totalMember",
-          SUM(COALESCE(wc.commission, 0))::INTEGER AS "totalAmount"
+          SUM(COALESCE(c.commission, 0))::INTEGER AS "totalAmount"
         FROM 
-          WeeklyCommissionStatuses c
+          WeeklyCommissions c
         LEFT JOIN 
           sales_count ON sales_count."weekStartDate" = c."weekStartDate"
         LEFT JOIN
           members_count ON members_count."weekStartDate" = c."weekStartDate"
-        LEFT JOIN
-          WeeklyCommissions wc ON wc.id = c."weeklyCommissionId"
         WHERE
           c."weekStartDate" <= ${query.weekStartDate}
         GROUP BY 
