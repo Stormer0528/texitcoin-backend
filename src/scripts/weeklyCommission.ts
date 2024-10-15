@@ -138,6 +138,16 @@ async function weeklyCommission(tranPrisma: PrismaClient) {
       },
     });
     const resultMap: Record<string, { left: number; right: number }> = {}; //initial with previous status
+
+    const members = await prisma.member.findMany({
+      where: {
+        createdAt: {
+          lt: new Date(formatDate(iStartDate.add(1, 'week').toDate())),
+        },
+      },
+    });
+    members.forEach((member) => (resultMap[member.id] = { left: 0, right: 0 }));
+
     if (lastWeeklyCommissions.length > 0) {
       lastWeeklyCommissions.forEach((commissionstatus) => {
         resultMap[commissionstatus.memberId] = {
@@ -145,15 +155,6 @@ async function weeklyCommission(tranPrisma: PrismaClient) {
           right: commissionstatus.afterRightPoint,
         };
       });
-    } else {
-      const members = await prisma.member.findMany({
-        where: {
-          createdAt: {
-            lt: new Date(formatDate(iStartDate.add(1, 'week').toDate())),
-          },
-        },
-      });
-      members.forEach((member) => (resultMap[member.id] = { left: 0, right: 0 }));
     }
 
     const combinedMap: Record<string, { left: number; right: number }> = {};
