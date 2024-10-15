@@ -23,17 +23,11 @@ export class WeeklyCommissionUpdateInput {
   @Field(() => ID)
   id: string;
 
-  @Field({ nullable: true })
-  calculatedLeftPoint?: number;
-
-  @Field({ nullable: true })
-  calculatedRightPoint?: number;
-
-  @Field({ nullable: true })
-  commission?: number;
-
   @Field(() => Confirmation4Status, { nullable: true })
   status?: Confirmation4Status;
+
+  @Field({ nullable: true })
+  note?: string;
 }
 
 export type CONFIRMATION4STATUS = 'NONE' | 'PENDING' | 'CONFIRM' | 'BLOCK';

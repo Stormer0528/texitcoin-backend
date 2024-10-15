@@ -3,7 +3,6 @@ import { ObjectType, Field, ID } from 'type-graphql';
 import { BaseEntity } from '@/graphql/baseEntity';
 
 import { Member } from '../member/member.entity';
-import { WeeklyCommissionStatus } from '../weeklycommissionstatus/weeklyCommissionStatus.entity';
 import { Confirmation4Status } from '@/graphql/enum';
 import { CONFIRMATION4STATUS } from './weeklycommission.type';
 
@@ -19,10 +18,16 @@ export class WeeklyCommission extends BaseEntity {
   weekStartDate: Date;
 
   @Field()
-  leftPoint: number;
+  beforeLeftPoint: number;
 
   @Field()
-  rightPoint: number;
+  beforeRightPoint: number;
+
+  @Field()
+  afterLeftPoint: number;
+
+  @Field()
+  afterRightPoint: number;
 
   @Field()
   calculatedLeftPoint: number;
@@ -36,9 +41,9 @@ export class WeeklyCommission extends BaseEntity {
   @Field(() => Confirmation4Status)
   status: CONFIRMATION4STATUS;
 
+  @Field({ nullable: true })
+  note?: string;
+
   @Field(() => Member, { nullable: true })
   member?: Member;
-
-  @Field(() => WeeklyCommissionStatus, { nullable: true })
-  weeklyCommissionStatus?: WeeklyCommissionStatus;
 }

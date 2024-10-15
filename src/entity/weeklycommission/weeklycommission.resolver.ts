@@ -26,8 +26,6 @@ import { WeeklyCommissionService } from './weeklycommission.service';
 import { WeeklyCommission } from './weeklycommission.entity';
 import { Member } from '../member/member.entity';
 import { UserRole } from '@/type';
-import { IDInput } from '@/graphql/common.type';
-import { WeeklyCommissionStatus } from '../weeklycommissionstatus/weeklyCommissionStatus.entity';
 import { Confirmation4Status } from '@/graphql/enum';
 
 @Service()
@@ -88,15 +86,5 @@ export class WeeklyCommissionResolver {
   @FieldResolver({ nullable: true })
   async member(@Root() weeklyCommision: WeeklyCommission, @Ctx() ctx: Context): Promise<Member> {
     return ctx.dataLoader.get('memberForWeeklyCommissionLoader').load(weeklyCommision.memberId);
-  }
-
-  @FieldResolver({ nullable: true })
-  async weeklyCommissionStatus(
-    @Root() weeklyCommision: WeeklyCommission,
-    @Ctx() ctx: Context
-  ): Promise<WeeklyCommissionStatus> {
-    return ctx.dataLoader
-      .get('weeklyCommissionStatusesForWeeklyCommissionLoader')
-      .load(weeklyCommision.id);
   }
 }

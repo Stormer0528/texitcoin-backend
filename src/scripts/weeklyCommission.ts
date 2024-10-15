@@ -87,7 +87,7 @@ function calculatePoint(points: { left: number; right: number }) {
 async function weeklyCommission(tranPrisma: PrismaClient) {
   console.log('Started weekly commission operation');
 
-  const lastWeeklyCommission = await tranPrisma.weeklyCommissionStatus.findFirst({
+  const lastWeeklyCommission = await tranPrisma.weeklyCommission.findFirst({
     orderBy: {
       weekStartDate: 'desc',
     },
@@ -132,14 +132,14 @@ async function weeklyCommission(tranPrisma: PrismaClient) {
     });
 
     const prevWeekStartDate = new Date(formatDate(iStartDate.subtract(1, 'week').toDate()));
-    const lastWeeklyCommissionStatuses = await prisma.weeklyCommissionStatus.findMany({
+    const lastWeeklyCommissions = await prisma.weeklyCommission.findMany({
       where: {
         weekStartDate: prevWeekStartDate,
       },
     });
     const resultMap: Record<string, { left: number; right: number }> = {}; //initial with previous status
-    if (lastWeeklyCommissionStatuses.length > 0) {
-      lastWeeklyCommissionStatuses.forEach((commissionstatus) => {
+    if (lastWeeklyCommissions.length > 0) {
+      lastWeeklyCommissions.forEach((commissionstatus) => {
         resultMap[commissionstatus.memberId] = {
           left: commissionstatus.afterLeftPoint,
           right: commissionstatus.afterRightPoint,
@@ -156,7 +156,6 @@ async function weeklyCommission(tranPrisma: PrismaClient) {
       members.forEach((member) => (resultMap[member.id] = { left: 0, right: 0 }));
     }
 
-    const commissionMap: Record<string, { left: number; right: number }> = {};
     const combinedMap: Record<string, { left: number; right: number }> = {};
 
     Object.keys(addedLeftPoint).forEach((id) => {
@@ -174,42 +173,15 @@ async function weeklyCommission(tranPrisma: PrismaClient) {
     });
 
     Object.keys(combinedMap).forEach((id) => {
-      commissionMap[id] = {
-        left: (resultMap[id]?.left ?? 0) + combinedMap[id].left,
-        right: (resultMap[id]?.right ?? 0) + combinedMap[id].right,
-      };
-
       resultMap[id] = {
         left: (resultMap[id]?.left ?? 0) + combinedMap[id].left,
         right: (resultMap[id]?.right ?? 0) + combinedMap[id].right,
       };
     });
 
-    const newCommissionMap: Record<string, string> = {};
     await Bluebird.map(
-      Object.entries(commissionMap),
+      Object.entries(resultMap),
       async ([id, points]) => {
-        const [left, right, commission] = calculatePoint(points);
-        const newCommission = await prisma.weeklyCommission.create({
-          data: {
-            memberId: id,
-            calculatedLeftPoint: left,
-            calculatedRightPoint: right,
-            commission,
-            leftPoint: points.left,
-            rightPoint: points.right,
-            status: commission > 0 ? 'PENDING' : 'NONE',
-            weekStartDate: iStartDate.toDate(),
-          },
-        });
-        newCommissionMap[id] = newCommission.id;
-        return newCommission;
-      },
-      { concurrency: 10 }
-    );
-
-    await tranPrisma.weeklyCommissionStatus.createMany({
-      data: Object.entries(resultMap).map(([id, points]) => {
         const [left, right, commission] = calculatePoint(points);
         let resLeft = points.left;
         let resRight = points.right;
@@ -217,17 +189,23 @@ async function weeklyCommission(tranPrisma: PrismaClient) {
           resLeft = 0;
           resRight = 0;
         }
-        return {
-          beforeLeftPoint: points.left,
-          beforeRightPoint: points.right,
-          afterLeftPoint: resLeft,
-          afterRightPoint: resRight,
-          weeklyCommissionId: newCommissionMap[id],
-          memberId: id,
-          weekStartDate: iStartDate.toDate(),
-        };
-      }),
-    });
+        return prisma.weeklyCommission.create({
+          data: {
+            memberId: id,
+            beforeLeftPoint: points.left,
+            beforeRightPoint: points.right,
+            afterLeftPoint: resLeft,
+            afterRightPoint: resRight,
+            calculatedLeftPoint: left,
+            calculatedRightPoint: right,
+            commission,
+            status: commission > 0 ? 'PENDING' : 'NONE',
+            weekStartDate: iStartDate.toDate(),
+          },
+        });
+      },
+      { concurrency: 10 }
+    );
   }
 
   console.log('Finished weekly commission operation');

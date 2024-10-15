@@ -5,7 +5,7 @@ import { Sale } from '@/entity/sale/sale.entity';
 import { MemberStatistics } from '@/entity/memberStatistics/memberStatistics.entity';
 import { MemberWallet } from '@/entity/memberWallet/memberWallet.entity';
 import { Member } from '@/entity/member/member.entity';
-import { WeeklyCommission, WeeklyCommissionStatus } from '@prisma/client';
+import { WeeklyCommission } from '@prisma/client';
 
 export const salesForMemberLoader = (parent: RootDataLoader) => {
   return new DataLoader<string, Sale[]>(
@@ -186,33 +186,6 @@ export const weeklyCommissionsForMemberLoader = (parent: RootDataLoader) => {
       });
 
       return memberIds.map((id) => weeklyCommissionMap[id] ?? []);
-    },
-    {
-      ...parent.dataLoaderOptions,
-    }
-  );
-};
-
-export const weeklyCommissionStatusesForMemberLoader = (parent: RootDataLoader) => {
-  return new DataLoader<string, WeeklyCommissionStatus[]>(
-    async (memberIds: string[]) => {
-      const weeklyCommissionStatuses = await parent.prisma.weeklyCommissionStatus.findMany({
-        where: {
-          memberId: {
-            in: memberIds,
-          },
-        },
-      });
-
-      const weeklyCommissionStatusMap: Record<string, WeeklyCommissionStatus[]> = {};
-
-      weeklyCommissionStatuses.forEach((weeklyCommissionStatus) => {
-        if (!weeklyCommissionStatusMap[weeklyCommissionStatus.memberId])
-          weeklyCommissionStatusMap[weeklyCommissionStatus.memberId] = [];
-        weeklyCommissionStatusMap[weeklyCommissionStatus.memberId].push(weeklyCommissionStatus);
-      });
-
-      return memberIds.map((id) => weeklyCommissionStatusMap[id] ?? []);
     },
     {
       ...parent.dataLoaderOptions,
