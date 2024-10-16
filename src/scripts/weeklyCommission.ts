@@ -45,16 +45,13 @@ async function addPoint(
   if (!sale.point) return;
   let iID = sale.id;
   const ids: { id: string; position: string }[] = [];
+  const nextWeekStartDate = dayjs(weekStartDate).add(1, 'week').toDate();
   while (iID !== PLACEMENT_ROOT && iID) {
     if (!mapMembers[iID]) break;
 
     const parentId = mapMembers[iID].placementParentId;
     if (parentId) {
-      const memberWeekStartDate = new Date(
-        formatDate(dayjs(mapMembers[parentId].createdAt).startOf('week').toDate())
-      );
-
-      if (memberWeekStartDate <= weekStartDate) {
+      if (mapMembers[parentId].createdAt < nextWeekStartDate) {
         ids.push({
           id: parentId,
           position: mapMembers[iID].placementPosition,
