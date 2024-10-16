@@ -35,6 +35,7 @@ export class SaleResolver {
     private readonly memberService: MemberService
   ) {}
 
+  @Authorized()
   @Query(() => SalesResponse)
   async sales(
     @Ctx() ctx: Context,

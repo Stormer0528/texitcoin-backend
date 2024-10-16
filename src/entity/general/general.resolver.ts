@@ -6,7 +6,6 @@ import weekOfYear from 'dayjs/plugin/weekOfYear';
 dayjs.extend(weekOfYear);
 
 import { BLOCK_LIMIT, DAILYBLOCK_LIMIT, MONTHLYBLOCK_LIMIT, WEEKLYBLOCK_LIMIT } from '@/consts';
-import { QueryOrderPagination } from '@/graphql/queryArgs';
 
 import {
   BlockStatsResponse,
@@ -24,6 +23,7 @@ import { MonthlyBlockService } from '../monthlyblock/monthlyblock.service';
 import { GraphQLResolveInfo } from 'graphql';
 import { PrismaService } from '@/service/prisma';
 import graphqlFields from 'graphql-fields';
+import { UserRole } from '@/type';
 
 @Service()
 @Resolver()
@@ -202,7 +202,7 @@ export class GeneralResolver {
     }
   }
 
-  @Authorized()
+  @Authorized([UserRole.Admin])
   @Query(() => CommissionOverviewResponse)
   async commissionsByWeek(
     @Args() query: CommissionOverviewQueryArgs,

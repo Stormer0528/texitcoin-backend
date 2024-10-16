@@ -33,14 +33,23 @@ import { Confirmation4Status } from '@/graphql/enum';
 export class WeeklyCommissionResolver {
   constructor(private readonly service: WeeklyCommissionService) {}
 
-  @Authorized([UserRole.Admin])
+  @Authorized()
   @Query(() => WeeklyCommissionResponse)
   async weeklyCommissions(
+    @Ctx() context: Context,
     @Args() query: WeeklyCommissionQueryArgs,
     @Info() info: GraphQLResolveInfo
   ): Promise<WeeklyCommissionResponse> {
     const { where, ...rest } = query;
     const fields = graphqlFields(info);
+
+    if (!context.isAdmin) {
+      query.filter = {
+        ...query.filter,
+        memberId: context.user.id,
+        status: Confirmation4Status.CONFIRM,
+      };
+    }
 
     let promises: { total?: Promise<number>; weeklyCommissions?: any } = {};
 
