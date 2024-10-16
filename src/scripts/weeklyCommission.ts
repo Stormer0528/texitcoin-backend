@@ -48,22 +48,32 @@ async function addPoint(
   while (iID !== PLACEMENT_ROOT && iID) {
     if (!mapMembers[iID]) break;
 
-    if (mapMembers[iID].placementParentId && mapMembers[mapMembers[iID].placementParentId]) {
-      ids.push({
-        id: mapMembers[iID].placementParentId,
-        position: mapMembers[iID].placementPosition,
-      });
+    const parentId = mapMembers[iID].placementParentId;
+    if (parentId) {
+      const memberWeekStartDate = new Date(
+        formatDate(dayjs(mapMembers[parentId].createdAt).startOf('week').toDate())
+      );
+
+      if (memberWeekStartDate <= weekStartDate) {
+        ids.push({
+          id: parentId,
+          position: mapMembers[iID].placementPosition,
+        });
+      }
     }
-    iID = mapMembers[iID].placementParentId;
+
+    iID = parentId;
   }
 
-  ids.forEach((id) => {
-    if (id.position === 'LEFT') {
-      addedLeftPoint[id.id] = (addedLeftPoint[id.id] ?? 0) + sale.point;
-    } else if (id.position === 'RIGHT') {
-      addedRightPoint[id.id] = (addedRightPoint[id.id] ?? 0) + sale.point;
-    }
-  });
+  if (iID) {
+    ids.forEach((id) => {
+      if (id.position === 'LEFT') {
+        addedLeftPoint[id.id] = (addedLeftPoint[id.id] ?? 0) + sale.point;
+      } else if (id.position === 'RIGHT') {
+        addedRightPoint[id.id] = (addedRightPoint[id.id] ?? 0) + sale.point;
+      }
+    });
+  }
 }
 
 function calculatePoint(points: { left: number; right: number }) {
@@ -88,6 +98,14 @@ async function weeklyCommission(tranPrisma: PrismaClient) {
     },
   });
 
+  const allMembers = await tranPrisma.member.findMany({});
+  const mapMembers = {};
+  allMembers.forEach((mb) => {
+    mapMembers[mb.id] = {
+      ...mb,
+    };
+  });
+
   let iStartDate = dayjs(new Date(formatDate(dayjs('2024-04-06').startOf('week').toDate())));
 
   const nowStartDate = dayjs().startOf('week');
@@ -102,21 +120,6 @@ async function weeklyCommission(tranPrisma: PrismaClient) {
     iStartDate = iStartDate.add(1, 'week')
   ) {
     console.log(`${formatDate(iStartDate.toDate())}, ${iStartDate.week()} started`);
-
-    const members = await tranPrisma.member.findMany({
-      where: {
-        createdAt: {
-          lt: new Date(formatDate(iStartDate.add(1, 'week').toDate())),
-        },
-      },
-    });
-
-    const mapMembers = {};
-    members.forEach((mb) => {
-      mapMembers[mb.id] = {
-        ...mb,
-      };
-    });
 
     const weekSales = await getSalesByWeekStart(tranPrisma, iStartDate.toDate());
     const addedLeftPoint: Record<string, number> = {};
@@ -143,6 +146,13 @@ async function weeklyCommission(tranPrisma: PrismaClient) {
     });
     const resultMap: Record<string, { left: number; right: number }> = {}; //initial with previous status
 
+    const members = await tranPrisma.member.findMany({
+      where: {
+        createdAt: {
+          lt: new Date(formatDate(iStartDate.add(1, 'week').toDate())),
+        },
+      },
+    });
     members.forEach((member) => (resultMap[member.id] = { left: 0, right: 0 }));
 
     if (lastWeeklyCommissions.length > 0) {
