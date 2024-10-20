@@ -4,10 +4,13 @@ import { Client } from '@elastic/elasticsearch';
 
 const ELASTIC_SEARCH_URL = process.env.ELASTIC_SEARCH_URL ?? 'http://127.0.0.1:9200';
 const ELASTIC_LOG_INDEX = process.env.ELASTIC_LOG_INDEX ?? 'logtest';
+const ELASTIC_SENDY_LOG_INDEX = process.env.ELASTIC_SENDY_LOG ?? 'sendylog';
 
 export type ELASTIC_LOG_TYPE = 'create' | 'update' | 'remove' | 'signup';
 export type ELASTIC_LOG_OWNER_ROLE = 'admin' | 'miner';
 export type ELASTIC_LOG_ACTION_STATUS = 'success' | 'failed';
+export type ELASTIC_LOG_API_METHOD = 'POST' | 'GET' | 'DELETE' | 'PUT';
+export type ELASTIC_LOG_SENDY_ACTION = 'SUBSCRIBE' | 'UNSUBSCRIBE' | 'DELETE';
 
 @Service()
 export class ElasticSearchService {
@@ -64,5 +67,29 @@ export class ElasticSearchService {
         size: limit,
       })
       .catch(() => null);
+  }
+
+  async addSendyLog(
+    api: string,
+    apiMethod: ELASTIC_LOG_API_METHOD,
+    body: any,
+    action: ELASTIC_LOG_SENDY_ACTION,
+    result: string
+  ) {
+    try {
+      await this.client.index({
+        index: ELASTIC_SENDY_LOG_INDEX,
+        document: {
+          when: new Date().toISOString(),
+          api,
+          apiMethod,
+          body,
+          action,
+          result,
+        },
+      });
+    } catch (_err) {
+      console.log('Elastic Error => ', _err.message);
+    }
   }
 }
