@@ -33,6 +33,7 @@ const addSubscribers = async () => {
           },
         }
       );
+      console.log(`${member.username} - ${member.fullName} - ${member.email} - ${res.data}`);
     },
     { concurrency: 10 }
   );
