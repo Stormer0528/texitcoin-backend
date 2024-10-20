@@ -53,7 +53,7 @@ client.indices.create({
       when: { type: 'date' },
       apiMethod: { type: 'keyword' },
       api: { type: 'text' },
-      body: { type: 'text' },
+      body: { type: 'object' },
       action: { type: 'keyword' },
       result: { type: 'text' },
     },
