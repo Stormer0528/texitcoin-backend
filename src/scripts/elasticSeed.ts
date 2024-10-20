@@ -51,6 +51,7 @@ client.indices.create({
   mappings: {
     properties: {
       when: { type: 'date' },
+      apiMethod: { type: 'keyword' },
       api: { type: 'text' },
       body: { type: 'text' },
       action: { type: 'keyword' },
