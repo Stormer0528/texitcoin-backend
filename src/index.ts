@@ -90,8 +90,8 @@ const app = async () => {
   mainServer.use('/api', adminAuthorized, router);
 
   const APP_HOST = process.env.APP_HOST ?? '0.0.0.0';
-  const APP_PORT = +process.env.APP_PORT ?? 4000;
-  mainServer.listen(APP_PORT, APP_HOST, () => {
+  const APP_PORT = process.env.APP_PORT ?? 4000;
+  mainServer.listen(+APP_PORT, APP_HOST, () => {
     console.log(`🚀 Server ready at: ${APP_HOST}:${APP_PORT}`);
   });
 };
