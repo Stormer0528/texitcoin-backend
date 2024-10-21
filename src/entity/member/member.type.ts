@@ -90,6 +90,9 @@ export class CreateMemberInput {
   @Field({ nullable: true, defaultValue: true })
   status?: boolean;
 
+  @Field({ nullable: true, defaultValue: true })
+  syncWithSendy?: boolean;
+
   @Field(() => [MemberWalletDataInput])
   wallets: MemberWalletDataInput[];
 }
@@ -190,6 +193,9 @@ export class UpdateMemberInput {
 
   @Field({ nullable: true })
   status?: boolean;
+
+  @Field({ nullable: true, defaultValue: true })
+  syncWithSendy?: boolean;
 
   @Field(() => [MemberWalletDataInput], { nullable: 'itemsAndList' })
   wallets?: MemberWalletDataInput[];
