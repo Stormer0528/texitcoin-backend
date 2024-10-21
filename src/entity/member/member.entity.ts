@@ -70,6 +70,9 @@ export class Member extends BaseEntity {
   @Field()
   totalIntroducers: number;
 
+  @Field()
+  syncWithSendy: boolean;
+
   @Field(() => [Sale], { nullable: 'itemsAndList' })
   sales?: Sale[];
 
