@@ -33,67 +33,67 @@ import { Confirmation4Status } from '@/graphql/enum';
 export class WeeklyCommissionResolver {
   constructor(private readonly service: WeeklyCommissionService) {}
 
-  @Authorized()
-  @Query(() => WeeklyCommissionResponse)
-  async weeklyCommissions(
-    @Ctx() context: Context,
-    @Args() query: WeeklyCommissionQueryArgs,
-    @Info() info: GraphQLResolveInfo
-  ): Promise<WeeklyCommissionResponse> {
-    const { where, ...rest } = query;
-    const fields = graphqlFields(info);
+  // @Authorized()
+  // @Query(() => WeeklyCommissionResponse)
+  // async weeklyCommissions(
+  //   @Ctx() context: Context,
+  //   @Args() query: WeeklyCommissionQueryArgs,
+  //   @Info() info: GraphQLResolveInfo
+  // ): Promise<WeeklyCommissionResponse> {
+  //   const { where, ...rest } = query;
+  //   const fields = graphqlFields(info);
 
-    if (!context.isAdmin) {
-      query.filter = {
-        ...query.filter,
-        memberId: context.user.id,
-        status: Confirmation4Status.CONFIRM,
-      };
-    }
+  //   if (!context.isAdmin) {
+  //     query.filter = {
+  //       ...query.filter,
+  //       memberId: context.user.id,
+  //       status: Confirmation4Status.CONFIRM,
+  //     };
+  //   }
 
-    let promises: { total?: Promise<number>; weeklyCommissions?: any } = {};
+  //   let promises: { total?: Promise<number>; weeklyCommissions?: any } = {};
 
-    if ('total' in fields) {
-      promises.total = this.service.getWeeklyCommissionsCount(query);
-    }
+  //   if ('total' in fields) {
+  //     promises.total = this.service.getWeeklyCommissionsCount(query);
+  //   }
 
-    if ('weeklyCommissions' in fields) {
-      promises.weeklyCommissions = this.service.getWeeklyCommissions(query);
-    }
+  //   if ('weeklyCommissions' in fields) {
+  //     promises.weeklyCommissions = this.service.getWeeklyCommissions(query);
+  //   }
 
-    const result = await Promise.all(Object.entries(promises));
+  //   const result = await Promise.all(Object.entries(promises));
 
-    let response: { total?: number; weeklyCommissions?: WeeklyCommission[] } = {};
+  //   let response: { total?: number; weeklyCommissions?: WeeklyCommission[] } = {};
 
-    for (let [key, value] of result) {
-      response[key] = value;
-    }
+  //   for (let [key, value] of result) {
+  //     response[key] = value;
+  //   }
 
-    return response;
-  }
+  //   return response;
+  // }
 
-  @Authorized([UserRole.Admin])
-  @Mutation(() => WeeklyCommission)
-  async updateCommissionStatus(@Arg('data') data: WeeklyCommissionUpdateInput) {
-    const prevCommission = await this.service.getWeeklyCommissionById({ id: data.id });
-    if (data.status === Confirmation4Status.CONFIRM) {
-      if (prevCommission.status === Confirmation4Status.PENDING) {
-        return this.service.updateWeeklyCommission(data);
-      } else {
-        throw new Error('You can only confirm the pending commissions');
-      }
-    } else if (data.status === Confirmation4Status.BLOCK) {
-      if (prevCommission.status === Confirmation4Status.PENDING) {
-        return this.service.updateWeeklyCommission(data);
-      } else {
-        throw new Error('You can only block the pending commissions');
-      }
-    }
-    return this.service.updateWeeklyCommission(data);
-  }
+  // @Authorized([UserRole.Admin])
+  // @Mutation(() => WeeklyCommission)
+  // async updateCommissionStatus(@Arg('data') data: WeeklyCommissionUpdateInput) {
+  //   const prevCommission = await this.service.getWeeklyCommissionById({ id: data.id });
+  //   if (data.status === Confirmation4Status.CONFIRM) {
+  //     if (prevCommission.status === Confirmation4Status.PENDING) {
+  //       return this.service.updateWeeklyCommission(data);
+  //     } else {
+  //       throw new Error('You can only confirm the pending commissions');
+  //     }
+  //   } else if (data.status === Confirmation4Status.BLOCK) {
+  //     if (prevCommission.status === Confirmation4Status.PENDING) {
+  //       return this.service.updateWeeklyCommission(data);
+  //     } else {
+  //       throw new Error('You can only block the pending commissions');
+  //     }
+  //   }
+  //   return this.service.updateWeeklyCommission(data);
+  // }
 
-  @FieldResolver({ nullable: true })
-  async member(@Root() weeklyCommision: WeeklyCommission, @Ctx() ctx: Context): Promise<Member> {
-    return ctx.dataLoader.get('memberForWeeklyCommissionLoader').load(weeklyCommision.memberId);
-  }
+  // @FieldResolver({ nullable: true })
+  // async member(@Root() weeklyCommision: WeeklyCommission, @Ctx() ctx: Context): Promise<Member> {
+  //   return ctx.dataLoader.get('memberForWeeklyCommissionLoader').load(weeklyCommision.memberId);
+  // }
 }

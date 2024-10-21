@@ -289,88 +289,84 @@ export class MemberService {
   }
 
   async calculateSponsorBonous(id: string): Promise<void> {
-    if (!id) return;
-    const { introducerCount, freeShareSaleCount } = await this.prisma.member.findUnique({
-      where: { id },
-    });
-    const actualSaleCount = Math.floor(introducerCount / SPONSOR_BONOUS_CNT);
-
-    if (actualSaleCount < freeShareSaleCount) {
-      const remain = freeShareSaleCount - actualSaleCount;
-      const sales = await this.prisma.sale.findMany({
-        where: {
-          memberId: id,
-          freeShareSale: true,
-          status: true,
-        },
-        orderBy: {
-          createdAt: 'desc',
-        },
-        include: {
-          statisticsSales: true,
-        },
-        take: remain,
-      });
-
-      const permanentDelete = sales.filter((sale) => sale.statisticsSales.length === 0);
-      const softDelete = sales.filter((sale) => sale.statisticsSales.length > 0);
-
-      await this.prisma.sale.deleteMany({
-        where: {
-          id: {
-            in: permanentDelete.map((sale) => sale.id),
-          },
-        },
-      });
-      await this.prisma.sale.updateMany({
-        where: {
-          id: {
-            in: softDelete.map((sale) => sale.id),
-          },
-        },
-        data: {
-          status: false,
-        },
-      });
-      await this.prisma.member.update({
-        where: {
-          id,
-        },
-        data: {
-          freeShareSaleCount: actualSaleCount,
-        },
-      });
-    } else if (actualSaleCount > freeShareSaleCount) {
-      const { invoiceNo: maxInvoiceNo } = await this.prisma.sale.findFirst({
-        orderBy: {
-          invoiceNo: 'desc',
-        },
-      });
-      const member = await this.prisma.member.findUnique({
-        where: {
-          id,
-        },
-      });
-      const packageId = member.createdAt < FREE_SHARE_DIVIDER1 ? FREE_SHARE_ID_1 : FREE_SHARE_ID_2;
-
-      await this.prisma.sale.createMany({
-        data: new Array(actualSaleCount - freeShareSaleCount).fill(0).map((_, idx) => ({
-          memberId: id,
-          packageId: packageId,
-          paymentMethod: 'free',
-          invoiceNo: maxInvoiceNo + idx + 1,
-          freeShareSale: true,
-        })),
-      });
-      await this.prisma.member.update({
-        where: {
-          id,
-        },
-        data: {
-          freeShareSaleCount: actualSaleCount,
-        },
-      });
-    }
+    // if (!id) return;
+    // const { introducerCount, freeShareSaleCount } = await this.prisma.member.findUnique({
+    //   where: { id },
+    // });
+    // const actualSaleCount = Math.floor(introducerCount / SPONSOR_BONOUS_CNT);
+    // if (actualSaleCount < freeShareSaleCount) {
+    //   const remain = freeShareSaleCount - actualSaleCount;
+    //   const sales = await this.prisma.sale.findMany({
+    //     where: {
+    //       memberId: id,
+    //       freeShareSale: true,
+    //       status: true,
+    //     },
+    //     orderBy: {
+    //       createdAt: 'desc',
+    //     },
+    //     include: {
+    //       statisticsSales: true,
+    //     },
+    //     take: remain,
+    //   });
+    //   const permanentDelete = sales.filter((sale) => sale.statisticsSales.length === 0);
+    //   const softDelete = sales.filter((sale) => sale.statisticsSales.length > 0);
+    //   await this.prisma.sale.deleteMany({
+    //     where: {
+    //       id: {
+    //         in: permanentDelete.map((sale) => sale.id),
+    //       },
+    //     },
+    //   });
+    //   await this.prisma.sale.updateMany({
+    //     where: {
+    //       id: {
+    //         in: softDelete.map((sale) => sale.id),
+    //       },
+    //     },
+    //     data: {
+    //       status: false,
+    //     },
+    //   });
+    //   await this.prisma.member.update({
+    //     where: {
+    //       id,
+    //     },
+    //     data: {
+    //       freeShareSaleCount: actualSaleCount,
+    //     },
+    //   });
+    // } else if (actualSaleCount > freeShareSaleCount) {
+    //   const { invoiceNo: maxInvoiceNo } = await this.prisma.sale.findFirst({
+    //     orderBy: {
+    //       invoiceNo: 'desc',
+    //     },
+    //   });
+    //   const member = await this.prisma.member.findUnique({
+    //     where: {
+    //       id,
+    //     },
+    //   });
+    //   const packageId = member.createdAt < FREE_SHARE_DIVIDER1 ? FREE_SHARE_ID_1 : FREE_SHARE_ID_2;
+    //   await this.prisma.sale.createMany({
+    //     data: new Array(actualSaleCount - freeShareSaleCount).fill(0).map((_, idx) => ({
+    //       memberId: id,
+    //       packageId: packageId,
+    //       paymentMethod: 'free',
+    //       invoiceNo: maxInvoiceNo + idx + 1,
+    //       freeShareSale: true,
+    //     })),
+    //   });
+    //   await this.prisma.member.update({
+    //     where: {
+    //       id,
+    //     },
+    //     data: {
+    //       freeShareSaleCount: actualSaleCount,
+    //     },
+    //   });
+    // }
   }
 
   async incraseIntroducerCount(id: string): Promise<void> {

@@ -194,61 +194,61 @@ export class MemberResolver {
     return member;
   }
 
-  @UseMiddleware(minerLog('signup'))
-  @Transaction()
-  @Mutation(() => Member)
-  async signUpMember(@Arg('data') data: SignupFormInput): Promise<Member> {
-    const hashedPassword = await hashPassword(data.password);
-    const member = Number.isInteger(data.sponsorUserId)
-      ? await this.service.getMemberByUserId(+data.sponsorUserId)
-      : null;
-    if (member && !member.status) {
-      throw new Error('Reference is not approved');
-    }
-    const newmember = await this.service.createMember({
-      ..._.omit(data, ['packageId', 'paymentMenthod', 'sponsorUserId']),
-      email: data.email.toLowerCase(),
-      password: hashedPassword,
-      status: false,
-      signupFormRequest: data,
-      emailVerified: false,
-      sponsorId: data.sponsorUserId && member ? member.id : null,
-    });
+  // @UseMiddleware(minerLog('signup'))
+  // @Transaction()
+  // @Mutation(() => Member)
+  // async signUpMember(@Arg('data') data: SignupFormInput): Promise<Member> {
+  //   const hashedPassword = await hashPassword(data.password);
+  //   const member = Number.isInteger(data.sponsorUserId)
+  //     ? await this.service.getMemberByUserId(+data.sponsorUserId)
+  //     : null;
+  //   if (member && !member.status) {
+  //     throw new Error('Reference is not approved');
+  //   }
+  //   const newmember = await this.service.createMember({
+  //     ..._.omit(data, ['packageId', 'paymentMenthod', 'sponsorUserId']),
+  //     email: data.email.toLowerCase(),
+  //     password: hashedPassword,
+  //     status: false,
+  //     signupFormRequest: data,
+  //     emailVerified: false,
+  //     sponsorId: data.sponsorUserId && member ? member.id : null,
+  //   });
 
-    return newmember;
-  }
+  //   return newmember;
+  // }
 
-  @Mutation(() => EmailVerificationResponse)
-  async sendEmailVerification(@Arg('data') data: EmailInput): Promise<EmailVerificationResponse> {
-    const { token, digit, name } =
-      await this.service.generateVerificationTokenAndDigitByEmail(data);
-    this.mailerService.sendEmailVerificationCode(
-      data.email,
-      name,
-      digit,
-      `${process.env.MEMBER_URL}/verify-email?email=${encodeURIComponent(data.email)}`
-    );
+  // @Mutation(() => EmailVerificationResponse)
+  // async sendEmailVerification(@Arg('data') data: EmailInput): Promise<EmailVerificationResponse> {
+  //   const { token, digit, name } =
+  //     await this.service.generateVerificationTokenAndDigitByEmail(data);
+  //   this.mailerService.sendEmailVerificationCode(
+  //     data.email,
+  //     name,
+  //     digit,
+  //     `${process.env.MEMBER_URL}/verify-email?email=${encodeURIComponent(data.email)}`
+  //   );
 
-    return {
-      token,
-    };
-  }
+  //   return {
+  //     token,
+  //   };
+  // }
 
-  @Mutation(() => SuccessResponse)
-  async emailVerify(@Arg('data') data: EmailVerificationInput): Promise<SuccessResponse> {
-    const member = await this.service.verifyEmailDigit(data);
+  // @Mutation(() => SuccessResponse)
+  // async emailVerify(@Arg('data') data: EmailVerificationInput): Promise<SuccessResponse> {
+  //   const member = await this.service.verifyEmailDigit(data);
 
-    if (member) {
-      return {
-        result: SuccessResult.success,
-      };
-    } else {
-      return {
-        result: SuccessResult.failed,
-        message: 'Can not verify email',
-      };
-    }
-  }
+  //   if (member) {
+  //     return {
+  //       result: SuccessResult.success,
+  //     };
+  //   } else {
+  //     return {
+  //       result: SuccessResult.failed,
+  //       message: 'Can not verify email',
+  //     };
+  //   }
+  // }
 
   @Authorized()
   @UseMiddleware(userPermission)
@@ -308,26 +308,26 @@ export class MemberResolver {
     return member;
   }
 
-  @Authorized([UserRole.Admin])
-  @Transaction()
-  @Mutation(() => SuccessResponse)
-  async approveMember(@Arg('data') data: IDInput): Promise<SuccessResponse> {
-    const member = await this.service.updateMember({
-      id: data.id,
-      status: true,
-    });
-    if (member.sponsorId) {
-      await this.service.incraseIntroducerCount(member.sponsorId);
-      await this.service.calculateSponsorBonous(member.sponsorId);
-    }
+  // @Authorized([UserRole.Admin])
+  // @Transaction()
+  // @Mutation(() => SuccessResponse)
+  // async approveMember(@Arg('data') data: IDInput): Promise<SuccessResponse> {
+  //   const member = await this.service.updateMember({
+  //     id: data.id,
+  //     status: true,
+  //   });
+  //   if (member.sponsorId) {
+  //     await this.service.incraseIntroducerCount(member.sponsorId);
+  //     await this.service.calculateSponsorBonous(member.sponsorId);
+  //   }
 
-    // sendy
-    this.sendyService.addSubscriber(member.email, member.fullName);
+  //   // sendy
+  //   this.sendyService.addSubscriber(member.email, member.fullName);
 
-    return {
-      result: SuccessResult.success,
-    };
-  }
+  //   return {
+  //     result: SuccessResult.success,
+  //   };
+  // }
 
   @Authorized([UserRole.Admin])
   @UseMiddleware(minerLog('remove'))
@@ -608,11 +608,11 @@ export class MemberResolver {
     };
   }
 
-  @FieldResolver(() => [WeeklyCommission])
-  async weeklyCommissions(
-    @Root() member: Member,
-    @Ctx() ctx: Context
-  ): Promise<WeeklyCommission[]> {
-    return ctx.dataLoader.get('weeklyCommissionsForMemberLoader').load(member.id);
-  }
+  // @FieldResolver(() => [WeeklyCommission])
+  // async weeklyCommissions(
+  //   @Root() member: Member,
+  //   @Ctx() ctx: Context
+  // ): Promise<WeeklyCommission[]> {
+  //   return ctx.dataLoader.get('weeklyCommissionsForMemberLoader').load(member.id);
+  // }
 }
