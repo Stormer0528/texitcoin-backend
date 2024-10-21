@@ -670,17 +670,17 @@ export class MemberResolver {
     };
   }
 
-  // @FieldResolver(() => [WeeklyCommission])
-  // async weeklyCommissions(
-  //   @Root() member: Member,
-  //   @Ctx() ctx: Context
-  // ): Promise<WeeklyCommission[]> {
-  //   return ctx.dataLoader.get('weeklyCommissionsForMemberLoader').load(member.id);
-  // }
-
   @Authorized([UserRole.Admin])
   @FieldResolver(() => [AdminNotes])
   async adminNotes(@Root() member: Member, @Ctx() ctx: Context) {
     return ctx.dataLoader.get('adminNotesForMemberLoader').load(member.id);
+  }
+
+  @FieldResolver(() => [WeeklyCommission])
+  async weeklyCommissions(
+    @Root() member: Member,
+    @Ctx() ctx: Context
+  ): Promise<WeeklyCommission[]> {
+    return ctx.dataLoader.get('weeklyCommissionsForMemberLoader').load(member.id);
   }
 }
