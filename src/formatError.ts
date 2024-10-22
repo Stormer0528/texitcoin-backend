@@ -2,6 +2,8 @@ import { Prisma } from '@prisma/client';
 import { unwrapResolverError } from '@apollo/server/errors';
 import type { GraphQLFormattedError } from 'graphql';
 import { foreignKeyErrors, uniqueErrors } from './consts/errors';
+import { ArgumentValidationError } from 'type-graphql';
+import path from 'path';
 
 const checkUniqueError = (
   meta: Record<string, unknown>,
@@ -52,6 +54,14 @@ export const formatError = (formattedError: GraphQLFormattedError, error: unknow
     } else if (originalError.code === 'P2003') {
       return checkForeignKeyError(originalError.meta, formattedError.message);
     }
+  } else if (originalError instanceof ArgumentValidationError) {
+    return {
+      code: originalError.extensions.code,
+      message: `${originalError.message}\n${originalError.extensions.validationErrors
+        .flatMap((vadError) => Object.values(vadError.constraints))
+        .join(',')}`,
+      path: originalError.extensions.validationErrors.map((vadError) => vadError.property),
+    };
   }
   return {
     message: formattedError.message,
