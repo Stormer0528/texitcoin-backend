@@ -73,6 +73,12 @@ export class Member extends BaseEntity {
   @Field()
   syncWithSendy: boolean;
 
+  @Field({ nullable: true })
+  preferredContact?: string;
+
+  @Field({ nullable: true })
+  preferredContactDetail?: string;
+
   @Field(() => [Sale], { nullable: 'itemsAndList' })
   sales?: Sale[];
 

@@ -93,6 +93,12 @@ export class CreateMemberInput {
   @Field({ nullable: true, defaultValue: true })
   syncWithSendy?: boolean;
 
+  @Field({ nullable: true })
+  preferredContact?: string;
+
+  @Field({ nullable: true })
+  preferredContactDetail?: string;
+
   @Field(() => [MemberWalletDataInput])
   wallets: MemberWalletDataInput[];
 }
@@ -144,6 +150,12 @@ export class SignupFormInput {
 
   @Field({ nullable: true })
   paymentMethod?: string;
+
+  @Field({ nullable: true })
+  preferredContact?: string;
+
+  @Field({ nullable: true })
+  preferredContactDetail?: string;
 }
 
 @InputType()
@@ -196,6 +208,12 @@ export class UpdateMemberInput {
 
   @Field({ nullable: true, defaultValue: true })
   syncWithSendy?: boolean;
+
+  @Field({ nullable: true })
+  preferredContact?: string;
+
+  @Field({ nullable: true })
+  preferredContactDetail?: string;
 
   @Field(() => [MemberWalletDataInput], { nullable: 'itemsAndList' })
   wallets?: MemberWalletDataInput[];
