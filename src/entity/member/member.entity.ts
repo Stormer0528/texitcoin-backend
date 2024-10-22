@@ -102,8 +102,8 @@ export class Member extends BaseEntity {
   @Field(() => [Member], { nullable: 'itemsAndList' })
   placementChildren?: Member[];
 
-  // @Field(() => [WeeklyCommission], { nullable: 'itemsAndList' })
-  // weeklyCommissions?: WeeklyCommission[];
+  @Field(() => [WeeklyCommission], { nullable: 'itemsAndList' })
+  weeklyCommissions?: WeeklyCommission[];
 
   @Authorized([UserRole.Admin])
   @Field(() => [MemberLog], { nullable: 'itemsAndList' })
