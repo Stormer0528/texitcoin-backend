@@ -281,9 +281,11 @@ export class MemberResolver {
     };
     if (data.email) newData.email = data.email.toLowerCase();
 
-    const { sponsorId: prevSponsorID, email: oldEmail } = await this.service.getMemberById(
-      newData.id
-    );
+    const {
+      sponsorId: prevSponsorID,
+      email: oldEmail,
+      syncWithSendy: oldSyncWithSendy,
+    } = await this.service.getMemberById(newData.id);
     const member = await this.service.updateMember(newData);
     if (data.wallets) {
       await this.memberWalletService.updateManyMemberWallet({
@@ -306,8 +308,14 @@ export class MemberResolver {
     if (oldEmail !== member.email) {
       this.sendyService.removeSubscriber(oldEmail);
 
-      if (data.syncWithSendy) {
+      if (member.syncWithSendy) {
         this.sendyService.addSubscriber(member.email, member.fullName);
+      }
+    } else if (oldEmail === member.email) {
+      if (!oldSyncWithSendy && member.syncWithSendy) {
+        this.sendyService.addSubscriber(member.email, member.fullName);
+      } else if (oldSyncWithSendy && !member.syncWithSendy) {
+        this.sendyService.removeSubscriber(member.email);
       }
     }
 
