@@ -172,6 +172,7 @@ export class MemberResolver {
       ..._.omit(data, 'wallets'),
       email: data.email.toLowerCase(),
       password: hashedPassword,
+      sponsorId: data.sponsorId || null,
     });
 
     if (data.wallets) {
@@ -280,6 +281,9 @@ export class MemberResolver {
       ..._.omit(data, ['wallets', ctx.isAdmin ? null : 'sponsorId']),
     };
     if (data.email) newData.email = data.email.toLowerCase();
+    if ('sponsorId' in newData && !newData.sponsorId) {
+      newData.sponsorId = null;
+    }
 
     const {
       sponsorId: prevSponsorID,
