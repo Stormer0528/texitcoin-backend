@@ -10,7 +10,7 @@ interface SMTPConnectionAuth {
 }
 
 const SMTP_HOST: string = process.env.SMTP_HOST ?? 'localhost';
-const SMTP_PORT: number = +process.env.SMTP_PORT ?? 1025;
+const SMTP_PORT: number = +(process.env.SMTP_PORT ?? 1025);
 const SMTP_SECURE: boolean = JSON.parse(process.env.SMTP_SECURE);
 const SMTP_AUTH: SMTPConnectionAuth = {
   user: process.env.SMTP_USERNAME,
