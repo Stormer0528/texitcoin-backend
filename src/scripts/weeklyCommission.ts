@@ -127,7 +127,7 @@ async function weeklyCommission(tranPrisma: PrismaClient) {
         mapMembers,
         {
           id: sale.memberId,
-          point: sale.package.point,
+          point: sale.package.point > 0 ? 1 : 0,
         },
         addedLeftPoint,
         addedRightPoint,
