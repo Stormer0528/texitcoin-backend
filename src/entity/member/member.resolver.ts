@@ -14,7 +14,7 @@ import {
   UseMiddleware,
 } from 'type-graphql';
 import graphqlFields from 'graphql-fields';
-import { GraphQLResolveInfo } from 'graphql';
+import { GraphQLError, GraphQLResolveInfo } from 'graphql';
 
 import { DEFAULT_PASSWORD, PLACEMENT_ROOT } from '@/consts';
 import { UserRole } from '@/type';
@@ -203,11 +203,30 @@ export class MemberResolver {
   @Mutation(() => Member)
   async signUpMember(@Arg('data') data: SignupFormInput): Promise<Member> {
     const hashedPassword = await hashPassword(data.password);
-    const member = Number.isInteger(data.sponsorUserId)
-      ? await this.service.getMemberByUserId(+data.sponsorUserId)
-      : null;
-    if (member && !member.status) {
-      throw new Error('Reference is not approved');
+    let sponsorId: string | null = null;
+    if (data.sponsorUserId) {
+      if (!Number.isInteger(+data.sponsorUserId)) {
+        throw new GraphQLError('Invalid reference code', {
+          extensions: {
+            path: ['sponsorUserId'],
+          },
+        });
+      }
+      const member = await this.service.getMemberByUserId(+data.sponsorUserId);
+      if (member && !member.status) {
+        throw new GraphQLError('Reference is not approved', {
+          extensions: {
+            path: ['sponsorUserId'],
+          },
+        });
+      } else if (!member) {
+        throw new GraphQLError('Invalid reference code', {
+          extensions: {
+            path: ['sponsorUserId'],
+          },
+        });
+      }
+      sponsorId = member.id;
     }
     const newmember = await this.service.createMember({
       ..._.omit(data, ['packageId', 'paymentMenthod', 'sponsorUserId']),
@@ -216,7 +235,7 @@ export class MemberResolver {
       status: false,
       signupFormRequest: data,
       emailVerified: false,
-      sponsorId: data.sponsorUserId && member ? member.id : null,
+      sponsorId,
     });
 
     return newmember;
