@@ -204,6 +204,7 @@ export class MemberResolver {
   async signUpMember(@Arg('data') data: SignupFormInput): Promise<Member> {
     const hashedPassword = await hashPassword(data.password);
     let sponsorId: string | null = null;
+    let sponsorName: string | null = null;
     if (data.sponsorUserId) {
       if (!Number.isInteger(+data.sponsorUserId)) {
         throw new GraphQLError('Invalid reference code', {
@@ -227,6 +228,7 @@ export class MemberResolver {
         });
       }
       sponsorId = member.id;
+      sponsorName = member.fullName;
     }
     const newmember = await this.service.createMember({
       ..._.omit(data, ['packageId', 'paymentMenthod', 'sponsorUserId']),
@@ -238,6 +240,7 @@ export class MemberResolver {
       sponsorId,
     });
 
+    this.mailerService.notifyMinerSignupToAdmin(newmember.email, newmember.fullName, sponsorName);
     return newmember;
   }
 

@@ -18,6 +18,7 @@ const SMTP_AUTH: SMTPConnectionAuth = {
 };
 const SMTP_SENDER_EMAIL: string = process.env.SMTP_SENDER_EMAIL;
 const SMTP_SENDER_NAME: string = process.env.SMTP_SENDER_NAME;
+const ADMIN_EMAIL: string = process.env.ADMIN_EMAIL;
 
 @Service()
 export class MailerService {
@@ -88,6 +89,30 @@ export class MailerService {
       const sentMailInfo = await this.sendMail(mailOption);
       console.log(
         `Email was sent to ${to}, Type => Email Verification Code, Message ID => ${sentMailInfo.messageId}`
+      );
+    }
+  }
+
+  public async notifyMinerSignupToAdmin(
+    minerEmail: string,
+    minerFullname: string,
+    sponsorName: string | null
+  ) {
+    if (isEmail(ADMIN_EMAIL) && isEmail(SMTP_SENDER_EMAIL)) {
+      const mailOption = {
+        from: `"${SMTP_SENDER_NAME}" <${SMTP_SENDER_EMAIL}>`,
+        to: ADMIN_EMAIL,
+        subject: 'New Miner Sign-Up Notification',
+        template: 'signupnotification',
+        context: {
+          signupName: minerFullname,
+          signupEmail: minerEmail,
+          referenceMember: sponsorName,
+        },
+      };
+      const sentMailInfo = await this.sendMail(mailOption);
+      console.log(
+        `Email was sent to ${ADMIN_EMAIL}, Type => New Miner Sign-Up Notification, Message ID => ${sentMailInfo.messageId}`
       );
     }
   }
