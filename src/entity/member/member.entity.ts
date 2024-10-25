@@ -79,6 +79,8 @@ export class Member extends BaseEntity {
   @Field({ nullable: true })
   preferredContactDetail?: string;
 
+  refCode: string;
+
   @Field(() => [Sale], { nullable: 'itemsAndList' })
   sales?: Sale[];
 

@@ -206,14 +206,7 @@ export class MemberResolver {
     let sponsorId: string | null = null;
     let sponsorName: string | null = null;
     if (data.sponsorUserId) {
-      if (!Number.isInteger(+data.sponsorUserId)) {
-        throw new GraphQLError('Invalid reference code', {
-          extensions: {
-            path: ['sponsorUserId'],
-          },
-        });
-      }
-      const member = await this.service.getMemberByUserId(+data.sponsorUserId);
+      const member = await this.service.getMemberByRefCode(data.sponsorUserId);
       if (member && !member.status) {
         throw new GraphQLError('Reference is not approved', {
           extensions: {
@@ -643,8 +636,12 @@ export class MemberResolver {
   @Authorized()
   @Query(() => ReferenceLink)
   generateReferenceLink(@Ctx() ctx: Context): ReferenceLink {
+    if (ctx.isAdmin) {
+      throw Error('Admin can not have sponsor link');
+    }
+
     return {
-      link: `${process.env.MEMBER_URL}/sign-up?reference=${ctx.isAdmin ? ctx.user.username : (ctx.user as Member).userId}`,
+      link: `${process.env.MEMBER_URL}/sign-up?sponsor=${(ctx.user as Member).refCode}`,
     };
   }
 
