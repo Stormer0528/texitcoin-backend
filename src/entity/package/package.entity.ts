@@ -27,6 +27,9 @@ export class Package extends BaseEntity {
   @Field()
   point: number;
 
+  @Field()
+  enrollVisibility: boolean;
+
   @Field(() => [Sale], { nullable: 'itemsAndList' })
   sales?: Sale[];
 }
