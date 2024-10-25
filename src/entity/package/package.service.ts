@@ -47,10 +47,20 @@ export class PackageService {
         packageId: data.id,
       },
     });
+    const oldPackage = await this.prisma.package.findUnique({
+      where: {
+        id: data.id,
+      },
+    });
 
-    const updateData = sale
+    if (!oldPackage.status && data.enrollVisibility) {
+      throw new Error('You can not show the inactive package');
+    }
+
+    const updateData: Omit<UpdatePackageInput, 'id'> = sale
       ? {
           productName: data.productName,
+          enrollVisibility: data.enrollVisibility,
         }
       : data;
     return await this.prisma.package.update({
