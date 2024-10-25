@@ -224,7 +224,7 @@ export class MemberResolver {
       sponsorName = member.fullName;
     }
     const newmember = await this.service.createMember({
-      ..._.omit(data, ['packageId', 'paymentMenthod', 'sponsorUserId']),
+      ..._.omit(data, ['packageId', 'paymentMethod', 'sponsorUserId']),
       email: data.email.toLowerCase(),
       password: hashedPassword,
       status: false,
