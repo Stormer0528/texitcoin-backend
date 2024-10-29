@@ -10,6 +10,7 @@ import { MemberLog, PLACEMENT_POSITION } from './member.type';
 import { UserRole } from '@/type';
 import { PlacementPosition } from '@/graphql/enum';
 import { WeeklyCommission } from '../weeklycommission/weeklycommission.entity';
+import { AdminNotes } from '../adminNotes/adminNotes.entity';
 
 @ObjectType()
 export class Member extends BaseEntity {
@@ -108,4 +109,8 @@ export class Member extends BaseEntity {
   @Authorized([UserRole.Admin])
   @Field(() => [MemberLog], { nullable: 'itemsAndList' })
   logs?: MemberLog[];
+
+  @Authorized([UserRole.Admin])
+  @Field(() => [AdminNotes], { nullable: 'itemsAndList' })
+  adminNotes?: AdminNotes[];
 }

@@ -5,7 +5,7 @@ import { Sale } from '@/entity/sale/sale.entity';
 import { MemberStatistics } from '@/entity/memberStatistics/memberStatistics.entity';
 import { MemberWallet } from '@/entity/memberWallet/memberWallet.entity';
 import { Member } from '@/entity/member/member.entity';
-import { WeeklyCommission } from '@prisma/client';
+import { AdminNotes, WeeklyCommission } from '@prisma/client';
 
 export const salesForMemberLoader = (parent: RootDataLoader) => {
   return new DataLoader<string, Sale[]>(
@@ -186,6 +186,31 @@ export const weeklyCommissionsForMemberLoader = (parent: RootDataLoader) => {
       });
 
       return memberIds.map((id) => weeklyCommissionMap[id] ?? []);
+    },
+    {
+      ...parent.dataLoaderOptions,
+    }
+  );
+};
+
+export const adminNotesForMemberLoader = (parent: RootDataLoader) => {
+  return new DataLoader<string, AdminNotes[]>(
+    async (memberIds: string[]) => {
+      const adminNotes = await parent.prisma.adminNotes.findMany({
+        where: {
+          memberId: {
+            in: memberIds,
+          },
+        },
+      });
+      const membersWithAdminNotesMap: Record<string, AdminNotes[]> = {};
+      adminNotes.forEach((adaminNotes) => {
+        if (!membersWithAdminNotesMap[adaminNotes.memberId])
+          membersWithAdminNotesMap[adaminNotes.memberId] = [];
+        membersWithAdminNotesMap[adaminNotes.memberId].push(adaminNotes);
+      });
+
+      return memberIds.map((id) => membersWithAdminNotesMap[id] ?? []);
     },
     {
       ...parent.dataLoaderOptions,

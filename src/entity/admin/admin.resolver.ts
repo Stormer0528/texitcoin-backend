@@ -1,5 +1,16 @@
 import { Service } from 'typedi';
-import { Arg, Args, Resolver, Query, Mutation, Authorized, Ctx, Info } from 'type-graphql';
+import {
+  Arg,
+  Args,
+  Resolver,
+  Query,
+  Mutation,
+  Authorized,
+  Ctx,
+  Info,
+  FieldResolver,
+  Root,
+} from 'type-graphql';
 import graphqlFields from 'graphql-fields';
 import { GraphQLResolveInfo } from 'graphql';
 
@@ -26,6 +37,7 @@ import {
 } from './admin.type';
 import { Admin } from './admin.entity';
 import { AdminService } from './admin.service';
+import { AdminNotes } from '../adminNotes/adminNotes.entity';
 
 @Service()
 @Resolver(() => Admin)
@@ -141,5 +153,11 @@ export class AdminResolver {
     return {
       accessToken: createAccessToken({ id: user.id, isAdmin: true }),
     };
+  }
+
+  @Authorized([UserRole.Admin])
+  @FieldResolver(() => [AdminNotes])
+  async adminNotes(@Root() admin: Admin, @Ctx() ctx: Context) {
+    return ctx.dataLoader.get('adminNotesForAdminLoader').load(admin.id);
   }
 }

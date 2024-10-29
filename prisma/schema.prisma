@@ -37,7 +37,7 @@ model Admin {
   deletedAt DateTime?
 
   // Relations
-  AdminNotes AdminNotes[]
+  adminNotes AdminNotes[]
 
   @@map("admins")
 }
@@ -86,7 +86,7 @@ model Member {
   memberWallets     MemberWallet[]
   placementChildren Member[]           @relation("MemberPlacementParent")
   WeeklyCommission  WeeklyCommission[]
-  AdminNotes        AdminNotes[]
+  adminNotes        AdminNotes[]
 
   @@map("members")
 }

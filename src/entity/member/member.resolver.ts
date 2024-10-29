@@ -67,6 +67,7 @@ import { userPermission } from '../admin/admin.permission';
 import { PERCENT } from '@/consts/db';
 import { ElasticSearchService } from '@/service/elasticsearch';
 import { SendyService } from '@/service/sendy';
+import { AdminNotes } from '../adminNotes/adminNotes.entity';
 
 @Service()
 @Resolver(() => Member)
@@ -652,4 +653,10 @@ export class MemberResolver {
   // ): Promise<WeeklyCommission[]> {
   //   return ctx.dataLoader.get('weeklyCommissionsForMemberLoader').load(member.id);
   // }
+
+  @Authorized([UserRole.Admin])
+  @FieldResolver(() => [AdminNotes])
+  async adminNotes(@Root() member: Member, @Ctx() ctx: Context) {
+    return ctx.dataLoader.get('adminNotesForMemberLoader').load(member.id);
+  }
 }
