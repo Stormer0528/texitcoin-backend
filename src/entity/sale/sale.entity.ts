@@ -12,9 +12,6 @@ export class Sale extends BaseEntity {
   id: string;
 
   @Field()
-  invoiceNo: number;
-
-  @Field()
   paymentMethod: string;
 
   @Field()

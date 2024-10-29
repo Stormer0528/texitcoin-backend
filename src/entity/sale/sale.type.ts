@@ -23,9 +23,6 @@ export class CreateSaleInput {
   @Field(() => ID)
   memberId: string;
 
-  @Field()
-  invoiceNo?: number;
-
   @Field(() => ID)
   packageId: string;
 
@@ -47,9 +44,6 @@ export class UpdateSaleInput {
 
   @Field(() => ID, { nullable: true })
   packageId?: string;
-
-  @Field({ nullable: true })
-  invoiceNo?: number;
 
   @Field(() => ID, { nullable: true })
   memberId?: string;
