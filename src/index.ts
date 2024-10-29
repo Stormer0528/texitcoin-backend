@@ -32,6 +32,7 @@ import { DailyBlockResolver } from './entity/dailyblock/dailyblock.resolver';
 import { WeeklyBlockResolver } from './entity/weeklyblock/weeklyblock.resolver';
 import { MonthlyBlockResolver } from './entity/monthlyblock/monthlyblock.resolver';
 import { WeeklyCommissionResolver } from './entity/weeklycommission/weeklycommission.resolver';
+import { AdminNotesResolver } from './entity/adminNotes/adminNotes.resolver';
 
 // import "./env";
 
@@ -54,6 +55,7 @@ const app = async () => {
       WeeklyBlockResolver,
       MonthlyBlockResolver,
       WeeklyCommissionResolver,
+      AdminNotesResolver,
     ],
     authChecker,
     scalarsMap: [

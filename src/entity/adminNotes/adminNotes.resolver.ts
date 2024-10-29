@@ -1,0 +1,83 @@
+import { Service } from 'typedi';
+import { Arg, Args, Resolver, Query, Mutation, Info, Authorized, Ctx } from 'type-graphql';
+import graphqlFields from 'graphql-fields';
+import { GraphQLResolveInfo } from 'graphql';
+
+import { UserRole } from '@/type';
+import { Context } from '@/context';
+
+import { Transaction } from '@/graphql/decorator';
+import { IDInput, SuccessResponse, SuccessResult } from '@/graphql/common.type';
+import {
+  AdminNotesQueryArgs,
+  AdminNotesResponse,
+  CreateAdminNotesInput,
+  UpdateAdminNotesInput,
+} from './adminNotes.type';
+import { AdminNotesService } from './adminNotes.service';
+import { AdminNotes } from './adminNotes.entity';
+
+@Service()
+@Resolver(() => AdminNotes)
+export class AdminNotesResolver {
+  constructor(private readonly service: AdminNotesService) {}
+
+  @Authorized([UserRole.Admin])
+  @Query(() => AdminNotesResponse)
+  async adminNotes(
+    @Args() query: AdminNotesQueryArgs,
+    @Info() info: GraphQLResolveInfo
+  ): Promise<AdminNotesResponse> {
+    const { where, ...rest } = query;
+    const fields = graphqlFields(info);
+
+    let promises: { total?: Promise<number>; adminNotes?: any } = {};
+
+    if ('total' in fields) {
+      promises.total = this.service.getAdminNotesCount(query);
+    }
+
+    if ('adminNotes' in fields) {
+      promises.adminNotes = this.service.getAdminNotesCount(query);
+    }
+
+    const result = await Promise.all(Object.entries(promises));
+
+    let response: { total?: number; adminNotes?: AdminNotes[] } = {};
+
+    for (let [key, value] of result) {
+      response[key] = value;
+    }
+
+    return response;
+  }
+
+  @Authorized([UserRole.Admin])
+  @Transaction()
+  @Mutation(() => AdminNotes)
+  async createAdminNote(
+    @Ctx() ctx: Context,
+    @Arg('data') data: CreateAdminNotesInput
+  ): Promise<AdminNotes> {
+    return this.service.createAdminNote({
+      ...data,
+      adminId: ctx.user.id,
+    });
+  }
+
+  @Authorized([UserRole.Admin])
+  @Transaction()
+  @Mutation(() => AdminNotes)
+  async updateAdminNote(@Arg('data') data: UpdateAdminNotesInput): Promise<AdminNotes> {
+    return this.service.updateAdminNote(data);
+  }
+
+  @Authorized([UserRole.Admin])
+  @Mutation(() => SuccessResponse)
+  async removeAdminNote(@Arg('data') data: IDInput): Promise<SuccessResponse> {
+    await this.service.removeAdminNote(data);
+    return {
+      result: SuccessResult.success,
+    };
+  }
+}
