@@ -35,7 +35,7 @@ import { Admin } from '../admin/admin.entity';
 export class AdminNotesResolver {
   constructor(private readonly service: AdminNotesService) {}
 
-  @Authorized([UserRole.Admin])
+  // @Authorized([UserRole.Admin])
   @Query(() => AdminNotesResponse)
   async adminNotes(
     @Args() query: AdminNotesQueryArgs,
@@ -51,7 +51,7 @@ export class AdminNotesResolver {
     }
 
     if ('adminNotes' in fields) {
-      promises.adminNotes = this.service.getAdminNotesCount(query);
+      promises.adminNotes = this.service.getAdminNotes(query);
     }
 
     const result = await Promise.all(Object.entries(promises));
