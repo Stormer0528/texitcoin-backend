@@ -29,7 +29,6 @@ export const getSales = async (members: Member[]) => {
 
   const [rows] = await connection.execute(
     `SELECT
-      mph.invoice_no AS invoiceNo,
       ml.user_id AS userId,    
       mp.package AS packageName,
       mph.payment_method AS paymentMethod,
