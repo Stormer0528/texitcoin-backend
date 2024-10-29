@@ -36,6 +36,9 @@ model Admin {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
+  // Relations
+  AdminNotes AdminNotes[]
+
   @@map("admins")
 }
 
@@ -83,6 +86,7 @@ model Member {
   memberWallets     MemberWallet[]
   placementChildren Member[]           @relation("MemberPlacementParent")
   WeeklyCommission  WeeklyCommission[]
+  AdminNotes        AdminNotes[]
 
   @@map("members")
 }
@@ -331,4 +335,17 @@ model WeeklyCommission {
   deletedAt DateTime?
 
   @@map("weeklycommissions")
+}
+
+model AdminNotes {
+  id          String  @id @default(uuid())
+  memberId    String
+  adminId     String
+  title       String
+  description String?
+
+  member Member? @relation(fields: [memberId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  admin  Admin?  @relation(fields: [adminId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("adminnotes")
 }
