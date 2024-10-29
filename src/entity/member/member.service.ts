@@ -346,11 +346,6 @@ export class MemberService {
     //     },
     //   });
     // } else if (actualSaleCount > freeShareSaleCount) {
-    //   const { invoiceNo: maxInvoiceNo } = await this.prisma.sale.findFirst({
-    //     orderBy: {
-    //       invoiceNo: 'desc',
-    //     },
-    //   });
     //   const member = await this.prisma.member.findUnique({
     //     where: {
     //       id,
@@ -362,7 +357,6 @@ export class MemberService {
     //       memberId: id,
     //       packageId: packageId,
     //       paymentMethod: 'free',
-    //       invoiceNo: maxInvoiceNo + idx + 1,
     //       freeShareSale: true,
     //     })),
     //   });
