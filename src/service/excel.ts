@@ -153,7 +153,7 @@ export class ExcelService {
         package: true,
       },
       orderBy: {
-        invoiceNo: 'asc',
+        orderedAt: 'desc',
       },
     });
     const specification = {
@@ -161,11 +161,6 @@ export class ExcelService {
         displayName: 'No',
         headerStyle: styles.headerNormal,
         width: 30,
-      },
-      invoiceNo: {
-        displayName: 'invoiceNo',
-        headerStyle: styles.headerNormal,
-        width: 80,
       },
       productName: {
         displayName: 'productName',
