@@ -90,7 +90,6 @@ model Member {
 model Sale {
   id            String   @id @default(uuid())
   memberId      String
-  invoiceNo     Int      @unique(map: "index_sales_on_invoiceNo") @default(0)
   packageId     String
   paymentMethod String
   orderedAt     DateTime @default(now())
