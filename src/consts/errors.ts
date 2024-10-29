@@ -25,11 +25,6 @@ export const uniqueErrors = [
     message: 'UserId already exists',
   },
   {
-    modelName: 'Sale',
-    path: ['invoiceNo'],
-    message: 'InvoiceNo already exists',
-  },
-  {
     modelName: 'MemberWallet',
     path: ['memberId', 'payoutId', 'address'],
     message: 'Wallet already exists',
