@@ -35,7 +35,7 @@ import { Admin } from '../admin/admin.entity';
 export class AdminNotesResolver {
   constructor(private readonly service: AdminNotesService) {}
 
-  // @Authorized([UserRole.Admin])
+  @Authorized([UserRole.Admin])
   @Query(() => AdminNotesResponse)
   async adminNotes(
     @Args() query: AdminNotesQueryArgs,

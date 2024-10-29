@@ -24,19 +24,13 @@ export class CreateAdminNotesInput {
   memberId: string;
 
   @Field()
-  title: string;
-
-  @Field({ nullable: true })
-  description?: string;
+  description: string;
 }
 
 @InputType()
 export class UpdateAdminNotesInput {
   @Field(() => ID)
   id: string;
-
-  @Field({ nullable: true })
-  title?: string;
 
   @Field({ nullable: true })
   description?: string;

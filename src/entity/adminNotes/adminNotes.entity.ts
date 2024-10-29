@@ -16,9 +16,6 @@ export class AdminNotes extends BaseEntity {
   @Field()
   adminId: string;
 
-  @Field()
-  title: string;
-
   @Field({ nullable: true })
   description?: string;
 
