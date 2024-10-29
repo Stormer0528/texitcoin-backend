@@ -346,5 +346,9 @@ model AdminNotes {
   member Member? @relation(fields: [memberId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   admin  Admin?  @relation(fields: [adminId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
   @@map("adminnotes")
 }
