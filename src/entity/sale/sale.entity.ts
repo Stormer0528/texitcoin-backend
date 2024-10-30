@@ -38,6 +38,9 @@ export class Sale extends BaseEntity {
   @Field(() => [PFile], { nullable: 'itemsAndList' })
   paymentConfirm?: PFile[];
 
+  @Field({ nullable: true })
+  note?: string;
+
   @Field(() => [StatisticsSale], { nullable: 'itemsAndList' })
   statisticsSales?: StatisticsSale[];
 }

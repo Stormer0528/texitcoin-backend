@@ -37,6 +37,9 @@ export class CreateSaleInput {
 
   @Field(() => [ID], { nullable: 'itemsAndList' })
   fileIds?: string[];
+
+  @Field({ nullable: true })
+  note?: string;
 }
 
 // Update Sale Input and Response
@@ -62,4 +65,7 @@ export class UpdateSaleInput {
 
   @Field(() => [ID], { nullable: 'itemsAndList' })
   fileIds?: string[];
+
+  @Field({ nullable: true })
+  note?: string;
 }
