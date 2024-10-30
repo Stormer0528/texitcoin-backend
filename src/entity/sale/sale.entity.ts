@@ -1,10 +1,11 @@
-import { ObjectType, Field, ID } from 'type-graphql';
+import { ObjectType, Field, ID, Authorized } from 'type-graphql';
 
 import { BaseEntity } from '@/graphql/baseEntity';
 
 import { Member } from '../member/member.entity';
 import { Package } from '../package/package.entity';
 import { StatisticsSale } from '../statisticsSale/statisticsSale.entity';
+import { UserRole } from '@/type';
 
 @ObjectType()
 export class Sale extends BaseEntity {
@@ -32,6 +33,7 @@ export class Sale extends BaseEntity {
   @Field()
   orderedAt: Date;
 
+  @Authorized([UserRole.Admin])
   @Field({ nullable: true })
   paymentConfirm?: string;
 
