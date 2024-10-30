@@ -13,6 +13,7 @@ import {
 } from 'type-graphql';
 import graphqlFields from 'graphql-fields';
 import { GraphQLResolveInfo } from 'graphql';
+import _ from 'lodash';
 
 import { UserRole } from '@/type';
 import { Context } from '@/context';
@@ -26,13 +27,15 @@ import { StatisticsSale } from '../statisticsSale/statisticsSale.entity';
 import { SaleService } from './sale.service';
 import { MemberService } from '../member/member.service';
 import { Transaction } from '@/graphql/decorator';
+import { FileSaleService } from '../fileSale/fileSale.service';
 
 @Service()
 @Resolver(() => Sale)
 export class SaleResolver {
   constructor(
     private readonly service: SaleService,
-    private readonly memberService: MemberService
+    private readonly memberService: MemberService,
+    private readonly fileSaleService: FileSaleService
   ) {}
 
   @Authorized()
@@ -82,7 +85,11 @@ export class SaleResolver {
       throw new Error('This member did not verify the email');
     }
 
-    const sale = await this.service.createSale({ ...data });
+    const { fileIds, ...restData } = data;
+    const sale = await this.service.createSale(restData);
+    await this.fileSaleService.createFileSales(
+      fileIds.map((fileId) => ({ saleId: sale.id, fileId }))
+    );
     await this.memberService.updateMemberPointByMemberId(sale.memberId);
     await this.memberService.updateMember({
       id: data.memberId,
@@ -96,7 +103,11 @@ export class SaleResolver {
   @Mutation(() => Sale)
   async updateSale(@Arg('data') data: UpdateSaleInput): Promise<Sale> {
     const oldsale = await this.service.getSaleById(data.id);
-    const newsale = await this.service.updateSale({ ...data });
+    const { fileIds, ...restData } = data;
+    const newsale = await this.service.updateSale(restData);
+    if (fileIds) {
+      await this.fileSaleService.setFileSales(newsale.id, fileIds);
+    }
     await this.memberService.updateMemberPointByMemberId(oldsale.memberId);
     await this.memberService.updateMemberPointByMemberId(newsale.memberId);
     return newsale;
@@ -106,7 +117,9 @@ export class SaleResolver {
   @Transaction()
   @Mutation(() => SuccessResponse)
   async removeSale(@Arg('data') data: IDInput): Promise<SuccessResponse> {
-    const sale = await this.service.removeSale(data);
+    const sale = await this.service.getSaleById(data.id);
+    await this.fileSaleService.removeFileSalesBySaleId(sale.id);
+    await this.service.removeSale(data);
     await this.memberService.updateMemberPointByMemberId(sale.memberId);
     return {
       result: SuccessResult.success,

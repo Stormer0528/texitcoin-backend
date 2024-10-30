@@ -4,8 +4,8 @@ import { BaseEntity } from '@/graphql/baseEntity';
 
 import { Member } from '../member/member.entity';
 import { Package } from '../package/package.entity';
+import { File } from '../file/file.entity';
 import { StatisticsSale } from '../statisticsSale/statisticsSale.entity';
-import { UserRole } from '@/type';
 
 @ObjectType()
 export class Sale extends BaseEntity {
@@ -32,6 +32,9 @@ export class Sale extends BaseEntity {
 
   @Field()
   orderedAt: Date;
+
+  @Field(() => [File], { nullable: 'itemsAndList' })
+  paymentConfirm?: File[];
 
   @Field(() => [StatisticsSale], { nullable: 'itemsAndList' })
   statisticsSales?: StatisticsSale[];

@@ -88,7 +88,7 @@ const app = async () => {
       context,
     })
   );
-  mainServer.use('/api', adminAuthorized, router);
+  mainServer.use('/api', router);
   mainServer.use('/public/payment', express.static(PAYMENT_UPLOAD_DIR));
 
   const APP_HOST = process.env.APP_HOST ?? '0.0.0.0';
