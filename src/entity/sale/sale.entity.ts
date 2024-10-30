@@ -32,6 +32,9 @@ export class Sale extends BaseEntity {
   @Field()
   orderedAt: Date;
 
+  @Field({ nullable: true })
+  paymentConfirm?: string;
+
   @Field(() => [StatisticsSale], { nullable: 'itemsAndList' })
   statisticsSales?: StatisticsSale[];
 }
