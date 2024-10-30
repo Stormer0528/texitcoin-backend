@@ -92,19 +92,19 @@ model Member {
 }
 
 model Sale {
-  id             String   @id @default(uuid())
-  memberId       String
-  packageId      String
-  paymentMethod  String
-  orderedAt      DateTime @default(now())
-  status         Boolean  @default(true)
-  freeShareSale  Boolean  @default(false) @db.Boolean
-  paymentConfirm String[]
+  id            String   @id @default(uuid())
+  memberId      String
+  packageId     String
+  paymentMethod String
+  orderedAt     DateTime @default(now())
+  status        Boolean  @default(true)
+  freeShareSale Boolean  @default(false) @db.Boolean
 
   member  Member?  @relation(fields: [memberId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   package Package? @relation(fields: [packageId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   statisticsSales StatisticsSale[]
+  fileSales       FileSale[]
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -352,4 +352,36 @@ model AdminNotes {
   deletedAt DateTime?
 
   @@map("adminnotes")
+}
+
+model File {
+  id           String  @id @default(uuid())
+  url          String
+  originalName String
+  mimeType     String
+  size         Int
+  localPath    String?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  fileSales FileSale[]
+
+  @@map("files")
+}
+
+model FileSale {
+  id     String @id @default(uuid())
+  saleId String
+  fileId String
+
+  sale Sale? @relation(fields: [saleId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  file File? @relation(fields: [fileId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@map("filesales")
 }
