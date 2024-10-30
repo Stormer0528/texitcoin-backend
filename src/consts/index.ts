@@ -1,3 +1,8 @@
+import path from 'path';
+import dotenv from 'dotenv';
+
+dotenv.config();
+
 export const MEMBERS = ['james', 'CryptoCowboy', 'TXgoldrush', 'lissa', 'stepheb'];
 
 export const USERS = [
@@ -68,3 +73,6 @@ export const FREE_SHARE_ID_2 = 'aa8604b3-3f2a-4f9c-9ee5-1c9d1d76d726';
 export const FREE_SHARE_DIVIDER1 = new Date('2024-06-08');
 
 export const PLACEMENT_ROOT = 'affe34e8-891b-41c2-8405-d31df4dadb8c';
+
+export const UPLOAD_DIR = process.env.UPLOAD_DIR ?? path.join(__dirname, 'upload');
+export const PAYMENT_UPLOAD_DIR = path.join(UPLOAD_DIR, 'payment');

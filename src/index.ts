@@ -9,6 +9,7 @@ import * as tq from 'type-graphql';
 import { Container } from 'typedi';
 import cors from 'cors';
 
+import { PAYMENT_UPLOAD_DIR } from './consts';
 import { authChecker } from './authChecker';
 import { Context, context } from './context';
 import { formatError } from './formatError';
@@ -33,8 +34,6 @@ import { WeeklyBlockResolver } from './entity/weeklyblock/weeklyblock.resolver';
 import { MonthlyBlockResolver } from './entity/monthlyblock/monthlyblock.resolver';
 import { WeeklyCommissionResolver } from './entity/weeklycommission/weeklycommission.resolver';
 import { AdminNotesResolver } from './entity/adminNotes/adminNotes.resolver';
-
-// import "./env";
 
 const app = async () => {
   const schema = await tq.buildSchema({
@@ -90,6 +89,7 @@ const app = async () => {
     })
   );
   mainServer.use('/api', adminAuthorized, router);
+  mainServer.use('/public/payment', adminAuthorized, express.static(PAYMENT_UPLOAD_DIR));
 
   const APP_HOST = process.env.APP_HOST ?? '0.0.0.0';
   const APP_PORT = process.env.APP_PORT ?? 4000;
