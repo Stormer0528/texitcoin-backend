@@ -383,5 +383,6 @@ model FileSale {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
+  @@unique([saleId, fileId], map: "unique_index_on_filesale")
   @@map("filesales")
 }
