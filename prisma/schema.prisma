@@ -92,13 +92,14 @@ model Member {
 }
 
 model Sale {
-  id            String   @id @default(uuid())
-  memberId      String
-  packageId     String
-  paymentMethod String
-  orderedAt     DateTime @default(now())
-  status        Boolean  @default(true)
-  freeShareSale Boolean  @default(false) @db.Boolean
+  id             String   @id @default(uuid())
+  memberId       String
+  packageId      String
+  paymentMethod  String
+  orderedAt      DateTime @default(now())
+  status         Boolean  @default(true)
+  freeShareSale  Boolean  @default(false) @db.Boolean
+  paymentConfirm String?
 
   member  Member?  @relation(fields: [memberId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   package Package? @relation(fields: [packageId], references: [id], onDelete: NoAction, onUpdate: NoAction)
