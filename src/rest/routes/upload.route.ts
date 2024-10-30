@@ -43,20 +43,19 @@ const fileFilter = (
 
 const upload = multer({ storage, fileFilter });
 
-router.post(
-  '/payment',
-  upload.single('payment'),
-  async (error: Error, req: Request, res: Response, next: NextFunction) => {
-    if (error) {
-      res.status(400).json({
-        message: error.message,
-      });
+router.post('/payment', async (req: Request, res: Response, next: NextFunction) => {
+  upload.array('payment')(req, res, (err?: any) => {
+    if (err) {
+      res.json({ message: err.message });
     } else {
       res.json({
-        url: `${req.protocol}://${req.get('host')}/public/payment/${req.file.filename}`,
+        urls: (req.files as Express.Multer.File[]).map(
+          (file: Express.Multer.File) =>
+            `${req.protocol}://${req.get('host')}/public/payment/${file.filename}`
+        ),
       });
     }
-  }
-);
+  });
+});
 
 export default router;
