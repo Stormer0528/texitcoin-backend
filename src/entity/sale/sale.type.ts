@@ -34,9 +34,6 @@ export class CreateSaleInput {
 
   @Field()
   orderedAt: Date;
-
-  @Field(() => [String], { nullable: 'itemsAndList' })
-  paymentConfirm?: string[];
 }
 
 // Update Sale Input and Response
@@ -59,7 +56,4 @@ export class UpdateSaleInput {
 
   @Field({ nullable: true })
   status?: boolean;
-
-  @Field(() => [String], { nullable: 'itemsAndList' })
-  paymentConfirm?: string[];
 }

@@ -33,10 +33,6 @@ export class Sale extends BaseEntity {
   @Field()
   orderedAt: Date;
 
-  @Authorized([UserRole.Admin])
-  @Field(() => [String])
-  paymentConfirm: string[];
-
   @Field(() => [StatisticsSale], { nullable: 'itemsAndList' })
   statisticsSales?: StatisticsSale[];
 }
