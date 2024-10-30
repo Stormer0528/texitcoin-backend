@@ -99,6 +99,7 @@ model Sale {
   orderedAt     DateTime @default(now())
   status        Boolean  @default(true)
   freeShareSale Boolean  @default(false) @db.Boolean
+  note          String?
 
   member  Member?  @relation(fields: [memberId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   package Package? @relation(fields: [packageId], references: [id], onDelete: NoAction, onUpdate: NoAction)
