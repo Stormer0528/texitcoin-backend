@@ -89,7 +89,7 @@ const app = async () => {
     })
   );
   mainServer.use('/api', adminAuthorized, router);
-  mainServer.use('/public/payment', adminAuthorized, express.static(PAYMENT_UPLOAD_DIR));
+  mainServer.use('/public/payment', express.static(PAYMENT_UPLOAD_DIR));
 
   const APP_HOST = process.env.APP_HOST ?? '0.0.0.0';
   const APP_PORT = process.env.APP_PORT ?? 4000;

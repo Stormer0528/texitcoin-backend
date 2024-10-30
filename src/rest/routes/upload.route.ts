@@ -44,7 +44,7 @@ const fileFilter = (
 const upload = multer({ storage, fileFilter });
 
 router.post(
-  '/',
+  '/payment',
   upload.single('payment'),
   async (error: Error, req: Request, res: Response, next: NextFunction) => {
     if (error) {
