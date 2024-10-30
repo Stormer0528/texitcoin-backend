@@ -34,6 +34,7 @@ import { WeeklyBlockResolver } from './entity/weeklyblock/weeklyblock.resolver';
 import { MonthlyBlockResolver } from './entity/monthlyblock/monthlyblock.resolver';
 import { WeeklyCommissionResolver } from './entity/weeklycommission/weeklycommission.resolver';
 import { AdminNotesResolver } from './entity/adminNotes/adminNotes.resolver';
+import { FileResolver } from './entity/file/file.resolver';
 
 const app = async () => {
   const schema = await tq.buildSchema({
@@ -55,6 +56,7 @@ const app = async () => {
       MonthlyBlockResolver,
       WeeklyCommissionResolver,
       AdminNotesResolver,
+      FileResolver,
     ],
     authChecker,
     scalarsMap: [
@@ -88,7 +90,7 @@ const app = async () => {
       context,
     })
   );
-  mainServer.use('/api', router);
+  mainServer.use('/api', adminAuthorized, router);
   mainServer.use('/public/payment', express.static(PAYMENT_UPLOAD_DIR));
 
   const APP_HOST = process.env.APP_HOST ?? '0.0.0.0';

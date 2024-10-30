@@ -24,6 +24,7 @@ import { Sale } from './sale.entity';
 import { Member } from '../member/member.entity';
 import { Package } from '../package/package.entity';
 import { StatisticsSale } from '../statisticsSale/statisticsSale.entity';
+import { PFile } from '../file/file.entity';
 import { SaleService } from './sale.service';
 import { MemberService } from '../member/member.service';
 import { Transaction } from '@/graphql/decorator';
@@ -139,5 +140,11 @@ export class SaleResolver {
   @FieldResolver({ nullable: 'itemsAndList' })
   async statisticsSales(@Root() sale: Sale, @Ctx() ctx: Context): Promise<StatisticsSale[]> {
     return ctx.dataLoader.get('statisticsSalesForSaleLoader').load(sale.id);
+  }
+
+  @Authorized([UserRole.Admin])
+  @FieldResolver({ nullable: 'itemsAndList' })
+  async paymentConfirm(@Root() sale: Sale, @Ctx() ctx: Context): Promise<PFile[]> {
+    return ctx.dataLoader.get('filesForSaleLoader').load(sale.id);
   }
 }

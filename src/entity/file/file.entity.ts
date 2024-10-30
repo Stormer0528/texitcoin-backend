@@ -1,9 +1,10 @@
 import { ObjectType, Field, ID } from 'type-graphql';
 
 import { BaseEntity } from '@/graphql/baseEntity';
+import { Sale } from '../sale/sale.entity';
 
 @ObjectType()
-export class File extends BaseEntity {
+export class PFile extends BaseEntity {
   @Field(() => ID)
   id: string;
 
@@ -21,4 +22,7 @@ export class File extends BaseEntity {
 
   @Field({ nullable: true })
   localPath: string;
+
+  @Field(() => [Sale], { nullable: 'itemsAndList' })
+  sales?: Sale[];
 }
