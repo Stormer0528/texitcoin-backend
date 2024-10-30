@@ -3,7 +3,9 @@ import { Request, Response, Router, NextFunction } from 'express';
 import multer from 'multer';
 import path from 'path';
 import { randomUUID } from 'crypto';
+import Container from 'typedi';
 import { PAYMENT_UPLOAD_DIR } from '@/consts';
+import { PrismaService } from '@/service/prisma';
 
 const router = Router();
 
@@ -44,15 +46,27 @@ const fileFilter = (
 const upload = multer({ storage, fileFilter });
 
 router.post('/payment', async (req: Request, res: Response, next: NextFunction) => {
-  upload.array('payment')(req, res, (err?: any) => {
+  upload.array('payment')(req, res, async (err?: any) => {
     if (err) {
       res.json({ message: err.message });
     } else {
+      const prisma = Container.get(PrismaService);
+      const [fileIds] = await prisma.$transaction([
+        prisma.file.createManyAndReturn({
+          data: (req.files as Express.Multer.File[]).map((file) => ({
+            localPath: path.join(PAYMENT_UPLOAD_DIR, file.filename),
+            mimeType: file.mimetype,
+            originalName: file.originalname,
+            size: file.size,
+            url: `${req.protocol}://${req.get('host')}/public/payment/${file.filename}`,
+          })),
+          select: {
+            id: true,
+          },
+        }),
+      ]);
       res.json({
-        urls: (req.files as Express.Multer.File[]).map(
-          (file: Express.Multer.File) =>
-            `${req.protocol}://${req.get('host')}/public/payment/${file.filename}`
-        ),
+        fileIds: fileIds.map(({ id }) => id),
       });
     }
   });
