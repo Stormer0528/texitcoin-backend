@@ -77,13 +77,13 @@ function calculatePoint(points: { left: number; right: number }) {
   const orgLeft = Math.min(9, points.left);
   const orgRight = Math.min(9, points.right);
   if (orgLeft >= 9 && orgRight >= 9) {
-    return [9, 9, 3000];
+    return [orgLeft, orgRight, 9, 9, 3000];
   } else if (orgLeft >= 6 && orgRight >= 6) {
-    return [6, 6, 2000];
+    return [orgLeft, orgRight, 6, 6, 2000];
   } else if (orgLeft >= 3 && orgRight >= 3) {
-    return [3, 3, 1000];
+    return [orgLeft, orgRight, 3, 3, 1000];
   }
-  return [0, 0, 0];
+  return [orgLeft, orgRight, 0, 0, 0];
 }
 
 async function weeklyCommission(tranPrisma: PrismaClient) {
@@ -127,7 +127,7 @@ async function weeklyCommission(tranPrisma: PrismaClient) {
         mapMembers,
         {
           id: sale.memberId,
-          point: sale.package.point > 0 ? 1 : 0,
+          point: sale.package.point,
         },
         addedLeftPoint,
         addedRightPoint,
@@ -187,20 +187,15 @@ async function weeklyCommission(tranPrisma: PrismaClient) {
     await Bluebird.map(
       Object.entries(resultMap),
       async ([id, points]) => {
-        const [left, right, commission] = calculatePoint(points);
-        let resLeft = points.left;
-        let resRight = points.right;
-        if (commission > 0) {
-          resLeft = 0;
-          resRight = 0;
-        }
+        const [finalLeft, finalRight, left, right, commission] = calculatePoint(points);
+
         return tranPrisma.weeklyCommission.create({
           data: {
             memberId: id,
-            beforeLeftPoint: points.left,
-            beforeRightPoint: points.right,
-            afterLeftPoint: resLeft,
-            afterRightPoint: resRight,
+            beforeLeftPoint: finalLeft,
+            beforeRightPoint: finalRight,
+            afterLeftPoint: finalLeft - left,
+            afterRightPoint: finalRight - right,
             calculatedLeftPoint: left,
             calculatedRightPoint: right,
             commission,
