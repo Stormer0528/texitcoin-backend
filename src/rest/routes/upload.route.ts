@@ -51,7 +51,7 @@ router.post('/payment', async (req: Request, res: Response, next: NextFunction) 
       res.json({ message: err.message });
     } else {
       const prisma = Container.get(PrismaService);
-      const [fileIds] = await prisma.$transaction([
+      const [files] = await prisma.$transaction([
         prisma.file.createManyAndReturn({
           data: (req.files as Express.Multer.File[]).map((file) => ({
             localPath: file.path,
@@ -60,13 +60,16 @@ router.post('/payment', async (req: Request, res: Response, next: NextFunction) 
             size: file.size,
             url: `${req.protocol}://${req.get('host')}/public/payment/${file.filename}`,
           })),
-          select: {
-            id: true,
-          },
         }),
       ]);
       res.json({
-        fileIds: fileIds.map(({ id }) => id),
+        files: files.map((file) => ({
+          id: file.id,
+          url: file.url,
+          originalName: file.originalName,
+          mimeType: file.mimeType,
+          size: file.size,
+        })),
       });
     }
   });
