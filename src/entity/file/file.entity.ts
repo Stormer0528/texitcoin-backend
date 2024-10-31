@@ -23,6 +23,6 @@ export class PFile extends BaseEntity {
   @Field({ nullable: true })
   localPath: string;
 
-  @Field(() => [Sale], { nullable: 'itemsAndList' })
-  sales?: Sale[];
+  @Field(() => Sale, { nullable: true })
+  sale?: Sale;
 }

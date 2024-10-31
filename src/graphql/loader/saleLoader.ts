@@ -93,7 +93,6 @@ export const filesForSaleLoader = (parent: RootDataLoader) => {
         filesMap[sale.saleId].push(sale.file);
       });
 
-      console.log(filesMap);
       return saleIds.map((id) => filesMap[id] ?? []);
     },
     {

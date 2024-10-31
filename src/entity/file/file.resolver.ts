@@ -10,8 +10,8 @@ import { Sale } from '../sale/sale.entity';
 export class FileResolver {
   constructor() {}
 
-  @FieldResolver({ nullable: 'itemsAndList' })
-  async sales(@Root() file: PFile, @Ctx() ctx: Context): Promise<Sale[]> {
-    return ctx.dataLoader.get('salesForFileLoader').load(file.id);
+  @FieldResolver({ nullable: true })
+  async sale(@Root() file: PFile, @Ctx() ctx: Context): Promise<Sale> {
+    return ctx.dataLoader.get('saleForFileLoader').load(file.id);
   }
 }
