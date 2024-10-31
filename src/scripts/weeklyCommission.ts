@@ -192,8 +192,8 @@ async function weeklyCommission(tranPrisma: PrismaClient) {
         return tranPrisma.weeklyCommission.create({
           data: {
             memberId: id,
-            beforeLeftPoint: finalLeft,
-            beforeRightPoint: finalRight,
+            beforeLeftPoint: points.left,
+            beforeRightPoint: points.right,
             afterLeftPoint: finalLeft - left,
             afterRightPoint: finalRight - right,
             calculatedLeftPoint: left,
