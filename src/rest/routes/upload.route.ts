@@ -54,7 +54,7 @@ router.post('/payment', async (req: Request, res: Response, next: NextFunction) 
       const [fileIds] = await prisma.$transaction([
         prisma.file.createManyAndReturn({
           data: (req.files as Express.Multer.File[]).map((file) => ({
-            localPath: path.join(PAYMENT_UPLOAD_DIR, file.filename),
+            localPath: file.path,
             mimeType: file.mimetype,
             originalName: file.originalname,
             size: file.size,
