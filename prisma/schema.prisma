@@ -280,11 +280,12 @@ model Payout {
 }
 
 model MemberWallet {
-  id       String @id @default(uuid())
+  id       String  @id @default(uuid())
   memberId String
   payoutId String
   address  String
-  percent  Int    @default(0)
+  percent  Int     @default(0)
+  note     String?
 
   member Member? @relation(fields: [memberId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   payout Payout? @relation(fields: [payoutId], references: [id], onDelete: NoAction, onUpdate: NoAction)
