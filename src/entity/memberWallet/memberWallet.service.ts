@@ -69,7 +69,9 @@ export class MemberWalletService {
     });
 
     const [verified, invalidAddresses] = validateAddresses(
-      data.wallets.map((wallet) => wallet.address)
+      data.wallets
+        .filter((wallet) => wallet.payoutId === PAYOUTS[0] || wallet.payoutId === PAYOUTS[1])
+        .map((wallet) => wallet.address)
     );
     if (!verified) {
       throw new GraphQLError(`Invalid Address - ${invalidAddresses.join(',')}`, {
@@ -112,7 +114,9 @@ export class MemberWalletService {
     this.validateMemberWallets(data.wallets);
 
     const [verified, invalidAddresses] = validateAddresses(
-      data.wallets.map((wallet) => wallet.address)
+      data.wallets
+        .filter((wallet) => wallet.payoutId === PAYOUTS[0] || wallet.payoutId === PAYOUTS[1])
+        .map((wallet) => wallet.address)
     );
     if (!verified) {
       throw new GraphQLError(`Invalid Address - ${invalidAddresses.join(',')}`, {
