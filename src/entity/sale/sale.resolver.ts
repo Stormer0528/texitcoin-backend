@@ -88,9 +88,11 @@ export class SaleResolver {
 
     const { fileIds, ...restData } = data;
     const sale = await this.service.createSale(restData);
-    await this.fileSaleService.createFileSales(
-      fileIds.map((fileId) => ({ saleId: sale.id, fileId }))
-    );
+    if (fileIds) {
+      await this.fileSaleService.createFileSales(
+        fileIds.map((fileId) => ({ saleId: sale.id, fileId }))
+      );
+    }
     await this.memberService.updateMemberPointByMemberId(sale.memberId);
     await this.memberService.updateMember({
       id: data.memberId,
