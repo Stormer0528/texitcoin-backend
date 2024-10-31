@@ -20,7 +20,6 @@ export class PFile extends BaseEntity {
   @Field()
   size: number;
 
-  @Field({ nullable: true })
   localPath: string;
 
   @Field(() => Sale, { nullable: true })
