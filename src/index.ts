@@ -76,7 +76,7 @@ const app = async () => {
   await apolloServer.start();
 
   const mainServer = express();
-  mainServer.set('trust proxy', process.env.USE_PROXY?.toLowerCase() === 'true');
+  // mainServer.set('trust proxy', process.env.USE_PROXY?.toLowerCase() === 'true');
 
   mainServer.use(
     process.env.SERVER_TYPE === 'production'

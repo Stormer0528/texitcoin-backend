@@ -58,7 +58,7 @@ router.post('/payment', async (req: Request, res: Response, next: NextFunction) 
             mimeType: file.mimetype,
             originalName: file.originalname,
             size: file.size,
-            url: `${req.protocol}://${req.get('host')}/public/payment/${file.filename}`,
+            url: `${process.env.PUBLIC_DOMAIN}/public/payment/${file.filename}`,
           })),
         }),
       ]);
