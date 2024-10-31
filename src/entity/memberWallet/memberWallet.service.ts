@@ -13,6 +13,7 @@ import {
 } from './memberWallet.type';
 import { validateAddresses } from '@/utils/validateAddress';
 import { GraphQLError } from 'graphql';
+import { PAYOUTS } from '@/consts';
 
 @Service()
 export class MemberWalletService {
@@ -50,16 +51,7 @@ export class MemberWalletService {
   }
 
   async updateManyMemberWallet(data: UpdateMemberWalletInput) {
-    const sumPercent = data.wallets.reduce((prev, current) => {
-      if (!current.payoutId) {
-        throw new Error('Not specified payout type');
-      } else if (!current.address) {
-        throw new Error('Not specified wallet address');
-      }
-      return prev + current.percent;
-    }, 0);
-
-    if (sumPercent !== 100 * PERCENT) throw new Error('Sum of percent must be 100');
+    this.validateMemberWallets(data.wallets);
 
     await this.prisma.memberWallet.updateMany({
       where: {
@@ -117,16 +109,7 @@ export class MemberWalletService {
   }
 
   async createManyMemberWallets(data: CreateMemberWalletInput) {
-    const sumPercent = data.wallets.reduce((prev, current) => {
-      if (!current.payoutId) {
-        throw new Error('Not specified payout type');
-      } else if (!current.address) {
-        throw new Error('Not specified wallet address');
-      }
-      return prev + current.percent;
-    }, 0);
-
-    if (sumPercent !== 100 * PERCENT) throw new Error('Sum of percent must be 100');
+    this.validateMemberWallets(data.wallets);
 
     const [verified, invalidAddresses] = validateAddresses(
       data.wallets.map((wallet) => wallet.address)
@@ -161,10 +144,62 @@ export class MemberWalletService {
 
   async validationByMemberId(id: string) {
     const wallets = await this.prisma.memberWallet.findMany({
-      where: { memberId: id, deletedAt: null },
+      where: {
+        memberId: id,
+        deletedAt: null,
+        OR: [
+          {
+            payoutId: PAYOUTS[0],
+          },
+          {
+            payoutId: PAYOUTS[1],
+          },
+        ],
+      },
     });
     if (wallets.reduce((prev, cur) => prev + cur.percent, 0) !== 100 * PERCENT)
-      throw new Error('Sum of percent should be 100');
+      throw new Error('Sum of TXC percent must be 100');
+    return true;
+  }
+
+  validateMemberWallets(wallets?: MemberWalletDataInput[], onlySum: boolean = false): boolean {
+    if (wallets) {
+      const txcWallets = wallets.filter((wallet, index) => {
+        if (!wallet.payoutId) {
+          throw new GraphQLError('Not specified payout type', {
+            extensions: {
+              path: [`wallets[${index}]`],
+            },
+          });
+        } else if (!wallet.address) {
+          throw new GraphQLError('Not specified wallet address', {
+            extensions: {
+              path: [`wallets[${index}]`],
+            },
+          });
+        }
+        return wallet.payoutId === PAYOUTS[0] || wallet.payoutId === PAYOUTS[1];
+      });
+
+      if (!txcWallets.length) {
+        throw new GraphQLError('At leat one txc wallet has to be existed', {
+          extensions: {
+            path: ['wallets'],
+          },
+        });
+      }
+      const sumPercent = txcWallets.reduce((prev, current) => {
+        return prev + current.percent;
+      }, 0);
+
+      if (sumPercent !== 100 * PERCENT) throw new Error('Sum of TXC percent must be 100');
+    } else if (!onlySum) {
+      throw new GraphQLError('No wallet data', {
+        extensions: {
+          path: ['wallets'],
+        },
+      });
+    }
     return true;
   }
 }

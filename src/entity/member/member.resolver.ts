@@ -16,7 +16,7 @@ import {
 import graphqlFields from 'graphql-fields';
 import { GraphQLError, GraphQLResolveInfo } from 'graphql';
 
-import { DEFAULT_PASSWORD, PLACEMENT_ROOT } from '@/consts';
+import { DEFAULT_PASSWORD, PAYOUTS, PLACEMENT_ROOT } from '@/consts';
 import { UserRole } from '@/type';
 import { Context } from '@/context';
 import { createAccessToken, hashPassword, verifyPassword } from '@/utils/auth';
@@ -156,20 +156,7 @@ export class MemberResolver {
   @Transaction()
   @Mutation(() => Member)
   async createMember(@Arg('data') data: CreateMemberInput): Promise<Member> {
-    if (data.wallets) {
-      const sumPercent = data.wallets.reduce((prev, current) => {
-        if (!current.payoutId) {
-          throw new Error('Not specified payout type');
-        } else if (!current.address) {
-          throw new Error('Not specified wallet address');
-        }
-        return prev + current.percent;
-      }, 0);
-
-      if (sumPercent !== 100 * PERCENT) throw new Error('Sum of percent must be 100');
-    } else {
-      throw new Error('No wallet data');
-    }
+    this.memberWalletService.validateMemberWallets(data.wallets);
 
     const hashedPassword = await hashPassword(DEFAULT_PASSWORD);
     const member = await this.service.createMember({
@@ -285,17 +272,7 @@ export class MemberResolver {
   @Transaction()
   @Mutation(() => Member)
   async updateMember(@Ctx() ctx: Context, @Arg('data') data: UpdateMemberInput): Promise<Member> {
-    if (data.wallets) {
-      const sumPercent = data.wallets.reduce((prev, current) => {
-        if (!current.payoutId) {
-          throw new Error('Not specified payout type');
-        } else if (!current.address) {
-          throw new Error('Not specified wallet address');
-        }
-        return prev + current.percent;
-      }, 0);
-      if (sumPercent !== 100 * PERCENT) throw new Error('Sum of percent must be 100');
-    }
+    this.memberWalletService.validateMemberWallets(data.wallets, true);
 
     if (data.id === PLACEMENT_ROOT && data.placementParentId !== PLACEMENT_ROOT) {
       throw new Error('You can not change parent of root node');
