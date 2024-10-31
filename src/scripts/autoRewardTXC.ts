@@ -11,6 +11,7 @@ import { SaleSearchResult } from '@/type';
 
 import { formatDate } from '@/utils/common';
 import { isBefore } from '@/utils/isBeforeDate';
+import { PAYOUTS } from '@/consts';
 
 dotenv.config();
 
@@ -227,6 +228,14 @@ const createStatisticsAndMemberStatistics = async (tranPrisma: PrismaClient) => 
         memberId: {
           in: statistics.map((stt) => stt.memberId),
         },
+        OR: [
+          {
+            payoutId: PAYOUTS[0],
+          },
+          {
+            payoutId: PAYOUTS[1],
+          },
+        ],
         deletedAt: null,
       },
       select: {
