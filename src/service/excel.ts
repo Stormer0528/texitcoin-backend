@@ -5,7 +5,9 @@ import { PERCENT, TXC } from '@/consts/db';
 import { PrismaService } from './prisma';
 import { PLACEMENT_ROOT, SPONSOR_BONOUS_CNT } from '@/consts';
 import { convertNumToString } from '@/utils/convertNumToString';
-import { formatDate } from '@/utils/common';
+import Bluebird from 'bluebird';
+import dayjs from 'dayjs';
+import { formatDate, formatDate2 } from '@/utils/common';
 
 const styles = {
   headerNormal: {
@@ -673,5 +675,99 @@ export class ExcelService {
       }),
       merges
     );
+  }
+
+  public async exportCommissions() {
+    const weekStartDates = await this.prisma.weeklyCommission.groupBy({
+      by: 'weekStartDate',
+      orderBy: {
+        weekStartDate: 'asc',
+      },
+    });
+    const excelData: ExportDataInterface[] = await Bluebird.map(
+      weekStartDates,
+      async (weekStartDate) => {
+        const weeklycommissions = await this.prisma.weeklyCommission.findMany({
+          where: {
+            weekStartDate: weekStartDate.weekStartDate,
+          },
+          include: {
+            member: true,
+          },
+          orderBy: {
+            commission: 'desc',
+          },
+        });
+
+        const specificationWeeklyCommission = {
+          no: {
+            displayName: 'No',
+            headerStyle: styles.headerNormal,
+            width: 30,
+          },
+          username: {
+            displayName: 'Username',
+            headerStyle: styles.headerNormal,
+            width: 90,
+          },
+          fullname: {
+            displayName: 'Fullname',
+            headerStyle: styles.headerNormal,
+            width: 100,
+          },
+          actual: {
+            displayName: 'Actual',
+            headerStyle: styles.headerNormal,
+            width: 120,
+          },
+          before: {
+            displayName: 'Before',
+            headerStyle: styles.headerNormal,
+            width: 120,
+          },
+          package: {
+            displayName: 'Package',
+            headerStyle: styles.headerNormal,
+            width: 100,
+          },
+          commission: {
+            displayName: 'Commission',
+            headerStyle: styles.headerNormal,
+            width: 100,
+          },
+          after: {
+            displayName: 'After',
+            headerStyle: styles.headerNormal,
+            width: 100,
+          },
+          status: {
+            displayName: 'Status',
+            headerStyle: styles.headerNormal,
+            width: 100,
+          },
+        };
+        const excelWeeklyCommission = weeklycommissions.map((commission, index: number) => ({
+          no: index + 1,
+          username: commission.member.username,
+          fullname: commission.member.fullName,
+          actual: `L${commission.beforeLeftPoint}, R${commission.beforeRightPoint}`,
+          before: `L${Math.min(9, commission.beforeLeftPoint)}, R${Math.min(9, commission.beforeRightPoint)}`,
+          package: `L${commission.calculatedLeftPoint}, R${commission.calculatedRightPoint}`,
+          commission: commission.commission,
+          after: `L${commission.afterLeftPoint}, R${commission.afterRightPoint}`,
+          status: commission.status,
+        }));
+        const endDay = dayjs(formatDate(weekStartDate.weekStartDate))
+          .add(1, 'week')
+          .subtract(1, 'day');
+        return {
+          name: `${formatDate2(weekStartDate.weekStartDate)}-${formatDate2(endDay.toDate())}`,
+          specification: specificationWeeklyCommission,
+          data: excelWeeklyCommission,
+        };
+      }
+    );
+
+    return this.exportMultiSheetExport(excelData);
   }
 }

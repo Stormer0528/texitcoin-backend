@@ -30,4 +30,8 @@ export class ExportController {
     res.attachment(`onepointaway-members-${dayjs().format('MMDDYYYY')}.xlsx`);
     res.send(await this.excelService.exportOnepointAwayMembers());
   }
+  async exportCommissions(_req: Request, res: Response, _next: NextFunction) {
+    res.attachment(`commissions-${dayjs().format('MMDDYYYY')}.xlsx`);
+    res.send(await this.excelService.exportCommissions());
+  }
 }
