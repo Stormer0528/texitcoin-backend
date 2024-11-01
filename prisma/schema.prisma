@@ -51,7 +51,7 @@ model Member {
   userId                 Int                @unique(map: "index_members_on_userId") @db.Integer
   email                  String             @unique(map: "index_members_on_email") @db.Citext
   mobile                 String             @db.VarChar
-  assetId                String?            @unique(map: "index_members_on_assetId") @db.VarChar
+  assetId                String?            @db.VarChar
   primaryAddress         String             @db.VarChar
   secondaryAddress       String?            @db.VarChar
   city                   String?            @db.VarChar
