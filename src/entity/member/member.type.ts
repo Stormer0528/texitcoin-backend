@@ -76,8 +76,6 @@ export class CreateMemberInput {
   mobile: string;
 
   @Field({ nullable: true })
-  @ValidateIf((obj) => obj.assetId)
-  @Length(6, undefined, { message: 'Coin ID must be at least 6 characters long' })
   assetId?: string;
 
   @Field(() => ID)
@@ -137,8 +135,6 @@ export class SignupFormInput {
   mobile: string;
 
   @Field({ nullable: true })
-  @ValidateIf((obj) => obj.assetId)
-  @Length(6, undefined, { message: 'Coin ID must be at least 6 characters long' })
   assetId?: string;
 
   @Field(() => ID, { nullable: true })
@@ -180,8 +176,6 @@ export class UpdateMemberInput {
   mobile?: string;
 
   @Field({ nullable: true })
-  @ValidateIf((obj) => obj.assetId)
-  @Length(6, undefined, { message: 'Coin ID must be at least 6 characters long' })
   assetId?: string;
 
   @Field(() => ID, { nullable: true })

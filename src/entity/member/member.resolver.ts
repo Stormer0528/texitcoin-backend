@@ -153,10 +153,6 @@ export class MemberResolver {
   @Transaction()
   @Mutation(() => Member)
   async createMember(@Arg('data') data: CreateMemberInput): Promise<Member> {
-    if (data.assetId === '') {
-      data.assetId = null;
-    }
-
     if (data.wallets) {
       const sumPercent = data.wallets.reduce((prev, current) => {
         if (!current.payoutId) {
@@ -206,10 +202,6 @@ export class MemberResolver {
   @Transaction()
   @Mutation(() => Member)
   async signUpMember(@Arg('data') data: SignupFormInput): Promise<Member> {
-    if (data.assetId === '') {
-      data.assetId = null;
-    }
-
     const hashedPassword = await hashPassword(data.password);
     let sponsorId: string | null = null;
     let sponsorName: string | null = null;
@@ -282,10 +274,6 @@ export class MemberResolver {
   @Transaction()
   @Mutation(() => Member)
   async updateMember(@Ctx() ctx: Context, @Arg('data') data: UpdateMemberInput): Promise<Member> {
-    if (data.assetId === '') {
-      data.assetId = null;
-    }
-
     if (data.wallets) {
       const sumPercent = data.wallets.reduce((prev, current) => {
         if (!current.payoutId) {
