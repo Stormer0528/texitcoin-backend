@@ -12,10 +12,19 @@ export enum Confirmation4Status {
   BLOCK = 'BLOCK',
 }
 
+export enum SuccessResult {
+  success = 'success',
+  failed = 'failed',
+}
+
 registerEnumType(PlacementPosition, {
   name: 'PlacementPosition',
 });
 
 registerEnumType(Confirmation4Status, {
   name: 'Confirmation4Status',
+});
+
+registerEnumType(SuccessResult, {
+  name: 'SuccessResult',
 });

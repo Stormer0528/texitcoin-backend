@@ -283,6 +283,7 @@ export class MemberService {
         },
         select: {
           email: true,
+          signupFormRequest: true,
         },
       });
     } catch (err) {

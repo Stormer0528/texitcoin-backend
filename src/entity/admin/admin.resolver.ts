@@ -19,12 +19,7 @@ import { type Context } from '@/context';
 import { UserRole } from '@/type';
 import { createAccessToken, verifyPassword, hashPassword } from '@/utils/auth';
 
-import {
-  IDsInput,
-  ManySuccessResponse,
-  SuccessResponse,
-  SuccessResult,
-} from '@/graphql/common.type';
+import { IDsInput, ManySuccessResponse, SuccessResponse } from '@/graphql/common.type';
 import {
   AdminLoginInput,
   AdminLoginResponse,
@@ -38,6 +33,7 @@ import {
 import { Admin } from './admin.entity';
 import { AdminService } from './admin.service';
 import { AdminNotes } from '../adminNotes/adminNotes.entity';
+import { SuccessResult } from '@/graphql/enum';
 
 @Service()
 @Resolver(() => Admin)

@@ -1,5 +1,6 @@
 import { IsEmail } from 'class-validator';
 import { Field, ID, InputType, ObjectType } from 'type-graphql';
+import { SuccessResult } from './enum';
 
 @InputType()
 export class IDInput {
@@ -11,11 +12,6 @@ export class IDInput {
 export class IDsInput {
   @Field(() => [ID])
   ids: string[];
-}
-
-export enum SuccessResult {
-  success = 'success',
-  failed = 'failed',
 }
 
 @InputType()
@@ -33,7 +29,7 @@ export class TokenInput {
 
 @ObjectType()
 export class SuccessResponse {
-  @Field()
+  @Field(() => SuccessResult)
   result: SuccessResult;
 
   @Field({ nullable: true })

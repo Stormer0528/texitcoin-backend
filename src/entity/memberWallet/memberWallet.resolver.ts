@@ -17,7 +17,7 @@ import { GraphQLResolveInfo } from 'graphql';
 import { UserRole } from '@/type';
 import { Context } from '@/context';
 
-import { SuccessResponse, SuccessResult } from '@/graphql/common.type';
+import { SuccessResponse } from '@/graphql/common.type';
 import {
   MemberWalletQueryArgs,
   MemberWalletResponse,
@@ -29,6 +29,7 @@ import { Payout } from '../payout/payout.entity';
 import { MemberStatisticsWallet } from '../memberStatisticsWallet/memberStatisticsWallet.entity';
 import { MemberWalletService } from './memberWallet.service';
 import { Transaction } from '@/graphql/decorator';
+import { SuccessResult } from '@/graphql/enum';
 
 @Service()
 @Resolver(() => MemberWallet)

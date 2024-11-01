@@ -29,7 +29,6 @@ import {
   EmailInput,
   IDInput,
   SuccessResponse,
-  SuccessResult,
   TokenInput,
 } from '../../graphql/common.type';
 import {
@@ -53,6 +52,7 @@ import {
   EmailVerificationInput,
   IntroducersResponse,
   Introducer,
+  EmailVerifyResult,
 } from './member.type';
 import { Member } from './member.entity';
 import { Sale } from '../sale/sale.entity';
@@ -68,6 +68,7 @@ import { PERCENT } from '@/consts/db';
 import { ElasticSearchService } from '@/service/elasticsearch';
 import { SendyService } from '@/service/sendy';
 import { AdminNotes } from '../adminNotes/adminNotes.entity';
+import { SuccessResult } from '@/graphql/enum';
 
 @Service()
 @Resolver(() => Member)
@@ -252,13 +253,16 @@ export class MemberResolver {
     };
   }
 
-  @Mutation(() => SuccessResponse)
-  async emailVerify(@Arg('data') data: EmailVerificationInput): Promise<SuccessResponse> {
+  @Mutation(() => EmailVerifyResult)
+  async emailVerify(@Arg('data') data: EmailVerificationInput): Promise<EmailVerifyResult> {
     const member = await this.service.verifyEmailDigit(data);
 
     if (member) {
+      const { signupFormRequest }: { signupFormRequest: any } = member;
       return {
         result: SuccessResult.success,
+        packageId: signupFormRequest?.packageId,
+        paymentMethod: signupFormRequest?.paymentMethod,
       };
     } else {
       return {

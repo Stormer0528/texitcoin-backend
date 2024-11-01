@@ -18,7 +18,7 @@ import _ from 'lodash';
 import { UserRole } from '@/type';
 import { Context } from '@/context';
 
-import { IDInput, SuccessResponse, SuccessResult } from '@/graphql/common.type';
+import { IDInput, SuccessResponse } from '@/graphql/common.type';
 import { SalesResponse, SaleQueryArgs, CreateSaleInput, UpdateSaleInput } from './sale.type';
 import { Sale } from './sale.entity';
 import { Member } from '../member/member.entity';
@@ -29,6 +29,7 @@ import { SaleService } from './sale.service';
 import { MemberService } from '../member/member.service';
 import { Transaction } from '@/graphql/decorator';
 import { FileSaleService } from '../fileSale/fileSale.service';
+import { SuccessResult } from '@/graphql/enum';
 
 @Service()
 @Resolver(() => Sale)

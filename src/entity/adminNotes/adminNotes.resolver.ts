@@ -18,7 +18,7 @@ import { UserRole } from '@/type';
 import { Context } from '@/context';
 
 import { Transaction } from '@/graphql/decorator';
-import { IDInput, SuccessResponse, SuccessResult } from '@/graphql/common.type';
+import { IDInput, SuccessResponse } from '@/graphql/common.type';
 import {
   AdminNotesQueryArgs,
   AdminNotesResponse,
@@ -29,6 +29,7 @@ import { AdminNotesService } from './adminNotes.service';
 import { AdminNotes } from './adminNotes.entity';
 import { Member } from '../member/member.entity';
 import { Admin } from '../admin/admin.entity';
+import { SuccessResult } from '@/graphql/enum';
 
 @Service()
 @Resolver(() => AdminNotes)
