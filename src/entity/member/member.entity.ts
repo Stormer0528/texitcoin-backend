@@ -35,7 +35,7 @@ export class Member extends BaseEntity {
   @Field()
   mobile: string;
 
-  @Field()
+  @Field({ nullable: true })
   assetId: string;
 
   @Field()
