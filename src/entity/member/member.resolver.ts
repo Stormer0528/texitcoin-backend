@@ -171,7 +171,6 @@ export class MemberResolver {
     const hashedPassword = await hashPassword(DEFAULT_PASSWORD);
     const member = await this.service.createMember({
       ..._.omit(data, 'wallets'),
-      email: data.email.toLowerCase(),
       password: hashedPassword,
       sponsorId: data.sponsorId || null,
     });
@@ -226,7 +225,6 @@ export class MemberResolver {
     }
     const newmember = await this.service.createMember({
       ..._.omit(data, ['packageId', 'paymentMethod', 'sponsorUserId']),
-      email: data.email.toLowerCase(),
       password: hashedPassword,
       status: false,
       signupFormRequest: data,
@@ -296,7 +294,6 @@ export class MemberResolver {
       id: ctx.isAdmin ? data.id : ctx.user.id,
       ..._.omit(data, ['wallets', ctx.isAdmin ? null : 'sponsorId']),
     };
-    if (data.email) newData.email = data.email.toLowerCase();
     if ('sponsorId' in newData && !newData.sponsorId) {
       newData.sponsorId = null;
     }
@@ -493,7 +490,7 @@ export class MemberResolver {
 
   @Mutation(() => MemberLoginResponse)
   async memberLogin(@Arg('data') data: MemberLoginInput): Promise<MemberLoginResponse> {
-    const member = await this.service.getMemberByEmail(data.email.toLowerCase());
+    const member = await this.service.getMemberByEmail(data.email);
 
     if (!member) {
       throw new Error('Invalid credentials are provided');

@@ -154,7 +154,7 @@ export class MemberService {
     const token = createVerificationToken(generateRandomString(randomLength));
     const member = await this.prisma.member.findUnique({
       where: {
-        email: data.email.toLowerCase(),
+        email: data.email,
       },
     });
 
@@ -163,7 +163,7 @@ export class MemberService {
     } else if (member.emailVerified) {
       return this.prisma.member.update({
         where: {
-          email: data.email.toLowerCase(),
+          email: data.email,
         },
         data: {
           token,
@@ -243,7 +243,7 @@ export class MemberService {
 
     const member = await this.prisma.member.update({
       where: {
-        email: data.email.toLowerCase(),
+        email: data.email,
       },
       data: {
         token,
