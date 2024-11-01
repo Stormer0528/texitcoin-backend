@@ -1,6 +1,6 @@
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["driverAdapters", "relationJoins"]
+  previewFeatures = ["driverAdapters", "relationJoins", "postgresqlExtensions"]
 }
 
 /// Always after the prisma-client-js generator
@@ -9,8 +9,9 @@ generator json {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [citext]
 }
 
 enum PlacementPosition {
@@ -27,8 +28,8 @@ enum Confirmation4Status {
 
 model Admin {
   id       String  @id @default(uuid())
-  username String  @unique(map: "index_admins_on_username") @db.VarChar
-  email    String  @unique(map: "index_admins_on_email") @db.VarChar
+  username String  @unique(map: "index_admins_on_username") @db.Citext
+  email    String  @unique(map: "index_admins_on_email") @db.Citext
   password String  @db.VarChar
   avatar   String? @default("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRcrrCHjN9kChJVJtWxXCHoUcgEhxWwTclnURuK20T8EDX_rVt0NMik5tYpLhKzqPBnvP0&usqp=CAU")
 
@@ -44,11 +45,11 @@ model Admin {
 
 model Member {
   id                     String             @id @default(uuid())
-  username               String             @unique(map: "index_members_on_username") @db.VarChar
+  username               String             @unique(map: "index_members_on_username") @db.Citext
   fullName               String             @db.VarChar
   sponsorId              String?            @db.VarChar
   userId                 Int                @unique(map: "index_members_on_userId") @db.Integer
-  email                  String             @unique(map: "index_members_on_email") @db.VarChar
+  email                  String             @unique(map: "index_members_on_email") @db.Citext
   mobile                 String             @db.VarChar
   assetId                String?            @unique(map: "index_members_on_assetId") @db.VarChar
   primaryAddress         String             @db.VarChar
