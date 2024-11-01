@@ -692,7 +692,11 @@ export class ExcelService {
             weekStartDate: weekStartDate.weekStartDate,
           },
           include: {
-            member: true,
+            member: {
+              include: {
+                placementParent: true,
+              },
+            },
           },
           orderBy: {
             commission: 'desc',
@@ -712,6 +716,16 @@ export class ExcelService {
           },
           fullname: {
             displayName: 'Fullname',
+            headerStyle: styles.headerNormal,
+            width: 100,
+          },
+          placementParent: {
+            displayName: 'Placement Parent',
+            headerStyle: styles.headerNormal,
+            width: 150,
+          },
+          placementPosition: {
+            displayName: 'Placement Position',
             headerStyle: styles.headerNormal,
             width: 100,
           },
@@ -750,6 +764,8 @@ export class ExcelService {
           no: index + 1,
           username: commission.member.username,
           fullname: commission.member.fullName,
+          placementParent: `${commission.member.placementParent.fullName}(${commission.member.placementParent.username})`,
+          placementPosition: commission.member.placementPosition,
           actual: `L${commission.beforeLeftPoint}, R${commission.beforeRightPoint}`,
           before: `L${Math.min(9, commission.beforeLeftPoint)}, R${Math.min(9, commission.beforeRightPoint)}`,
           package: `L${commission.calculatedLeftPoint}, R${commission.calculatedRightPoint}`,
