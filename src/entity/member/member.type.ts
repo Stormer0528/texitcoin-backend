@@ -1,6 +1,6 @@
 import type { Prisma } from '@prisma/client';
 import GraphQLJSON from 'graphql-type-json';
-import { IsEmail, IsNotEmpty, Length } from 'class-validator';
+import { IsEmail, IsNotEmpty, Length, ValidateIf } from 'class-validator';
 import { ObjectType, InputType, Field, ArgsType, ID } from 'type-graphql';
 
 import { QueryArgsBase } from '@/graphql/queryArgs';
@@ -76,6 +76,7 @@ export class CreateMemberInput {
   mobile: string;
 
   @Field({ nullable: true })
+  @ValidateIf((obj) => obj.assetId)
   @Length(6, undefined, { message: 'Coin ID must be at least 6 characters long' })
   assetId?: string;
 
@@ -136,6 +137,7 @@ export class SignupFormInput {
   mobile: string;
 
   @Field({ nullable: true })
+  @ValidateIf((obj) => obj.assetId)
   @Length(6, undefined, { message: 'Coin ID must be at least 6 characters long' })
   assetId?: string;
 
@@ -178,6 +180,7 @@ export class UpdateMemberInput {
   mobile?: string;
 
   @Field({ nullable: true })
+  @ValidateIf((obj) => obj.assetId)
   @Length(6, undefined, { message: 'Coin ID must be at least 6 characters long' })
   assetId?: string;
 
