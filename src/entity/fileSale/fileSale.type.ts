@@ -1,5 +1,4 @@
 import type { Prisma } from '@prisma/client';
-import { IsEmail, IsUrl } from 'class-validator';
 import { ObjectType, InputType, Field, ArgsType, ID } from 'type-graphql';
 
 import { QueryArgsBase } from '@/graphql/queryArgs';

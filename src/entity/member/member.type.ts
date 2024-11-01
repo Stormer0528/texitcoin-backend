@@ -75,8 +75,9 @@ export class CreateMemberInput {
   @Field()
   mobile: string;
 
-  @Field()
-  assetId: string;
+  @Field({ nullable: true })
+  @Length(6, undefined, { message: 'Coin ID must be at least 6 characters long' })
+  assetId?: string;
 
   @Field(() => ID, { nullable: true })
   sponsorId?: string;
@@ -134,9 +135,9 @@ export class SignupFormInput {
   @Field()
   mobile: string;
 
-  @Field()
-  @Length(6)
-  assetId: string;
+  @Field({ nullable: true })
+  @Length(6, undefined, { message: 'Coin ID must be at least 6 characters long' })
+  assetId?: string;
 
   @Field(() => ID, { nullable: true })
   sponsorUserId?: string;
@@ -177,6 +178,7 @@ export class UpdateMemberInput {
   mobile?: string;
 
   @Field({ nullable: true })
+  @Length(6, undefined, { message: 'Coin ID must be at least 6 characters long' })
   assetId?: string;
 
   @Field(() => ID, { nullable: true })
