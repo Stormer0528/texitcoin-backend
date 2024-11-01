@@ -102,14 +102,6 @@ export class MemberService {
     });
   }
 
-  async getMemberByRefCode(refCode: string) {
-    return this.prisma.member.findUnique({
-      where: {
-        refCode,
-      },
-    });
-  }
-
   async createMember(data: CreateMemberInput & { password: string; signupFormRequest: any }) {
     const maxUserId = await this.prisma.member.aggregate({
       _max: {

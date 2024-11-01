@@ -207,7 +207,7 @@ export class MemberResolver {
     let sponsorId: string | null = null;
     let sponsorName: string | null = null;
     if (data.sponsorUserId) {
-      const member = await this.service.getMemberByRefCode(data.sponsorUserId);
+      const member = await this.service.getMemberByUsername(data.sponsorUserId);
       if (member && !member.status) {
         throw new GraphQLError('Reference is not approved', {
           extensions: {
@@ -642,7 +642,7 @@ export class MemberResolver {
     }
 
     return {
-      link: `${process.env.MEMBER_URL}/sign-up?sponsor=${(ctx.user as Member).refCode}`,
+      link: `${process.env.MEMBER_URL}/sign-up?sponsor=${(ctx.user as Member).username}`,
     };
   }
 
