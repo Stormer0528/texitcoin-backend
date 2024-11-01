@@ -80,8 +80,8 @@ export class CreateMemberInput {
   @Length(6, undefined, { message: 'Coin ID must be at least 6 characters long' })
   assetId?: string;
 
-  @Field(() => ID, { nullable: true })
-  sponsorId?: string;
+  @Field(() => ID)
+  sponsorId: string;
 
   @Field(() => ID, { nullable: true })
   placementParentId?: string;
