@@ -69,6 +69,7 @@ import { ElasticSearchService } from '@/service/elasticsearch';
 import { SendyService } from '@/service/sendy';
 import { AdminNotes } from '../adminNotes/adminNotes.entity';
 import { SuccessResult } from '@/graphql/enum';
+import { PackageService } from '../package/package.service';
 
 @Service()
 @Resolver(() => Member)
@@ -78,6 +79,7 @@ export class MemberResolver {
     private readonly memberWalletService: MemberWalletService,
     private readonly memberStatisticsService: MemberStatisticsService,
     private readonly saleService: SaleService,
+    private readonly packageService: PackageService,
     @Inject(() => ElasticSearchService)
     private readonly elasticService: ElasticSearchService,
     @Inject(() => MailerService)
@@ -224,11 +226,16 @@ export class MemberResolver {
       sponsorId = member.id;
       sponsorName = member.fullName;
     }
+    let requestPkg = null;
+    if (data.packageId) requestPkg = await this.packageService.getPackageById(data.packageId);
     const newmember = await this.service.createMember({
       ..._.omit(data, ['packageId', 'paymentMethod', 'sponsorUserId']),
       password: hashedPassword,
       status: false,
-      signupFormRequest: data,
+      signupFormRequest: {
+        ..._.omit(data, 'password', 'packageId'),
+        package: requestPkg?.productName,
+      },
       emailVerified: false,
       sponsorId,
     });
