@@ -3,6 +3,7 @@ import { Inject, Service } from 'typedi';
 
 import { PERCENT, TXC } from '@/consts/db';
 import { PrismaService } from './prisma';
+import { PLACEMENT_ROOT } from '@/consts';
 
 const styles = {
   headerNormal: {
@@ -55,6 +56,8 @@ export class ExcelService {
     const members = await this.prisma.member.findMany({
       include: {
         sponsor: true,
+        placementParent: true,
+        placementChildren: true,
       },
       orderBy: {
         createdAt: 'desc',
@@ -70,11 +73,6 @@ export class ExcelService {
         displayName: 'username',
         headerStyle: styles.headerNormal,
         width: 100,
-      },
-      userId: {
-        displayName: 'userId',
-        headerStyle: styles.headerNormal,
-        width: 60,
       },
       fullName: {
         displayName: 'fullname',
@@ -126,6 +124,46 @@ export class ExcelService {
         headerStyle: styles.headerNormal,
         width: 150,
       },
+      totalIntroducers: {
+        displayName: 'introducers',
+        headerStyle: styles.headerNormal,
+        width: 150,
+      },
+      preferredContact: {
+        displayName: 'preffered contact',
+        headerStyle: styles.headerNormal,
+        width: 150,
+      },
+      prefferedContactDetail: {
+        displayName: 'contact details',
+        headerStyle: styles.headerNormal,
+        width: 150,
+      },
+      placementParent: {
+        displayName: 'placement parent',
+        headerStyle: styles.headerNormal,
+        width: 150,
+      },
+      placementPosition: {
+        displayName: 'position',
+        headerStyle: styles.headerNormal,
+        width: 150,
+      },
+      placementLeft: {
+        displayName: 'miner left',
+        headerStyle: styles.headerNormal,
+        width: 150,
+      },
+      placementRight: {
+        displayName: 'miner right',
+        headerStyle: styles.headerNormal,
+        width: 150,
+      },
+      status: {
+        displayName: 'status',
+        headerStyle: styles.headerNormal,
+        width: 100,
+      },
       joinedAt: {
         displayName: 'joinedAt',
         headerStyle: styles.headerNormal,
@@ -138,7 +176,19 @@ export class ExcelService {
       members.map((member, index: number) => ({
         ...member,
         no: index + 1,
-        sponsor: member.sponsor?.fullName,
+        sponsor: member.sponsorId ? `${member.sponsor.fullName}(${member.sponsor.username})` : '',
+        placementParent:
+          member.placementParentId && member.id !== PLACEMENT_ROOT
+            ? `${member.placementParent.fullName}(${member.placementParent.username})`
+            : '',
+        placementPosition: member.id === PLACEMENT_ROOT ? '' : member.placementPosition,
+        placementLeft: member.placementChildren
+          .filter((mb) => mb.placementPosition === 'LEFT' && mb.id !== PLACEMENT_ROOT)
+          .map((mb) => `${mb.fullName}(${mb.username})`),
+        placementRight: member.placementChildren
+          .filter((mb) => mb.placementPosition === 'RIGHT' && mb.id !== PLACEMENT_ROOT)
+          .map((mb) => `${mb.fullName}(${mb.username})`),
+        status: member.status ? 'Approved' : 'Pending',
         joinedAt: member.createdAt,
       }))
     );
