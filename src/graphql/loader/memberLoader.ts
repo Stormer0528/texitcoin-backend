@@ -151,8 +151,8 @@ export const placementChildrenForMemberLoader = (parent: RootDataLoader) => {
       const childrenMap: Record<string, Member[]> = {};
 
       children.forEach((child) => {
-        if (!childrenMap[child.sponsorId]) childrenMap[child.sponsorId] = [];
-        childrenMap[child.sponsorId].push(child);
+        if (!childrenMap[child.placementParentId]) childrenMap[child.placementParentId] = [];
+        childrenMap[child.placementParentId].push(child);
       });
 
       return memberIds.map((id) => childrenMap[id] ?? []);
