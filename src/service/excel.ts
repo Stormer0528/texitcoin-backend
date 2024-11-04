@@ -178,16 +178,14 @@ export class ExcelService {
         no: index + 1,
         sponsor: member.sponsorId ? `${member.sponsor.fullName}(${member.sponsor.username})` : '',
         placementParent:
-          member.placementParentId && member.id !== PLACEMENT_ROOT
-            ? `${member.placementParent.fullName}(${member.placementParent.username})`
-            : '',
+          member.placementParentId && member.id !== PLACEMENT_ROOT ? `${member.assetId})` : '',
         placementPosition: member.id === PLACEMENT_ROOT ? '' : member.placementPosition,
         placementLeft: member.placementChildren
           .filter((mb) => mb.placementPosition === 'LEFT' && mb.id !== PLACEMENT_ROOT)
-          .map((mb) => `${mb.fullName}(${mb.username})`),
+          .map((mb) => `${mb.assetId}`),
         placementRight: member.placementChildren
           .filter((mb) => mb.placementPosition === 'RIGHT' && mb.id !== PLACEMENT_ROOT)
-          .map((mb) => `${mb.fullName}(${mb.username})`),
+          .map((mb) => `${mb.assetId}`),
         status: member.status ? 'Approved' : 'Pending',
         joinedAt: member.createdAt,
       }))
