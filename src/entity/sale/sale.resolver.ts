@@ -95,7 +95,7 @@ export class SaleResolver {
       );
     }
     await this.memberService.updateMemberPointByMemberId(sale.memberId);
-    await this.memberService.calculateTotalIntroducerCount(sale.memberId);
+    await this.memberService.approveMember(sale.memberId);
     return sale;
   }
 
