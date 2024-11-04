@@ -179,7 +179,9 @@ export class ExcelService {
         no: convertNumToString(member.userId, 7),
         sponsor: member.sponsorId ? `${member.sponsor.fullName}(${member.sponsor.username})` : '',
         placementParent:
-          member.placementParentId && member.id !== PLACEMENT_ROOT ? `${member.assetId}` : '',
+          member.placementParentId && member.id !== PLACEMENT_ROOT
+            ? `${member.placementParent.assetId}`
+            : '',
         placementPosition:
           member.placementParentId && member.id !== PLACEMENT_ROOT ? member.placementPosition : '',
         placementLeft: member.placementChildren
