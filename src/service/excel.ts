@@ -4,6 +4,7 @@ import { Inject, Service } from 'typedi';
 import { PERCENT, TXC } from '@/consts/db';
 import { PrismaService } from './prisma';
 import { PLACEMENT_ROOT } from '@/consts';
+import { convertNumToString } from '@/utils/convertNumToString';
 
 const styles = {
   headerNormal: {
@@ -60,14 +61,14 @@ export class ExcelService {
         placementChildren: true,
       },
       orderBy: {
-        createdAt: 'desc',
+        userId: 'asc',
       },
     });
     const specification = {
       no: {
         displayName: 'No',
         headerStyle: styles.headerNormal,
-        width: 30,
+        width: 80,
       },
       username: {
         displayName: 'username',
@@ -173,9 +174,9 @@ export class ExcelService {
     return this.exportData(
       'members',
       specification,
-      members.map((member, index: number) => ({
+      members.map((member) => ({
         ...member,
-        no: index + 1,
+        no: convertNumToString(member.userId, 7),
         sponsor: member.sponsorId ? `${member.sponsor.fullName}(${member.sponsor.username})` : '',
         placementParent:
           member.placementParentId && member.id !== PLACEMENT_ROOT ? `${member.assetId}` : '',
