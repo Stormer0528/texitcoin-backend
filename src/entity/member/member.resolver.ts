@@ -354,7 +354,7 @@ export class MemberResolver {
   @Transaction()
   @Mutation(() => SuccessResponse)
   async approveMember(@Arg('data') data: IDInput): Promise<SuccessResponse> {
-    await this.service.approveMember(data.id);
+    await this.service.approveMember(data.id, true);
 
     return {
       result: SuccessResult.success,
