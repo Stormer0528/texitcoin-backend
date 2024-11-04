@@ -399,6 +399,10 @@ export class MemberResolver {
     await this.memberWalletService.removeMemberWalletsByMemberId(data);
     const member = await this.service.removeMember(data.id);
 
+    if (member.sponsorId) {
+      await this.service.decreaseIntroducerCount(member.sponsorId);
+    }
+
     // sendy
     this.sendyService.removeSubscriber(member.email);
 
