@@ -25,12 +25,15 @@ import {
   EmailVerificationInput,
 } from './member.type';
 import { Member } from './member.entity';
+import { SendyService } from '@/service/sendy';
 
 @Service()
 export class MemberService {
   constructor(
     @Inject(() => PrismaService)
-    private readonly prisma: PrismaService
+    private readonly prisma: PrismaService,
+    @Inject(() => SendyService)
+    private readonly sendyService: SendyService
   ) {}
 
   async getMembers(params: MemberQueryArgs) {
@@ -384,5 +387,43 @@ export class MemberService {
       SET "introducerCount" = GREATEST("introducerCount" - 1, 0), "totalIntroducers" = GREATEST("totalIntroducers" - 1, 0)
       WHERE id=${id}
     `;
+  }
+
+  async calculateTotalIntroducerCount(id: string): Promise<void> {
+    const introducers = await this.prisma.member.count({
+      where: {
+        sponsorId: id,
+        status: true,
+      },
+    });
+    await this.prisma.member.update({
+      where: {
+        id,
+      },
+      data: {
+        totalIntroducers: introducers,
+      },
+    });
+  }
+
+  async approveMember(id: string, syncWithSendy?: boolean): Promise<void> {
+    const data: any = { status: true };
+    if (typeof syncWithSendy !== 'undefined') {
+      data.syncWithSendy = true;
+    }
+
+    const member = await this.prisma.member.update({
+      where: {
+        id,
+      },
+      data,
+    });
+    if (member.sponsorId) {
+      await this.calculateSponsorBonous(member.sponsorId);
+      await this.calculateSponsorBonous(member.sponsorId);
+    }
+
+    // sendy
+    this.sendyService.addSubscriber(member.email, member.fullName);
   }
 }

@@ -95,10 +95,7 @@ export class SaleResolver {
       );
     }
     await this.memberService.updateMemberPointByMemberId(sale.memberId);
-    await this.memberService.updateMember({
-      id: data.memberId,
-      status: true,
-    });
+    await this.memberService.calculateTotalIntroducerCount(sale.memberId);
     return sale;
   }
 

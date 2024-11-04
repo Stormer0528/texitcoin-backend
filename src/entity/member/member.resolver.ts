@@ -188,7 +188,7 @@ export class MemberResolver {
     }
 
     if (data.sponsorId) {
-      await this.service.incraseIntroducerCount(data.sponsorId);
+      await this.service.calculateTotalIntroducerCount(data.sponsorId);
       await this.service.calculateSponsorBonous(data.sponsorId);
     }
 
@@ -324,11 +324,11 @@ export class MemberResolver {
 
     if (prevSponsorID !== member.sponsorId) {
       if (prevSponsorID) {
-        await this.service.decreaseIntroducerCount(prevSponsorID);
+        await this.service.calculateTotalIntroducerCount(prevSponsorID);
         await this.service.calculateSponsorBonous(prevSponsorID);
       }
       if (member.sponsorId) {
-        await this.service.incraseIntroducerCount(member.sponsorId);
+        await this.service.calculateTotalIntroducerCount(member.sponsorId);
         await this.service.calculateSponsorBonous(member.sponsorId);
       }
     }
@@ -354,17 +354,7 @@ export class MemberResolver {
   @Transaction()
   @Mutation(() => SuccessResponse)
   async approveMember(@Arg('data') data: IDInput): Promise<SuccessResponse> {
-    const member = await this.service.updateMember({
-      id: data.id,
-      status: true,
-    });
-    if (member.sponsorId) {
-      await this.service.incraseIntroducerCount(member.sponsorId);
-      await this.service.calculateSponsorBonous(member.sponsorId);
-    }
-
-    // sendy
-    this.sendyService.addSubscriber(member.email, member.fullName);
+    await this.service.approveMember(data.id);
 
     return {
       result: SuccessResult.success,
@@ -400,7 +390,7 @@ export class MemberResolver {
     const member = await this.service.removeMember(data.id);
 
     if (member.sponsorId) {
-      await this.service.decreaseIntroducerCount(member.sponsorId);
+      await this.service.calculateTotalIntroducerCount(member.sponsorId);
     }
 
     // sendy
