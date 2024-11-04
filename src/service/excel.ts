@@ -178,8 +178,9 @@ export class ExcelService {
         no: index + 1,
         sponsor: member.sponsorId ? `${member.sponsor.fullName}(${member.sponsor.username})` : '',
         placementParent:
-          member.placementParentId && member.id !== PLACEMENT_ROOT ? `${member.assetId})` : '',
-        placementPosition: member.id === PLACEMENT_ROOT ? '' : member.placementPosition,
+          member.placementParentId && member.id !== PLACEMENT_ROOT ? `${member.assetId}` : '',
+        placementPosition:
+          member.placementParentId && member.id !== PLACEMENT_ROOT ? member.placementPosition : '',
         placementLeft: member.placementChildren
           .filter((mb) => mb.placementPosition === 'LEFT' && mb.id !== PLACEMENT_ROOT)
           .map((mb) => `${mb.assetId}`),
