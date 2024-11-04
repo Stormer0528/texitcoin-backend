@@ -419,7 +419,7 @@ export class MemberService {
       data,
     });
     if (member.sponsorId) {
-      await this.calculateSponsorBonous(member.sponsorId);
+      await this.calculateTotalIntroducerCount(member.sponsorId);
       await this.calculateSponsorBonous(member.sponsorId);
     }
 
