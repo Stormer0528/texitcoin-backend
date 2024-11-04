@@ -221,23 +221,33 @@ export class ExcelService {
         headerStyle: styles.headerNormal,
         width: 70,
       },
+      point: {
+        displayName: 'point',
+        headerStyle: styles.headerNormal,
+        width: 70,
+      },
       hash: {
         displayName: 'hash',
         headerStyle: styles.headerNormal,
         width: 50,
       },
-      memberName: {
-        displayName: 'memberName',
+      member: {
+        displayName: 'member',
         headerStyle: styles.headerNormal,
         width: 150,
       },
-      memberUsername: {
-        displayName: 'memberUsername',
+      assetId: {
+        displayName: 'assetId',
         headerStyle: styles.headerNormal,
         width: 150,
       },
       paymentMethod: {
         displayName: 'paymentMethod',
+        headerStyle: styles.headerNormal,
+        width: 150,
+      },
+      note: {
+        displayName: 'note',
         headerStyle: styles.headerNormal,
         width: 150,
       },
@@ -259,11 +269,12 @@ export class ExcelService {
         ...sale,
         no: index + 1,
         status: sale.status ? 'Active' : 'Inactive',
-        memberName: sale.member.fullName,
-        memberUsername: sale.member.username,
+        member: `${sale.member.fullName} (${sale.member.username})`,
         productName: sale.package.productName,
         amount: sale.package.amount,
         hash: sale.package.token,
+        assetId: sale.member.assetId,
+        point: sale.package.point,
       }))
     );
   }
