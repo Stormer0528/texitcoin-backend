@@ -241,11 +241,6 @@ export class ExcelService {
         headerStyle: styles.headerNormal,
         width: 150,
       },
-      paymentMethod: {
-        displayName: 'paymentMethod',
-        headerStyle: styles.headerNormal,
-        width: 150,
-      },
       note: {
         displayName: 'note',
         headerStyle: styles.headerNormal,
