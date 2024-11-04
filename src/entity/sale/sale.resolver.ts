@@ -12,7 +12,7 @@ import {
   Root,
 } from 'type-graphql';
 import graphqlFields from 'graphql-fields';
-import { GraphQLResolveInfo } from 'graphql';
+import { GraphQLError, GraphQLResolveInfo } from 'graphql';
 import _ from 'lodash';
 
 import { UserRole } from '@/type';
@@ -30,6 +30,8 @@ import { MemberService } from '../member/member.service';
 import { Transaction } from '@/graphql/decorator';
 import { FileSaleService } from '../fileSale/fileSale.service';
 import { SuccessResult } from '@/graphql/enum';
+import { MemberWalletService } from '../memberWallet/memberWallet.service';
+import { PAYOUTS } from '@/consts';
 
 @Service()
 @Resolver(() => Sale)
@@ -37,7 +39,8 @@ export class SaleResolver {
   constructor(
     private readonly service: SaleService,
     private readonly memberService: MemberService,
-    private readonly fileSaleService: FileSaleService
+    private readonly fileSaleService: FileSaleService,
+    private readonly memberWalletService: MemberWalletService
   ) {}
 
   @Authorized()
@@ -84,7 +87,23 @@ export class SaleResolver {
   async createSale(@Arg('data') data: CreateSaleInput): Promise<Sale> {
     const { emailVerified } = await this.memberService.getMemberById(data.memberId);
     if (!emailVerified) {
-      throw new Error('This member did not verify the email');
+      throw new GraphQLError('This member did not verify the email', {
+        extensions: {
+          path: ['memberId'],
+        },
+      });
+    }
+
+    const memberWallets = await this.memberWalletService.getMemberWalletsByMemberid(data.memberId);
+    const txcWallets = memberWallets.filter(
+      (mw) => mw.payoutId === PAYOUTS[0] || mw.payoutId === PAYOUTS[1]
+    );
+    if (!txcWallets.length) {
+      throw new GraphQLError('This member has no TXC wallets', {
+        extensions: {
+          path: ['memberId'],
+        },
+      });
     }
 
     const { fileIds, ...restData } = data;

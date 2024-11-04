@@ -50,6 +50,14 @@ export class MemberWalletService {
     });
   }
 
+  async getMemberWalletsByMemberid(memberId: string) {
+    return this.prisma.memberWallet.findMany({
+      where: {
+        memberId,
+      },
+    });
+  }
+
   async updateManyMemberWallet(data: UpdateMemberWalletInput) {
     this.validateMemberWallets(data.wallets);
 
