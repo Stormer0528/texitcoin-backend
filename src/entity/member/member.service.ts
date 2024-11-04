@@ -423,7 +423,9 @@ export class MemberService {
       await this.calculateSponsorBonous(member.sponsorId);
     }
 
-    // sendy
-    this.sendyService.addSubscriber(member.email, member.fullName);
+    if (member.syncWithSendy) {
+      // sendy
+      this.sendyService.addSubscriber(member.email, member.fullName);
+    }
   }
 }
