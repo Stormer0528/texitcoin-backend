@@ -318,18 +318,22 @@ model MemberStatisticsWallet {
 }
 
 model WeeklyCommission {
-  id                   String              @id @default(uuid())
-  weekStartDate        DateTime
-  beforeLeftPoint      Int                 @default(0)
-  beforeRightPoint     Int                 @default(0)
-  afterLeftPoint       Int                 @default(0)
-  afterRightPoint      Int                 @default(0)
-  calculatedLeftPoint  Int                 @default(0)
-  calculatedRightPoint Int                 @default(0)
-  commission           Int                 @default(0)
-  memberId             String
-  status               Confirmation4Status @default(NONE)
-  note                 String?             @default("")
+  id            String              @id @default(uuid())
+  weekStartDate DateTime
+  begL          Int                 @default(0)
+  begR          Int                 @default(0)
+  newL          Int                 @default(0)
+  newR          Int                 @default(0)
+  maxL          Int                 @default(0)
+  maxR          Int                 @default(0)
+  endL          Int                 @default(0)
+  endR          Int                 @default(0)
+  pkgL          Int                 @default(0)
+  pkgR          Int                 @default(0)
+  commission    Int                 @default(0)
+  memberId      String
+  status        Confirmation4Status @default(NONE)
+  note          String?             @default("")
 
   member Member? @relation(fields: [memberId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
