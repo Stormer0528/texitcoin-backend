@@ -52,13 +52,15 @@ export class ElasticSearchService {
       console.log('Elastic Error => ', _err.message);
     }
   }
-  async getLogByMinerUsername(id: string, limit: number) {
+  async getLogByMinerId(id: string, limit: number) {
     return this.client
       .search({
         index: ELASTIC_LOG_INDEX,
         query: {
-          match: {
-            targetId: id,
+          term: {
+            'targetId.keyword': {
+              value: id,
+            },
           },
         },
         sort: {
