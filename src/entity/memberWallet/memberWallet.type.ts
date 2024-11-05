@@ -37,6 +37,9 @@ export class MemberWalletDataInput {
 
   @Field()
   percent: number;
+
+  @Field({ nullable: true })
+  note?: string;
 }
 
 @InputType()

@@ -23,6 +23,9 @@ export class MemberWallet extends BaseEntity {
   @Field()
   percent: number;
 
+  @Field({ nullable: true })
+  note?: string;
+
   @Field(() => Member, { nullable: true })
   member?: Member;
 
