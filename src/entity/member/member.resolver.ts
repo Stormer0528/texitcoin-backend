@@ -16,7 +16,7 @@ import {
 import graphqlFields from 'graphql-fields';
 import { GraphQLError, GraphQLResolveInfo } from 'graphql';
 
-import { DEFAULT_PASSWORD, PAYOUTS, PLACEMENT_ROOT } from '@/consts';
+import { DEFAULT_PASSWORD, PLACEMENT_ROOT, SPONSOR_BONOUS_CNT } from '@/consts';
 import { UserRole } from '@/type';
 import { Context } from '@/context';
 import { createAccessToken, hashPassword, verifyPassword } from '@/utils/auth';
@@ -70,6 +70,9 @@ import { SendyService } from '@/service/sendy';
 import { AdminNotes } from '../adminNotes/adminNotes.entity';
 import { SuccessResult } from '@/graphql/enum';
 import { PackageService } from '../package/package.service';
+import { QueryOrderPagination } from '@/graphql/queryArgs';
+import { PrismaService } from '@/service/prisma';
+import { getDynamicOrderBy } from '@/utils/getDynamicOrderBy';
 
 @Service()
 @Resolver(() => Member)
@@ -85,7 +88,9 @@ export class MemberResolver {
     @Inject(() => MailerService)
     private readonly mailerService: MailerService,
     @Inject(() => SendyService)
-    private readonly sendyService: SendyService
+    private readonly sendyService: SendyService,
+    @Inject(() => PrismaService)
+    private readonly prisma: PrismaService
   ) {}
 
   @Authorized()
@@ -112,6 +117,46 @@ export class MemberResolver {
 
     for (let [key, value] of result) {
       response[key] = value;
+    }
+
+    return response;
+  }
+
+  @Authorized([UserRole.Admin])
+  @Query(() => MembersResponse)
+  async onepointAwayMembers(
+    @Args() query: QueryOrderPagination,
+    @Info() info: GraphQLResolveInfo
+  ): Promise<MembersResponse> {
+    const fields = graphqlFields(info);
+
+    let promises: { total?: Promise<number>; members?: Promise<Member[]> } = {};
+
+    if ('total' in fields) {
+      promises.total = this.prisma.$queryRaw`
+        SELECT COUNT('*')::Int
+        FROM members
+        WHERE "totalIntroducers" % ${SPONSOR_BONOUS_CNT} = ${SPONSOR_BONOUS_CNT - 1}
+      `.then((res) => res[0]?.count);
+    }
+
+    if ('members' in fields) {
+      promises.members = this.prisma.$queryRaw`
+        SELECT *
+        FROM members
+        WHERE "totalIntroducers" % ${SPONSOR_BONOUS_CNT} = ${SPONSOR_BONOUS_CNT - 1}
+        ORDER BY ${getDynamicOrderBy(query.orderBy)}
+        LIMIT ${query.parsePage.take}
+        OFFSET ${query.parsePage.skip}
+    `;
+    }
+
+    const result = await Promise.all(Object.entries(promises));
+
+    let response: { total?: number; members?: Member[] } = {};
+
+    for (let [key, value] of result) {
+      response[key] = await value;
     }
 
     return response;

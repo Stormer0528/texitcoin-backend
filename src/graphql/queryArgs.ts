@@ -3,7 +3,7 @@ import { ArgsType, Field } from 'type-graphql';
 import { GraphQLJSONObject } from 'graphql-type-json';
 import _ from 'lodash';
 
-interface OrderBy {
+export interface OrderBy {
   [key: string]: Prisma.SortOrder;
 }
 
