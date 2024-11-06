@@ -5,6 +5,11 @@ export const TXC = 100000000;
 
 export const COLUMNS: Record<string, Prisma.Sql> = {
   createdAt: Prisma.sql`"createdAt"`,
+  username: Prisma.sql`"username"`,
+  fullName: Prisma.sql`"fullName"`,
+  mobile: Prisma.sql`"mobile"`,
+  assetId: Prisma.sql`"assetId"`,
+  totalIntroducers: Prisma.sql`"totalIntroducers"`,
 };
 
 export const ORDER: Record<'asc' | 'desc' | 'ASC' | 'DESC', Prisma.Sql> = {
