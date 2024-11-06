@@ -709,15 +709,15 @@ export class ExcelService {
             headerStyle: styles.headerNormal,
             width: 30,
           },
-          username: {
-            displayName: 'Username',
+          miner: {
+            displayName: 'Miner',
+            headerStyle: styles.headerNormal,
+            width: 150,
+          },
+          assetId: {
+            displayName: 'AssetId',
             headerStyle: styles.headerNormal,
             width: 90,
-          },
-          fullname: {
-            displayName: 'Fullname',
-            headerStyle: styles.headerNormal,
-            width: 100,
           },
           placementParent: {
             displayName: 'Placement Parent',
@@ -729,28 +729,33 @@ export class ExcelService {
             headerStyle: styles.headerNormal,
             width: 100,
           },
-          actual: {
-            displayName: 'Actual',
+          begLR: {
+            displayName: 'Begin LR',
             headerStyle: styles.headerNormal,
             width: 120,
           },
-          before: {
-            displayName: 'Before',
+          newLR: {
+            displayName: 'New LR',
             headerStyle: styles.headerNormal,
             width: 120,
           },
-          package: {
+          maxLR: {
+            displayName: 'Max LR',
+            headerStyle: styles.headerNormal,
+            width: 100,
+          },
+          endLR: {
+            displayName: 'End LR',
+            headerStyle: styles.headerNormal,
+            width: 100,
+          },
+          pkgLR: {
             displayName: 'Package',
             headerStyle: styles.headerNormal,
             width: 100,
           },
           commission: {
             displayName: 'Commission',
-            headerStyle: styles.headerNormal,
-            width: 100,
-          },
-          after: {
-            displayName: 'After',
             headerStyle: styles.headerNormal,
             width: 100,
           },
@@ -762,15 +767,19 @@ export class ExcelService {
         };
         const excelWeeklyCommission = weeklycommissions.map((commission, index: number) => ({
           no: index + 1,
-          username: commission.member.username,
-          fullname: commission.member.fullName,
-          placementParent: `${commission.member.placementParent.fullName}(${commission.member.placementParent.username})`,
+          miner: `${commission.member.fullName} (${commission.member.username})`,
+          assetId: commission.member.assetId,
+          placementParent:
+            commission.member.id !== PLACEMENT_ROOT
+              ? `${commission.member.placementParent.fullName}(${commission.member.placementParent.username})`
+              : '',
           placementPosition: commission.member.placementPosition,
-          actual: `L${commission.beforeLeftPoint}, R${commission.beforeRightPoint}`,
-          before: `L${Math.min(9, commission.beforeLeftPoint)}, R${Math.min(9, commission.beforeRightPoint)}`,
-          package: `L${commission.calculatedLeftPoint}, R${commission.calculatedRightPoint}`,
+          begLR: `L${commission.begL}, R${commission.begR}`,
+          newLR: `L${commission.newL}, R${commission.newR}`,
+          maxLR: `L${commission.maxL}, R${commission.maxR}`,
+          endLR: `L${commission.endL}, R${commission.endR}`,
+          pkgLR: commission.commission ? `L${commission.pkgL}, R${commission.pkgR}` : '',
           commission: commission.commission,
-          after: `L${commission.afterLeftPoint}, R${commission.afterRightPoint}`,
           status: commission.status,
         }));
         const endDay = dayjs(formatDate(weekStartDate.weekStartDate))

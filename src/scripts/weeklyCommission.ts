@@ -155,8 +155,8 @@ async function weeklyCommission(tranPrisma: PrismaClient) {
     if (lastWeeklyCommissions.length > 0) {
       lastWeeklyCommissions.forEach((commissionstatus) => {
         resultMap[commissionstatus.memberId] = {
-          left: commissionstatus.afterLeftPoint,
-          right: commissionstatus.afterRightPoint,
+          left: commissionstatus.endL,
+          right: commissionstatus.endR,
         };
       });
     }
@@ -192,12 +192,16 @@ async function weeklyCommission(tranPrisma: PrismaClient) {
         return tranPrisma.weeklyCommission.create({
           data: {
             memberId: id,
-            beforeLeftPoint: points.left,
-            beforeRightPoint: points.right,
-            afterLeftPoint: finalLeft - left,
-            afterRightPoint: finalRight - right,
-            calculatedLeftPoint: left,
-            calculatedRightPoint: right,
+            begL: points.left - (combinedMap[id]?.left ?? 0),
+            begR: points.right - (combinedMap[id]?.right ?? 0),
+            newL: combinedMap[id]?.left ?? 0,
+            newR: combinedMap[id]?.right ?? 0,
+            maxL: finalLeft,
+            maxR: finalRight,
+            endL: finalLeft - left,
+            endR: finalRight - right,
+            pkgL: left,
+            pkgR: right,
             commission,
             status: commission > 0 ? 'PENDING' : 'NONE',
             weekStartDate: iStartDate.toDate(),

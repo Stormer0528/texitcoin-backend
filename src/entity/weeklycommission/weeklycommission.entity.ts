@@ -18,22 +18,34 @@ export class WeeklyCommission extends BaseEntity {
   weekStartDate: Date;
 
   @Field()
-  beforeLeftPoint: number;
+  begL: number;
 
   @Field()
-  beforeRightPoint: number;
+  begR: number;
 
   @Field()
-  afterLeftPoint: number;
+  newL: number;
 
   @Field()
-  afterRightPoint: number;
+  newR: number;
 
   @Field()
-  calculatedLeftPoint: number;
+  maxL: number;
 
   @Field()
-  calculatedRightPoint: number;
+  maxR: number;
+
+  @Field()
+  endL: number;
+
+  @Field()
+  endR: number;
+
+  @Field()
+  pkgL: number;
+
+  @Field()
+  pkgR: number;
 
   @Field()
   commission: number;
