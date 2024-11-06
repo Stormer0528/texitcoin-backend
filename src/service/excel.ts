@@ -3,7 +3,7 @@ import { Inject, Service } from 'typedi';
 
 import { PERCENT, TXC } from '@/consts/db';
 import { PrismaService } from './prisma';
-import { PLACEMENT_ROOT } from '@/consts';
+import { PLACEMENT_ROOT, SPONSOR_BONOUS_CNT } from '@/consts';
 import { convertNumToString } from '@/utils/convertNumToString';
 
 const styles = {
@@ -489,5 +489,80 @@ export class ExcelService {
         merges: mergesDailyRewardsWithMembers,
       },
     ]);
+  }
+  public async exportOnepointAwayMembers() {
+    const members = await this.prisma.$queryRaw<any[]>`
+      SELECT *
+        FROM members
+        WHERE "totalIntroducers" % ${SPONSOR_BONOUS_CNT} = ${SPONSOR_BONOUS_CNT - 1}
+        ORDER BY "createdAt" DESC
+    `;
+    const specification = {
+      no: {
+        displayName: 'No',
+        headerStyle: styles.headerNormal,
+        width: 80,
+      },
+      minerNumber: {
+        displayName: 'assigned number',
+        headerStyle: styles.headerNormal,
+        width: 80,
+      },
+      username: {
+        displayName: 'username',
+        headerStyle: styles.headerNormal,
+        width: 100,
+      },
+      fullName: {
+        displayName: 'fullname',
+        headerStyle: styles.headerNormal,
+        width: 150,
+      },
+      email: {
+        displayName: 'email',
+        headerStyle: styles.headerNormal,
+        width: 200,
+      },
+      mobile: {
+        displayName: 'mobile',
+        headerStyle: styles.headerNormal,
+        width: 150,
+      },
+      assetId: {
+        displayName: 'assetId',
+        headerStyle: styles.headerNormal,
+        width: 100,
+      },
+      totalIntroducers: {
+        displayName: 'introducers',
+        headerStyle: styles.headerNormal,
+        width: 150,
+      },
+      preferredContact: {
+        displayName: 'preffered contact',
+        headerStyle: styles.headerNormal,
+        width: 150,
+      },
+      prefferedContactDetail: {
+        displayName: 'contact details',
+        headerStyle: styles.headerNormal,
+        width: 150,
+      },
+      joinedAt: {
+        displayName: 'joinedAt',
+        headerStyle: styles.headerNormal,
+        width: 100,
+      },
+    };
+    return this.exportData(
+      'members',
+      specification,
+      members.map((member, idx) => ({
+        ...member,
+        no: idx + 1,
+        minerNumber: convertNumToString(member.userId, 7),
+        joinedAt: member.createdAt,
+      }))
+    );
   }
 }

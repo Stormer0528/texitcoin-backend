@@ -19,6 +19,13 @@ router.get('/export-rewards', async (req: Request, res: Response, next: NextFunc
   exportController.exportRewards(req, res, next);
 });
 
+router.get(
+  '/export-onepoint-away-members',
+  async (req: Request, res: Response, next: NextFunction) => {
+    exportController.exportOnepointAwayMembers(req, res, next);
+  }
+);
+
 router.use('/upload', uploadRoute);
 
 export default router;
