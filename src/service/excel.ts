@@ -423,7 +423,7 @@ export class ExcelService {
               no: idx + 1,
               name: ds.fullName,
               username: ds.username,
-              txc: ds.txcShared / TXC,
+              txc: Number(ds.txcShared) / TXC,
               hashPower: ds.hashPower,
               percent: Number(ds.percent) / PERCENT,
             };
