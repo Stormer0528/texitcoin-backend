@@ -5,6 +5,7 @@ import { PERCENT, TXC } from '@/consts/db';
 import { PrismaService } from './prisma';
 import { PLACEMENT_ROOT, SPONSOR_BONOUS_CNT } from '@/consts';
 import { convertNumToString } from '@/utils/convertNumToString';
+import { formatDate } from '@/utils/common';
 
 const styles = {
   headerNormal: {
@@ -38,6 +39,15 @@ interface ExportDataInterface {
   specification: any;
   data: any[];
   merges?: any[];
+}
+
+interface RewardDetailDataInterface {
+  statisticsId: string;
+  txcShared: number;
+  hashPower: number;
+  percent: number;
+  fullName: string;
+  username: string;
 }
 
 @Service()
@@ -283,18 +293,27 @@ export class ExcelService {
   }
   public async exportRewards() {
     const statistics = await this.prisma.statistics.findMany({
-      include: {
-        memberStatistics: {
-          include: {
-            member: true,
-            memberStatisticsWallets: true,
-          },
-        },
-      },
       orderBy: {
         issuedAt: 'desc',
       },
     });
+
+    const detailedStatistics = await this.prisma.$queryRaw<RewardDetailDataInterface[]>`
+      SELECT 
+        ms."statisticsId",
+        ms."txcShared",
+        ms."hashPower",
+        ms."percent",
+        m."fullName",
+        m."username"
+      FROM 
+        member_statistics ms
+      LEFT JOIN 
+        members m ON ms."memberId" = m.id
+      ORDER BY 
+        ms."issuedAt" DESC;
+    `;
+
     const specificationDailyRewards = {
       no: {
         displayName: 'No',
@@ -364,47 +383,23 @@ export class ExcelService {
         headerStyle: styles.headerNormal,
         width: 30,
       },
-      totalHashPower: {
-        displayName: 'totalHashPower',
-        headerStyle: styles.headerNormal,
-        cellStyle: styles.cellVTopNumber,
-        width: 120,
-      },
-      totalMembers: {
-        displayName: 'totalMembers',
-        headerStyle: styles.headerNormal,
-        cellStyle: styles.cellVTopNumber,
-        width: 120,
-      },
-      txcShared: {
-        displayName: 'txcShared',
-        headerStyle: styles.headerNormal,
-        cellStyle: styles.cellVTopNumber,
-        width: 100,
-      },
-      issuedAt: {
-        displayName: 'issuedAt',
-        headerStyle: styles.headerNormal,
-        cellStyle: styles.cellVTopDate,
-        width: 100,
-      },
-      memberName: {
-        displayName: 'memberName',
+      name: {
+        displayName: 'Name',
         headerStyle: styles.headerNormal,
         width: 100,
       },
-      memberUsername: {
-        displayName: 'memberUsername',
+      username: {
+        displayName: 'Username',
         headerStyle: styles.headerNormal,
         width: 100,
       },
-      memberTXC: {
-        displayName: 'memberTXC',
+      txc: {
+        displayName: 'TXC',
         headerStyle: styles.headerNormal,
         width: 100,
       },
-      memberHashPower: {
-        displayName: 'memberHashPower',
+      hashPower: {
+        displayName: 'Hash Power',
         headerStyle: styles.headerNormal,
         width: 100,
       },
@@ -414,80 +409,43 @@ export class ExcelService {
         width: 100,
       },
     };
-    const datasetDailyRewardsWithMembers = [];
-    const mergesDailyRewardsWithMembers = [];
-    statistics.forEach((statistic) => {
-      if (!statistic.status) return;
-      const preLength = datasetDailyRewardsWithMembers.length;
-      statistic.memberStatistics.forEach((memberstatistic) => {
-        datasetDailyRewardsWithMembers.push({
-          no: datasetDailyRewardsWithMembers.length + 1,
+    const datasetDailyRewardsWithMembers = statistics
+      .map((statistic) => {
+        if (!statistic.status)
+          return {
+            issuedAt: statistic.issuedAt,
+            data: [],
+          };
+        const data = detailedStatistics
+          .filter((ds) => ds.statisticsId === statistic.id)
+          .map((ds, idx) => {
+            return {
+              no: idx + 1,
+              name: ds.fullName,
+              username: ds.username,
+              txc: ds.txcShared / TXC,
+              hashPower: ds.hashPower,
+              percent: Number(ds.percent) / PERCENT,
+            };
+          });
+        return {
           issuedAt: statistic.issuedAt,
-          totalHashPower: statistic.totalHashPower,
-          totalMembers: statistic.totalMembers,
-          txcShared: Number(statistic.txcShared) / TXC,
-          memberName: memberstatistic.member.fullName,
-          memberUsername: memberstatistic.member.username,
-          memberTXC: Number(memberstatistic.txcShared) / TXC,
-          memberHashPower: memberstatistic.hashPower,
-          percent: Number(memberstatistic.percent) / PERCENT,
-        });
-      });
-      mergesDailyRewardsWithMembers.push(
-        {
-          start: {
-            row: preLength + 2,
-            column: 2,
-          },
-          end: {
-            row: datasetDailyRewardsWithMembers.length + 1,
-            column: 2,
-          },
-        },
-        {
-          start: {
-            row: preLength + 2,
-            column: 3,
-          },
-          end: {
-            row: datasetDailyRewardsWithMembers.length + 1,
-            column: 3,
-          },
-        },
-        {
-          start: {
-            row: preLength + 2,
-            column: 4,
-          },
-          end: {
-            row: datasetDailyRewardsWithMembers.length + 1,
-            column: 4,
-          },
-        },
-        {
-          start: {
-            row: preLength + 2,
-            column: 5,
-          },
-          end: {
-            row: datasetDailyRewardsWithMembers.length + 1,
-            column: 5,
-          },
-        }
-      );
-    });
+          data,
+        };
+      })
+      .filter((rewards) => rewards.data.length);
+
     return this.exportMultiSheetExport([
       {
         data: datasetDailyRewards,
         name: 'dailyrewards',
         specification: specificationDailyRewards,
       },
-      {
-        data: datasetDailyRewardsWithMembers,
-        name: 'dailyrewards_with_members',
+      ...datasetDailyRewardsWithMembers.map((ddr) => ({
+        data: ddr.data,
+        name: formatDate(ddr.issuedAt),
         specification: specificationDailyRewardsWithMembers,
-        merges: mergesDailyRewardsWithMembers,
-      },
+      })),
     ]);
   }
   public async exportOnepointAwayMembers() {
