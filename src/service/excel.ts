@@ -310,6 +310,9 @@ export class ExcelService {
       orderBy: {
         issuedAt: 'desc',
       },
+      where: {
+        status: true,
+      },
     });
 
     const detailedStatistics = await this.prisma.$queryRaw<RewardDetailDataInterface[]>`
@@ -324,6 +327,10 @@ export class ExcelService {
         member_statistics ms
       LEFT JOIN 
         members m ON ms."memberId" = m.id
+      LEFT JOIN
+        statistics s ON ms."statisticsId" = s.id
+      WHERE
+        s.status = true
       ORDER BY 
         ms."issuedAt" DESC;
     `;
@@ -423,31 +430,24 @@ export class ExcelService {
         width: 100,
       },
     };
-    const datasetDailyRewardsWithMembers = statistics
-      .map((statistic) => {
-        if (!statistic.status)
+    const datasetDailyRewardsWithMembers = statistics.map((statistic) => {
+      const data = detailedStatistics
+        .filter((ds) => ds.statisticsId === statistic.id)
+        .map((ds, idx) => {
           return {
-            issuedAt: statistic.issuedAt,
-            data: [],
+            no: idx + 1,
+            name: ds.fullName,
+            username: ds.username,
+            txc: Number(ds.txcShared) / TXC,
+            hashPower: ds.hashPower,
+            percent: Number(ds.percent) / PERCENT,
           };
-        const data = detailedStatistics
-          .filter((ds) => ds.statisticsId === statistic.id)
-          .map((ds, idx) => {
-            return {
-              no: idx + 1,
-              name: ds.fullName,
-              username: ds.username,
-              txc: Number(ds.txcShared) / TXC,
-              hashPower: ds.hashPower,
-              percent: Number(ds.percent) / PERCENT,
-            };
-          });
-        return {
-          issuedAt: statistic.issuedAt,
-          data,
-        };
-      })
-      .filter((rewards) => rewards.data.length);
+        });
+      return {
+        issuedAt: statistic.issuedAt,
+        data,
+      };
+    });
 
     return this.exportMultiSheetExport([
       {
