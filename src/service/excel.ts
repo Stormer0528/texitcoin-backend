@@ -50,6 +50,20 @@ interface RewardDetailDataInterface {
   username: string;
 }
 
+interface MemberRewardDetailDataInterface {
+  newBlocks: number;
+  totalBlocks: number;
+  totalHashPower: number;
+  totalMembers: number;
+  totalTXCShared: number;
+  txcShared: number;
+  issuedAt: Date;
+  hashPower: number;
+  percent: number;
+  walletTXC: number;
+  address: string;
+}
+
 @Service()
 export class ExcelService {
   constructor(
@@ -521,6 +535,143 @@ export class ExcelService {
         minerNumber: convertNumToString(member.userId, 7),
         joinedAt: member.createdAt,
       }))
+    );
+  }
+
+  public async exportRewardsByMember(memberId: string) {
+    const statistics = await this.prisma.$queryRaw<MemberRewardDetailDataInterface[]>`
+      SELECT
+        S."newBlocks",
+        S."totalBlocks",
+        S."totalHashPower",
+        S."totalMembers",
+        S."txcShared" AS "totalTXCShared",
+        S."issuedAt",
+        MS."txcShared",
+        MS."hashPower",
+        MS."percent",
+        MW."txc" as "walletTXC",
+        MWS."address"
+      FROM
+        MEMBER_STATISTICS MS
+        LEFT JOIN STATISTICS S ON MS."statisticsId" = S.ID
+        LEFT JOIN MEMBERS M ON MS."memberId" = M.ID
+        LEFT JOIN MEMBERSTATISTICSWALLETS MW ON MW."memberStatisticId" = MS.ID
+        LEFT JOIN MEMBERWALLETS MWS ON MWS.ID = MW."memberWalletId"
+      WHERE
+        S.STATUS = TRUE
+	      AND M.ID = ${memberId}
+      ORDER BY
+        MS."issuedAt" DESC;
+    `;
+
+    const specificationDailyRewards = {
+      no: {
+        displayName: 'No',
+        headerStyle: styles.headerNormal,
+        width: 30,
+      },
+      issuedAt: {
+        displayName: 'Issued At',
+        headerStyle: styles.headerNormal,
+        width: 100,
+      },
+      newBlocks: {
+        displayName: 'New Blocks',
+        headerStyle: styles.headerNormal,
+        width: 90,
+      },
+      totalBlocks: {
+        displayName: 'Total Blocks',
+        headerStyle: styles.headerNormal,
+        width: 100,
+      },
+      totalHashPower: {
+        displayName: 'Total Hash Power',
+        headerStyle: styles.headerNormal,
+        width: 120,
+      },
+      totalMembers: {
+        displayName: 'Total Members',
+        headerStyle: styles.headerNormal,
+        width: 120,
+      },
+      totalTXCShared: {
+        displayName: 'Total TXC shared',
+        headerStyle: styles.headerNormal,
+        width: 100,
+      },
+      memberTXC: {
+        displayName: 'Youre Reward',
+        headerStyle: styles.headerNormal,
+        width: 100,
+      },
+      memberHashPower: {
+        displayName: 'Your Hash Power',
+        headerStyle: styles.headerNormal,
+        width: 100,
+      },
+      memberPercent: {
+        displayName: 'percent',
+        headerStyle: styles.headerNormal,
+        width: 100,
+      },
+      walletAddress: {
+        displayName: 'Wallet Address',
+        headerStyle: styles.headerNormal,
+        width: 100,
+      },
+      walletTXC: {
+        displayName: 'Wallet Reward',
+        headerStyle: styles.headerNormal,
+        width: 100,
+      },
+      walletPercent: {
+        displayName: 'Wallet Percent',
+        headerStyle: styles.headerNormal,
+        width: 100,
+      },
+    };
+
+    const uniqueStatistics = [...new Set(statistics.map((st) => formatDate(st.issuedAt)))];
+    const merges = uniqueStatistics.flatMap((us) => {
+      const startIdx = statistics.findIndex((st) => formatDate(st.issuedAt) === us);
+      const endIndex = statistics.findLastIndex((st) => formatDate(st.issuedAt) === us);
+      return new Array(9).fill(0).map((_, idx) => {
+        return {
+          start: {
+            row: startIdx + 2,
+            column: idx + 2,
+          },
+          end: {
+            row: endIndex + 2,
+            column: idx + 2,
+          },
+        };
+      });
+    });
+
+    return this.exportData(
+      'your rewards',
+      specificationDailyRewards,
+      statistics.map((statistic, idx) => {
+        return {
+          no: idx + 1,
+          newBlocks: statistic.newBlocks,
+          totalBlocks: statistic.totalBlocks,
+          totalHashPower: statistic.totalHashPower,
+          totalMembers: statistic.totalMembers,
+          totalTXCShared: Number(statistic.totalTXCShared) / TXC,
+          issuedAt: statistic.issuedAt,
+          memberTXC: Number(statistic.txcShared) / TXC,
+          memberHashPower: statistic.hashPower,
+          memberPercent: statistic.percent / PERCENT,
+          walletAddress: statistic.address,
+          walletTXC: Number(statistic.walletTXC) / TXC,
+          walletPercent: (Number(statistic.walletTXC) / Number(statistic.txcShared)) * 100,
+        };
+      }),
+      merges
     );
   }
 }

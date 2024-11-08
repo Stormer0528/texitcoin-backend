@@ -3,7 +3,7 @@ import { Request, Response, NextFunction } from 'express';
 import { JWT_TOKENEXPIRED } from '@/consts/errors';
 import { verifyToken } from '@/utils/auth';
 
-export const adminAuthorized = (req: Request, res: Response, next: NextFunction) => {
+export const authorized = (req: Request, res: Response, next: NextFunction) => {
   const token = req.headers.authorization?.split(' ')[1];
   if (token) {
     try {
@@ -13,7 +13,7 @@ export const adminAuthorized = (req: Request, res: Response, next: NextFunction)
         isAdmin,
       };
 
-      if (isAdmin) {
+      if (id) {
         return next();
       } else {
         return res.status(401).send('You are not an admin');

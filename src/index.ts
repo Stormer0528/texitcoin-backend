@@ -28,7 +28,6 @@ import { AdminResolver } from './entity/admin/admin.resolver';
 import { MemberWalletResolver } from './entity/memberWallet/memberWallet.resolver';
 import { MemberStatisticsWalletResolver } from './entity/memberStatisticsWallet/memberStatisticsWallet.resolver';
 import router from './rest/routes';
-import { adminAuthorized } from './rest/middlewares/adminAuthorized.middleware';
 import { DailyBlockResolver } from './entity/dailyblock/dailyblock.resolver';
 import { WeeklyBlockResolver } from './entity/weeklyblock/weeklyblock.resolver';
 import { MonthlyBlockResolver } from './entity/monthlyblock/monthlyblock.resolver';
@@ -92,7 +91,7 @@ const app = async () => {
       context,
     })
   );
-  mainServer.use('/api', adminAuthorized, router);
+  mainServer.use('/api', router);
   mainServer.use('/public/payment', express.static(PAYMENT_UPLOAD_DIR));
 
   const APP_HOST = process.env.APP_HOST ?? '0.0.0.0';
