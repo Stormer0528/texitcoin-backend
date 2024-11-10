@@ -32,6 +32,10 @@ import { FileSaleService } from '../fileSale/fileSale.service';
 import { SuccessResult } from '@/graphql/enum';
 import { MemberWalletService } from '../memberWallet/memberWallet.service';
 import { PAYOUTS } from '@/consts';
+import dayjs from 'dayjs';
+import utcPlugin from 'dayjs/plugin/utc';
+
+dayjs.extend(utcPlugin);
 
 @Service()
 @Resolver(() => Sale)
@@ -107,6 +111,20 @@ export class SaleResolver {
     }
 
     const { fileIds, ...restData } = data;
+    const member = await this.memberService.getMemberById(restData.memberId);
+    const memberWeek = dayjs(member.createdAt).utc().startOf('week');
+    const orderWeek = dayjs(data.orderedAt).utc().startOf('week');
+    if (memberWeek > orderWeek) {
+      throw new GraphQLError(
+        'You cannot create a sale order for a date earlier than the week the miner joined.',
+        {
+          extensions: {
+            path: ['orderedAt'],
+          },
+        }
+      );
+    }
+
     const sale = await this.service.createSale(restData);
     if (fileIds) {
       await this.fileSaleService.createFileSales(
@@ -124,6 +142,20 @@ export class SaleResolver {
   async updateSale(@Arg('data') data: UpdateSaleInput): Promise<Sale> {
     const oldsale = await this.service.getSaleById(data.id);
     const { fileIds, ...restData } = data;
+    const member = await this.memberService.getMemberById(restData.memberId);
+    const memberWeek = dayjs(member.createdAt).utc().startOf('week');
+    const orderWeek = dayjs(data.orderedAt).utc().startOf('week');
+    if (memberWeek > orderWeek) {
+      throw new GraphQLError(
+        'You cannot update a sales order date to be earlier than the week miner joined',
+        {
+          extensions: {
+            path: ['orderedAt'],
+          },
+        }
+      );
+    }
+
     const newsale = await this.service.updateSale(restData);
     if (fileIds) {
       await this.fileSaleService.setFileSales(newsale.id, fileIds);
