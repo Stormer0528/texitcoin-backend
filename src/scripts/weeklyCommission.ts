@@ -6,6 +6,8 @@ import { formatDate } from '@/utils/common';
 import { isBefore } from '@/utils/isBeforeDate';
 import { PLACEMENT_ROOT } from '@/consts';
 import Bluebird from 'bluebird';
+import { calculatePoint } from '@/utils/calculatePoint';
+import { addPoint } from '@/utils/addPoint';
 
 dayjs.extend(weekOfYear);
 
@@ -32,58 +34,6 @@ async function getSalesByWeekStart(tranPrisma: PrismaClient, startDate: Date) {
       },
     },
   });
-}
-
-async function addPoint(
-  tranPrisma: PrismaClient,
-  mapMembers: Record<string, any>,
-  sale: { id: string; point: number },
-  addedLeftPoint: Record<string, number>,
-  addedRightPoint: Record<string, number>,
-  weekStartDate: Date
-) {
-  if (!sale.point) return;
-  let iID = sale.id;
-  const ids: { id: string; position: string }[] = [];
-  const nextWeekStartDate = dayjs(weekStartDate).add(1, 'week').toDate();
-  while (iID !== PLACEMENT_ROOT && iID) {
-    if (!mapMembers[iID]) break;
-
-    const parentId = mapMembers[iID].placementParentId;
-    if (parentId) {
-      if (mapMembers[parentId].createdAt < nextWeekStartDate) {
-        ids.push({
-          id: parentId,
-          position: mapMembers[iID].placementPosition,
-        });
-      }
-    }
-
-    iID = parentId;
-  }
-
-  if (iID) {
-    ids.forEach((id) => {
-      if (id.position === 'LEFT') {
-        addedLeftPoint[id.id] = (addedLeftPoint[id.id] ?? 0) + sale.point;
-      } else if (id.position === 'RIGHT') {
-        addedRightPoint[id.id] = (addedRightPoint[id.id] ?? 0) + sale.point;
-      }
-    });
-  }
-}
-
-function calculatePoint(points: { left: number; right: number }) {
-  const orgLeft = Math.min(9, points.left);
-  const orgRight = Math.min(9, points.right);
-  if (orgLeft >= 9 && orgRight >= 9) {
-    return [orgLeft, orgRight, 9, 9, 3000];
-  } else if (orgLeft >= 6 && orgRight >= 6) {
-    return [orgLeft, orgRight, 6, 6, 2000];
-  } else if (orgLeft >= 3 && orgRight >= 3) {
-    return [orgLeft, orgRight, 3, 3, 1000];
-  }
-  return [orgLeft, orgRight, 0, 0, 0];
 }
 
 async function weeklyCommission(tranPrisma: PrismaClient) {
@@ -123,7 +73,6 @@ async function weeklyCommission(tranPrisma: PrismaClient) {
     const addedRightPoint: Record<string, number> = {};
     weekSales.forEach((sale) => {
       addPoint(
-        tranPrisma,
         mapMembers,
         {
           id: sale.memberId,

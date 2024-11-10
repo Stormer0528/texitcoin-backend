@@ -9,12 +9,6 @@ import {
   verifyToken,
 } from '@/utils/auth';
 import { PrismaService } from '@/service/prisma';
-import {
-  FREE_SHARE_DIVIDER1,
-  FREE_SHARE_ID_1,
-  FREE_SHARE_ID_2,
-  SPONSOR_BONOUS_CNT,
-} from '@/consts';
 
 import {
   CreateMemberInput,
@@ -26,6 +20,13 @@ import {
 } from './member.type';
 import { Member } from './member.entity';
 import { SendyService } from '@/service/sendy';
+import dayjs from 'dayjs';
+import utcPlugin from 'dayjs/plugin/utc';
+import { addPoint } from '@/utils/addPoint';
+import { formatDate } from '@/utils/common';
+import Bluebird from 'bluebird';
+
+dayjs.extend(utcPlugin);
 
 @Service()
 export class MemberService {
@@ -427,5 +428,108 @@ export class MemberService {
       // sendy
       this.sendyService.addSubscriber(member.email, member.fullName);
     }
+  }
+
+  async reCalculateCurrentLR(): Promise<void> {
+    const currentWeek = dayjs().utc().startOf('week').subtract(1, 'week');
+
+    const allMembers = await this.prisma.member.findMany({});
+    const mapMembers = {};
+    allMembers.forEach((mb) => {
+      mapMembers[mb.id] = {
+        ...mb,
+      };
+    });
+
+    const weekSales = await this.prisma.sale.findMany({
+      where: {
+        orderedAt: {
+          gte: currentWeek.toDate(),
+        },
+      },
+      include: {
+        member: true,
+        package: {
+          select: {
+            point: true,
+          },
+        },
+      },
+    });
+
+    const addedLeftPoint: Record<string, number> = {};
+    const addedRightPoint: Record<string, number> = {};
+
+    weekSales.forEach((sale) => {
+      addPoint(
+        mapMembers,
+        {
+          id: sale.memberId,
+          point: sale.package.point,
+        },
+        addedLeftPoint,
+        addedRightPoint,
+        currentWeek.toDate()
+      );
+    });
+
+    const prevWeekStartDate = currentWeek.utc().subtract(1, 'week').toDate();
+    const lastWeeklyCommissions = await this.prisma.weeklyCommission.findMany({
+      where: {
+        weekStartDate: prevWeekStartDate,
+      },
+    });
+    const resultMap: Record<string, { left: number; right: number }> = {}; //initial with previous status
+
+    const members = await this.prisma.member.findMany({});
+    members.forEach((member) => (resultMap[member.id] = { left: 0, right: 0 }));
+
+    if (lastWeeklyCommissions.length > 0) {
+      lastWeeklyCommissions.forEach((commissionstatus) => {
+        resultMap[commissionstatus.memberId] = {
+          left: commissionstatus.endL,
+          right: commissionstatus.endR,
+        };
+      });
+    }
+
+    const combinedMap: Record<string, { left: number; right: number }> = {};
+
+    Object.keys(addedLeftPoint).forEach((id) => {
+      combinedMap[id] = {
+        left: (combinedMap[id]?.left ?? 0) + addedLeftPoint[id],
+        right: combinedMap[id]?.right ?? 0,
+      };
+    });
+
+    Object.keys(addedRightPoint).forEach((id) => {
+      combinedMap[id] = {
+        left: combinedMap[id]?.left ?? 0,
+        right: (combinedMap[id]?.right ?? 0) + addedRightPoint[id],
+      };
+    });
+
+    Object.keys(combinedMap).forEach((id) => {
+      resultMap[id] = {
+        left: (resultMap[id]?.left ?? 0) + combinedMap[id].left,
+        right: (resultMap[id]?.right ?? 0) + combinedMap[id].right,
+      };
+    });
+
+    await Bluebird.map(
+      Object.entries(resultMap),
+      async ([id, points]) => {
+        return this.prisma.member.update({
+          data: {
+            currentL: points.left,
+            currentR: points.right,
+          },
+          where: {
+            id,
+          },
+        });
+      },
+      { concurrency: 10 }
+    );
   }
 }
