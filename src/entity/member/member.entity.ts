@@ -1,4 +1,4 @@
-import { ObjectType, Field, ID, Args, Authorized } from 'type-graphql';
+import { ObjectType, Field, ID, Args, Authorized, Int } from 'type-graphql';
 import { IsEmail } from 'class-validator';
 
 import { BaseEntity } from '@/graphql/baseEntity';
@@ -80,6 +80,12 @@ export class Member extends BaseEntity {
 
   @Field({ nullable: true })
   preferredContactDetail?: string;
+
+  @Field(() => Int)
+  currentL: number;
+
+  @Field(() => Int)
+  currentR: number;
 
   @Field(() => [Sale], { nullable: 'itemsAndList' })
   sales?: Sale[];

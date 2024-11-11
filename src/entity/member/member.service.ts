@@ -431,7 +431,7 @@ export class MemberService {
   }
 
   async reCalculateCurrentLR(): Promise<void> {
-    const currentWeek = dayjs().utc().startOf('week').subtract(1, 'week');
+    const currentWeek = dayjs().utc().startOf('week');
 
     const allMembers = await this.prisma.member.findMany({});
     const mapMembers = {};
@@ -473,7 +473,7 @@ export class MemberService {
       );
     });
 
-    const prevWeekStartDate = currentWeek.utc().subtract(1, 'week').toDate();
+    const prevWeekStartDate = currentWeek.subtract(1, 'week').toDate();
     const lastWeeklyCommissions = await this.prisma.weeklyCommission.findMany({
       where: {
         weekStartDate: prevWeekStartDate,

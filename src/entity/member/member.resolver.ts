@@ -646,6 +646,15 @@ export class MemberResolver {
     };
   }
 
+  @Mutation(() => SuccessResponse)
+  @Transaction()
+  async recalculateCurrentCommission(): Promise<SuccessResponse> {
+    await this.service.reCalculateCurrentLR();
+    return {
+      result: SuccessResult.success,
+    };
+  }
+
   @FieldResolver(() => [MemberLog])
   async logs(@Root() member: Member, @Arg('logsize', { defaultValue: 10 }) logsize: number) {
     const logres = await this.elasticService.getLogByMinerId(member.id, logsize);
