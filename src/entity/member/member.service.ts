@@ -509,20 +509,15 @@ export class MemberService {
       };
     });
 
-    Object.keys(combinedMap).forEach((id) => {
-      resultMap[id] = {
-        left: (resultMap[id]?.left ?? 0) + combinedMap[id].left,
-        right: (resultMap[id]?.right ?? 0) + combinedMap[id].right,
-      };
-    });
-
     await Bluebird.map(
-      Object.entries(resultMap),
-      async ([id, points]) => {
+      allMembers,
+      async ({ id }) => {
         return this.prisma.member.update({
           data: {
-            currentL: points.left,
-            currentR: points.right,
+            begL: resultMap[id]?.left ?? 0,
+            begR: resultMap[id]?.right ?? 0,
+            newL: combinedMap[id].left ?? 0,
+            newR: combinedMap[id].right ?? 0,
           },
           where: {
             id,

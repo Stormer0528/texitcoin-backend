@@ -82,10 +82,16 @@ export class Member extends BaseEntity {
   preferredContactDetail?: string;
 
   @Field(() => Int)
-  currentL: number;
+  begL: number;
 
   @Field(() => Int)
-  currentR: number;
+  begR: number;
+
+  @Field(() => Int)
+  newL: number;
+
+  @Field(() => Int)
+  newR: number;
 
   @Field(() => [Sale], { nullable: 'itemsAndList' })
   sales?: Sale[];
