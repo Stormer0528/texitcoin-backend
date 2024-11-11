@@ -29,6 +29,7 @@ import { Member } from '../member/member.entity';
 import { UserRole } from '@/type';
 import { Confirmation4Status } from '@/graphql/enum';
 import { FileCommissionService } from '../fileCommission/fileCommission.service';
+import { PFile } from '../file/file.entity';
 
 @Service()
 @Resolver(() => WeeklyCommission)
@@ -104,5 +105,14 @@ export class WeeklyCommissionResolver {
   @FieldResolver({ nullable: true })
   async member(@Root() weeklyCommision: WeeklyCommission, @Ctx() ctx: Context): Promise<Member> {
     return ctx.dataLoader.get('memberForWeeklyCommissionLoader').load(weeklyCommision.memberId);
+  }
+
+  @Authorized([UserRole.Admin])
+  @FieldResolver({ nullable: 'itemsAndList' })
+  async paymentConfirm(
+    @Root() commission: WeeklyCommission,
+    @Ctx() ctx: Context
+  ): Promise<PFile[]> {
+    return ctx.dataLoader.get('filesForWeeklyCommissionLoader').load(commission.id);
   }
 }
