@@ -32,8 +32,17 @@ export class SaleService {
   }
 
   async createSale(data: CreateSaleInput) {
+    const { purchaseId } = await this.prisma.sale.findFirst({
+      orderBy: {
+        purchaseId: 'desc',
+      },
+    });
+
     return this.prisma.sale.create({
-      data,
+      data: {
+        ...data,
+        purchaseId: purchaseId + 1,
+      },
     });
   }
 
