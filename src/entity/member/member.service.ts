@@ -516,8 +516,8 @@ export class MemberService {
           data: {
             begL: resultMap[id]?.left ?? 0,
             begR: resultMap[id]?.right ?? 0,
-            newL: combinedMap[id].left ?? 0,
-            newR: combinedMap[id].right ?? 0,
+            newL: combinedMap[id]?.left ?? 0,
+            newR: combinedMap[id]?.right ?? 0,
           },
           where: {
             id,
