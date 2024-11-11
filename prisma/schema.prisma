@@ -339,7 +339,8 @@ model WeeklyCommission {
   status        Confirmation4Status @default(NONE)
   note          String?             @default("")
 
-  member Member? @relation(fields: [memberId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  member          Member?          @relation(fields: [memberId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  fileCommissions FileCommission[]
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -376,7 +377,8 @@ model File {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  fileSale FileSale?
+  fileSale       FileSale?
+  fileCommission FileCommission?
 
   @@map("files")
 }
@@ -395,4 +397,20 @@ model FileSale {
 
   @@unique([fileId], map: "unique_index_on_filesale")
   @@map("filesales")
+}
+
+model FileCommission {
+  id           String @id @default(uuid())
+  commissionId String
+  fileId       String
+
+  commission WeeklyCommission? @relation(fields: [commissionId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  file       File?             @relation(fields: [fileId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@unique([fileId], map: "unique_index_on_filecommission")
+  @@map("filecommissions")
 }
