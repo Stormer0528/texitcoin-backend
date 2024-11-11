@@ -97,6 +97,7 @@ model Member {
 
 model Sale {
   id            String   @id @default(uuid())
+  purchaseId    Int?     @unique
   memberId      String
   packageId     String
   paymentMethod String
