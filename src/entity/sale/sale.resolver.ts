@@ -147,7 +147,7 @@ export class SaleResolver {
     const orderWeek = dayjs(data.orderedAt).utc().startOf('week');
     if (memberWeek > orderWeek) {
       throw new GraphQLError(
-        'You cannot update a sales order date to be earlier than the week miner joined',
+        'You cannot update the order date for a sale to a date earlier than the week the miner joined.',
         {
           extensions: {
             path: ['orderedAt'],
