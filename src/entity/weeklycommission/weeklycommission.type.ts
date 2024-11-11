@@ -28,6 +28,9 @@ export class WeeklyCommissionUpdateInput {
 
   @Field({ nullable: true })
   note?: string;
+
+  @Field(() => [ID], { nullable: 'itemsAndList' })
+  fileIds?: string[];
 }
 
 export type CONFIRMATION4STATUS = 'NONE' | 'PENDING' | 'CONFIRM' | 'BLOCK';

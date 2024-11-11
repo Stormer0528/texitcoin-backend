@@ -6,10 +6,12 @@ import { IDInput } from '@/graphql/common.type';
 
 import { WeeklyCommissionQueryArgs, WeeklyCommissionUpdateInput } from './weeklycommission.type';
 import { WeeklyCommission } from './weeklycommission.entity';
+import { FileCommissionService } from '../fileCommission/fileCommission.service';
 
 @Service()
 export class WeeklyCommissionService {
   constructor(
+    private readonly fileCommissionService: FileCommissionService,
     @Inject(() => PrismaService)
     private readonly prisma: PrismaService
   ) {}
@@ -34,6 +36,9 @@ export class WeeklyCommissionService {
   }
 
   async updateWeeklyCommission(data: WeeklyCommissionUpdateInput): Promise<WeeklyCommission> {
+    if (data.fileIds) {
+      await this.fileCommissionService.setFileCommissions(data.id, data.fileIds);
+    }
     return this.prisma.weeklyCommission.update({
       where: {
         id: data.id,
