@@ -138,6 +138,18 @@ async function weeklyCommission(tranPrisma: PrismaClient) {
       async ([id, points]) => {
         const [finalLeft, finalRight, left, right, commission] = calculatePoint(points);
 
+        await tranPrisma.member.update({
+          where: {
+            id,
+          },
+          data: {
+            begL: finalLeft - left,
+            begR: finalRight - right,
+            newL: 0,
+            newR: 0,
+          },
+        });
+
         return tranPrisma.weeklyCommission.create({
           data: {
             memberId: id,
