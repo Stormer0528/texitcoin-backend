@@ -35,10 +35,9 @@ export class WeeklyCommissionService {
     });
   }
 
-  async updateWeeklyCommission(data: WeeklyCommissionUpdateInput): Promise<WeeklyCommission> {
-    if (data.fileIds) {
-      await this.fileCommissionService.setFileCommissions(data.id, data.fileIds);
-    }
+  async updateWeeklyCommission(
+    data: Omit<WeeklyCommissionUpdateInput, 'fileIds'>
+  ): Promise<WeeklyCommission> {
     return this.prisma.weeklyCommission.update({
       where: {
         id: data.id,
