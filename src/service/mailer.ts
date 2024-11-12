@@ -127,7 +127,7 @@ export class MailerService {
         from: `"${SMTP_SENDER_NAME}" <${SMTP_SENDER_EMAIL}>`,
         to: ADMIN_EMAIL,
         subject: 'Miner Reached Third Introducer Notification',
-        template: 'sponsornotification.hbs',
+        template: 'sponsornotification',
         context: {
           minerName: minerFullname,
           minerUsername: minerUsername,
