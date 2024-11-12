@@ -221,7 +221,7 @@ export class MemberResolver {
 
     if (data.sponsorId) {
       await this.service.calculateTotalIntroducerCount(data.sponsorId);
-      await this.service.calculateSponsorBonous(data.sponsorId);
+      await this.service.checkSponsorBonous(data.sponsorId);
     }
 
     // sendy
@@ -347,11 +347,11 @@ export class MemberResolver {
     if (prevSponsorID !== member.sponsorId) {
       if (prevSponsorID) {
         await this.service.calculateTotalIntroducerCount(prevSponsorID);
-        await this.service.calculateSponsorBonous(prevSponsorID);
+        await this.service.checkSponsorBonous(prevSponsorID, false);
       }
       if (member.sponsorId) {
         await this.service.calculateTotalIntroducerCount(member.sponsorId);
-        await this.service.calculateSponsorBonous(member.sponsorId);
+        await this.service.checkSponsorBonous(member.sponsorId);
       }
     }
 
@@ -413,6 +413,7 @@ export class MemberResolver {
 
     if (member.sponsorId) {
       await this.service.calculateTotalIntroducerCount(member.sponsorId);
+      await this.service.checkSponsorBonous(member.sponsorId, false);
     }
 
     // sendy

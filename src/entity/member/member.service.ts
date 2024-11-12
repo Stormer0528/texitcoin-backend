@@ -25,6 +25,8 @@ import utcPlugin from 'dayjs/plugin/utc';
 import { addPoint } from '@/utils/addPoint';
 import { formatDate } from '@/utils/common';
 import Bluebird from 'bluebird';
+import { SPONSOR_BONOUS_CNT } from '@/consts';
+import { MailerService } from '@/service/mailer';
 
 dayjs.extend(utcPlugin);
 
@@ -34,7 +36,9 @@ export class MemberService {
     @Inject(() => PrismaService)
     private readonly prisma: PrismaService,
     @Inject(() => SendyService)
-    private readonly sendyService: SendyService
+    private readonly sendyService: SendyService,
+    @Inject(() => MailerService)
+    private readonly mailerService: MailerService
   ) {}
 
   async getMembers(params: MemberQueryArgs) {
@@ -374,6 +378,18 @@ export class MemberService {
     // }
   }
 
+  async checkSponsorBonous(id: string, notifyEmail: boolean = true): Promise<void> {
+    if (!id) return;
+    const { totalIntroducers, username, fullName } = await this.prisma.member.findUnique({
+      where: { id },
+    });
+    if (totalIntroducers % SPONSOR_BONOUS_CNT === 0) {
+      if (notifyEmail) {
+        this.mailerService.notifyMiner3rdIntroducersToAdmin(username, fullName, totalIntroducers);
+      }
+    }
+  }
+
   async incraseIntroducerCount(id: string): Promise<void> {
     await this.prisma.$queryRaw`
     UPDATE members
@@ -421,7 +437,7 @@ export class MemberService {
     });
     if (member.sponsorId) {
       await this.calculateTotalIntroducerCount(member.sponsorId);
-      await this.calculateSponsorBonous(member.sponsorId);
+      await this.checkSponsorBonous(member.sponsorId);
     }
 
     if (member.syncWithSendy) {

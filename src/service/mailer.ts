@@ -116,4 +116,28 @@ export class MailerService {
       );
     }
   }
+
+  public async notifyMiner3rdIntroducersToAdmin(
+    minerUsername: string,
+    minerFullname: string,
+    totalIntroducers: number
+  ) {
+    if (isEmail(ADMIN_EMAIL) && isEmail(SMTP_SENDER_EMAIL)) {
+      const mailOption = {
+        from: `"${SMTP_SENDER_NAME}" <${SMTP_SENDER_EMAIL}>`,
+        to: ADMIN_EMAIL,
+        subject: 'Miner Reached Third Introducer Notification',
+        template: 'sponsornotification.hbs',
+        context: {
+          minerName: minerFullname,
+          minerUsername: minerUsername,
+          totalIntroducers: totalIntroducers,
+        },
+      };
+      const sentMailInfo = await this.sendMail(mailOption);
+      console.log(
+        `Email was sent to ${ADMIN_EMAIL}, Type => Miner Reached Third Introducer Notification, Message ID => ${sentMailInfo.messageId}`
+      );
+    }
+  }
 }
