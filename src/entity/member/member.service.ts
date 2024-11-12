@@ -383,7 +383,7 @@ export class MemberService {
     const { totalIntroducers, username, fullName } = await this.prisma.member.findUnique({
       where: { id },
     });
-    if (totalIntroducers % SPONSOR_BONOUS_CNT === 0) {
+    if (totalIntroducers && totalIntroducers % SPONSOR_BONOUS_CNT === 0) {
       if (notifyEmail) {
         this.mailerService.notifyMiner3rdIntroducersToAdmin(username, fullName, totalIntroducers);
       }
