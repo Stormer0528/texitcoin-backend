@@ -240,6 +240,11 @@ export class ExcelService {
         headerStyle: styles.headerNormal,
         width: 30,
       },
+      purchaseId: {
+        displayName: 'Purchase ID',
+        headerStyle: styles.headerNormal,
+        width: 70,
+      },
       productName: {
         displayName: 'productName',
         headerStyle: styles.headerNormal,
