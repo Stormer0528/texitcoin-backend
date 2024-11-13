@@ -1,4 +1,4 @@
-import { ObjectType, Field, ID, Authorized } from 'type-graphql';
+import { ObjectType, Field, ID, Authorized, Int } from 'type-graphql';
 
 import { BaseEntity } from '@/graphql/baseEntity';
 
@@ -13,7 +13,7 @@ export class Sale extends BaseEntity {
   @Field(() => ID)
   id: string;
 
-  @Field({ nullable: true })
+  @Field(() => Int, { nullable: true })
   purchaseId?: number;
 
   @Field()
