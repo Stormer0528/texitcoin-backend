@@ -435,8 +435,10 @@ model ReferenceLinks {
   id                  String  @id @default(uuid())
   saleId              String?
   commissionId        String?
-  link                String
   prepaidCommissionId String?
+
+  linkType String
+  link     String
 
   sale              Sale?              @relation(fields: [saleId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   commission        WeeklyCommission?  @relation(fields: [commissionId], references: [id], onDelete: NoAction, onUpdate: NoAction)
