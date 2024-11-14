@@ -73,7 +73,7 @@ export const statisticsSalesForSaleLoader = (parent: RootDataLoader) => {
 export const filesForSaleLoader = (parent: RootDataLoader) => {
   return new DataLoader<string, PFile[]>(
     async (saleIds: string[]) => {
-      const salesWithFile = await parent.prisma.fileSale.findMany({
+      const salesWithFile = await parent.prisma.fileRelation.findMany({
         where: {
           saleId: {
             in: saleIds,

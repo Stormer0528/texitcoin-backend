@@ -7,7 +7,7 @@ import { WeeklyCommission } from '@/entity/weeklycommission/weeklycommission.ent
 export const saleForFileLoader = (parent: RootDataLoader) => {
   return new DataLoader<string, Sale>(
     async (fileIds: string[]) => {
-      const filesWithSale = await parent.prisma.fileSale.findMany({
+      const filesWithSale = await parent.prisma.fileRelation.findMany({
         where: {
           fileId: {
             in: fileIds,
@@ -35,7 +35,7 @@ export const saleForFileLoader = (parent: RootDataLoader) => {
 export const commissionsForFileLoader = (parent: RootDataLoader) => {
   return new DataLoader<string, WeeklyCommission>(
     async (fileIds: string[]) => {
-      const filesWithCommissions = await parent.prisma.fileCommission.findMany({
+      const filesWithCommissions = await parent.prisma.fileRelation.findMany({
         where: {
           fileId: {
             in: fileIds,

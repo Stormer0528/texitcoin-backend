@@ -5,7 +5,6 @@ import { BaseEntity } from '@/graphql/baseEntity';
 import { Member } from '../member/member.entity';
 import { ConfirmationStatus } from '@/graphql/enum';
 import { CONFIRMATIONSTATUS } from './weeklycommission.type';
-import { FileCommission } from '../fileCommission/fileCommission.entity';
 import { PFile } from '../file/file.entity';
 import { UserRole } from '@/type';
 

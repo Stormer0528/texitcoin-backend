@@ -28,15 +28,15 @@ import { WeeklyCommission } from './weeklycommission.entity';
 import { Member } from '../member/member.entity';
 import { UserRole } from '@/type';
 import { ConfirmationStatus } from '@/graphql/enum';
-import { FileCommissionService } from '../fileCommission/fileCommission.service';
 import { PFile } from '../file/file.entity';
 import { Transaction } from '@/graphql/decorator';
+import { FileRelationService } from '../fileRelation/fileRelation.service';
 
 @Service()
 @Resolver(() => WeeklyCommission)
 export class WeeklyCommissionResolver {
   constructor(
-    private readonly fileCommissionService: FileCommissionService,
+    private readonly fileRelationService: FileRelationService,
     private readonly service: WeeklyCommissionService
   ) {}
 
@@ -101,7 +101,7 @@ export class WeeklyCommissionResolver {
     }
 
     if (data?.fileIds) {
-      await this.fileCommissionService.setFileCommissions(data.id, data.fileIds);
+      await this.fileRelationService.setFileRelationsByCommissionId(data.id, data.fileIds);
     }
 
     return this.service.updateWeeklyCommission(_.omit(data, 'fileIds'));

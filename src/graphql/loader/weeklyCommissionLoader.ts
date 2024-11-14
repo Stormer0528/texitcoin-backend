@@ -27,7 +27,7 @@ export const memberForWeeklyCommissionLoader = (parent: RootDataLoader) => {
 export const filesForWeeklyCommissionLoader = (parent: RootDataLoader) => {
   return new DataLoader<string, PFile[]>(
     async (commissionIds: string[]) => {
-      const commissionsWithFile = await parent.prisma.fileCommission.findMany({
+      const commissionsWithFile = await parent.prisma.fileRelation.findMany({
         where: {
           commissionId: {
             in: commissionIds,

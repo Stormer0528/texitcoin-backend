@@ -28,7 +28,7 @@ import { PFile } from '../file/file.entity';
 import { SaleService } from './sale.service';
 import { MemberService } from '../member/member.service';
 import { Transaction } from '@/graphql/decorator';
-import { FileSaleService } from '../fileSale/fileSale.service';
+import { FileRelationService } from '../fileRelation/fileRelation.service';
 import { SuccessResult } from '@/graphql/enum';
 import { MemberWalletService } from '../memberWallet/memberWallet.service';
 import { PAYOUTS } from '@/consts';
@@ -43,7 +43,7 @@ export class SaleResolver {
   constructor(
     private readonly service: SaleService,
     private readonly memberService: MemberService,
-    private readonly fileSaleService: FileSaleService,
+    private readonly fileRelationService: FileRelationService,
     private readonly memberWalletService: MemberWalletService
   ) {}
 
@@ -127,7 +127,7 @@ export class SaleResolver {
 
     const sale = await this.service.createSale(restData);
     if (fileIds) {
-      await this.fileSaleService.createFileSales(
+      await this.fileRelationService.createFileRelations(
         fileIds.map((fileId) => ({ saleId: sale.id, fileId }))
       );
     }
@@ -158,7 +158,7 @@ export class SaleResolver {
 
     const newsale = await this.service.updateSale(restData);
     if (fileIds) {
-      await this.fileSaleService.setFileSales(newsale.id, fileIds);
+      await this.fileRelationService.setFileRelationsBySaldId(newsale.id, fileIds);
     }
     await this.memberService.updateMemberPointByMemberId(oldsale.memberId);
     await this.memberService.updateMemberPointByMemberId(newsale.memberId);
@@ -170,7 +170,7 @@ export class SaleResolver {
   @Mutation(() => SuccessResponse)
   async removeSale(@Arg('data') data: IDInput): Promise<SuccessResponse> {
     const sale = await this.service.getSaleById(data.id);
-    await this.fileSaleService.removeFileSalesBySaleId(sale.id);
+    await this.fileRelationService.removeFileRelationsBySaleId(sale.id);
     await this.service.removeSale(data);
     await this.memberService.updateMemberPointByMemberId(sale.memberId);
     return {
