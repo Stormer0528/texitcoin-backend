@@ -4,6 +4,7 @@ import { BaseEntity } from '@/graphql/baseEntity';
 
 import { PFile } from '../file/file.entity';
 import { Member } from '../member/member.entity';
+import { RefLink } from '../referenceLink/referenceLink.entity';
 
 @ObjectType()
 export class PrepaidCommission extends BaseEntity {
@@ -42,4 +43,7 @@ export class PrepaidCommission extends BaseEntity {
 
   @Field(() => Member, { nullable: true })
   member?: Member;
+
+  @Field(() => [RefLink], { nullable: 'itemsAndList' })
+  reflinks?: RefLink[];
 }

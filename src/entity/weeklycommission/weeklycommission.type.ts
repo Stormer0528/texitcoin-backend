@@ -6,6 +6,7 @@ import { PaginatedResponse } from '@/graphql/paginatedResponse';
 
 import { WeeklyCommission } from './weeklycommission.entity';
 import { ConfirmationStatus } from '@/graphql/enum';
+import { LinkInput } from '../referenceLink/referenceLink.type';
 
 // WeeklyCommission Query Args
 @ArgsType()
@@ -31,6 +32,9 @@ export class WeeklyCommissionUpdateInput {
 
   @Field(() => [ID], { nullable: 'itemsAndList' })
   fileIds?: string[];
+
+  @Field(() => [LinkInput], { nullable: 'itemsAndList' })
+  links?: LinkInput[];
 }
 
 export type CONFIRMATIONSTATUS = 'NONE' | 'PENDING' | 'APPROVED' | 'PAID' | 'DECLINED' | 'PREVIEW';

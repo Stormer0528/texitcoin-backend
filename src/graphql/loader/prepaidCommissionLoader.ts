@@ -4,6 +4,7 @@ import RootDataLoader from '.';
 import { Member } from '@/entity/member/member.entity';
 import { PFile } from '@/entity/file/file.entity';
 import { Sale } from '@/entity/sale/sale.entity';
+import { RefLink } from '@/entity/referenceLink/referenceLink.entity';
 
 export const memberForPrepaidCommissionLoader = (parent: RootDataLoader) => {
   return new DataLoader<string, Member>(
@@ -50,6 +51,41 @@ export const filesForPrepaidCommissionLoader = (parent: RootDataLoader) => {
       });
 
       return prepaidCommissionIds.map((id) => filesMap[id] ?? []);
+    },
+    {
+      ...parent.dataLoaderOptions,
+    }
+  );
+};
+
+export const referenceLinksForPrepaidCommissionLoader = (parent: RootDataLoader) => {
+  return new DataLoader<string, RefLink[]>(
+    async (prepaidCommissionIds: string[]) => {
+      const prepaidsWithLinks = await parent.prisma.referenceLink.findMany({
+        where: {
+          prepaidCommissionId: {
+            in: prepaidCommissionIds,
+          },
+        },
+        select: {
+          prepaidCommissionId: true,
+          link: true,
+          linkType: true,
+        },
+      });
+
+      const linksMap: Record<string, RefLink[]> = {};
+      prepaidsWithLinks.forEach((prepay) => {
+        if (!linksMap[prepay.prepaidCommissionId]) {
+          linksMap[prepay.prepaidCommissionId] = [];
+        }
+        linksMap[prepay.prepaidCommissionId].push({
+          link: prepay.link,
+          linkType: prepay.linkType,
+        });
+      });
+
+      return prepaidCommissionIds.map((id) => linksMap[id] ?? []);
     },
     {
       ...parent.dataLoaderOptions,

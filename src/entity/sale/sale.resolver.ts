@@ -34,6 +34,8 @@ import { MemberWalletService } from '../memberWallet/memberWallet.service';
 import { PAYOUTS } from '@/consts';
 import dayjs from 'dayjs';
 import utcPlugin from 'dayjs/plugin/utc';
+import { ReferenceLinkService } from '../referenceLink/referenceLink.service';
+import { RefLink } from '../referenceLink/referenceLink.entity';
 
 dayjs.extend(utcPlugin);
 
@@ -44,7 +46,8 @@ export class SaleResolver {
     private readonly service: SaleService,
     private readonly memberService: MemberService,
     private readonly fileRelationService: FileRelationService,
-    private readonly memberWalletService: MemberWalletService
+    private readonly memberWalletService: MemberWalletService,
+    private readonly referenceLinkService: ReferenceLinkService
   ) {}
 
   @Authorized()
@@ -110,7 +113,7 @@ export class SaleResolver {
       });
     }
 
-    const { fileIds, ...restData } = data;
+    const { fileIds, links, ...restData } = data;
     const member = await this.memberService.getMemberById(restData.memberId);
     const memberWeek = dayjs(member.createdAt).utc().startOf('week');
     const orderWeek = dayjs(data.orderedAt).utc().startOf('week');
@@ -131,6 +134,12 @@ export class SaleResolver {
         fileIds.map((fileId) => ({ saleId: sale.id, fileId }))
       );
     }
+    if (links) {
+      await this.referenceLinkService.createReferenceLinks(
+        links.map((link) => ({ saleId: sale.id, ...link }))
+      );
+    }
+
     await this.memberService.updateMemberPointByMemberId(sale.memberId);
     await this.memberService.approveMember(sale.memberId);
     return sale;
@@ -141,7 +150,7 @@ export class SaleResolver {
   @Mutation(() => Sale)
   async updateSale(@Arg('data') data: UpdateSaleInput): Promise<Sale> {
     const oldsale = await this.service.getSaleById(data.id);
-    const { fileIds, ...restData } = data;
+    const { fileIds, links, ...restData } = data;
     const member = await this.memberService.getMemberById(restData.memberId);
     const memberWeek = dayjs(member.createdAt).utc().startOf('week');
     const orderWeek = dayjs(data.orderedAt).utc().startOf('week');
@@ -160,6 +169,10 @@ export class SaleResolver {
     if (fileIds) {
       await this.fileRelationService.setFileRelationsBySaldId(newsale.id, fileIds);
     }
+    if (links) {
+      await this.referenceLinkService.setReferenceLinksBySaldId(newsale.id, links);
+    }
+
     await this.memberService.updateMemberPointByMemberId(oldsale.memberId);
     await this.memberService.updateMemberPointByMemberId(newsale.memberId);
     return newsale;
@@ -197,5 +210,11 @@ export class SaleResolver {
   @FieldResolver({ nullable: 'itemsAndList' })
   async paymentConfirm(@Root() sale: Sale, @Ctx() ctx: Context): Promise<PFile[]> {
     return ctx.dataLoader.get('filesForSaleLoader').load(sale.id);
+  }
+
+  @Authorized([UserRole.Admin])
+  @FieldResolver({ nullable: 'itemsAndList' })
+  async reflinks(@Root() sale: Sale, @Ctx() ctx: Context): Promise<RefLink[]> {
+    return ctx.dataLoader.get('referenceLinksForSaleLoader').load(sale.id);
   }
 }

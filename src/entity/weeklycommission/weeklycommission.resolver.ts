@@ -33,13 +33,16 @@ import { Transaction } from '@/graphql/decorator';
 import { FileRelationService } from '../fileRelation/fileRelation.service';
 import { SuccessResponse } from '@/graphql/common.type';
 import { COMMISSION_PREVIEW_COMMAND } from '@/consts';
+import { ReferenceLinkService } from '../referenceLink/referenceLink.service';
+import { RefLink } from '../referenceLink/referenceLink.entity';
 
 @Service()
 @Resolver(() => WeeklyCommission)
 export class WeeklyCommissionResolver {
   constructor(
     private readonly fileRelationService: FileRelationService,
-    private readonly service: WeeklyCommissionService
+    private readonly service: WeeklyCommissionService,
+    private readonly referenceLinkService: ReferenceLinkService
   ) {}
 
   @Authorized()
@@ -107,6 +110,10 @@ export class WeeklyCommissionResolver {
       await this.fileRelationService.setFileRelationsByCommissionId(data.id, data.fileIds);
     }
 
+    if (data?.links) {
+      await this.referenceLinkService.setReferenceLinksByCommissionId(data.id, data.links);
+    }
+
     return this.service.updateWeeklyCommission(_.omit(data, 'fileIds'));
   }
 
@@ -130,5 +137,11 @@ export class WeeklyCommissionResolver {
     @Ctx() ctx: Context
   ): Promise<PFile[]> {
     return ctx.dataLoader.get('filesForWeeklyCommissionLoader').load(commission.id);
+  }
+
+  @Authorized([UserRole.Admin])
+  @FieldResolver({ nullable: 'itemsAndList' })
+  async reflinks(@Root() commission: WeeklyCommission, @Ctx() ctx: Context): Promise<RefLink[]> {
+    return ctx.dataLoader.get('referenceLinksForCommissionLoader').load(commission.id);
   }
 }

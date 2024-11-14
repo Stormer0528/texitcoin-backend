@@ -28,6 +28,17 @@ export class ReferenceLinkService {
     });
   }
 
+  async setReferenceLinksBySaldId(saleId: string, links: LinkInput[]) {
+    await this.prisma.referenceLink.deleteMany({
+      where: {
+        saleId,
+      },
+    });
+    await this.prisma.referenceLink.createMany({
+      data: links.map((link) => ({ saleId, ...link })),
+    });
+  }
+
   async setReferenceLinksByCommissionId(commissionId: string, links: LinkInput[]) {
     await this.prisma.referenceLink.deleteMany({
       where: {

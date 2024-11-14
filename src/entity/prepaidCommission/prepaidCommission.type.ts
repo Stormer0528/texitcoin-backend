@@ -4,6 +4,7 @@ import { ObjectType, InputType, Field, ArgsType, ID, Int } from 'type-graphql';
 import { QueryArgsBase } from '@/graphql/queryArgs';
 import { PaginatedResponse } from '@/graphql/paginatedResponse';
 import { PrepaidCommission } from './prepaidCommission.entity';
+import { LinkInput } from '../referenceLink/referenceLink.type';
 
 // PrepaidCommission Query Args
 @ArgsType()
@@ -48,6 +49,9 @@ export class CreatePrepaidCommissionInput {
 
   @Field({ nullable: true })
   note?: string;
+
+  @Field(() => [LinkInput], { nullable: 'itemsAndList' })
+  links?: LinkInput[];
 }
 
 // Update PrepaidCommission Input and Response
@@ -85,4 +89,7 @@ export class UpdatePrepaidCommissionInput {
 
   @Field({ nullable: true })
   note?: string;
+
+  @Field(() => [LinkInput], { nullable: 'itemsAndList' })
+  links?: LinkInput[];
 }

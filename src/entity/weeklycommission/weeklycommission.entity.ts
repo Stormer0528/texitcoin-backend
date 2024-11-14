@@ -7,6 +7,7 @@ import { ConfirmationStatus } from '@/graphql/enum';
 import { CONFIRMATIONSTATUS } from './weeklycommission.type';
 import { PFile } from '../file/file.entity';
 import { UserRole } from '@/type';
+import { RefLink } from '../referenceLink/referenceLink.entity';
 
 @ObjectType()
 export class WeeklyCommission extends BaseEntity {
@@ -55,6 +56,7 @@ export class WeeklyCommission extends BaseEntity {
   @Field(() => ConfirmationStatus)
   status: CONFIRMATIONSTATUS;
 
+  @Authorized([UserRole.Admin])
   @Field({ nullable: true })
   note?: string;
 
@@ -64,4 +66,8 @@ export class WeeklyCommission extends BaseEntity {
 
   @Field(() => Member, { nullable: true })
   member?: Member;
+
+  @Authorized([UserRole.Admin])
+  @Field(() => [RefLink], { nullable: 'itemsAndList' })
+  reflinks?: RefLink[];
 }

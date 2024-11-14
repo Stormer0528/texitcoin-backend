@@ -36,6 +36,8 @@ import { SuccessResult } from '@/graphql/enum';
 import { Sale } from '../sale/sale.entity';
 import { PFile } from '../file/file.entity';
 import { Member } from '../member/member.entity';
+import { ReferenceLinkService } from '../referenceLink/referenceLink.service';
+import { RefLink } from '../referenceLink/referenceLink.entity';
 
 dayjs.extend(utcPlugin);
 
@@ -45,7 +47,8 @@ export class PrepaidCommissionResolver {
   constructor(
     private readonly service: PrepaidCommissionService,
     private memberService: MemberService,
-    private readonly fileRelationService: FileRelationService
+    private readonly fileRelationService: FileRelationService,
+    private readonly referenceLinkService: ReferenceLinkService
   ) {}
 
   @Authorized([UserRole.Admin])
@@ -101,13 +104,19 @@ export class PrepaidCommissionResolver {
       });
     }
 
-    const { fileIds, ...restData } = data;
+    const { fileIds, links, ...restData } = data;
     const prepaidCommission = await this.service.createPrepaidCommission(restData);
     if (fileIds) {
       await this.fileRelationService.createFileRelations(
         fileIds.map((fileId) => ({ prepaidCommissionId: prepaidCommission.id, fileId }))
       );
     }
+    if (links) {
+      await this.referenceLinkService.createReferenceLinks(
+        links.map((link) => ({ prepaidCommissionId: prepaidCommission.id, ...link }))
+      );
+    }
+
     return prepaidCommission;
   }
 
@@ -117,10 +126,16 @@ export class PrepaidCommissionResolver {
   async updatePrepaidCommission(
     @Arg('data') data: UpdatePrepaidCommissionInput
   ): Promise<PrepaidCommission> {
-    const { fileIds, ...restData } = data;
+    const { fileIds, links, ...restData } = data;
     const prepaidCommission = await this.service.updatePrepaidCommission(restData);
     if (fileIds) {
       await this.fileRelationService.setFileRelationsBySaldId(prepaidCommission.id, fileIds);
+    }
+    if (links) {
+      await this.referenceLinkService.setReferenceLinksByPrepaidCommissionId(
+        prepaidCommission.id,
+        links
+      );
     }
     return prepaidCommission;
   }
@@ -148,5 +163,15 @@ export class PrepaidCommissionResolver {
     @Ctx() ctx: Context
   ): Promise<PFile[]> {
     return ctx.dataLoader.get('filesForPrepaidCommissionLoader').load(prepaidCommission.id);
+  }
+
+  @FieldResolver({ nullable: 'itemsAndList' })
+  async reflinks(
+    @Root() prepaidCommission: PrepaidCommission,
+    @Ctx() ctx: Context
+  ): Promise<RefLink[]> {
+    return ctx.dataLoader
+      .get('referenceLinksForPrepaidCommissionLoader')
+      .load(prepaidCommission.id);
   }
 }

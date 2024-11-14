@@ -5,6 +5,7 @@ import { Member } from '@/entity/member/member.entity';
 import { Package } from '@/entity/package/package.entity';
 import { StatisticsSale } from '@/entity/statisticsSale/statisticsSale.entity';
 import { PFile } from '@/entity/file/file.entity';
+import { RefLink } from '@/entity/referenceLink/referenceLink.entity';
 
 export const memberForSaleLoader = (parent: RootDataLoader) => {
   return new DataLoader<string, Member>(
@@ -94,6 +95,41 @@ export const filesForSaleLoader = (parent: RootDataLoader) => {
       });
 
       return saleIds.map((id) => filesMap[id] ?? []);
+    },
+    {
+      ...parent.dataLoaderOptions,
+    }
+  );
+};
+
+export const referenceLinksForSaleLoader = (parent: RootDataLoader) => {
+  return new DataLoader<string, RefLink[]>(
+    async (saleIds: string[]) => {
+      const salesWithLinks = await parent.prisma.referenceLink.findMany({
+        where: {
+          saleId: {
+            in: saleIds,
+          },
+        },
+        select: {
+          saleId: true,
+          link: true,
+          linkType: true,
+        },
+      });
+
+      const linksMap: Record<string, RefLink[]> = {};
+      salesWithLinks.forEach((sale) => {
+        if (!linksMap[sale.saleId]) {
+          linksMap[sale.saleId] = [];
+        }
+        linksMap[sale.saleId].push({
+          link: sale.link,
+          linkType: sale.linkType,
+        });
+      });
+
+      return saleIds.map((id) => linksMap[id] ?? []);
     },
     {
       ...parent.dataLoaderOptions,

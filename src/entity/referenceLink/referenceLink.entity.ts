@@ -22,3 +22,12 @@ export class ReferenceLink extends BaseEntity {
   @Field()
   link: string;
 }
+
+@ObjectType()
+export class RefLink {
+  @Field()
+  linkType: string;
+
+  @Field()
+  link: string;
+}

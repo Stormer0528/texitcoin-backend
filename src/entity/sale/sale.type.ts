@@ -5,6 +5,7 @@ import { QueryArgsBase } from '@/graphql/queryArgs';
 import { PaginatedResponse } from '@/graphql/paginatedResponse';
 
 import { Sale } from '@/entity/sale/sale.entity';
+import { LinkInput } from '../referenceLink/referenceLink.type';
 
 // Sale Query Args
 @ArgsType()
@@ -38,6 +39,9 @@ export class CreateSaleInput {
   @Field(() => [ID], { nullable: 'itemsAndList' })
   fileIds?: string[];
 
+  @Field(() => [LinkInput], { nullable: 'itemsAndList' })
+  links?: LinkInput[];
+
   @Field({ nullable: true })
   note?: string;
 }
@@ -68,4 +72,7 @@ export class UpdateSaleInput {
 
   @Field({ nullable: true })
   note?: string;
+
+  @Field(() => [LinkInput], { nullable: 'itemsAndList' })
+  links?: LinkInput[];
 }
