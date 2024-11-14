@@ -114,11 +114,11 @@ model Sale {
 
   statisticsSales StatisticsSale[]
   fileRelations   FileRelation[]
+  referenceLinks  ReferenceLink[]
 
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
-  deletedAt      DateTime?
-  ReferenceLinks ReferenceLinks[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 
   @@index([memberId], map: "index_sales_on_memberId")
   @@index([packageId], map: "index_sales_on_packageId")
@@ -344,13 +344,13 @@ model WeeklyCommission {
   status        ConfirmationStatus @default(NONE)
   note          String?            @default("")
 
-  member        Member?        @relation(fields: [memberId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  fileRelations FileRelation[]
+  member         Member?         @relation(fields: [memberId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  fileRelations  FileRelation[]
+  referenceLinks ReferenceLink[]
 
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
-  deletedAt      DateTime?
-  ReferenceLinks ReferenceLinks[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 
   @@map("weeklycommissions")
 }
@@ -425,13 +425,13 @@ model PrepaidCommission {
   deletedAt DateTime?
 
   fileRelations  FileRelation[]
-  member         Member?          @relation(fields: [memberId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  referenceLinks ReferenceLinks[]
+  member         Member?         @relation(fields: [memberId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  referenceLinks ReferenceLink[]
 
   @@map("prepaidcommissions")
 }
 
-model ReferenceLinks {
+model ReferenceLink {
   id                  String  @id @default(uuid())
   saleId              String?
   commissionId        String?
