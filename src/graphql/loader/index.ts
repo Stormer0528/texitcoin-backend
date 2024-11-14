@@ -16,6 +16,7 @@ import * as weeklyCommissionLoader from './weeklyCommissionLoader';
 import * as adminNotesLoader from './adminNotesLoader';
 import * as adminLoader from './adminLoader';
 import * as fileLoader from './fileLoader';
+import * as prepaidCommissionLoader from './prepaidCommissionLoader';
 import { Member } from '@/entity/member/member.entity';
 import { Admin } from '@/entity/admin/admin.entity';
 
@@ -38,6 +39,7 @@ const loaderMakers = {
   ...adminLoader,
   ...adminNotesLoader,
   ...fileLoader,
+  ...prepaidCommissionLoader,
 } as const;
 
 type LoaderMakers = typeof loaderMakers;

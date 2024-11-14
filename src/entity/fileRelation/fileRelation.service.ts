@@ -49,11 +49,29 @@ export class FileRelationService {
       data: fileIds.map((fileId) => ({ commissionId, fileId })),
     });
   }
+  async setFileRelationsByPrepaidCommissionId(prepaidCommissionId: string, fileIds: string[]) {
+    await this.prisma.fileRelation.deleteMany({
+      where: {
+        prepaidCommissionId,
+      },
+    });
+    await this.prisma.fileRelation.createMany({
+      data: fileIds.map((fileId) => ({ prepaidCommissionId, fileId })),
+    });
+  }
 
   async removeFileRelationsBySaleId(saleId: string) {
     return this.prisma.fileRelation.deleteMany({
       where: {
         saleId,
+      },
+    });
+  }
+
+  async removeFileRelationsByPrepaidCommissionId(prepaidCommissionId: string) {
+    return this.prisma.fileRelation.deleteMany({
+      where: {
+        prepaidCommissionId,
       },
     });
   }
