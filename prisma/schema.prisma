@@ -115,9 +115,10 @@ model Sale {
   statisticsSales StatisticsSale[]
   fileRelations   FileRelation[]
 
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  deletedAt DateTime?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  deletedAt      DateTime?
+  ReferenceLinks ReferenceLinks[]
 
   @@index([memberId], map: "index_sales_on_memberId")
   @@index([packageId], map: "index_sales_on_packageId")
@@ -346,9 +347,10 @@ model WeeklyCommission {
   member        Member?        @relation(fields: [memberId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   fileRelations FileRelation[]
 
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  deletedAt DateTime?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  deletedAt      DateTime?
+  ReferenceLinks ReferenceLinks[]
 
   @@map("weeklycommissions")
 }
@@ -422,8 +424,27 @@ model PrepaidCommission {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  fileRelations FileRelation[]
-  member        Member?        @relation(fields: [memberId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  fileRelations  FileRelation[]
+  member         Member?          @relation(fields: [memberId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  referenceLinks ReferenceLinks[]
 
   @@map("prepaidcommissions")
+}
+
+model ReferenceLinks {
+  id                  String  @id @default(uuid())
+  saleId              String?
+  commissionId        String?
+  link                String
+  prepaidCommissionId String?
+
+  sale              Sale?              @relation(fields: [saleId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  commission        WeeklyCommission?  @relation(fields: [commissionId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  prepaidCommission PrepaidCommission? @relation(fields: [prepaidCommissionId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@map("referencelinks")
 }
