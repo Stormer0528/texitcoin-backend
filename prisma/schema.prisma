@@ -111,7 +111,7 @@ model Sale {
   package Package? @relation(fields: [packageId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   statisticsSales StatisticsSale[]
-  fileSales       FileSale[]
+  fileSales       FileRelation[]
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -341,8 +341,8 @@ model WeeklyCommission {
   status        ConfirmationStatus @default(NONE)
   note          String?            @default("")
 
-  member          Member?          @relation(fields: [memberId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  fileCommissions FileCommission[]
+  member          Member?        @relation(fields: [memberId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  fileCommissions FileRelation[]
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -379,42 +379,29 @@ model File {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  fileSale       FileSale?
-  fileCommission FileCommission?
+  fileRelation FileRelation?
 
   @@map("files")
 }
 
-model FileSale {
-  id     String @id @default(uuid())
-  saleId String
-  fileId String
+model FileRelation {
+  id                  String  @id @default(uuid())
+  saleId              String?
+  commissionId        String?
+  fileId              String
+  prepaidCommissionId String?
 
-  sale Sale? @relation(fields: [saleId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  file File? @relation(fields: [fileId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  deletedAt DateTime?
-
-  @@unique([fileId], map: "unique_index_on_filesale")
-  @@map("filesales")
-}
-
-model FileCommission {
-  id           String @id @default(uuid())
-  commissionId String
-  fileId       String
-
-  commission WeeklyCommission? @relation(fields: [commissionId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  file       File?             @relation(fields: [fileId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  sale              Sale?              @relation(fields: [saleId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  commission        WeeklyCommission?  @relation(fields: [commissionId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  prepaidCommission PrepaidCommission? @relation(fields: [prepaidCommissionId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  file              File?              @relation(fields: [fileId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  @@unique([fileId], map: "unique_index_on_filecommission")
-  @@map("filecommissions")
+  @@unique([fileId], map: "unique_index_on_filerelation")
+  @@map("filerelations")
 }
 
 model PrepaidCommission {
@@ -431,6 +418,8 @@ model PrepaidCommission {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
+
+  FileRelation FileRelation[]
 
   @@map("prepaidcommissions")
 }
