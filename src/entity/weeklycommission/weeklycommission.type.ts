@@ -5,7 +5,7 @@ import { QueryArgsBase } from '@/graphql/queryArgs';
 import { PaginatedResponse } from '@/graphql/paginatedResponse';
 
 import { WeeklyCommission } from './weeklycommission.entity';
-import { Confirmation4Status } from '@/graphql/enum';
+import { ConfirmationStatus } from '@/graphql/enum';
 
 // WeeklyCommission Query Args
 @ArgsType()
@@ -23,8 +23,8 @@ export class WeeklyCommissionUpdateInput {
   @Field(() => ID)
   id: string;
 
-  @Field(() => Confirmation4Status, { nullable: true })
-  status?: Confirmation4Status;
+  @Field(() => ConfirmationStatus, { nullable: true })
+  status?: ConfirmationStatus;
 
   @Field({ nullable: true })
   note?: string;
@@ -33,4 +33,4 @@ export class WeeklyCommissionUpdateInput {
   fileIds?: string[];
 }
 
-export type CONFIRMATION4STATUS = 'NONE' | 'PENDING' | 'CONFIRM' | 'BLOCK';
+export type CONFIRMATIONSTATUS = 'NONE' | 'PENDING' | 'APPROVED' | 'PAID' | 'DECLINED';

@@ -6,6 +6,7 @@ import { MemberStatistics } from '@/entity/memberStatistics/memberStatistics.ent
 import { MemberWallet } from '@/entity/memberWallet/memberWallet.entity';
 import { Member } from '@/entity/member/member.entity';
 import { AdminNotes, WeeklyCommission } from '@prisma/client';
+import { ConfirmationStatus } from '../enum';
 
 export const salesForMemberLoader = (parent: RootDataLoader) => {
   return new DataLoader<string, Sale[]>(
@@ -172,7 +173,15 @@ export const weeklyCommissionsForMemberLoader = (parent: RootDataLoader) => {
             in: memberIds,
           },
           status: {
-            in: parent.isAdmin ? ['BLOCK', 'CONFIRM', 'PENDING', 'NONE'] : ['BLOCK', 'CONFIRM'],
+            in: parent.isAdmin
+              ? [
+                  ConfirmationStatus.DECLINED,
+                  ConfirmationStatus.PAID,
+                  ConfirmationStatus.APPROVED,
+                  ConfirmationStatus.APPROVED,
+                  ConfirmationStatus.NONE,
+                ]
+              : [ConfirmationStatus.DECLINED, ConfirmationStatus.PAID],
           },
         },
       });

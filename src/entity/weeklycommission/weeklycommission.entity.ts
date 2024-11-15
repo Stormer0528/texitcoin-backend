@@ -3,8 +3,8 @@ import { ObjectType, Field, ID, Authorized } from 'type-graphql';
 import { BaseEntity } from '@/graphql/baseEntity';
 
 import { Member } from '../member/member.entity';
-import { Confirmation4Status } from '@/graphql/enum';
-import { CONFIRMATION4STATUS } from './weeklycommission.type';
+import { ConfirmationStatus } from '@/graphql/enum';
+import { CONFIRMATIONSTATUS } from './weeklycommission.type';
 import { FileCommission } from '../fileCommission/fileCommission.entity';
 import { PFile } from '../file/file.entity';
 import { UserRole } from '@/type';
@@ -53,8 +53,8 @@ export class WeeklyCommission extends BaseEntity {
   @Field()
   commission: number;
 
-  @Field(() => Confirmation4Status)
-  status: CONFIRMATION4STATUS;
+  @Field(() => ConfirmationStatus)
+  status: CONFIRMATIONSTATUS;
 
   @Field({ nullable: true })
   note?: string;

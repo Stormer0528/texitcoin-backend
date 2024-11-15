@@ -5,11 +5,12 @@ export enum PlacementPosition {
   RIGHT = 'RIGHT',
 }
 
-export enum Confirmation4Status {
+export enum ConfirmationStatus {
   NONE = 'NONE',
   PENDING = 'PENDING',
-  CONFIRM = 'CONFIRM',
-  BLOCK = 'BLOCK',
+  APPROVED = 'APPROVED',
+  PAID = 'PAID',
+  DECLINED = 'DECLINED',
 }
 
 export enum SuccessResult {
@@ -21,8 +22,8 @@ registerEnumType(PlacementPosition, {
   name: 'PlacementPosition',
 });
 
-registerEnumType(Confirmation4Status, {
-  name: 'Confirmation4Status',
+registerEnumType(ConfirmationStatus, {
+  name: 'ConfirmationStatus',
 });
 
 registerEnumType(SuccessResult, {

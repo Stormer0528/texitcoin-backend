@@ -27,7 +27,7 @@ import { WeeklyCommissionService } from './weeklycommission.service';
 import { WeeklyCommission } from './weeklycommission.entity';
 import { Member } from '../member/member.entity';
 import { UserRole } from '@/type';
-import { Confirmation4Status } from '@/graphql/enum';
+import { ConfirmationStatus } from '@/graphql/enum';
 import { FileCommissionService } from '../fileCommission/fileCommission.service';
 import { PFile } from '../file/file.entity';
 
@@ -53,7 +53,9 @@ export class WeeklyCommissionResolver {
       query.filter = {
         ...query.filter,
         memberId: context.user.id,
-        status: Confirmation4Status.CONFIRM,
+        status: {
+          in: [ConfirmationStatus.PAID, ConfirmationStatus.DECLINED],
+        },
       };
     }
 
@@ -82,18 +84,13 @@ export class WeeklyCommissionResolver {
   @Mutation(() => WeeklyCommission)
   async updateCommissionStatus(@Arg('data') data: WeeklyCommissionUpdateInput) {
     const prevCommission = await this.service.getWeeklyCommissionById({ id: data.id });
-    if (data.status === Confirmation4Status.CONFIRM) {
-      if (prevCommission.status === Confirmation4Status.PENDING) {
-        return this.service.updateWeeklyCommission(data);
-      } else {
-        throw new Error('You can only confirm the pending commissions');
-      }
-    } else if (data.status === Confirmation4Status.BLOCK) {
-      if (prevCommission.status === Confirmation4Status.PENDING) {
-        return this.service.updateWeeklyCommission(data);
-      } else {
-        throw new Error('You can only block the pending commissions');
-      }
+    if (
+      prevCommission.status === 'NONE' ||
+      data.status === ConfirmationStatus.NONE ||
+      prevCommission.status === 'PAID' ||
+      prevCommission.status === 'DECLINED'
+    ) {
+      throw new Error('You can not change status of the commission');
     }
     if (data?.fileIds) {
       await this.fileCommissionService.setFileCommissions(data.id, data.fileIds);
