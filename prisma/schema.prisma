@@ -19,11 +19,12 @@ enum PlacementPosition {
   RIGHT
 }
 
-enum Confirmation4Status {
+enum ConfirmationStatus {
   NONE
   PENDING
-  CONFIRM
-  BLOCK
+  APPROVED
+  PAID
+  DECLINED
 }
 
 model Admin {
@@ -323,22 +324,22 @@ model MemberStatisticsWallet {
 }
 
 model WeeklyCommission {
-  id            String              @id @default(uuid())
+  id            String             @id @default(uuid())
   weekStartDate DateTime
-  begL          Int                 @default(0)
-  begR          Int                 @default(0)
-  newL          Int                 @default(0)
-  newR          Int                 @default(0)
-  maxL          Int                 @default(0)
-  maxR          Int                 @default(0)
-  endL          Int                 @default(0)
-  endR          Int                 @default(0)
-  pkgL          Int                 @default(0)
-  pkgR          Int                 @default(0)
-  commission    Int                 @default(0)
+  begL          Int                @default(0)
+  begR          Int                @default(0)
+  newL          Int                @default(0)
+  newR          Int                @default(0)
+  maxL          Int                @default(0)
+  maxR          Int                @default(0)
+  endL          Int                @default(0)
+  endR          Int                @default(0)
+  pkgL          Int                @default(0)
+  pkgR          Int                @default(0)
+  commission    Int                @default(0)
   memberId      String
-  status        Confirmation4Status @default(NONE)
-  note          String?             @default("")
+  status        ConfirmationStatus @default(NONE)
+  note          String?            @default("")
 
   member          Member?          @relation(fields: [memberId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   fileCommissions FileCommission[]
