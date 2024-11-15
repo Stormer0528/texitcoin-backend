@@ -30,6 +30,7 @@ import { UserRole } from '@/type';
 import { ConfirmationStatus } from '@/graphql/enum';
 import { FileCommissionService } from '../fileCommission/fileCommission.service';
 import { PFile } from '../file/file.entity';
+import { Transaction } from '@/graphql/decorator';
 
 @Service()
 @Resolver(() => WeeklyCommission)
@@ -81,17 +82,23 @@ export class WeeklyCommissionResolver {
   }
 
   @Authorized([UserRole.Admin])
+  @Transaction()
   @Mutation(() => WeeklyCommission)
   async updateCommissionStatus(@Arg('data') data: WeeklyCommissionUpdateInput) {
     const prevCommission = await this.service.getWeeklyCommissionById({ id: data.id });
     if (
-      prevCommission.status === 'NONE' ||
-      data.status === ConfirmationStatus.NONE ||
-      prevCommission.status === 'PAID' ||
-      prevCommission.status === 'DECLINED'
+      !(
+        prevCommission.status === ConfirmationStatus.NONE ||
+        (prevCommission.status === ConfirmationStatus.APPROVED &&
+          (data.status === ConfirmationStatus.DECLINED ||
+            data.status === ConfirmationStatus.PAID)) ||
+        (prevCommission.status === ConfirmationStatus.DECLINED &&
+          data.status === ConfirmationStatus.APPROVED)
+      )
     ) {
       throw new Error('You can not change status of the commission');
     }
+
     if (data?.fileIds) {
       await this.fileCommissionService.setFileCommissions(data.id, data.fileIds);
     }
