@@ -7,6 +7,7 @@ import { formatDate } from '@/utils/common';
 import Bluebird from 'bluebird';
 import { calculatePoint } from '@/utils/calculatePoint';
 import { addPoint } from '@/utils/addPoint';
+import { ConfirmationStatus } from '@/graphql/enum';
 
 dayjs.extend(weekOfYear);
 dayjs.extend(utcPlugin);
@@ -38,6 +39,12 @@ async function getSalesByWeekStart(tranPrisma: PrismaClient, startDate: Date) {
 
 async function weeklyCommission(tranPrisma: PrismaClient, preview: boolean = false) {
   console.log('Started weekly commission operation');
+
+  await tranPrisma.weeklyCommission.deleteMany({
+    where: {
+      status: ConfirmationStatus.PREVIEW,
+    },
+  });
 
   const lastWeeklyCommission = await tranPrisma.weeklyCommission.findFirst({
     orderBy: {
@@ -175,7 +182,11 @@ async function weeklyCommission(tranPrisma: PrismaClient, preview: boolean = fal
             pkgL: left,
             pkgR: right,
             commission,
-            status: commission > 0 ? 'PENDING' : 'NONE',
+            status: preview
+              ? ConfirmationStatus.PREVIEW
+              : commission > 0
+                ? ConfirmationStatus.PENDING
+                : ConfirmationStatus.NONE,
             weekStartDate: iStartDate.toDate(),
           },
         });
