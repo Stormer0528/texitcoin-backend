@@ -9,10 +9,10 @@ import {
   FieldResolver,
   Root,
   Ctx,
-  UseMiddleware,
   Authorized,
   Mutation,
 } from 'type-graphql';
+import shelljs from 'shelljs';
 import graphqlFields from 'graphql-fields';
 import { GraphQLResolveInfo } from 'graphql';
 
@@ -27,10 +27,12 @@ import { WeeklyCommissionService } from './weeklycommission.service';
 import { WeeklyCommission } from './weeklycommission.entity';
 import { Member } from '../member/member.entity';
 import { UserRole } from '@/type';
-import { ConfirmationStatus } from '@/graphql/enum';
+import { ConfirmationStatus, SuccessResult } from '@/graphql/enum';
 import { PFile } from '../file/file.entity';
 import { Transaction } from '@/graphql/decorator';
 import { FileRelationService } from '../fileRelation/fileRelation.service';
+import { SuccessResponse } from '@/graphql/common.type';
+import { COMMISSION_PREVIEW_COMMAND } from '@/consts';
 
 @Service()
 @Resolver(() => WeeklyCommission)
@@ -106,6 +108,14 @@ export class WeeklyCommissionResolver {
     }
 
     return this.service.updateWeeklyCommission(_.omit(data, 'fileIds'));
+  }
+
+  @Mutation(() => SuccessResponse)
+  async calculatePreview(): Promise<SuccessResponse> {
+    shelljs.exec(COMMISSION_PREVIEW_COMMAND);
+    return {
+      result: SuccessResult.success,
+    };
   }
 
   @FieldResolver({ nullable: true })
