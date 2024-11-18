@@ -1,15 +1,15 @@
 import { PrismaClient } from '@prisma/client';
 import dayjs from 'dayjs';
 import weekOfYear from 'dayjs/plugin/weekOfYear';
+import utcPlugin from 'dayjs/plugin/utc';
 
 import { formatDate } from '@/utils/common';
-import { isBefore } from '@/utils/isBeforeDate';
-import { PLACEMENT_ROOT } from '@/consts';
 import Bluebird from 'bluebird';
 import { calculatePoint } from '@/utils/calculatePoint';
 import { addPoint } from '@/utils/addPoint';
 
 dayjs.extend(weekOfYear);
+dayjs.extend(utcPlugin);
 
 const prisma = new PrismaClient({
   transactionOptions: {
@@ -36,7 +36,7 @@ async function getSalesByWeekStart(tranPrisma: PrismaClient, startDate: Date) {
   });
 }
 
-async function weeklyCommission(tranPrisma: PrismaClient) {
+async function weeklyCommission(tranPrisma: PrismaClient, preview: boolean = false) {
   console.log('Started weekly commission operation');
 
   const lastWeeklyCommission = await tranPrisma.weeklyCommission.findFirst({
@@ -53,17 +53,16 @@ async function weeklyCommission(tranPrisma: PrismaClient) {
     };
   });
 
-  let iStartDate = dayjs(new Date(formatDate(dayjs('2024-04-06').startOf('week').toDate())));
+  let iStartDate = dayjs('2024-04-06').utc().startOf('week');
 
-  const nowStartDate = dayjs().startOf('week');
+  const nowStartDate = dayjs().utc().startOf('week');
   if (lastWeeklyCommission) {
-    iStartDate = dayjs(
-      formatDate(dayjs(lastWeeklyCommission.weekStartDate).add(1, 'week').toDate())
-    );
+    iStartDate = dayjs(lastWeeklyCommission.weekStartDate).utc().add(1, 'week');
   }
   for (
     ;
-    isBefore(iStartDate.toDate(), nowStartDate.toDate());
+    iStartDate.isBefore(nowStartDate.toDate(), 'day') ||
+    (preview && iStartDate.isSame(nowStartDate.toDate(), 'day'));
     iStartDate = iStartDate.add(1, 'week')
   ) {
     console.log(`${formatDate(iStartDate.toDate())}, ${iStartDate.week()} started`);
@@ -189,5 +188,7 @@ async function weeklyCommission(tranPrisma: PrismaClient) {
 }
 
 prisma.$transaction(async (tranPrisma: PrismaClient) => {
-  await weeklyCommission(tranPrisma);
+  const args: string[] = process.argv;
+  const preview = args.findIndex((arg) => arg.toLowerCase() === '-preview') !== -1;
+  await weeklyCommission(tranPrisma, preview);
 });

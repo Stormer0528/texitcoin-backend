@@ -1,5 +1,6 @@
 import { Prisma, PrismaClient, Statistics } from '@prisma/client';
 import dayjs from 'dayjs';
+import utcPlugin from 'dayjs/plugin/utc';
 import Bluebird from 'bluebird';
 import * as shelljs from 'shelljs';
 import { Client as ElasticClient } from '@elastic/elasticsearch';
@@ -10,10 +11,10 @@ import { PERCENT, TXC } from '@/consts/db';
 import { SaleSearchResult } from '@/type';
 
 import { formatDate } from '@/utils/common';
-import { isBefore } from '@/utils/isBeforeDate';
 import { PAYOUTS } from '@/consts';
 
 dotenv.config();
+dayjs.extend(utcPlugin);
 
 const ELASTIC_SEARCH_URL = process.env.ELASTIC_SEARCH_URL ?? 'http://127.0.0.1:9200';
 const ELASTIC_LOG_INDEX = process.env.ELASTIC_SHELL_LOG ?? 'shelllogtest';
@@ -167,13 +168,13 @@ const createStatisticsAndMemberStatistics = async (tranPrisma: PrismaClient) => 
     },
   });
 
-  const now = dayjs();
+  const now = dayjs().utc();
   for (
-    let iDate = dayjs(lastReward.issuedAt).add(1, 'day');
-    isBefore(iDate.toDate(), now.toDate());
+    let iDate = dayjs(lastReward.issuedAt).utc().add(1, 'day');
+    iDate.isBefore(now, 'day');
     iDate = iDate.add(1, 'day')
   ) {
-    const date = new Date(formatDate(iDate.toDate()));
+    const date = iDate.toDate();
     console.log(`Creating ${formatDate(date)}...`);
     const sales: SaleSearchResult[] = await tranPrisma.sale.findMany({
       where: {
