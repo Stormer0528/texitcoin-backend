@@ -128,7 +128,7 @@ export class PrepaidCommissionResolver {
   @Authorized([UserRole.Admin])
   @Transaction()
   @Mutation(() => SuccessResponse)
-  async removeSale(@Arg('data') data: IDInput): Promise<SuccessResponse> {
+  async removePrepaidCommission(@Arg('data') data: IDInput): Promise<SuccessResponse> {
     const prepaidCommission = await this.service.getPrepaidCommissionById(data.id);
     await this.fileRelationService.removeFileRelationsByPrepaidCommissionId(prepaidCommission.id);
     await this.service.removePrepaidCommission(data);
