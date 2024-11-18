@@ -25,6 +25,7 @@ enum ConfirmationStatus {
   APPROVED
   PAID
   DECLINED
+  PREVIEW
 }
 
 model Admin {
