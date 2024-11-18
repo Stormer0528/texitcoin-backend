@@ -41,10 +41,10 @@ export class MailerService {
       hbs({
         viewEngine: {
           extname: '.hbs',
-          partialsDir: path.resolve(__dirname, '../../templates/'), // Path to templates directory
+          partialsDir: path.resolve(process.cwd(), 'templates'), // Path to templates directory
           defaultLayout: false,
         },
-        viewPath: path.resolve(__dirname, '../../templates/'),
+        viewPath: path.resolve(process.cwd(), 'templates'),
         extName: '.hbs',
       })
     );

@@ -74,5 +74,5 @@ export const FREE_SHARE_DIVIDER1 = new Date('2024-06-08');
 
 export const PLACEMENT_ROOT = 'affe34e8-891b-41c2-8405-d31df4dadb8c';
 
-export const UPLOAD_DIR = process.env.UPLOAD_DIR ?? path.join(__dirname, 'upload');
+export const UPLOAD_DIR = process.env.UPLOAD_DIR ?? path.join(process.cwd(), 'upload');
 export const PAYMENT_UPLOAD_DIR = path.join(UPLOAD_DIR, 'payment');

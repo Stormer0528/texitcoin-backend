@@ -235,8 +235,8 @@ export class MemberResolver {
 
   @UseMiddleware(minerLog('signup'))
   @Transaction()
-  @Mutation(() => Member)
-  async signUpMember(@Arg('data') data: SignupFormInput): Promise<Member> {
+  @Mutation(() => SuccessResponse)
+  async signUpMember(@Arg('data') data: SignupFormInput): Promise<SuccessResponse> {
     const hashedPassword = await hashPassword(data.password);
     let sponsorId: string | null = null;
     let sponsorName: string | null = null;
@@ -273,7 +273,9 @@ export class MemberResolver {
     });
 
     this.mailerService.notifyMinerSignupToAdmin(newmember.email, newmember.fullName, sponsorName);
-    return newmember;
+    return {
+      result: SuccessResult.success,
+    };
   }
 
   @Mutation(() => EmailVerificationResponse)
