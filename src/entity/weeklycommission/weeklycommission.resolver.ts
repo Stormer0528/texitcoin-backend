@@ -55,7 +55,7 @@ export class WeeklyCommissionResolver {
         ...query.filter,
         memberId: context.user.id,
         status: {
-          in: [ConfirmationStatus.PAID, ConfirmationStatus.DECLINED],
+          in: [ConfirmationStatus.PAID, ConfirmationStatus.APPROVED, ConfirmationStatus.DECLINED],
         },
       };
     }

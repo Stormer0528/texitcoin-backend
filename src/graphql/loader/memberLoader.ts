@@ -178,10 +178,10 @@ export const weeklyCommissionsForMemberLoader = (parent: RootDataLoader) => {
                   ConfirmationStatus.DECLINED,
                   ConfirmationStatus.PAID,
                   ConfirmationStatus.APPROVED,
-                  ConfirmationStatus.APPROVED,
+                  ConfirmationStatus.PENDING,
                   ConfirmationStatus.NONE,
                 ]
-              : [ConfirmationStatus.DECLINED, ConfirmationStatus.PAID],
+              : [ConfirmationStatus.DECLINED, ConfirmationStatus.APPROVED, ConfirmationStatus.PAID],
           },
         },
       });
