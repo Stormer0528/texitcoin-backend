@@ -33,4 +33,4 @@ export class WeeklyCommissionUpdateInput {
   fileIds?: string[];
 }
 
-export type CONFIRMATIONSTATUS = 'NONE' | 'PENDING' | 'APPROVED' | 'PAID' | 'DECLINED';
+export type CONFIRMATIONSTATUS = 'NONE' | 'PENDING' | 'APPROVED' | 'PAID' | 'DECLINED' | 'PREVIEW';

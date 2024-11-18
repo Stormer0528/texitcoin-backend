@@ -11,6 +11,7 @@ export enum ConfirmationStatus {
   APPROVED = 'APPROVED',
   PAID = 'PAID',
   DECLINED = 'DECLINED',
+  PREVIEW = 'PREVIEW',
 }
 
 export enum SuccessResult {

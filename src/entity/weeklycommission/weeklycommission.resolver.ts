@@ -87,15 +87,16 @@ export class WeeklyCommissionResolver {
   async updateCommissionStatus(@Arg('data') data: WeeklyCommissionUpdateInput) {
     const prevCommission = await this.service.getWeeklyCommissionById({ id: data.id });
     if (
-      prevCommission.status === ConfirmationStatus.NONE ||
-      !(
-        prevCommission.status === ConfirmationStatus.PENDING ||
-        (prevCommission.status === ConfirmationStatus.APPROVED &&
-          (data.status === ConfirmationStatus.DECLINED ||
-            data.status === ConfirmationStatus.PAID)) ||
-        (prevCommission.status === ConfirmationStatus.DECLINED &&
-          data.status === ConfirmationStatus.APPROVED)
-      )
+      prevCommission.status !== ConfirmationStatus.PREVIEW &&
+      (prevCommission.status === ConfirmationStatus.NONE ||
+        !(
+          prevCommission.status === ConfirmationStatus.PENDING ||
+          (prevCommission.status === ConfirmationStatus.APPROVED &&
+            (data.status === ConfirmationStatus.DECLINED ||
+              data.status === ConfirmationStatus.PAID)) ||
+          (prevCommission.status === ConfirmationStatus.DECLINED &&
+            data.status === ConfirmationStatus.APPROVED)
+        ))
     ) {
       throw new Error('You can not change status of the commission');
     }
