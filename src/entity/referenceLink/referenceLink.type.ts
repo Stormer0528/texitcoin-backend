@@ -5,6 +5,7 @@ import { QueryArgsBase } from '@/graphql/queryArgs';
 import { PaginatedResponse } from '@/graphql/paginatedResponse';
 
 import { ReferenceLink } from './referenceLink.entity';
+import { IsUrl } from 'class-validator';
 
 // ReferenceLink Query Args
 @ArgsType()
@@ -63,5 +64,6 @@ export class LinkInput {
   linkType: string;
 
   @Field()
+  @IsUrl()
   link: string;
 }
