@@ -409,6 +409,7 @@ model FileRelation {
 model PrepaidCommission {
   id            String   @id @default(uuid())
   memberId      String
+  txType        String?
   txId          String?
   note          String?
   pkgL          Int      @default(0)

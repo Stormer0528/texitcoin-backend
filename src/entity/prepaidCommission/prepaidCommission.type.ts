@@ -25,6 +25,9 @@ export class CreatePrepaidCommissionInput {
   @Field(() => ID)
   memberId: string;
 
+  @Field({ nullable: true })
+  txType?: string;
+
   @Field(() => ID, { nullable: true })
   txId?: string;
 
@@ -58,6 +61,9 @@ export class UpdatePrepaidCommissionInput {
 
   @Field(() => ID, { nullable: true })
   memberId?: string;
+
+  @Field({ nullable: true })
+  txType?: string;
 
   @Field(() => ID, { nullable: true })
   txId?: string;

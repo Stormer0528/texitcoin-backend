@@ -13,6 +13,9 @@ export class PrepaidCommission extends BaseEntity {
   @Field(() => ID)
   memberId: string;
 
+  @Field({ nullable: true })
+  txType?: string;
+
   @Field(() => ID, { nullable: true })
   txId?: string;
 
