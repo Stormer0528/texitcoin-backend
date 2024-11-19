@@ -30,6 +30,7 @@ import { Sale } from '../sale/sale.entity';
 import { PackageService } from './package.service';
 import { SuccessResult } from '@/graphql/enum';
 import { PaymentMethodLinkService } from '../paymentMethodLink/paymentMethodLink.service';
+import { PaymentMethodLink } from '../paymentMethodLink/paymentMethodLink.entity';
 
 @Service()
 @Resolver(() => Package)
@@ -96,5 +97,12 @@ export class PackageResolver {
   @FieldResolver({ nullable: 'itemsAndList' })
   async sales(@Root() pkg: Package, @Ctx() ctx: Context): Promise<Sale[]> {
     return ctx.dataLoader.get('salesForPackageLoader').load(pkg.id);
+  }
+  @FieldResolver({ nullable: 'itemsAndList' })
+  async paymentMethodLinks(
+    @Root() pkg: Package,
+    @Ctx() ctx: Context
+  ): Promise<PaymentMethodLink[]> {
+    return ctx.dataLoader.get('paymentMethodLinksForPackageLoader').load(pkg.id);
   }
 }

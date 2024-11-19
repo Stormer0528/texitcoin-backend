@@ -29,6 +29,7 @@ import {
 } from './paymentMethod.type';
 import { PaymentMethodService } from './paymentMethod.service';
 import { PaymentMethodLinkService } from '../paymentMethodLink/paymentMethodLink.service';
+import { PaymentMethodLink } from '../paymentMethodLink/paymentMethodLink.entity';
 
 @Service()
 @Resolver(() => PaymentMethod)
@@ -105,5 +106,13 @@ export class PaymentMethodResolver {
     return {
       result: SuccessResult.success,
     };
+  }
+
+  @FieldResolver({ nullable: 'itemsAndList' })
+  async paymentMethodLinks(
+    @Root() method: PaymentMethod,
+    @Ctx() ctx: Context
+  ): Promise<PaymentMethodLink[]> {
+    return ctx.dataLoader.get('paymentMethodLinksForPaymentMethodLoader').load(method.id);
   }
 }

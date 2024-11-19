@@ -1,11 +1,14 @@
 import { Service } from 'typedi';
-import { Args, Resolver, Query, Info } from 'type-graphql';
+import { Args, Resolver, Query, Info, FieldResolver, Ctx, Root } from 'type-graphql';
 import graphqlFields from 'graphql-fields';
 import { GraphQLResolveInfo } from 'graphql';
 
 import { PaymentMethodLink } from './paymentMethodLink.entity';
 import { PaymentMethodLinkService } from './paymentMethodLink.service';
 import { PaymentMethodLinkResponse, PaymentMethodLinksQueryArgs } from './paymentMethodLink.type';
+import { Context } from '@/context';
+import { PaymentMethod } from '../paymentMethod/paymentMethod.entity';
+import { Package } from '../package/package.entity';
 
 @Service()
 @Resolver(() => PaymentMethodLink)
@@ -39,5 +42,20 @@ export class PaymentMethodLinkResolver {
     }
 
     return response;
+  }
+
+  @FieldResolver({ nullable: 'itemsAndList' })
+  async paymentMethod(
+    @Root() methodlink: PaymentMethodLink,
+    @Ctx() ctx: Context
+  ): Promise<PaymentMethod> {
+    return ctx.dataLoader
+      .get('paymentMethodForPaymentMethodLinkLoader')
+      .load(methodlink.paymentMethodId);
+  }
+
+  @FieldResolver({ nullable: 'itemsAndList' })
+  async package(@Root() methodlink: PaymentMethodLink, @Ctx() ctx: Context): Promise<Package> {
+    return ctx.dataLoader.get('packageForPaymentMethodLinkLoader').load(methodlink.packageId);
   }
 }

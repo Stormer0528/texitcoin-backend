@@ -3,6 +3,7 @@ import { ObjectType, Field, ID } from 'type-graphql';
 import { BaseEntity } from '@/graphql/baseEntity';
 
 import { Sale } from '../sale/sale.entity';
+import { PaymentMethodLink } from '../paymentMethodLink/paymentMethodLink.entity';
 
 @ObjectType()
 export class Package extends BaseEntity {
@@ -32,4 +33,7 @@ export class Package extends BaseEntity {
 
   @Field(() => [Sale], { nullable: 'itemsAndList' })
   sales?: Sale[];
+
+  @Field(() => [PaymentMethodLink], { nullable: 'itemsAndList' })
+  paymentMethodLinks?: PaymentMethodLink[];
 }
