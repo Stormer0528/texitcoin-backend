@@ -1,4 +1,5 @@
 import { ObjectType, Field, ID } from 'type-graphql';
+import { IsUrl } from 'class-validator';
 
 import { BaseEntity } from '@/graphql/baseEntity';
 
@@ -29,5 +30,6 @@ export class RefLink {
   linkType: string;
 
   @Field()
+  @IsUrl()
   link: string;
 }
