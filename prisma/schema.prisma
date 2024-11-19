@@ -28,6 +28,16 @@ enum ConfirmationStatus {
   PREVIEW
 }
 
+enum ProofType {
+  COMMISSION
+  MINE
+  INFRASTRUCTURE
+  OVERHEAD
+  SALARY
+  PROMOTION
+  PROFIT
+}
+
 model Admin {
   id       String  @id @default(uuid())
   username String  @unique(map: "index_admins_on_username") @db.Citext
@@ -395,10 +405,12 @@ model FileRelation {
   commissionId        String?
   fileId              String
   prepaidCommissionId String?
+  proofId             String?
 
   sale              Sale?              @relation(fields: [saleId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   commission        WeeklyCommission?  @relation(fields: [commissionId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   prepaidCommission PrepaidCommission? @relation(fields: [prepaidCommissionId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  proof             Proof?             @relation(fields: [proofId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   file              File?              @relation(fields: [fileId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   createdAt DateTime  @default(now())
@@ -445,9 +457,21 @@ model ReferenceLink {
   commission        WeeklyCommission?  @relation(fields: [commissionId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   prepaidCommission PrepaidCommission? @relation(fields: [prepaidCommissionId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
+  @@map("referencelinks")
+}
+
+model Proof {
+  id        String    @id @default(uuid())
+  orderedAt DateTime  @default(now())
+  type      ProofType
+  amount    Int       @default(0)
+  note      String?   @default("")
+
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  @@map("referencelinks")
+  fileRelations FileRelation[]
+
+  @@map("proofs")
 }
