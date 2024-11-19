@@ -148,6 +148,7 @@ export class PrepaidCommissionResolver {
   async removePrepaidCommission(@Arg('data') data: IDInput): Promise<SuccessResponse> {
     const prepaidCommission = await this.service.getPrepaidCommissionById(data.id);
     await this.fileRelationService.removeFileRelationsByPrepaidCommissionId(prepaidCommission.id);
+    await this.referenceLinkService.removeReferenceLinksByPrepaidCommissionId(prepaidCommission.id);
     await this.service.removePrepaidCommission(data);
     return {
       result: SuccessResult.success,
