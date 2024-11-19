@@ -29,6 +29,9 @@ export class CreateFileRelationInput {
   @Field(() => ID, { nullable: true })
   prepaidCommissionId?: string;
 
+  @Field(() => ID, { nullable: true })
+  proofId?: string;
+
   @Field(() => ID)
   fileId: string;
 }
@@ -46,6 +49,9 @@ export class UpdateFileRelationInput {
 
   @Field(() => ID, { nullable: true })
   prepaidCommissionId?: string;
+
+  @Field(() => ID, { nullable: true })
+  proofId?: string;
 
   @Field(() => ID)
   fileId?: string;

@@ -16,6 +16,9 @@ export class FileRelation extends BaseEntity {
   @Field(() => ID, { nullable: true })
   prepaidCommissionId?: string;
 
+  @Field(() => ID, { nullable: true })
+  proofId?: string;
+
   @Field(() => ID)
   fileId: string;
 }

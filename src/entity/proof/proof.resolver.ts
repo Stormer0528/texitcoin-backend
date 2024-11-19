@@ -57,7 +57,12 @@ export class ProofResolver {
     const { fileIds, ...restData } = data;
     const proof = await this.service.createProof(restData);
     if (fileIds) {
-      //
+      await this.fileRelationService.createFileRelations(
+        fileIds.map((fileId) => ({
+          proofId: proof.id,
+          fileId,
+        }))
+      );
     }
     return proof;
   }
@@ -68,7 +73,7 @@ export class ProofResolver {
   async updateProof(@Arg('data') data: UpdateProofInput): Promise<Proof> {
     const { fileIds, ...restData } = data;
     if (fileIds) {
-      //
+      await this.fileRelationService.setFileRelationsByProofId(data.id, fileIds);
     }
 
     return this.service.updateProof(restData);
