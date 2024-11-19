@@ -20,9 +20,6 @@ export class PrepaidCommissionResponse extends PaginatedResponse {
 @InputType()
 export class CreatePrepaidCommissionInput {
   @Field(() => ID)
-  id: string;
-
-  @Field(() => ID)
   memberId: string;
 
   @Field({ nullable: true })
