@@ -28,11 +28,15 @@ import {
   UpdatePaymentMethodInput,
 } from './paymentMethod.type';
 import { PaymentMethodService } from './paymentMethod.service';
+import { PaymentMethodLinkService } from '../paymentMethodLink/paymentMethodLink.service';
 
 @Service()
 @Resolver(() => PaymentMethod)
 export class PaymentMethodResolver {
-  constructor(private readonly service: PaymentMethodService) {}
+  constructor(
+    private readonly service: PaymentMethodService,
+    private readonly paymentLinkService: PaymentMethodLinkService
+  ) {}
 
   @Query(() => PaymentMethodResponse)
   async packages(
@@ -68,10 +72,14 @@ export class PaymentMethodResolver {
   @Mutation(() => PaymentMethod)
   async createPaymentMethod(@Arg('data') data: CreatePaymentMethodInput): Promise<PaymentMethod> {
     const { paymentMethodLinks, ...restData } = data;
+    const paymentMethod = await this.service.createPaymentMethod(restData);
     if (paymentMethodLinks) {
-      //
+      await this.paymentLinkService.setPaymentMethodLinksByPaymentMethodId(
+        paymentMethod.id,
+        paymentMethodLinks
+      );
     }
-    return this.service.createPaymentMethod(restData);
+    return paymentMethod;
   }
 
   @Authorized([UserRole.Admin])
@@ -80,7 +88,10 @@ export class PaymentMethodResolver {
   async updatePaymentMethod(@Arg('data') data: UpdatePaymentMethodInput): Promise<PaymentMethod> {
     const { paymentMethodLinks, ...restData } = data;
     if (paymentMethodLinks) {
-      //
+      await this.paymentLinkService.setPaymentMethodLinksByPaymentMethodId(
+        data.id,
+        paymentMethodLinks
+      );
     }
     return this.service.updatePaymentMethod(restData);
   }
@@ -88,6 +99,7 @@ export class PaymentMethodResolver {
   @Authorized([UserRole.Admin])
   @Mutation(() => SuccessResponse)
   async removePaymentMethod(@Arg('data') data: IDInput): Promise<SuccessResponse> {
+    await this.paymentLinkService.removePaymentMethodLinksByPaymentMethodId(data.id);
     await this.service.removePaymentMethod(data);
     return {
       result: SuccessResult.success,
