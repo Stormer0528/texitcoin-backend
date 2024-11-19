@@ -33,7 +33,6 @@ import { MemberService } from '../member/member.service';
 import { FileRelationService } from '../fileRelation/fileRelation.service';
 import { IDInput, SuccessResponse } from '@/graphql/common.type';
 import { SuccessResult } from '@/graphql/enum';
-import { Sale } from '../sale/sale.entity';
 import { PFile } from '../file/file.entity';
 import { Member } from '../member/member.entity';
 import { ReferenceLinkService } from '../referenceLink/referenceLink.service';
@@ -129,7 +128,10 @@ export class PrepaidCommissionResolver {
     const { fileIds, reflinks, ...restData } = data;
     const prepaidCommission = await this.service.updatePrepaidCommission(restData);
     if (fileIds) {
-      await this.fileRelationService.setFileRelationsBySaldId(prepaidCommission.id, fileIds);
+      await this.fileRelationService.setFileRelationsByPrepaidCommissionId(
+        prepaidCommission.id,
+        fileIds
+      );
     }
     if (reflinks) {
       await this.referenceLinkService.setReferenceLinksByPrepaidCommissionId(
