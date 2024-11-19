@@ -238,7 +238,7 @@ model Package {
 
   // relation
   sales              Sale[]
-  paymentMethodLinks PaymentMethodLinks[]
+  paymentMethodLinks PaymentMethodLink[]
 
   @@map("packages")
 }
@@ -430,7 +430,7 @@ model PaymentMethod {
   visible     Boolean @default(true)
   defaultLink String?
 
-  paymentMethodLinks PaymentMethodLinks[]
+  paymentMethodLinks PaymentMethodLink[]
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -439,7 +439,7 @@ model PaymentMethod {
   @@map("paymentmethods")
 }
 
-model PaymentMethodLinks {
+model PaymentMethodLink {
   id              String @id @default(uuid())
   paymentMethodId String
   packageId       String

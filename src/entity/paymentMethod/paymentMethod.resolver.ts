@@ -1,0 +1,96 @@
+import { Service } from 'typedi';
+import {
+  Arg,
+  Args,
+  Resolver,
+  Query,
+  Mutation,
+  Info,
+  Authorized,
+  FieldResolver,
+  Ctx,
+  Root,
+} from 'type-graphql';
+import graphqlFields from 'graphql-fields';
+import { GraphQLResolveInfo } from 'graphql';
+
+import { UserRole } from '@/type';
+import { Context } from '@/context';
+
+import { Transaction } from '@/graphql/decorator';
+import { IDInput, SuccessResponse } from '@/graphql/common.type';
+import { SuccessResult } from '@/graphql/enum';
+import { PaymentMethod } from './paymentMethod.entity';
+import {
+  CreatePaymentMethodInput,
+  PaymentMethodQueryArgs,
+  PaymentMethodResponse,
+  UpdatePaymentMethodInput,
+} from './paymentMethod.type';
+import { PaymentMethodService } from './paymentMethod.service';
+
+@Service()
+@Resolver(() => PaymentMethod)
+export class PaymentMethodResolver {
+  constructor(private readonly service: PaymentMethodService) {}
+
+  @Query(() => PaymentMethodResponse)
+  async packages(
+    @Args() query: PaymentMethodQueryArgs,
+    @Info() info: GraphQLResolveInfo
+  ): Promise<PaymentMethodResponse> {
+    const { where, ...rest } = query;
+    const fields = graphqlFields(info);
+
+    let promises: { total?: Promise<number>; paymentMethods?: any } = {};
+
+    if ('total' in fields) {
+      promises.total = this.service.getPaymentMethodsCount(query);
+    }
+
+    if ('paymentMethods' in fields) {
+      promises.paymentMethods = this.service.getPaymentMethods(query);
+    }
+
+    const result = await Promise.all(Object.entries(promises));
+
+    let response: { total?: number; paymentMethods?: PaymentMethod[] } = {};
+
+    for (let [key, value] of result) {
+      response[key] = value;
+    }
+
+    return response;
+  }
+
+  @Authorized([UserRole.Admin])
+  @Transaction()
+  @Mutation(() => PaymentMethod)
+  async createPaymentMethod(@Arg('data') data: CreatePaymentMethodInput): Promise<PaymentMethod> {
+    const { paymentMethodLinks, ...restData } = data;
+    if (paymentMethodLinks) {
+      //
+    }
+    return this.service.createPaymentMethod(restData);
+  }
+
+  @Authorized([UserRole.Admin])
+  @Transaction()
+  @Mutation(() => PaymentMethod)
+  async updatePaymentMethod(@Arg('data') data: UpdatePaymentMethodInput): Promise<PaymentMethod> {
+    const { paymentMethodLinks, ...restData } = data;
+    if (paymentMethodLinks) {
+      //
+    }
+    return this.service.updatePaymentMethod(restData);
+  }
+
+  @Authorized([UserRole.Admin])
+  @Mutation(() => SuccessResponse)
+  async removePaymentMethod(@Arg('data') data: IDInput): Promise<SuccessResponse> {
+    await this.service.removePaymentMethod(data);
+    return {
+      result: SuccessResult.success,
+    };
+  }
+}
