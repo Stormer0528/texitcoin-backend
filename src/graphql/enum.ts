@@ -14,6 +14,16 @@ export enum ConfirmationStatus {
   PREVIEW = 'PREVIEW',
 }
 
+export enum ProofType {
+  COMMISSION = 'COMMISSION',
+  MINE = 'MINE',
+  INFRASTRUCTURE = 'INFRASTRUCTURE',
+  OVERHEAD = 'OVERHEAD',
+  SALARY = 'SALARY',
+  PROMOTION = 'PROMOTION',
+  PROFIT = 'PROFIT',
+}
+
 export enum SuccessResult {
   success = 'success',
   failed = 'failed',
@@ -29,4 +39,8 @@ registerEnumType(ConfirmationStatus, {
 
 registerEnumType(SuccessResult, {
   name: 'SuccessResult',
+});
+
+registerEnumType(ProofType, {
+  name: 'ProofType',
 });
