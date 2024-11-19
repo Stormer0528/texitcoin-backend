@@ -86,13 +86,14 @@ model Member {
   deletedAt DateTime?
 
   // Relations
-  sales             Sale[]
-  statistics        MemberStatistics[]
-  introduceMembers  Member[]           @relation("MemberSponsor")
-  memberWallets     MemberWallet[]
-  placementChildren Member[]           @relation("MemberPlacementParent")
-  WeeklyCommission  WeeklyCommission[]
-  adminNotes        AdminNotes[]
+  sales              Sale[]
+  statistics         MemberStatistics[]
+  introduceMembers   Member[]            @relation("MemberSponsor")
+  memberWallets      MemberWallet[]
+  placementChildren  Member[]            @relation("MemberPlacementParent")
+  WeeklyCommission   WeeklyCommission[]
+  adminNotes         AdminNotes[]
+  prepaidCommissions PrepaidCommission[]
 
   @@map("members")
 }
@@ -112,7 +113,7 @@ model Sale {
   package Package? @relation(fields: [packageId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   statisticsSales StatisticsSale[]
-  fileSales       FileRelation[]
+  fileRelations   FileRelation[]
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -342,8 +343,8 @@ model WeeklyCommission {
   status        ConfirmationStatus @default(NONE)
   note          String?            @default("")
 
-  member          Member?        @relation(fields: [memberId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  fileCommissions FileRelation[]
+  member        Member?        @relation(fields: [memberId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  fileRelations FileRelation[]
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -408,7 +409,7 @@ model FileRelation {
 model PrepaidCommission {
   id            String   @id @default(uuid())
   memberId      String
-  saleId        String?
+  txId          String?
   note          String?
   pkgL          Int      @default(0)
   pkgR          Int      @default(0)
@@ -420,7 +421,8 @@ model PrepaidCommission {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  FileRelation FileRelation[]
+  fileRelations FileRelation[]
+  member        Member?        @relation(fields: [memberId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@map("prepaidcommissions")
 }
