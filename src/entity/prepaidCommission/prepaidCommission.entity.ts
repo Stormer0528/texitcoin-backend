@@ -1,11 +1,9 @@
-import { ObjectType, Field, ID, Authorized, Int } from 'type-graphql';
+import { ObjectType, Field, ID, Int } from 'type-graphql';
 
 import { BaseEntity } from '@/graphql/baseEntity';
 
 import { PFile } from '../file/file.entity';
-import { UserRole } from '@/type';
 import { Member } from '../member/member.entity';
-import { Sale } from '../sale/sale.entity';
 
 @ObjectType()
 export class PrepaidCommission extends BaseEntity {
@@ -16,7 +14,7 @@ export class PrepaidCommission extends BaseEntity {
   memberId: string;
 
   @Field(() => ID, { nullable: true })
-  saleId?: string;
+  txId?: string;
 
   @Field({ nullable: true })
   note?: string;
