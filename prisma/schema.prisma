@@ -464,7 +464,7 @@ model Proof {
   id        String    @id @default(uuid())
   orderedAt DateTime  @default(now())
   type      ProofType
-  amount    Int       @default(0)
+  amount    Float     @default(0.0)
   note      String?   @default("")
 
   createdAt DateTime  @default(now())
