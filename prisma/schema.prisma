@@ -237,7 +237,8 @@ model Package {
   deletedAt DateTime?
 
   // relation
-  sales Sale[]
+  sales              Sale[]
+  paymentMethodLinks PaymentMethodLinks[]
 
   @@map("packages")
 }
@@ -420,9 +421,36 @@ model ReferenceLink {
 
   proof Proof? @relation(fields: [proofId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
+  @@map("referencelinks")
+}
+
+model PaymentMethod {
+  id          String  @id @default(uuid())
+  name        String
+  visible     Boolean @default(true)
+  defaultLink String?
+
+  paymentMethodLinks PaymentMethodLinks[]
+
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  @@map("referencelinks")
+  @@map("paymentmethods")
+}
+
+model PaymentMethodLinks {
+  id              String @id @default(uuid())
+  paymentMethodId String
+  packageId       String
+  link            String
+
+  paymentMethod PaymentMethod? @relation(fields: [paymentMethodId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  package       Package?       @relation(fields: [packageId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@map("paymentmethodlinks")
 }
