@@ -41,7 +41,4 @@ export class PrepaidCommission extends BaseEntity {
 
   @Field(() => Member, { nullable: true })
   member?: Member;
-
-  @Field(() => Sale, { nullable: true })
-  sale?: Sale;
 }

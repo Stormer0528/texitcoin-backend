@@ -143,13 +143,6 @@ export class PrepaidCommissionResolver {
   }
 
   @FieldResolver({ nullable: 'itemsAndList' })
-  async sale(@Root() prepaidCommission: PrepaidCommission, @Ctx() ctx: Context): Promise<Sale> {
-    return prepaidCommission.saleId
-      ? ctx.dataLoader.get('saleForPrepaidCommissionLoader').load(prepaidCommission.saleId)
-      : null;
-  }
-
-  @FieldResolver({ nullable: 'itemsAndList' })
   async paymentConfirm(
     @Root() prepaidCommission: PrepaidCommission,
     @Ctx() ctx: Context
