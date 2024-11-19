@@ -64,7 +64,7 @@ export class PrepaidCommissionResolver {
       promises.total = this.service.getPrepaidCommissionsCount(query);
     }
 
-    if ('sales' in fields) {
+    if ('prepaidCommissions' in fields) {
       promises.prepaidCommissions = this.service.getPrepaidCommissions(query);
     }
 
