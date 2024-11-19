@@ -97,6 +97,7 @@ export class PaymentMethodResolver {
   }
 
   @Authorized([UserRole.Admin])
+  @Transaction()
   @Mutation(() => SuccessResponse)
   async removePaymentMethod(@Arg('data') data: IDInput): Promise<SuccessResponse> {
     await this.paymentLinkService.removePaymentMethodLinksByPaymentMethodId(data.id);

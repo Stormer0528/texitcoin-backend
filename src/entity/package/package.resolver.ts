@@ -29,11 +29,15 @@ import { Package } from './package.entity';
 import { Sale } from '../sale/sale.entity';
 import { PackageService } from './package.service';
 import { SuccessResult } from '@/graphql/enum';
+import { PaymentMethodLinkService } from '../paymentMethodLink/paymentMethodLink.service';
 
 @Service()
 @Resolver(() => Package)
 export class PackageResolver {
-  constructor(private readonly service: PackageService) {}
+  constructor(
+    private readonly service: PackageService,
+    private readonly paymentMethodLinkService: PaymentMethodLinkService
+  ) {}
 
   @Query(() => PackageResponse)
   async packages(
@@ -79,8 +83,10 @@ export class PackageResolver {
   }
 
   @Authorized([UserRole.Admin])
+  @Transaction()
   @Mutation(() => SuccessResponse)
   async removePackage(@Arg('data') data: IDInput): Promise<SuccessResponse> {
+    await this.paymentMethodLinkService.removePaymentMethodLinksByPaymentMethodId(data.id);
     await this.service.removePackage(data);
     return {
       result: SuccessResult.success,
