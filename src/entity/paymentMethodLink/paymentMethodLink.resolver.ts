@@ -9,7 +9,7 @@ import { PaymentMethodLinkResponse, PaymentMethodLinksQueryArgs } from './paymen
 
 @Service()
 @Resolver(() => PaymentMethodLink)
-export class PaymentMethodResolver {
+export class PaymentMethodLinkResolver {
   constructor(private readonly service: PaymentMethodLinkService) {}
 
   @Query(() => PaymentMethodLinkResponse)
