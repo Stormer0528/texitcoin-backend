@@ -34,7 +34,7 @@ export class WeeklyCommissionUpdateInput {
   fileIds?: string[];
 
   @Field(() => [LinkInput], { nullable: 'itemsAndList' })
-  links?: LinkInput[];
+  reflinks?: LinkInput[];
 }
 
 export type CONFIRMATIONSTATUS = 'NONE' | 'PENDING' | 'APPROVED' | 'PAID' | 'DECLINED' | 'PREVIEW';

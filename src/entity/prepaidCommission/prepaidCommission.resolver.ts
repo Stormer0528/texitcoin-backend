@@ -104,16 +104,16 @@ export class PrepaidCommissionResolver {
       });
     }
 
-    const { fileIds, links, ...restData } = data;
+    const { fileIds, reflinks, ...restData } = data;
     const prepaidCommission = await this.service.createPrepaidCommission(restData);
     if (fileIds) {
       await this.fileRelationService.createFileRelations(
         fileIds.map((fileId) => ({ prepaidCommissionId: prepaidCommission.id, fileId }))
       );
     }
-    if (links) {
+    if (reflinks) {
       await this.referenceLinkService.createReferenceLinks(
-        links.map((link) => ({ prepaidCommissionId: prepaidCommission.id, ...link }))
+        reflinks.map((link) => ({ prepaidCommissionId: prepaidCommission.id, ...link }))
       );
     }
 
@@ -126,15 +126,15 @@ export class PrepaidCommissionResolver {
   async updatePrepaidCommission(
     @Arg('data') data: UpdatePrepaidCommissionInput
   ): Promise<PrepaidCommission> {
-    const { fileIds, links, ...restData } = data;
+    const { fileIds, reflinks, ...restData } = data;
     const prepaidCommission = await this.service.updatePrepaidCommission(restData);
     if (fileIds) {
       await this.fileRelationService.setFileRelationsBySaldId(prepaidCommission.id, fileIds);
     }
-    if (links) {
+    if (reflinks) {
       await this.referenceLinkService.setReferenceLinksByPrepaidCommissionId(
         prepaidCommission.id,
-        links
+        reflinks
       );
     }
     return prepaidCommission;

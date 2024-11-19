@@ -40,7 +40,7 @@ export class CreateSaleInput {
   fileIds?: string[];
 
   @Field(() => [LinkInput], { nullable: 'itemsAndList' })
-  links?: LinkInput[];
+  reflinks?: LinkInput[];
 
   @Field({ nullable: true })
   note?: string;
@@ -74,5 +74,5 @@ export class UpdateSaleInput {
   note?: string;
 
   @Field(() => [LinkInput], { nullable: 'itemsAndList' })
-  links?: LinkInput[];
+  reflinks?: LinkInput[];
 }

@@ -51,7 +51,7 @@ export class CreatePrepaidCommissionInput {
   note?: string;
 
   @Field(() => [LinkInput], { nullable: 'itemsAndList' })
-  links?: LinkInput[];
+  reflinks?: LinkInput[];
 }
 
 // Update PrepaidCommission Input and Response
@@ -91,5 +91,5 @@ export class UpdatePrepaidCommissionInput {
   note?: string;
 
   @Field(() => [LinkInput], { nullable: 'itemsAndList' })
-  links?: LinkInput[];
+  reflinks?: LinkInput[];
 }

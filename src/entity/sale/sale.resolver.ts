@@ -113,7 +113,7 @@ export class SaleResolver {
       });
     }
 
-    const { fileIds, links, ...restData } = data;
+    const { fileIds, reflinks, ...restData } = data;
     const member = await this.memberService.getMemberById(restData.memberId);
     const memberWeek = dayjs(member.createdAt).utc().startOf('week');
     const orderWeek = dayjs(data.orderedAt).utc().startOf('week');
@@ -134,9 +134,9 @@ export class SaleResolver {
         fileIds.map((fileId) => ({ saleId: sale.id, fileId }))
       );
     }
-    if (links) {
+    if (reflinks) {
       await this.referenceLinkService.createReferenceLinks(
-        links.map((link) => ({ saleId: sale.id, ...link }))
+        reflinks.map((link) => ({ saleId: sale.id, ...link }))
       );
     }
 
@@ -150,7 +150,7 @@ export class SaleResolver {
   @Mutation(() => Sale)
   async updateSale(@Arg('data') data: UpdateSaleInput): Promise<Sale> {
     const oldsale = await this.service.getSaleById(data.id);
-    const { fileIds, links, ...restData } = data;
+    const { fileIds, reflinks: links, ...restData } = data;
     const member = await this.memberService.getMemberById(restData.memberId);
     const memberWeek = dayjs(member.createdAt).utc().startOf('week');
     const orderWeek = dayjs(data.orderedAt).utc().startOf('week');

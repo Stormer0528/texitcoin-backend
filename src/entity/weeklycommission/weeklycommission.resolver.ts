@@ -110,8 +110,8 @@ export class WeeklyCommissionResolver {
       await this.fileRelationService.setFileRelationsByCommissionId(data.id, data.fileIds);
     }
 
-    if (data?.links) {
-      await this.referenceLinkService.setReferenceLinksByCommissionId(data.id, data.links);
+    if (data?.reflinks) {
+      await this.referenceLinkService.setReferenceLinksByCommissionId(data.id, data.reflinks);
     }
 
     return this.service.updateWeeklyCommission(_.omit(data, 'fileIds'));
