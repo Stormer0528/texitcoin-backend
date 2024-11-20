@@ -784,7 +784,10 @@ export class ExcelService {
         };
         const excelWeeklyCommission = weeklycommissions.map((commission, index: number) => ({
           no: index + 1,
-          ID: convertNumToString({ value: commission.ID, length: 7, prefix: 'C' }),
+          ID:
+            commission.ID > 0
+              ? convertNumToString({ value: commission.ID, length: 7, prefix: 'C' })
+              : '',
           miner: `${commission.member.fullName} (${commission.member.username})`,
           assetId: commission.member.assetId,
           placementParent:
