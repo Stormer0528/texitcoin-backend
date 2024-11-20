@@ -8,14 +8,8 @@ export class ReferenceLink extends BaseEntity {
   @Field(() => ID)
   id: string;
 
-  @Field(() => ID, { nullable: true })
-  saleId?: string;
-
-  @Field(() => ID, { nullable: true })
-  commissionId?: string;
-
-  @Field(() => ID, { nullable: true })
-  prepaidCommissionId?: string;
+  @Field(() => ID)
+  proofId: string;
 
   @Field()
   linkType: string;

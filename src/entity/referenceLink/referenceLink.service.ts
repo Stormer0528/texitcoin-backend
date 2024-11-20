@@ -28,51 +28,21 @@ export class ReferenceLinkService {
     });
   }
 
-  async setReferenceLinksBySaldId(saleId: string, links: LinkInput[]) {
+  async setReferenceLinksByProofId(proofId: string, links: LinkInput[]) {
     await this.prisma.referenceLink.deleteMany({
       where: {
-        saleId,
+        proofId,
       },
     });
     await this.prisma.referenceLink.createMany({
-      data: links.map((link) => ({ saleId, ...link })),
+      data: links.map((link) => ({ proofId, ...link })),
     });
   }
 
-  async setReferenceLinksByCommissionId(commissionId: string, links: LinkInput[]) {
-    await this.prisma.referenceLink.deleteMany({
-      where: {
-        commissionId,
-      },
-    });
-    await this.prisma.referenceLink.createMany({
-      data: links.map((link) => ({ commissionId, ...link })),
-    });
-  }
-
-  async setReferenceLinksByPrepaidCommissionId(prepaidCommissionId: string, links: LinkInput[]) {
-    await this.prisma.referenceLink.deleteMany({
-      where: {
-        prepaidCommissionId,
-      },
-    });
-    await this.prisma.referenceLink.createMany({
-      data: links.map((link) => ({ prepaidCommissionId, ...link })),
-    });
-  }
-
-  async removeReferenceLinksBySaleId(saleId: string) {
+  async removeReferenceLinksByProofId(proofId: string) {
     return this.prisma.referenceLink.deleteMany({
       where: {
-        saleId,
-      },
-    });
-  }
-
-  async removeReferenceLinksByPrepaidCommissionId(prepaidCommissionId: string) {
-    return this.prisma.referenceLink.deleteMany({
-      where: {
-        prepaidCommissionId,
+        proofId,
       },
     });
   }

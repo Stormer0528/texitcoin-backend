@@ -28,14 +28,15 @@ import { PFile } from '../file/file.entity';
 import { SaleService } from './sale.service';
 import { MemberService } from '../member/member.service';
 import { Transaction } from '@/graphql/decorator';
-import { FileRelationService } from '../fileRelation/fileRelation.service';
 import { SuccessResult } from '@/graphql/enum';
 import { MemberWalletService } from '../memberWallet/memberWallet.service';
 import { PAYOUTS } from '@/consts';
 import dayjs from 'dayjs';
 import utcPlugin from 'dayjs/plugin/utc';
-import { ReferenceLinkService } from '../referenceLink/referenceLink.service';
 import { RefLink } from '../referenceLink/referenceLink.entity';
+import { ProofService } from '../proof/proof.service';
+import { PackageService } from '../package/package.service';
+import { Proof } from '../proof/proof.entity';
 
 dayjs.extend(utcPlugin);
 
@@ -45,9 +46,9 @@ export class SaleResolver {
   constructor(
     private readonly service: SaleService,
     private readonly memberService: MemberService,
-    private readonly fileRelationService: FileRelationService,
     private readonly memberWalletService: MemberWalletService,
-    private readonly referenceLinkService: ReferenceLinkService
+    private readonly proofService: ProofService,
+    private readonly packageService: PackageService
   ) {}
 
   @Authorized()
@@ -113,7 +114,7 @@ export class SaleResolver {
       });
     }
 
-    const { fileIds, reflinks, ...restData } = data;
+    const { fileIds, reflinks, note, ...restData } = data;
     const member = await this.memberService.getMemberById(restData.memberId);
     const memberWeek = dayjs(member.createdAt).utc().startOf('week');
     const orderWeek = dayjs(data.orderedAt).utc().startOf('week');
@@ -129,16 +130,15 @@ export class SaleResolver {
     }
 
     const sale = await this.service.createSale(restData);
-    if (fileIds) {
-      await this.fileRelationService.createFileRelations(
-        fileIds.map((fileId) => ({ saleId: sale.id, fileId }))
-      );
-    }
-    if (reflinks) {
-      await this.referenceLinkService.createReferenceLinks(
-        reflinks.map((link) => ({ saleId: sale.id, ...link }))
-      );
-    }
+    const pkg = await this.packageService.getPackageById(sale.packageId);
+    await this.proofService.createProof({
+      amount: pkg.amount,
+      refId: sale.id,
+      type: 'SALE',
+      fileIds,
+      note,
+      reflinks,
+    });
 
     await this.memberService.updateMemberPointByMemberId(sale.memberId);
     await this.memberService.approveMember(sale.memberId);
@@ -150,7 +150,7 @@ export class SaleResolver {
   @Mutation(() => Sale)
   async updateSale(@Arg('data') data: UpdateSaleInput): Promise<Sale> {
     const oldsale = await this.service.getSaleById(data.id);
-    const { fileIds, reflinks: links, ...restData } = data;
+    const { fileIds, reflinks, note, ...restData } = data;
     const member = await this.memberService.getMemberById(restData.memberId);
     const memberWeek = dayjs(member.createdAt).utc().startOf('week');
     const orderWeek = dayjs(data.orderedAt).utc().startOf('week');
@@ -166,12 +166,15 @@ export class SaleResolver {
     }
 
     const newsale = await this.service.updateSale(restData);
-    if (fileIds) {
-      await this.fileRelationService.setFileRelationsBySaldId(newsale.id, fileIds);
-    }
-    if (links) {
-      await this.referenceLinkService.setReferenceLinksBySaldId(newsale.id, links);
-    }
+    const pkg = await this.packageService.getPackageById(newsale.packageId);
+    await this.proofService.updateProofByReference({
+      amount: pkg.amount,
+      note,
+      fileIds,
+      reflinks,
+      refId: `S-${newsale.ID}`,
+      type: 'SALE',
+    });
 
     await this.memberService.updateMemberPointByMemberId(oldsale.memberId);
     await this.memberService.updateMemberPointByMemberId(newsale.memberId);
@@ -183,7 +186,10 @@ export class SaleResolver {
   @Mutation(() => SuccessResponse)
   async removeSale(@Arg('data') data: IDInput): Promise<SuccessResponse> {
     const sale = await this.service.getSaleById(data.id);
-    await this.fileRelationService.removeFileRelationsBySaleId(sale.id);
+    await this.proofService.removeProof({
+      refId: `S-${sale.ID}`,
+      type: 'SALE',
+    });
     await this.service.removeSale(data);
     await this.memberService.updateMemberPointByMemberId(sale.memberId);
     return {
@@ -207,14 +213,8 @@ export class SaleResolver {
   }
 
   @Authorized([UserRole.Admin])
-  @FieldResolver({ nullable: 'itemsAndList' })
-  async paymentConfirm(@Root() sale: Sale, @Ctx() ctx: Context): Promise<PFile[]> {
-    return ctx.dataLoader.get('filesForSaleLoader').load(sale.id);
-  }
-
-  @Authorized([UserRole.Admin])
-  @FieldResolver({ nullable: 'itemsAndList' })
-  async reflinks(@Root() sale: Sale, @Ctx() ctx: Context): Promise<RefLink[]> {
-    return ctx.dataLoader.get('referenceLinksForSaleLoader').load(sale.id);
+  @FieldResolver({ nullable: true })
+  async proof(@Root() sale: Sale, @Ctx() ctx: Context): Promise<Proof> {
+    return ctx.dataLoader.get('proofForSaleLoader').load(`S-${sale.ID}`);
   }
 }

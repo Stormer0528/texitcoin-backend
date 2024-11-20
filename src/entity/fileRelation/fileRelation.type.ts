@@ -20,17 +20,8 @@ export class FileRelationResponse extends PaginatedResponse {
 // Create FileRelation Input and Response
 @InputType()
 export class CreateFileRelationInput {
-  @Field(() => ID, { nullable: true })
-  saleId?: string;
-
-  @Field(() => ID, { nullable: true })
-  commissionId?: string;
-
-  @Field(() => ID, { nullable: true })
-  prepaidCommissionId?: string;
-
-  @Field(() => ID, { nullable: true })
-  proofId?: string;
+  @Field(() => ID)
+  proofId: string;
 
   @Field(() => ID)
   fileId: string;
@@ -42,17 +33,8 @@ export class UpdateFileRelationInput {
   id: string;
 
   @Field(() => ID, { nullable: true })
-  saleId?: string;
-
-  @Field(() => ID, { nullable: true })
-  commissionId?: string;
-
-  @Field(() => ID, { nullable: true })
-  prepaidCommissionId?: string;
-
-  @Field(() => ID, { nullable: true })
   proofId?: string;
 
-  @Field(() => ID)
+  @Field(() => ID, { nullable: true })
   fileId?: string;
 }

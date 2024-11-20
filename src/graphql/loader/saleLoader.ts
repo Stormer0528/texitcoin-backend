@@ -4,8 +4,7 @@ import RootDataLoader from '.';
 import { Member } from '@/entity/member/member.entity';
 import { Package } from '@/entity/package/package.entity';
 import { StatisticsSale } from '@/entity/statisticsSale/statisticsSale.entity';
-import { PFile } from '@/entity/file/file.entity';
-import { RefLink } from '@/entity/referenceLink/referenceLink.entity';
+import { Proof } from '@/entity/proof/proof.entity';
 
 export const memberForSaleLoader = (parent: RootDataLoader) => {
   return new DataLoader<string, Member>(
@@ -71,65 +70,24 @@ export const statisticsSalesForSaleLoader = (parent: RootDataLoader) => {
   );
 };
 
-export const filesForSaleLoader = (parent: RootDataLoader) => {
-  return new DataLoader<string, PFile[]>(
+export const proofForSaleLoader = (parent: RootDataLoader) => {
+  return new DataLoader<string, Proof>(
     async (saleIds: string[]) => {
-      const salesWithFile = await parent.prisma.fileRelation.findMany({
+      const proofs = await parent.prisma.proof.findMany({
         where: {
-          saleId: {
+          refId: {
             in: saleIds,
           },
-        },
-        select: {
-          saleId: true,
-          file: true,
+          type: 'SALE',
         },
       });
 
-      const filesMap: Record<string, PFile[]> = {};
-      salesWithFile.forEach((sale) => {
-        if (!filesMap[sale.saleId]) {
-          filesMap[sale.saleId] = [];
-        }
-        filesMap[sale.saleId].push(sale.file);
+      const proofsMap: Record<string, Proof> = {};
+      proofs.forEach((proof) => {
+        proofsMap[proof.refId] = proof;
       });
 
-      return saleIds.map((id) => filesMap[id] ?? []);
-    },
-    {
-      ...parent.dataLoaderOptions,
-    }
-  );
-};
-
-export const referenceLinksForSaleLoader = (parent: RootDataLoader) => {
-  return new DataLoader<string, RefLink[]>(
-    async (saleIds: string[]) => {
-      const salesWithLinks = await parent.prisma.referenceLink.findMany({
-        where: {
-          saleId: {
-            in: saleIds,
-          },
-        },
-        select: {
-          saleId: true,
-          link: true,
-          linkType: true,
-        },
-      });
-
-      const linksMap: Record<string, RefLink[]> = {};
-      salesWithLinks.forEach((sale) => {
-        if (!linksMap[sale.saleId]) {
-          linksMap[sale.saleId] = [];
-        }
-        linksMap[sale.saleId].push({
-          link: sale.link,
-          linkType: sale.linkType,
-        });
-      });
-
-      return saleIds.map((id) => linksMap[id] ?? []);
+      return saleIds.map((id) => proofs[id]);
     },
     {
       ...parent.dataLoaderOptions,

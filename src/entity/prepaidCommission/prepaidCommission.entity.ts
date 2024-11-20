@@ -2,14 +2,16 @@ import { ObjectType, Field, ID, Int } from 'type-graphql';
 
 import { BaseEntity } from '@/graphql/baseEntity';
 
-import { PFile } from '../file/file.entity';
 import { Member } from '../member/member.entity';
-import { RefLink } from '../referenceLink/referenceLink.entity';
+import { Proof } from '../proof/proof.entity';
 
 @ObjectType()
 export class PrepaidCommission extends BaseEntity {
   @Field(() => ID)
   id: string;
+
+  @Field(() => Int)
+  ID: number;
 
   @Field(() => ID)
   memberId: string;
@@ -19,9 +21,6 @@ export class PrepaidCommission extends BaseEntity {
 
   @Field(() => ID, { nullable: true })
   txId?: string;
-
-  @Field({ nullable: true })
-  note?: string;
 
   @Field(() => Int)
   pkgL: number;
@@ -38,12 +37,9 @@ export class PrepaidCommission extends BaseEntity {
   @Field()
   weekStartDate: Date;
 
-  @Field(() => [PFile], { nullable: 'itemsAndList' })
-  paymentConfirm?: PFile[];
-
   @Field(() => Member, { nullable: true })
   member?: Member;
 
-  @Field(() => [RefLink], { nullable: 'itemsAndList' })
-  reflinks?: RefLink[];
+  @Field(() => Proof, { nullable: true })
+  proof?: Proof;
 }

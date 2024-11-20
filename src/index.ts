@@ -35,6 +35,7 @@ import { WeeklyCommissionResolver } from './entity/weeklycommission/weeklycommis
 import { AdminNotesResolver } from './entity/adminNotes/adminNotes.resolver';
 import { FileResolver } from './entity/file/file.resolver';
 import { PrepaidCommissionResolver } from './entity/prepaidCommission/prepaidCommission.resolver';
+import { ProofResolver } from './entity/proof/proof.resolver';
 
 const app = async () => {
   const schema = await tq.buildSchema({
@@ -58,6 +59,7 @@ const app = async () => {
       AdminNotesResolver,
       FileResolver,
       PrepaidCommissionResolver,
+      ProofResolver,
     ],
     authChecker,
     scalarsMap: [

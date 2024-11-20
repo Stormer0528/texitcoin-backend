@@ -1,5 +1,4 @@
 import { ObjectType, Field, Int, InputType } from 'type-graphql';
-import { BLOCKSTATETYPE } from './general.type';
 import { PaginatedResponse } from '@/graphql/paginatedResponse';
 
 @ObjectType()

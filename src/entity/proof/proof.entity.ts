@@ -5,14 +5,15 @@ import { BaseEntity } from '@/graphql/baseEntity';
 import { ProofType } from '@/graphql/enum';
 import { PFile } from '../file/file.entity';
 import { PROOFTYPE } from './proof.type';
+import { RefLink } from '../referenceLink/referenceLink.entity';
 
 @ObjectType()
 export class Proof extends BaseEntity {
   @Field(() => ID)
   id: string;
 
-  @Field()
-  orderedAt: Date;
+  @Field(() => ID)
+  refId: string;
 
   @Field(() => ProofType)
   type: PROOFTYPE;
@@ -20,9 +21,12 @@ export class Proof extends BaseEntity {
   @Field()
   amount: number;
 
-  @Field(() => [PFile], { nullable: 'itemsAndList' })
-  paymentConfirm?: PFile[];
-
   @Field({ nullable: true })
   note?: string;
+
+  @Field(() => [PFile], { nullable: 'itemsAndList' })
+  files?: PFile[];
+
+  @Field(() => [RefLink], { nullable: 'itemsAndList' })
+  reflinks?: RefLink[];
 }

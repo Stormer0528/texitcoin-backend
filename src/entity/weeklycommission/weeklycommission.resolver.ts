@@ -35,12 +35,14 @@ import { SuccessResponse } from '@/graphql/common.type';
 import { COMMISSION_PREVIEW_COMMAND } from '@/consts';
 import { ReferenceLinkService } from '../referenceLink/referenceLink.service';
 import { RefLink } from '../referenceLink/referenceLink.entity';
+import { ProofService } from '../proof/proof.service';
+import { Proof } from '../proof/proof.entity';
 
 @Service()
 @Resolver(() => WeeklyCommission)
 export class WeeklyCommissionResolver {
   constructor(
-    private readonly fileRelationService: FileRelationService,
+    private readonly proofService: ProofService,
     private readonly service: WeeklyCommissionService,
     private readonly referenceLinkService: ReferenceLinkService
   ) {}
@@ -90,6 +92,7 @@ export class WeeklyCommissionResolver {
   @Transaction()
   @Mutation(() => WeeklyCommission)
   async updateCommissionStatus(@Arg('data') data: WeeklyCommissionUpdateInput) {
+    const { fileIds, note, reflinks, ...restData } = data;
     const prevCommission = await this.service.getWeeklyCommissionById({ id: data.id });
     if (
       data.status &&
@@ -107,15 +110,14 @@ export class WeeklyCommissionResolver {
       throw new Error('You can not change status of the commission');
     }
 
-    if (data?.fileIds) {
-      await this.fileRelationService.setFileRelationsByCommissionId(data.id, data.fileIds);
-    }
+    await this.proofService.updateProofById({
+      id: data.id,
+      fileIds,
+      note,
+      reflinks,
+    });
 
-    if (data?.reflinks) {
-      await this.referenceLinkService.setReferenceLinksByCommissionId(data.id, data.reflinks);
-    }
-
-    return this.service.updateWeeklyCommission(_.omit(data, 'fileIds', 'reflinks'));
+    return this.service.updateWeeklyCommission(restData);
   }
 
   @Mutation(() => SuccessResponse)
@@ -132,17 +134,10 @@ export class WeeklyCommissionResolver {
   }
 
   @Authorized([UserRole.Admin])
-  @FieldResolver({ nullable: 'itemsAndList' })
-  async paymentConfirm(
-    @Root() commission: WeeklyCommission,
-    @Ctx() ctx: Context
-  ): Promise<PFile[]> {
-    return ctx.dataLoader.get('filesForWeeklyCommissionLoader').load(commission.id);
-  }
-
-  @Authorized([UserRole.Admin])
-  @FieldResolver({ nullable: 'itemsAndList' })
-  async reflinks(@Root() commission: WeeklyCommission, @Ctx() ctx: Context): Promise<RefLink[]> {
-    return ctx.dataLoader.get('referenceLinksForCommissionLoader').load(commission.id);
+  @FieldResolver({ nullable: true })
+  async proof(@Root() commission: WeeklyCommission, @Ctx() ctx: Context): Promise<Proof> {
+    return commission.ID > 0
+      ? ctx.dataLoader.get('proofForWeeklyCommissionLoader').load(`C-${commission.ID}`)
+      : null;
   }
 }

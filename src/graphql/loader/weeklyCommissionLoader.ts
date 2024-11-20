@@ -2,8 +2,7 @@ import DataLoader from 'dataloader';
 
 import RootDataLoader from '.';
 import { Member } from '@/entity/member/member.entity';
-import { PFile } from '@/entity/file/file.entity';
-import { RefLink } from '@/entity/referenceLink/referenceLink.entity';
+import { Proof } from '@/entity/proof/proof.entity';
 
 export const memberForWeeklyCommissionLoader = (parent: RootDataLoader) => {
   return new DataLoader<string, Member>(
@@ -25,65 +24,24 @@ export const memberForWeeklyCommissionLoader = (parent: RootDataLoader) => {
   );
 };
 
-export const filesForWeeklyCommissionLoader = (parent: RootDataLoader) => {
-  return new DataLoader<string, PFile[]>(
+export const proofForWeeklyCommissionLoader = (parent: RootDataLoader) => {
+  return new DataLoader<string, Proof>(
     async (commissionIds: string[]) => {
-      const commissionsWithFile = await parent.prisma.fileRelation.findMany({
+      const proofs = await parent.prisma.proof.findMany({
         where: {
-          commissionId: {
+          refId: {
             in: commissionIds,
           },
-        },
-        select: {
-          commissionId: true,
-          file: true,
+          type: 'COMMISSION',
         },
       });
 
-      const filesMap: Record<string, PFile[]> = {};
-      commissionsWithFile.forEach((commission) => {
-        if (!filesMap[commission.commissionId]) {
-          filesMap[commission.commissionId] = [];
-        }
-        filesMap[commission.commissionId].push(commission.file);
+      const proofsMap: Record<string, Proof> = {};
+      proofs.forEach((proof) => {
+        proofsMap[proof.refId] = proof;
       });
 
-      return commissionIds.map((id) => filesMap[id] ?? []);
-    },
-    {
-      ...parent.dataLoaderOptions,
-    }
-  );
-};
-
-export const referenceLinksForCommissionLoader = (parent: RootDataLoader) => {
-  return new DataLoader<string, RefLink[]>(
-    async (commissionIds: string[]) => {
-      const commissionsWithLinks = await parent.prisma.referenceLink.findMany({
-        where: {
-          commissionId: {
-            in: commissionIds,
-          },
-        },
-        select: {
-          commissionId: true,
-          link: true,
-          linkType: true,
-        },
-      });
-
-      const linksMap: Record<string, RefLink[]> = {};
-      commissionsWithLinks.forEach((commission) => {
-        if (!linksMap[commission.commissionId]) {
-          linksMap[commission.commissionId] = [];
-        }
-        linksMap[commission.commissionId].push({
-          link: commission.link,
-          linkType: commission.linkType,
-        });
-      });
-
-      return commissionIds.map((id) => linksMap[id] ?? []);
+      return commissionIds.map((id) => proofs[id]);
     },
     {
       ...parent.dataLoaderOptions,

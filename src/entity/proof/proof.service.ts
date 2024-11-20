@@ -3,11 +3,21 @@ import { Service, Inject } from 'typedi';
 import { PrismaService } from '@/service/prisma';
 
 import { IDInput } from '@/graphql/common.type';
-import { CreateProofInput, ProofQueryArgs, UpdateProofInput } from './proof.type';
+import {
+  CreateProofInput,
+  ProofQueryArgs,
+  ReferenceInput,
+  UpdateProofByIDInput,
+  UpdateProofByReferenceInput,
+} from './proof.type';
+import { FileRelationService } from '../fileRelation/fileRelation.service';
+import { ReferenceLinkService } from '../referenceLink/referenceLink.service';
 
 @Service()
 export class ProofService {
   constructor(
+    private readonly fileRelationService: FileRelationService,
+    private readonly referenceLinkService: ReferenceLinkService,
     @Inject(() => PrismaService)
     private readonly prisma: PrismaService
   ) {}
@@ -31,25 +41,68 @@ export class ProofService {
     });
   }
 
-  async createProof(data: Omit<CreateProofInput, 'fileIds'>) {
-    return await this.prisma.proof.create({
-      data,
+  async createProof(data: CreateProofInput) {
+    const { fileIds, reflinks, ...restData } = data;
+    const proof = await this.prisma.proof.create({
+      data: restData,
     });
+    if (fileIds) {
+      await this.fileRelationService.setFileRelationsByProofId(proof.id, fileIds);
+    }
+    if (reflinks) {
+      await this.referenceLinkService.setReferenceLinksByProofId(proof.id, reflinks);
+    }
+    return proof;
   }
 
-  async updateProof(data: Omit<UpdateProofInput, 'fileIds'>) {
-    return await this.prisma.proof.update({
+  async updateProofById(data: UpdateProofByIDInput) {
+    const { fileIds, reflinks, ...restData } = data;
+    const proof = await this.prisma.proof.update({
       where: {
         id: data.id,
       },
-      data,
+      data: restData,
     });
+    if (fileIds) {
+      await this.fileRelationService.setFileRelationsByProofId(proof.id, fileIds);
+    }
+    if (reflinks) {
+      await this.referenceLinkService.setReferenceLinksByProofId(proof.id, reflinks);
+    }
+
+    return proof;
   }
 
-  async removeProof(data: IDInput) {
+  async updateProofByReference(data: UpdateProofByReferenceInput) {
+    const { fileIds, reflinks, ...restData } = data;
+    const proof = await this.prisma.proof.update({
+      where: {
+        refId_type: {
+          refId: data.refId,
+          type: data.type,
+        },
+      },
+      data: restData,
+    });
+    if (fileIds) {
+      await this.fileRelationService.setFileRelationsByProofId(proof.id, fileIds);
+    }
+    if (reflinks) {
+      await this.referenceLinkService.setReferenceLinksByProofId(proof.id, reflinks);
+    }
+
+    return proof;
+  }
+
+  async removeProof(data: IDInput | ReferenceInput) {
+    const whereClause = 'id' in data ? { id: data.id } : { refId_type: data };
+    const proof = await this.prisma.proof.findUnique({ where: whereClause });
+
+    await this.fileRelationService.removeFileRelationsByProofId(proof.id);
+    await this.referenceLinkService.removeReferenceLinksByProofId(proof.id);
     return this.prisma.proof.delete({
       where: {
-        id: data.id,
+        id: proof.id,
       },
     });
   }

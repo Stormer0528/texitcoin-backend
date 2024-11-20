@@ -31,7 +31,7 @@ export class SaleService {
     });
   }
 
-  async createSale(data: CreateSaleInput) {
+  async createSale(data: Omit<CreateSaleInput, 'fileIds' | 'reflinks' | 'note'>) {
     return this.prisma.sale.create({
       data,
     });

@@ -21,14 +21,8 @@ export class ReferenceLinkResponse extends PaginatedResponse {
 // Create ReferenceLink Input and Response
 @InputType()
 export class CreateReferenceLinkInput {
-  @Field(() => ID, { nullable: true })
-  saleId?: string;
-
-  @Field(() => ID, { nullable: true })
-  commissionId?: string;
-
-  @Field(() => ID, { nullable: true })
-  prepaidCommissionId?: string;
+  @Field(() => ID)
+  proofId: string;
 
   @Field()
   linkType: string;
@@ -43,13 +37,7 @@ export class UpdateReferenceLinkInput {
   id: string;
 
   @Field(() => ID, { nullable: true })
-  saleId?: string;
-
-  @Field(() => ID, { nullable: true })
-  commissionId?: string;
-
-  @Field(() => ID, { nullable: true })
-  prepaidCommissionId?: string;
+  proofId?: string;
 
   @Field({ nullable: true })
   linkType?: string;

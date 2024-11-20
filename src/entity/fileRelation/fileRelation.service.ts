@@ -28,37 +28,6 @@ export class FileRelationService {
     });
   }
 
-  async setFileRelationsBySaldId(saleId: string, fileIds: string[]) {
-    await this.prisma.fileRelation.deleteMany({
-      where: {
-        saleId,
-      },
-    });
-    await this.prisma.fileRelation.createMany({
-      data: fileIds.map((fileId) => ({ saleId, fileId })),
-    });
-  }
-
-  async setFileRelationsByCommissionId(commissionId: string, fileIds: string[]) {
-    await this.prisma.fileRelation.deleteMany({
-      where: {
-        commissionId,
-      },
-    });
-    await this.prisma.fileRelation.createMany({
-      data: fileIds.map((fileId) => ({ commissionId, fileId })),
-    });
-  }
-  async setFileRelationsByPrepaidCommissionId(prepaidCommissionId: string, fileIds: string[]) {
-    await this.prisma.fileRelation.deleteMany({
-      where: {
-        prepaidCommissionId,
-      },
-    });
-    await this.prisma.fileRelation.createMany({
-      data: fileIds.map((fileId) => ({ prepaidCommissionId, fileId })),
-    });
-  }
   async setFileRelationsByProofId(proofId: string, fileIds: string[]) {
     await this.prisma.fileRelation.deleteMany({
       where: {
@@ -67,22 +36,6 @@ export class FileRelationService {
     });
     await this.prisma.fileRelation.createMany({
       data: fileIds.map((fileId) => ({ proofId, fileId })),
-    });
-  }
-
-  async removeFileRelationsBySaleId(saleId: string) {
-    return this.prisma.fileRelation.deleteMany({
-      where: {
-        saleId,
-      },
-    });
-  }
-
-  async removeFileRelationsByPrepaidCommissionId(prepaidCommissionId: string) {
-    return this.prisma.fileRelation.deleteMany({
-      where: {
-        prepaidCommissionId,
-      },
     });
   }
 

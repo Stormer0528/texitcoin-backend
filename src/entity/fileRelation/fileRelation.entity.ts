@@ -7,17 +7,8 @@ export class FileRelation extends BaseEntity {
   @Field(() => ID)
   id: string;
 
-  @Field(() => ID, { nullable: true })
-  saleId?: string;
-
-  @Field(() => ID, { nullable: true })
-  commissionId?: string;
-
-  @Field(() => ID, { nullable: true })
-  prepaidCommissionId?: string;
-
-  @Field(() => ID, { nullable: true })
-  proofId?: string;
+  @Field(() => ID)
+  proofId: string;
 
   @Field(() => ID)
   fileId: string;

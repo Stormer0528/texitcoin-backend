@@ -6,6 +6,7 @@ import { PaginatedResponse } from '@/graphql/paginatedResponse';
 
 import { Proof } from './proof.entity';
 import { ProofType } from '@/graphql/enum';
+import { LinkInput } from '../referenceLink/referenceLink.type';
 
 // Proof Query Args
 @ArgsType()
@@ -21,8 +22,8 @@ export class ProofResponse extends PaginatedResponse {
 // Create Proof Input and Response
 @InputType()
 export class CreateProofInput {
-  @Field()
-  orderedAt: string;
+  @Field(() => ID)
+  refId: string;
 
   @Field(() => ProofType)
   type: PROOFTYPE;
@@ -30,17 +31,23 @@ export class CreateProofInput {
   @Field()
   amount: number;
 
+  @Field({ nullable: true })
+  note?: string;
+
   @Field(() => [ID], { nullable: 'itemsAndList' })
   fileIds?: string[];
+
+  @Field(() => [LinkInput], { nullable: 'itemsAndList' })
+  reflinks?: LinkInput[];
 }
 
 @InputType()
-export class UpdateProofInput {
+export class UpdateProofByIDInput {
   @Field(() => ID)
   id: string;
 
-  @Field({ nullable: true })
-  orderedAt?: string;
+  @Field(() => ID, { nullable: true })
+  refId?: string;
 
   @Field(() => ProofType, { nullable: true })
   type?: PROOFTYPE;
@@ -48,8 +55,35 @@ export class UpdateProofInput {
   @Field({ nullable: true })
   amount?: number;
 
+  @Field({ nullable: true })
+  note?: string;
+
   @Field(() => [ID], { nullable: 'itemsAndList' })
   fileIds?: string[];
+
+  @Field(() => [LinkInput], { nullable: 'itemsAndList' })
+  reflinks?: LinkInput[];
+}
+
+@InputType()
+export class UpdateProofByReferenceInput {
+  @Field(() => ID)
+  refId: string;
+
+  @Field(() => ProofType)
+  type: PROOFTYPE;
+
+  @Field({ nullable: true })
+  amount?: number;
+
+  @Field({ nullable: true })
+  note?: string;
+
+  @Field(() => [ID], { nullable: 'itemsAndList' })
+  fileIds?: string[];
+
+  @Field(() => [LinkInput], { nullable: 'itemsAndList' })
+  reflinks?: LinkInput[];
 }
 
 export type PROOFTYPE =
@@ -59,4 +93,15 @@ export type PROOFTYPE =
   | 'OVERHEAD'
   | 'SALARY'
   | 'PROMOTION'
-  | 'PROFIT';
+  | 'PROFIT'
+  | 'SALE'
+  | 'PREPAY';
+
+@InputType()
+export class ReferenceInput {
+  @Field(() => ID)
+  refId: string;
+
+  @Field(() => ProofType)
+  type: PROOFTYPE;
+}

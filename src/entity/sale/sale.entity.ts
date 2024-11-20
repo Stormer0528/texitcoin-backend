@@ -4,10 +4,9 @@ import { BaseEntity } from '@/graphql/baseEntity';
 
 import { Member } from '../member/member.entity';
 import { Package } from '../package/package.entity';
-import { PFile } from '../file/file.entity';
 import { StatisticsSale } from '../statisticsSale/statisticsSale.entity';
 import { UserRole } from '@/type';
-import { RefLink } from '../referenceLink/referenceLink.entity';
+import { Proof } from '../proof/proof.entity';
 
 @ObjectType()
 export class Sale extends BaseEntity {
@@ -38,18 +37,10 @@ export class Sale extends BaseEntity {
   @Field()
   orderedAt: Date;
 
-  @Authorized([UserRole.Admin])
-  @Field(() => [PFile], { nullable: 'itemsAndList' })
-  paymentConfirm?: PFile[];
-
-  @Authorized([UserRole.Admin])
-  @Field({ nullable: true })
-  note?: string;
-
   @Field(() => [StatisticsSale], { nullable: 'itemsAndList' })
   statisticsSales?: StatisticsSale[];
 
   @Authorized([UserRole.Admin])
-  @Field(() => [RefLink], { nullable: 'itemsAndList' })
-  reflinks?: RefLink[];
+  @Field(() => Proof, { nullable: true })
+  proof?: Proof;
 }

@@ -37,6 +37,8 @@ import { PFile } from '../file/file.entity';
 import { Member } from '../member/member.entity';
 import { ReferenceLinkService } from '../referenceLink/referenceLink.service';
 import { RefLink } from '../referenceLink/referenceLink.entity';
+import { ProofService } from '../proof/proof.service';
+import { Proof } from '../proof/proof.entity';
 
 dayjs.extend(utcPlugin);
 
@@ -46,8 +48,7 @@ export class PrepaidCommissionResolver {
   constructor(
     private readonly service: PrepaidCommissionService,
     private memberService: MemberService,
-    private readonly fileRelationService: FileRelationService,
-    private readonly referenceLinkService: ReferenceLinkService
+    private proofService: ProofService
   ) {}
 
   @Authorized([UserRole.Admin])
@@ -102,18 +103,16 @@ export class PrepaidCommissionResolver {
       });
     }
 
-    const { fileIds, reflinks, ...restData } = data;
+    const { fileIds, reflinks, note, ...restData } = data;
     const prepaidCommission = await this.service.createPrepaidCommission(restData);
-    if (fileIds) {
-      await this.fileRelationService.createFileRelations(
-        fileIds.map((fileId) => ({ prepaidCommissionId: prepaidCommission.id, fileId }))
-      );
-    }
-    if (reflinks) {
-      await this.referenceLinkService.createReferenceLinks(
-        reflinks.map((link) => ({ prepaidCommissionId: prepaidCommission.id, ...link }))
-      );
-    }
+    await this.proofService.createProof({
+      amount: prepaidCommission.commission,
+      refId: `PC-${prepaidCommission.ID}`,
+      type: 'PREPAY',
+      fileIds,
+      reflinks,
+      note,
+    });
 
     return prepaidCommission;
   }
@@ -124,20 +123,17 @@ export class PrepaidCommissionResolver {
   async updatePrepaidCommission(
     @Arg('data') data: UpdatePrepaidCommissionInput
   ): Promise<PrepaidCommission> {
-    const { fileIds, reflinks, ...restData } = data;
+    const { fileIds, reflinks, note, ...restData } = data;
     const prepaidCommission = await this.service.updatePrepaidCommission(restData);
-    if (fileIds) {
-      await this.fileRelationService.setFileRelationsByPrepaidCommissionId(
-        prepaidCommission.id,
-        fileIds
-      );
-    }
-    if (reflinks) {
-      await this.referenceLinkService.setReferenceLinksByPrepaidCommissionId(
-        prepaidCommission.id,
-        reflinks
-      );
-    }
+    await this.proofService.updateProofByReference({
+      amount: prepaidCommission.commission,
+      fileIds,
+      reflinks,
+      note,
+      refId: `PC-${prepaidCommission.ID}`,
+      type: 'PREPAY',
+    });
+
     return prepaidCommission;
   }
 
@@ -146,8 +142,11 @@ export class PrepaidCommissionResolver {
   @Mutation(() => SuccessResponse)
   async removePrepaidCommission(@Arg('data') data: IDInput): Promise<SuccessResponse> {
     const prepaidCommission = await this.service.getPrepaidCommissionById(data.id);
-    await this.fileRelationService.removeFileRelationsByPrepaidCommissionId(prepaidCommission.id);
-    await this.referenceLinkService.removeReferenceLinksByPrepaidCommissionId(prepaidCommission.id);
+    await this.proofService.removeProof({
+      refId: `PC-${prepaidCommission.ID}`,
+      type: 'PREPAY',
+    });
+
     await this.service.removePrepaidCommission(data);
     return {
       result: SuccessResult.success,
@@ -160,20 +159,7 @@ export class PrepaidCommissionResolver {
   }
 
   @FieldResolver({ nullable: 'itemsAndList' })
-  async paymentConfirm(
-    @Root() prepaidCommission: PrepaidCommission,
-    @Ctx() ctx: Context
-  ): Promise<PFile[]> {
-    return ctx.dataLoader.get('filesForPrepaidCommissionLoader').load(prepaidCommission.id);
-  }
-
-  @FieldResolver({ nullable: 'itemsAndList' })
-  async reflinks(
-    @Root() prepaidCommission: PrepaidCommission,
-    @Ctx() ctx: Context
-  ): Promise<RefLink[]> {
-    return ctx.dataLoader
-      .get('referenceLinksForPrepaidCommissionLoader')
-      .load(prepaidCommission.id);
+  async proof(@Root() prepaidCommission: PrepaidCommission, @Ctx() ctx: Context): Promise<Proof> {
+    return ctx.dataLoader.get('proofForPrepaidCommissionLoader').load(`PC-${prepaidCommission.ID}`);
   }
 }

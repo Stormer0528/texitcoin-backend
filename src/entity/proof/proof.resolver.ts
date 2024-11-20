@@ -7,7 +7,12 @@ import { UserRole } from '@/type';
 
 import { Transaction } from '@/graphql/decorator';
 import { IDInput, SuccessResponse } from '@/graphql/common.type';
-import { CreateProofInput, ProofQueryArgs, ProofResponse, UpdateProofInput } from './proof.type';
+import {
+  CreateProofInput,
+  ProofQueryArgs,
+  ProofResponse,
+  UpdateProofByIDInput,
+} from './proof.type';
 import { Proof } from './proof.entity';
 import { ProofService } from './proof.service';
 import { SuccessResult } from '@/graphql/enum';
@@ -54,29 +59,14 @@ export class ProofResolver {
   @Transaction()
   @Mutation(() => Proof)
   async createProof(@Arg('data') data: CreateProofInput): Promise<Proof> {
-    const { fileIds, ...restData } = data;
-    const proof = await this.service.createProof(restData);
-    if (fileIds) {
-      await this.fileRelationService.createFileRelations(
-        fileIds.map((fileId) => ({
-          proofId: proof.id,
-          fileId,
-        }))
-      );
-    }
-    return proof;
+    return this.service.createProof(data);
   }
 
   @Authorized([UserRole.Admin])
   @Transaction()
   @Mutation(() => Proof)
-  async updateProof(@Arg('data') data: UpdateProofInput): Promise<Proof> {
-    const { fileIds, ...restData } = data;
-    if (fileIds) {
-      await this.fileRelationService.setFileRelationsByProofId(data.id, fileIds);
-    }
-
-    return this.service.updateProof(restData);
+  async updateProof(@Arg('data') data: UpdateProofByIDInput): Promise<Proof> {
+    return this.service.updateProofById(data);
   }
 
   @Authorized([UserRole.Admin])

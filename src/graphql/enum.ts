@@ -22,6 +22,8 @@ export enum ProofType {
   SALARY = 'SALARY',
   PROMOTION = 'PROMOTION',
   PROFIT = 'PROFIT',
+  SALE = 'SALE',
+  PREPAY = 'PREPAY',
 }
 
 export enum SuccessResult {

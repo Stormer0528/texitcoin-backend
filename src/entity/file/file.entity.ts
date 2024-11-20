@@ -21,7 +21,4 @@ export class PFile extends BaseEntity {
   size: number;
 
   localPath: string;
-
-  @Field(() => Sale, { nullable: true })
-  sale?: Sale;
 }
