@@ -328,7 +328,7 @@ model MemberStatisticsWallet {
 
 model WeeklyCommission {
   id            String             @id @default(uuid())
-  ID            Int                @unique(map: "index_weeklycommissions_on_ID") @default(autoincrement()) @db.Integer
+  ID            Int                @default(autoincrement()) @db.Integer
   weekStartDate DateTime
   begL          Int                @default(0)
   begR          Int                @default(0)
