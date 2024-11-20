@@ -87,12 +87,17 @@ export class ExcelService {
         placementChildren: true,
       },
       orderBy: {
-        userId: 'asc',
+        ID: 'asc',
       },
     });
     const specification = {
       no: {
         displayName: 'No',
+        headerStyle: styles.headerNormal,
+        width: 30,
+      },
+      ID: {
+        displayName: 'ID',
         headerStyle: styles.headerNormal,
         width: 80,
       },
@@ -200,9 +205,10 @@ export class ExcelService {
     return this.exportData(
       'members',
       specification,
-      members.map((member) => ({
+      members.map((member, idx) => ({
         ...member,
-        no: convertNumToString(member.userId, 7),
+        no: idx + 1,
+        ID: convertNumToString({ value: member.ID, length: 7, prefix: 'M' }),
         sponsor: member.sponsorId ? `${member.sponsor.fullName}(${member.sponsor.username})` : '',
         placementParent:
           member.placementParentId && member.id !== PLACEMENT_ROOT
@@ -240,8 +246,8 @@ export class ExcelService {
         headerStyle: styles.headerNormal,
         width: 30,
       },
-      purchaseId: {
-        displayName: 'Purchase ID',
+      ID: {
+        displayName: 'ID',
         headerStyle: styles.headerNormal,
         width: 70,
       },
@@ -299,9 +305,10 @@ export class ExcelService {
     return this.exportData(
       'sales',
       specification,
-      sales.map((sale, index: number) => ({
+      sales.map((sale, idx) => ({
         ...sale,
-        no: index + 1,
+        no: idx + 1,
+        ID: convertNumToString({ value: sale.ID, length: 7, prefix: 'S' }),
         status: sale.status ? 'Active' : 'Inactive',
         member: `${sale.member.fullName} (${sale.member.username})`,
         productName: sale.package.productName,
@@ -480,10 +487,10 @@ export class ExcelService {
       no: {
         displayName: 'No',
         headerStyle: styles.headerNormal,
-        width: 80,
+        width: 30,
       },
-      minerNumber: {
-        displayName: 'assigned number',
+      ID: {
+        displayName: 'ID',
         headerStyle: styles.headerNormal,
         width: 80,
       },
@@ -539,7 +546,7 @@ export class ExcelService {
       members.map((member, idx) => ({
         ...member,
         no: idx + 1,
-        minerNumber: convertNumToString(member.userId, 7),
+        ID: convertNumToString({ value: member.ID, length: 7, prefix: 'M' }),
         joinedAt: member.createdAt,
       }))
     );
@@ -714,6 +721,11 @@ export class ExcelService {
             headerStyle: styles.headerNormal,
             width: 30,
           },
+          ID: {
+            displayName: 'ID',
+            headerStyle: styles.headerNormal,
+            width: 70,
+          },
           miner: {
             displayName: 'Miner',
             headerStyle: styles.headerNormal,
@@ -772,6 +784,7 @@ export class ExcelService {
         };
         const excelWeeklyCommission = weeklycommissions.map((commission, index: number) => ({
           no: index + 1,
+          ID: convertNumToString({ value: commission.ID, length: 7, prefix: 'C' }),
           miner: `${commission.member.fullName} (${commission.member.username})`,
           assetId: commission.member.assetId,
           placementParent:

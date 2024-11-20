@@ -21,8 +21,8 @@ export const uniqueErrors = [
   },
   {
     modelName: 'Member',
-    path: ['userId'],
-    message: 'UserId already exists',
+    path: ['ID'],
+    message: 'ID already exists',
   },
   {
     modelName: 'MemberWallet',

@@ -14,8 +14,8 @@ export class Sale extends BaseEntity {
   @Field(() => ID)
   id: string;
 
-  @Field(() => Int, { nullable: true })
-  purchaseId?: number;
+  @Field(() => Int)
+  ID: number;
 
   @Field()
   paymentMethod: string;

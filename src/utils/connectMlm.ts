@@ -29,7 +29,7 @@ export const getSales = async (members: Member[]) => {
 
   const [rows] = await connection.execute(
     `SELECT
-      ml.user_id AS userId,    
+      ml.user_id AS ID,    
       mp.package AS packageName,
       mph.payment_method AS paymentMethod,
       mph.order_date AS orderedAt
@@ -45,15 +45,15 @@ export const getSales = async (members: Member[]) => {
 
   const data: SaleReportInput[] = rows as SaleReportInput[];
 
-  const memberIds = members.reduce((prev, { id, userId }) => ({ ...prev, [userId]: id }), {});
+  const memberIds = members.reduce((prev, { id, ID }) => ({ ...prev, [ID]: id }), {});
 
-  const sales = data.map(({ userId, packageName, ...row }) => {
+  const sales = data.map(({ ID, packageName, ...row }) => {
     const trimedPkgName = packageName.trim();
     const pkg = packageData.find((pkgData) => pkgData.productName === trimedPkgName);
 
     return {
       ...row,
-      memberId: memberIds[userId],
+      memberId: memberIds[ID],
       packageId: pkg.id,
     };
   });
@@ -73,7 +73,7 @@ export const getMembers = async () => {
     SELECT
       username,
       CONCAT(first_name, " ", last_name) AS fullName,
-      user_id AS userId,
+      user_id AS ID,
       CONCAT("+", phone_code, " ", phone) AS mobile,
       email,
       primary_address AS primaryAddress,

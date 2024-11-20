@@ -185,7 +185,7 @@ const toMember = (
     mobile: complexMember.mobile,
     primaryAddress: complexMember.primaryAddress,
     secondaryAddress: complexMember.secondaryAddress,
-    userId: complexMember.userId,
+    ID: complexMember.ID,
     username: complexMember.username,
     city: complexMember.city,
     password: hashedPassword,
@@ -204,9 +204,7 @@ const syncMembers = async () => {
       mlmMembers,
       async (member) => {
         let assetId: string = member.assetId;
-        while (
-          mlmMembers.findIndex((mb) => mb.assetId === assetId && mb.userId !== member.userId) >= 0
-        ) {
+        while (mlmMembers.findIndex((mb) => mb.assetId === assetId && mb.ID !== member.ID) >= 0) {
           assetId = generateRandomString(6);
         }
         const result = await prisma.member.create({

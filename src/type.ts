@@ -18,7 +18,7 @@ export interface SaleReport {
 
 export interface SaleReportInput {
   memberId: string;
-  userId: string;
+  ID: string;
   packageName: string;
   orderedAt: Date;
   paymentMethod: string;

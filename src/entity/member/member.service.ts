@@ -57,7 +57,7 @@ export class MemberService {
     return await this.prisma.$queryRaw<{ date: Date; count: number }[]>`
       SELECT 
         DATE("createdAt") as date, 
-        CAST(COUNT("userId") as INT) as count
+        CAST(COUNT("ID") as INT) as count
       FROM 
         Members
       WHERE 
@@ -102,10 +102,10 @@ export class MemberService {
     });
   }
 
-  async getMemberByUserId(userId: number) {
+  async getMemberByID(ID: number) {
     return this.prisma.member.findUnique({
       where: {
-        userId,
+        ID,
       },
     });
   }
@@ -117,16 +117,8 @@ export class MemberService {
       sponsorId?: string;
     }
   ) {
-    const maxUserId = await this.prisma.member.aggregate({
-      _max: {
-        userId: true,
-      },
-    });
     return this.prisma.member.create({
-      data: {
-        ...data,
-        userId: maxUserId._max.userId + 1,
-      },
+      data,
     });
   }
 
