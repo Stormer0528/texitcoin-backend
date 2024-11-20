@@ -47,10 +47,10 @@ model Admin {
 
 model Member {
   id                     String             @id @default(uuid())
+  ID                     Int                @unique(map: "index_members_on_ID") @default(autoincrement()) @db.Integer
   username               String             @unique(map: "index_members_on_username") @db.Citext
   fullName               String             @db.VarChar
   sponsorId              String?            @db.VarChar
-  userId                 Int                @unique(map: "index_members_on_userId") @db.Integer
   email                  String             @unique(map: "index_members_on_email") @db.Citext
   mobile                 String             @db.VarChar
   assetId                String?            @db.VarChar
@@ -100,7 +100,7 @@ model Member {
 
 model Sale {
   id            String   @id @default(uuid())
-  purchaseId    Int?     @unique
+  ID            Int      @unique(map: "index_sales_on_ID") @default(autoincrement()) @db.Integer
   memberId      String
   packageId     String
   paymentMethod String
@@ -328,6 +328,7 @@ model MemberStatisticsWallet {
 
 model WeeklyCommission {
   id            String             @id @default(uuid())
+  ID            Int                @unique(map: "index_weeklycommissions_on_ID") @default(autoincrement()) @db.Integer
   weekStartDate DateTime
   begL          Int                @default(0)
   begR          Int                @default(0)
