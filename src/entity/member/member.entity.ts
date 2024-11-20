@@ -30,7 +30,7 @@ export class Member extends BaseEntity {
   @IsEmail()
   email: string;
 
-  @Field()
+  @Field(() => Int)
   ID: number;
 
   @Field()

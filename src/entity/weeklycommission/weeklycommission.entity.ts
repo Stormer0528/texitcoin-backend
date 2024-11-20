@@ -1,4 +1,4 @@
-import { ObjectType, Field, ID, Authorized } from 'type-graphql';
+import { ObjectType, Field, ID, Authorized, Int } from 'type-graphql';
 
 import { BaseEntity } from '@/graphql/baseEntity';
 
@@ -13,6 +13,9 @@ import { RefLink } from '../referenceLink/referenceLink.entity';
 export class WeeklyCommission extends BaseEntity {
   @Field(() => ID)
   id: string;
+
+  @Field(() => Int)
+  ID: number;
 
   @Field(() => ID)
   memberId: string;
