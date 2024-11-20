@@ -41,9 +41,13 @@ router.get(
   }
 );
 
-router.get('/export-commissions', async (req: Request, res: Response, next: NextFunction) => {
-  exportController.exportCommissions(req, res, next);
-});
+router.get(
+  '/export-commissions',
+  adminAuthorized,
+  async (req: Request, res: Response, next: NextFunction) => {
+    exportController.exportCommissions(req, res, next);
+  }
+);
 
 router.use('/upload', uploadRoute);
 router.get(

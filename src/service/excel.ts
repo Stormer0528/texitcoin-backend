@@ -696,6 +696,74 @@ export class ExcelService {
         weekStartDate: 'asc',
       },
     });
+    const specificationWeeklyCommission = {
+      no: {
+        displayName: 'No',
+        headerStyle: styles.headerNormal,
+        width: 30,
+      },
+      ID: {
+        displayName: 'ID',
+        headerStyle: styles.headerNormal,
+        width: 70,
+      },
+      miner: {
+        displayName: 'Miner',
+        headerStyle: styles.headerNormal,
+        width: 150,
+      },
+      assetId: {
+        displayName: 'AssetId',
+        headerStyle: styles.headerNormal,
+        width: 90,
+      },
+      placementParent: {
+        displayName: 'Placement Parent',
+        headerStyle: styles.headerNormal,
+        width: 150,
+      },
+      placementPosition: {
+        displayName: 'Placement Position',
+        headerStyle: styles.headerNormal,
+        width: 100,
+      },
+      begLR: {
+        displayName: 'Begin LR',
+        headerStyle: styles.headerNormal,
+        width: 120,
+      },
+      newLR: {
+        displayName: 'New LR',
+        headerStyle: styles.headerNormal,
+        width: 120,
+      },
+      maxLR: {
+        displayName: 'Max LR',
+        headerStyle: styles.headerNormal,
+        width: 100,
+      },
+      endLR: {
+        displayName: 'End LR',
+        headerStyle: styles.headerNormal,
+        width: 100,
+      },
+      pkgLR: {
+        displayName: 'Package',
+        headerStyle: styles.headerNormal,
+        width: 100,
+      },
+      commission: {
+        displayName: 'Commission',
+        headerStyle: styles.headerNormal,
+        width: 100,
+      },
+      status: {
+        displayName: 'Status',
+        headerStyle: styles.headerNormal,
+        width: 100,
+      },
+    };
+
     const excelData: ExportDataInterface[] = await Bluebird.map(
       weekStartDates,
       async (weekStartDate) => {
@@ -715,73 +783,6 @@ export class ExcelService {
           },
         });
 
-        const specificationWeeklyCommission = {
-          no: {
-            displayName: 'No',
-            headerStyle: styles.headerNormal,
-            width: 30,
-          },
-          ID: {
-            displayName: 'ID',
-            headerStyle: styles.headerNormal,
-            width: 70,
-          },
-          miner: {
-            displayName: 'Miner',
-            headerStyle: styles.headerNormal,
-            width: 150,
-          },
-          assetId: {
-            displayName: 'AssetId',
-            headerStyle: styles.headerNormal,
-            width: 90,
-          },
-          placementParent: {
-            displayName: 'Placement Parent',
-            headerStyle: styles.headerNormal,
-            width: 150,
-          },
-          placementPosition: {
-            displayName: 'Placement Position',
-            headerStyle: styles.headerNormal,
-            width: 100,
-          },
-          begLR: {
-            displayName: 'Begin LR',
-            headerStyle: styles.headerNormal,
-            width: 120,
-          },
-          newLR: {
-            displayName: 'New LR',
-            headerStyle: styles.headerNormal,
-            width: 120,
-          },
-          maxLR: {
-            displayName: 'Max LR',
-            headerStyle: styles.headerNormal,
-            width: 100,
-          },
-          endLR: {
-            displayName: 'End LR',
-            headerStyle: styles.headerNormal,
-            width: 100,
-          },
-          pkgLR: {
-            displayName: 'Package',
-            headerStyle: styles.headerNormal,
-            width: 100,
-          },
-          commission: {
-            displayName: 'Commission',
-            headerStyle: styles.headerNormal,
-            width: 100,
-          },
-          status: {
-            displayName: 'Status',
-            headerStyle: styles.headerNormal,
-            width: 100,
-          },
-        };
         const excelWeeklyCommission = weeklycommissions.map((commission, index: number) => ({
           no: index + 1,
           ID:
