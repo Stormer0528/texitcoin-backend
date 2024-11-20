@@ -87,15 +87,14 @@ export class PrepaidCommissionResolver {
   async createPrepaidCommission(
     @Arg('data') data: CreatePrepaidCommissionInput
   ): Promise<PrepaidCommission> {
-    const { emailVerified, status } = await this.memberService.getMemberById(data.memberId);
-    if (!emailVerified) {
-      throw new GraphQLError('This member did not verify the email', {
+    const member = await this.memberService.getMemberById(data.memberId);
+    if (!member) {
+      throw new GraphQLError('You have to select the member', {
         extensions: {
           path: ['memberId'],
         },
       });
-    }
-    if (!status) {
+    } else if (!member.status) {
       throw new GraphQLError('This member is not allowed', {
         extensions: {
           path: ['memberId'],
