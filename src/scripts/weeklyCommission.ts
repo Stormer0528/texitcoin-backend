@@ -187,6 +187,7 @@ async function weeklyCommission(tranPrisma: PrismaClient, preview: boolean = fal
               : commission > 0
                 ? ConfirmationStatus.PENDING
                 : ConfirmationStatus.NONE,
+            ID: preview || commission == 0 ? -1 : undefined,
             weekStartDate: iStartDate.toDate(),
           },
         });
