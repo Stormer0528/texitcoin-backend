@@ -11,7 +11,7 @@ generator json {
 datasource db {
   provider   = "postgresql"
   url        = env("DATABASE_URL")
-  extensions = [citext]
+  extensions = [citext, pgcrypto]
 }
 
 enum PlacementPosition {
@@ -36,6 +36,8 @@ enum ProofType {
   SALARY
   PROMOTION
   PROFIT
+  SALE
+  PREPAY
 }
 
 model Admin {
@@ -117,14 +119,11 @@ model Sale {
   orderedAt     DateTime @default(now())
   status        Boolean  @default(true)
   freeShareSale Boolean  @default(false) @db.Boolean
-  note          String?
 
   member  Member?  @relation(fields: [memberId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   package Package? @relation(fields: [packageId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   statisticsSales StatisticsSale[]
-  fileRelations   FileRelation[]
-  referenceLinks  ReferenceLink[]
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -353,11 +352,8 @@ model WeeklyCommission {
   commission    Int                @default(0)
   memberId      String
   status        ConfirmationStatus @default(NONE)
-  note          String?            @default("")
 
-  member         Member?         @relation(fields: [memberId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  fileRelations  FileRelation[]
-  referenceLinks ReferenceLink[]
+  member Member? @relation(fields: [memberId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -400,18 +396,12 @@ model File {
 }
 
 model FileRelation {
-  id                  String  @id @default(uuid())
-  saleId              String?
-  commissionId        String?
-  fileId              String
-  prepaidCommissionId String?
-  proofId             String?
+  id      String @id @default(uuid())
+  proofId String
+  fileId  String
 
-  sale              Sale?              @relation(fields: [saleId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  commission        WeeklyCommission?  @relation(fields: [commissionId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  prepaidCommission PrepaidCommission? @relation(fields: [prepaidCommissionId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  proof             Proof?             @relation(fields: [proofId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  file              File?              @relation(fields: [fileId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  proof Proof? @relation(fields: [proofId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  file  File?  @relation(fields: [fileId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -421,12 +411,30 @@ model FileRelation {
   @@map("filerelations")
 }
 
+model Proof {
+  id     String    @id @default(uuid())
+  refId  String
+  type   ProofType
+  amount Float     @default(0.0)
+  note   String?   @default("")
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  fileRelations  FileRelation[]
+  referenceLinks ReferenceLink[]
+
+  @@unique([refId, type], map: "unique_index_on_proof")
+  @@map("proofs")
+}
+
 model PrepaidCommission {
   id            String   @id @default(uuid())
+  ID            Int      @unique(map: "index_prepaidcommissions_on_ID") @default(autoincrement()) @db.Integer
   memberId      String
   txType        String?
   txId          String?
-  note          String?
   pkgL          Int      @default(0)
   pkgR          Int      @default(0)
   commission    Int      @default(0)
@@ -437,41 +445,23 @@ model PrepaidCommission {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  fileRelations  FileRelation[]
-  member         Member?         @relation(fields: [memberId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  referenceLinks ReferenceLink[]
+  member Member? @relation(fields: [memberId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@map("prepaidcommissions")
 }
 
 model ReferenceLink {
-  id                  String  @id @default(uuid())
-  saleId              String?
-  commissionId        String?
-  prepaidCommissionId String?
+  id      String @id @default(uuid())
+  proofId String
 
   linkType String
   link     String
 
-  sale              Sale?              @relation(fields: [saleId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  commission        WeeklyCommission?  @relation(fields: [commissionId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  prepaidCommission PrepaidCommission? @relation(fields: [prepaidCommissionId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@map("referencelinks")
-}
-
-model Proof {
-  id        String    @id @default(uuid())
-  orderedAt DateTime  @default(now())
-  type      ProofType
-  amount    Float     @default(0.0)
-  note      String?   @default("")
+  proof Proof? @relation(fields: [proofId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  fileRelations FileRelation[]
-
-  @@map("proofs")
+  @@map("referencelinks")
 }
