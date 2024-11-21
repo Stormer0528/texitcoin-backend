@@ -46,21 +46,21 @@ CREATE UNIQUE INDEX "unique_index_on_additionalinformation" ON "additionalinform
 -- Insert data from sale, commission, prepay
 -- sale
 INSERT INTO additionalinformations (id, "refId", "note", "amount", type, "createdAt", "updatedAt")
-SELECT gen_random_uuid(), CONCAT('S', sales."ID"), "note", packages.amount, 'SALE', NOW(), NOW()
+SELECT gen_random_uuid(), CONCAT('S-', LPAD(sales."ID"::TEXT, 7, '0')), "note", packages.amount, 'SALE', NOW(), NOW()
 FROM sales
 JOIN packages ON sales."packageId" = packages."id"
 ON CONFLICT ("refId", type) DO NOTHING;
 
 -- commission note
 INSERT INTO additionalinformations (id, "refId", "note", "amount", type, "createdAt", "updatedAt")
-SELECT gen_random_uuid(), CONCAT('C', "ID"), "note", "commission", 'COMMISSION', NOW(), NOW()
+SELECT gen_random_uuid(), CONCAT('C-', LPAD("ID"::TEXT, 7, '0')), "note", "commission", 'COMMISSION', NOW(), NOW()
 FROM weeklycommissions
 WHERE "commission" > 0 AND status <> 'PREVIEW'
 ON CONFLICT ("refId", type) DO NOTHING;
 
 -- prepay note
 INSERT INTO additionalinformations (id, "refId", "note", "amount", type, "createdAt", "updatedAt")
-SELECT gen_random_uuid(), CONCAT('PC', "ID"), "note", "commission", 'PREPAY', NOW(), NOW()
+SELECT gen_random_uuid(), CONCAT('PC-', LPAD("ID"::TEXT, 7, '0')), "note", "commission", 'PREPAY', NOW(), NOW()
 FROM prepaidcommissions
 ON CONFLICT ("refId", type) DO NOTHING;
 
@@ -72,21 +72,21 @@ ALTER TABLE "filerelations" ADD COLUMN     "addInfoId" TEXT NOT NULL DEFAULT('')
 UPDATE filerelations f
 SET "addInfoId" = a.id
 FROM additionalinformations a
-JOIN weeklycommissions c ON CONCAT('C', c."ID") = a."refId"
+JOIN weeklycommissions c ON CONCAT('C-', LPAD(c."ID"::TEXT, 7, '0'))= a."refId"
 WHERE f."commissionId" = c.id and a.type='COMMISSION';
 
 -- Update with prepaidCommissionId references
 UPDATE filerelations f
 SET "addInfoId" = a.id
 FROM additionalinformations a
-JOIN prepaidcommissions pc ON CONCAT('PC', pc."ID") = a."refId"
+JOIN prepaidcommissions pc ON CONCAT('PC-', LPAD(pc."ID"::TEXT, 7, '0')) = a."refId"
 WHERE f."prepaidCommissionId" = pc.id and a.type = 'PREPAY';
 
 -- Update with saleId references
 UPDATE filerelations f
 SET "addInfoId" = a.id
 FROM additionalinformations a
-JOIN sales s ON CONCAT('S', s."ID") = a."refId"
+JOIN sales s ON CONCAT('S-', LPAD(s."ID"::TEXT, 7, '0')) = a."refId"
 WHERE f."saleId" = s.id and a.type = 'SALE';
 
 ALTER TABLE "filerelations" DROP COLUMN "commissionId",
@@ -103,21 +103,21 @@ ALTER TABLE "referencelinks" ADD COLUMN     "addInfoId" TEXT NOT NULL DEFAULT(''
 UPDATE referencelinks rl
 SET "addInfoId" = a.id
 FROM additionalinformations a
-JOIN weeklycommissions c ON CONCAT('C', c."ID") = a."refId"
+JOIN weeklycommissions c ON CONCAT('C-', LPAD(c."ID"::TEXT, 7, '0')) = a."refId"
 WHERE rl."commissionId" = c.id and a.type='COMMISSION';
 
 -- Update with prepaidCommissionId references
 UPDATE referencelinks rl
 SET "addInfoId" = a.id
 FROM additionalinformations a
-JOIN prepaidcommissions pc ON CONCAT('PC', pc."ID") = a."refId"
+JOIN prepaidcommissions pc ON CONCAT('PC-', LPAD(pc."ID"::TEXT, 7, '0')) = a."refId"
 WHERE rl."prepaidCommissionId" = pc.id and a.type = 'PREPAY';
 
 -- Update with saleId references
 UPDATE referencelinks rl
 SET "addInfoId" = a.id
 FROM additionalinformations a
-JOIN sales s ON CONCAT('S', s."ID") = a."refId"
+JOIN sales s ON CONCAT('S-', LPAD(s."ID"::TEXT, 7, '0')) = a."refId"
 WHERE rl."saleId" = s.id and a.type = 'SALE';
 
 
