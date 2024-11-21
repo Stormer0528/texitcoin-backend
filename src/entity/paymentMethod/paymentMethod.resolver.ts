@@ -40,7 +40,7 @@ export class PaymentMethodResolver {
   ) {}
 
   @Query(() => PaymentMethodResponse)
-  async packages(
+  async paymentMethods(
     @Args() query: PaymentMethodQueryArgs,
     @Info() info: GraphQLResolveInfo
   ): Promise<PaymentMethodResponse> {
