@@ -114,7 +114,7 @@ export class WeeklyCommissionResolver {
       await this.referenceLinkService.setReferenceLinksByCommissionId(data.id, data.reflinks);
     }
 
-    return this.service.updateWeeklyCommission(_.omit(data, 'fileIds'));
+    return this.service.updateWeeklyCommission(_.omit(data, 'fileIds', 'reflinks'));
   }
 
   @Mutation(() => SuccessResponse)
