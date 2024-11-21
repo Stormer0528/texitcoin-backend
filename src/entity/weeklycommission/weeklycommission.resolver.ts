@@ -92,6 +92,7 @@ export class WeeklyCommissionResolver {
   async updateCommissionStatus(@Arg('data') data: WeeklyCommissionUpdateInput) {
     const prevCommission = await this.service.getWeeklyCommissionById({ id: data.id });
     if (
+      data.status &&
       prevCommission.status !== ConfirmationStatus.PREVIEW &&
       (prevCommission.status === ConfirmationStatus.NONE ||
         !(
