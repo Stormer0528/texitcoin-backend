@@ -225,44 +225,52 @@ export class GeneralResolver {
 
     if ('commissions' in fields) {
       promises.commissions = this.prisma.$queryRaw<CommissionOverview[]>`
-        WITH sales_count AS (
+        WITH weeks AS (
+            SELECT DISTINCT "weekStartDate"
+            FROM weeklycommissions
+        ),
+        sales_count_sum AS (
           SELECT
-            c."weekStartDate",
-            COUNT(DISTINCT s.id) AS "totalSale"
+            weeks."weekStartDate",
+            COUNT(s.id) AS "totalSale",
+            SUM(COALESCE(pkg.amount, 0)) as "totalRevenue"
           FROM
-            WeeklyCommissions c
+            weeks
           LEFT JOIN
-            Sales s ON s."orderedAt" >= c."weekStartDate"
-            AND s."orderedAt" < c."weekStartDate" + INTERVAL '7 days'
+            Sales s ON s."orderedAt" >= weeks."weekStartDate"
+            AND s."orderedAt" < weeks."weekStartDate" + INTERVAL '7 days'
+          LEFT JOIN
+            Packages pkg ON s."packageId" = pkg.id
           GROUP BY
-            c."weekStartDate"
+            weeks."weekStartDate"
         ),
         members_count AS (
           SELECT
-            c."weekStartDate",
-            COUNT(DISTINCT m.id) AS "totalMember"
+            weeks."weekStartDate",
+            COUNT(m.id) AS "totalMember"
           FROM
-            WeeklyCommissions c
+            weeks
           LEFT JOIN
-            Members m ON m."createdAt" < c."weekStartDate" + INTERVAL '7 days'
+            Members m ON m."createdAt" < weeks."weekStartDate" + INTERVAL '7 days'
           GROUP BY
-            c."weekStartDate"
+            weeks."weekStartDate"
         )
         SELECT
           c."weekStartDate" AS "weekStartDate",
-          COALESCE(sales_count."totalSale", 0)::INTEGER AS "totalSale",
+          COALESCE(sales_count_sum."totalSale", 0)::INTEGER AS "totalSale",
+          COALESCE(sales_count_sum."totalRevenue", 0)::INTEGER AS "totalRevenue",
           COALESCE(members_count."totalMember", 0)::INTEGER AS "totalMember",
           SUM(COALESCE(c.commission, 0))::INTEGER AS "totalAmount"
         FROM
           WeeklyCommissions c
         LEFT JOIN
-          sales_count ON sales_count."weekStartDate" = c."weekStartDate"
+          sales_count_sum ON sales_count_sum."weekStartDate" = c."weekStartDate"
         LEFT JOIN
           members_count ON members_count."weekStartDate" = c."weekStartDate"
         WHERE
           c."weekStartDate" <= ${query.weekStartDate}
         GROUP BY
-          c."weekStartDate", sales_count."totalSale", members_count."totalMember"
+          c."weekStartDate", sales_count_sum."totalSale", sales_count_sum."totalRevenue", members_count."totalMember"
         ORDER BY
           c."weekStartDate" DESC
         LIMIT

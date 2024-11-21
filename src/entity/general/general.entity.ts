@@ -44,6 +44,9 @@ export class CommissionOverview {
   totalSale: number;
 
   @Field(() => Int)
+  totalRevenue: number;
+
+  @Field(() => Int)
   totalMember: number;
 
   @Field(() => Int)
