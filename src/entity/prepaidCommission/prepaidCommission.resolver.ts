@@ -39,6 +39,7 @@ import { ReferenceLinkService } from '../referenceLink/referenceLink.service';
 import { RefLink } from '../referenceLink/referenceLink.entity';
 import { ProofService } from '../proof/proof.service';
 import { Proof } from '../proof/proof.entity';
+import { convertNumToString } from '@/utils/convertNumToString';
 
 dayjs.extend(utcPlugin);
 
@@ -160,6 +161,8 @@ export class PrepaidCommissionResolver {
 
   @FieldResolver({ nullable: 'itemsAndList' })
   async proof(@Root() prepaidCommission: PrepaidCommission, @Ctx() ctx: Context): Promise<Proof> {
-    return ctx.dataLoader.get('proofForPrepaidCommissionLoader').load(`PC-${prepaidCommission.ID}`);
+    return ctx.dataLoader
+      .get('proofForPrepaidCommissionLoader')
+      .load(convertNumToString({ value: prepaidCommission.ID, length: 7, prefix: 'PC' }));
   }
 }

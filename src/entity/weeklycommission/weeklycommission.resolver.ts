@@ -37,6 +37,7 @@ import { ReferenceLinkService } from '../referenceLink/referenceLink.service';
 import { RefLink } from '../referenceLink/referenceLink.entity';
 import { ProofService } from '../proof/proof.service';
 import { Proof } from '../proof/proof.entity';
+import { convertNumToString } from '@/utils/convertNumToString';
 
 @Service()
 @Resolver(() => WeeklyCommission)
@@ -137,7 +138,9 @@ export class WeeklyCommissionResolver {
   @FieldResolver({ nullable: true })
   async proof(@Root() commission: WeeklyCommission, @Ctx() ctx: Context): Promise<Proof> {
     return commission.ID > 0
-      ? ctx.dataLoader.get('proofForWeeklyCommissionLoader').load(`C-${commission.ID}`)
+      ? ctx.dataLoader
+          .get('proofForWeeklyCommissionLoader')
+          .load(convertNumToString({ value: commission.ID, length: 7, prefix: 'C' }))
       : null;
   }
 }

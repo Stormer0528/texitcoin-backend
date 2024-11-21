@@ -37,6 +37,7 @@ import { RefLink } from '../referenceLink/referenceLink.entity';
 import { ProofService } from '../proof/proof.service';
 import { PackageService } from '../package/package.service';
 import { Proof } from '../proof/proof.entity';
+import { convertNumToString } from '@/utils/convertNumToString';
 
 dayjs.extend(utcPlugin);
 
@@ -215,6 +216,8 @@ export class SaleResolver {
   @Authorized([UserRole.Admin])
   @FieldResolver({ nullable: true })
   async proof(@Root() sale: Sale, @Ctx() ctx: Context): Promise<Proof> {
-    return ctx.dataLoader.get('proofForSaleLoader').load(`S-${sale.ID}`);
+    return ctx.dataLoader
+      .get('proofForSaleLoader')
+      .load(convertNumToString({ value: sale.ID, length: 7, prefix: 'S' }));
   }
 }
