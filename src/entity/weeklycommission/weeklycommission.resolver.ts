@@ -136,10 +136,10 @@ export class WeeklyCommissionResolver {
 
   @Authorized([UserRole.Admin])
   @Query(() => WeeklyCommission)
-  async commissionByMemberIDWithWeek(
+  async commissionByMemberIDAndWeek(
     @Arg('data') data: WeeklyCommissionGetInput
   ): Promise<WeeklyCommission> {
-    return this.service.getWeeklyCommissionByMemberIDWithDate(data);
+    return this.service.getWeeklyCommissionByMemberIdAndDate(data);
   }
 
   @FieldResolver({ nullable: true })

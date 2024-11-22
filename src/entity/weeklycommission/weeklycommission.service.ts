@@ -49,7 +49,7 @@ export class WeeklyCommissionService {
     return commission?.ID || 0;
   }
 
-  async getWeeklyCommissionByMemberIDWithDate(
+  async getWeeklyCommissionByMemberIdAndDate(
     data: WeeklyCommissionGetInput
   ): Promise<WeeklyCommission> {
     return this.prisma.weeklyCommission.findUnique({
