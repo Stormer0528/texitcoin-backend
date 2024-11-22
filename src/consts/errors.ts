@@ -39,6 +39,11 @@ export const uniqueErrors = [
     path: ['transactionId'],
     message: 'TransactionId already exists',
   },
+  {
+    modelName: 'Proof',
+    path: ['refId', 'type'],
+    message: 'Proof already exists for the specified refId and type',
+  },
 ];
 
 export const foreignKeyErrors = [
