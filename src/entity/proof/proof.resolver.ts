@@ -1,5 +1,16 @@
 import { Service } from 'typedi';
-import { Arg, Args, Resolver, Query, Mutation, Info, Authorized } from 'type-graphql';
+import {
+  Arg,
+  Args,
+  Resolver,
+  Query,
+  Mutation,
+  Info,
+  Authorized,
+  FieldResolver,
+  Root,
+  Ctx,
+} from 'type-graphql';
 import graphqlFields from 'graphql-fields';
 import { GraphQLResolveInfo } from 'graphql';
 
@@ -17,6 +28,9 @@ import { Proof } from './proof.entity';
 import { ProofService } from './proof.service';
 import { SuccessResult } from '@/graphql/enum';
 import { FileRelationService } from '../fileRelation/fileRelation.service';
+import { Context } from '@/context';
+import { PFile } from '../file/file.entity';
+import { RefLink } from '../referenceLink/referenceLink.entity';
 
 @Service()
 @Resolver(() => Proof)
@@ -76,5 +90,17 @@ export class ProofResolver {
     return {
       result: SuccessResult.success,
     };
+  }
+
+  @Authorized([UserRole.Admin])
+  @FieldResolver({ nullable: 'itemsAndList' })
+  async files(@Root() proof: Proof, @Ctx() ctx: Context): Promise<PFile[]> {
+    return ctx.dataLoader.get('filesForProofLoader').load(proof.id);
+  }
+
+  @Authorized([UserRole.Admin])
+  @FieldResolver({ nullable: 'itemsAndList' })
+  async reflinks(@Root() proof: Proof, @Ctx() ctx: Context): Promise<RefLink[]> {
+    return ctx.dataLoader.get('referenceLinksForProofLoader').load(proof.id);
   }
 }
