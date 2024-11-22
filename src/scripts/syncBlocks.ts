@@ -1,10 +1,8 @@
-import { Block, PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import Bluebird from 'bluebird';
-import _ from 'lodash';
 
 import { GET_BLOCK_COUNT, GET_BLOCK_HASH, GET_BLOCK, GET_NETWORK_HASH_PS } from '../consts';
 import { rpcCommand } from '../utils/rpcCommand';
-import dayjs from 'dayjs';
 
 const prisma = new PrismaClient();
 
@@ -18,79 +16,10 @@ const getBlockCountFromDatabase = async () => {
   }
 };
 
-const updateMonthlyWeeklyDailyBlocks = async (
-  dailyblockdata: Block[],
-  type: 'day' | 'week' | 'month'
-) => {
-  console.log(`creating ${type} block started`);
-  const hashRateMap: Record<string, number> = {};
-  const difficultyMap: Record<string, number> = {};
-  const countMap: Record<string, number> = {};
-  dailyblockdata.forEach((blockdata) => {
-    const startofType = dayjs(blockdata.issuedAt).startOf(type).format('YYYY-MM-DD');
-
-    if (!hashRateMap[startofType]) hashRateMap[startofType] = 0;
-    hashRateMap[startofType] += blockdata.hashRate;
-
-    if (!difficultyMap[startofType]) difficultyMap[startofType] = 0;
-    difficultyMap[startofType] += blockdata.difficulty;
-
-    if (!countMap[startofType]) countMap[startofType] = 0;
-    countMap[startofType]++;
-  });
-
-  let prismaClient: any = prisma.dailyBlock;
-  if (type === 'day') prismaClient = prisma.dailyBlock;
-  else if (type === 'week') prismaClient = prisma.weeklyBlock;
-  else if (type === 'month') prismaClient = prisma.monthlyBlock;
-
-  await Bluebird.map(
-    Object.keys(countMap),
-    async (date) => {
-      await prismaClient.upsert({
-        where: {
-          issuedAt: new Date(date),
-        },
-        create: {
-          hashRate: hashRateMap[date] / countMap[date],
-          difficulty: difficultyMap[date] / countMap[date],
-          issuedAt: new Date(date),
-        },
-        update: {
-          hashRate: hashRateMap[date] / countMap[date],
-          difficulty: difficultyMap[date] / countMap[date],
-        },
-      });
-    },
-    {
-      concurrency: 10,
-    }
-  );
-  console.log(`creating ${type} block finished`);
-};
-
 const createBlocks = async (data) => {
   try {
     const result = await prisma.block.createMany({ data });
-    const blockdates = [...new Set<string>(data.map((dt) => dt.issuedAt))];
 
-    await Bluebird.map(
-      _.chunk(blockdates, 31),
-      async (chunkeddate: string[]) => {
-        const dailyblockdata = await prisma.block.findMany({
-          where: {
-            issuedAt: {
-              in: chunkeddate,
-            },
-          },
-        });
-
-        await updateMonthlyWeeklyDailyBlocks(dailyblockdata, 'day');
-        await updateMonthlyWeeklyDailyBlocks(dailyblockdata, 'week');
-        await updateMonthlyWeeklyDailyBlocks(dailyblockdata, 'month');
-      },
-      { concurrency: 1 }
-    );
     console.log('Synced blocks');
 
     return result;

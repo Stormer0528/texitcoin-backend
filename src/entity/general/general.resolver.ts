@@ -17,9 +17,6 @@ import { BlockStatsArgs, CommissionOverviewQueryArgs, LiveStatsArgs } from './ge
 import { BlockService } from '@/entity/block/block.service';
 import { StatisticsService } from '@/entity/statistics/statistics.service';
 import { MemberService } from '@/entity/member/member.service';
-import { DailyBlockService } from '../dailyblock/dailyblock.service';
-import { WeeklyBlockService } from '../weeklyblock/weeklyblock.service';
-import { MonthlyBlockService } from '../monthlyblock/monthlyblock.service';
 import { GraphQLResolveInfo } from 'graphql';
 import { PrismaService } from '@/service/prisma';
 import graphqlFields from 'graphql-fields';
@@ -32,9 +29,6 @@ export class GeneralResolver {
     private readonly blockService: BlockService,
     private readonly statisticsService: StatisticsService,
     private readonly memberService: MemberService,
-    private readonly dailyBlockService: DailyBlockService,
-    private readonly weeklyBlockService: WeeklyBlockService,
-    private readonly monthlyBlockService: MonthlyBlockService,
     @Inject(() => PrismaService)
     private readonly prisma: PrismaService
   ) {}
@@ -130,57 +124,32 @@ export class GeneralResolver {
   async blocksData(@Arg('data') data: BlockStatsArgs): Promise<BlockStatsResponse[]> {
     switch (data.type) {
       case 'day':
-        const daydata = await this.dailyBlockService.getDailyBlocks({
-          orderBy: {
-            issuedAt: 'desc',
-          },
-          parsePage: {
-            skip: 0,
-            take: DAILYBLOCK_LIMIT,
-          },
-          where: {},
-        });
-        return daydata.map((dt) => ({
-          hashRate: dt.hashRate,
-          difficulty: dt.difficulty,
-          base: dayjs(dt.issuedAt.toISOString().split('T')[0]).format('MM/DD/YYYY'),
-        }));
+        const daydata = await this.prisma.$queryRaw<BlockStatsResponse[]>`
+          SELECT TO_CHAR("issuedAt", 'MM/DD/YYYY') AS base, AVG("hashRate") as "hashRate", AVG("difficulty") as "difficulty"
+          FROM blocks
+          GROUP BY base
+          ORDER BY "base" DESC
+          LIMIT ${DAILYBLOCK_LIMIT};
+        `;
+        return daydata;
       case 'week':
-        const weekdata = await this.weeklyBlockService.getWeeklyBlocks({
-          orderBy: {
-            issuedAt: 'desc',
-          },
-          parsePage: {
-            skip: 0,
-            take: WEEKLYBLOCK_LIMIT,
-          },
-          where: {},
-        });
-        return weekdata.map((dt) => {
-          const weekNumber = dayjs(dt.issuedAt.toISOString().split('T')[0]).week();
-          const month = dayjs(dt.issuedAt.toISOString().split('T')[0]).format('MMM');
-          return {
-            hashRate: dt.hashRate,
-            difficulty: dt.difficulty,
-            base: `${month}-${weekNumber}`,
-          };
-        });
+        const weekdata = await this.prisma.$queryRaw<BlockStatsResponse[]>`
+          SELECT (TO_CHAR("issuedAt", 'MM') || '-' || TO_CHAR("issuedAt" - INTERVAL '1 day', 'IW')) AS base, AVG("hashRate") as "hashRate", AVG("difficulty") as "difficulty"
+          FROM blocks
+          GROUP BY base
+          ORDER BY "base" DESC
+          LIMIT ${WEEKLYBLOCK_LIMIT};
+        `;
+        return weekdata;
       case 'month':
-        const monthdata = await this.monthlyBlockService.getMonthlyBlocks({
-          orderBy: {
-            issuedAt: 'desc',
-          },
-          parsePage: {
-            skip: 0,
-            take: MONTHLYBLOCK_LIMIT,
-          },
-          where: {},
-        });
-        return monthdata.map((dt) => ({
-          hashRate: dt.hashRate,
-          difficulty: dt.difficulty,
-          base: dayjs(dt.issuedAt.toISOString().split('T')[0]).format('MM/YYYY'),
-        }));
+        const monthdata = await this.prisma.$queryRaw<BlockStatsResponse[]>`
+          SELECT TO_CHAR("issuedAt", 'MM/YYYY') AS base, AVG("hashRate") as "hashRate", AVG("difficulty") as "difficulty"
+          FROM blocks
+          GROUP BY base
+          ORDER BY "base" DESC
+          LIMIT ${MONTHLYBLOCK_LIMIT};
+        `;
+        return monthdata;
       case 'block':
         const blockdata = await this.blockService.getBlocks({
           orderBy: {

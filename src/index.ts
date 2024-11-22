@@ -28,9 +28,6 @@ import { AdminResolver } from './entity/admin/admin.resolver';
 import { MemberWalletResolver } from './entity/memberWallet/memberWallet.resolver';
 import { MemberStatisticsWalletResolver } from './entity/memberStatisticsWallet/memberStatisticsWallet.resolver';
 import router from './rest/routes';
-import { DailyBlockResolver } from './entity/dailyblock/dailyblock.resolver';
-import { WeeklyBlockResolver } from './entity/weeklyblock/weeklyblock.resolver';
-import { MonthlyBlockResolver } from './entity/monthlyblock/monthlyblock.resolver';
 import { WeeklyCommissionResolver } from './entity/weeklycommission/weeklycommission.resolver';
 import { AdminNotesResolver } from './entity/adminNotes/adminNotes.resolver';
 import { FileResolver } from './entity/file/file.resolver';
@@ -52,9 +49,6 @@ const app = async () => {
       PayoutResolver,
       MemberWalletResolver,
       MemberStatisticsWalletResolver,
-      DailyBlockResolver,
-      WeeklyBlockResolver,
-      MonthlyBlockResolver,
       WeeklyCommissionResolver,
       AdminNotesResolver,
       FileResolver,
