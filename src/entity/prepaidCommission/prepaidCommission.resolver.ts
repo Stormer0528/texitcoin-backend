@@ -93,9 +93,11 @@ export class PrepaidCommissionResolver {
   ): Promise<PrepaidCommission> {
     const { fileIds, reflinks, note, ...restData } = data;
     const prepaidCommission = await this.service.createPrepaidCommission(restData);
+    const maxCommissionID = await this.commissionService.getMaxCommissionID();
     const commission = await this.commissionService.updateWeeklyCommission({
       id: prepaidCommission.commissionId,
       status: ConfirmationStatus.PAID,
+      ID: maxCommissionID + 1,
     });
 
     await this.proofService.createProof({

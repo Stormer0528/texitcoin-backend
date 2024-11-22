@@ -123,11 +123,13 @@ export class WeeklyCommissionResolver {
     return updatedCommission;
   }
 
+  @Authorized([UserRole.Admin])
   @Mutation(() => SuccessResponse)
   async calculatePreview(): Promise<SuccessResponse> {
-    shelljs.exec(COMMISSION_PREVIEW_COMMAND);
+    const { stderr } = shelljs.exec(COMMISSION_PREVIEW_COMMAND);
     return {
-      result: SuccessResult.success,
+      result: stderr ? SuccessResult.failed : SuccessResult.success,
+      message: stderr,
     };
   }
 

@@ -46,9 +46,10 @@ async function weeklyCommission(tranPrisma: PrismaClient, preview: boolean = fal
     },
   });
 
-  const lastWeeklyCommission = await tranPrisma.weeklyCommission.findFirst({
-    orderBy: {
-      weekStartDate: 'desc',
+  const weekStartDates = await tranPrisma.weeklyCommission.groupBy({
+    by: ['memberId'],
+    _max: {
+      weekStartDate: true,
     },
   });
 
@@ -63,8 +64,12 @@ async function weeklyCommission(tranPrisma: PrismaClient, preview: boolean = fal
   let iStartDate = dayjs('2024-04-06').utc().startOf('week');
 
   const nowStartDate = dayjs().utc().startOf('week');
-  if (lastWeeklyCommission) {
-    iStartDate = dayjs(lastWeeklyCommission.weekStartDate).utc().add(1, 'week');
+  if (weekStartDates?.length) {
+    iStartDate = dayjs(
+      Math.min(...weekStartDates.map((wsd) => new Date(wsd._max.weekStartDate).getTime()))
+    )
+      .utc()
+      .add(1, 'week');
   }
   for (
     ;
@@ -168,8 +173,14 @@ async function weeklyCommission(tranPrisma: PrismaClient, preview: boolean = fal
           },
         });
 
-        return tranPrisma.weeklyCommission.create({
-          data: {
+        return tranPrisma.weeklyCommission.upsert({
+          where: {
+            memberId_weekStartDate: {
+              memberId: id,
+              weekStartDate: iStartDate.toDate(),
+            },
+          },
+          create: {
             memberId: id,
             begL: points.left - (combinedMap[id]?.left ?? 0),
             begR: points.right - (combinedMap[id]?.right ?? 0),
@@ -190,6 +201,7 @@ async function weeklyCommission(tranPrisma: PrismaClient, preview: boolean = fal
             ID: preview || commission == 0 ? -1 : undefined,
             weekStartDate: iStartDate.toDate(),
           },
+          update: {},
         });
       },
       { concurrency: 10 }

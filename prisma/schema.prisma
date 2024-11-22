@@ -359,6 +359,7 @@ model WeeklyCommission {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
+  @@unique([memberId, weekStartDate], map: "unique_index_on_weeklycommissions")
   @@map("weeklycommissions")
 }
 

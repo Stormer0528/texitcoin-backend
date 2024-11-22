@@ -33,8 +33,20 @@ export class WeeklyCommissionService {
     });
   }
 
+  async getMaxCommissionID(): Promise<number> {
+    const commission = await this.prisma.weeklyCommission.findFirst({
+      orderBy: {
+        ID: 'desc',
+      },
+      select: {
+        ID: true,
+      },
+    });
+    return commission?.ID || 0;
+  }
+
   async updateWeeklyCommission(
-    data: Omit<WeeklyCommissionUpdateInput, 'fileIds' | 'reflinks' | 'note'>
+    data: Omit<WeeklyCommissionUpdateInput, 'fileIds' | 'reflinks' | 'note'> & { ID?: number }
   ): Promise<WeeklyCommission> {
     return this.prisma.weeklyCommission.update({
       where: {
