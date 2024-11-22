@@ -21,7 +21,7 @@ export class PrepaidCommissionResponse extends PaginatedResponse {
 @InputType()
 export class CreatePrepaidCommissionInput {
   @Field(() => ID)
-  memberId: string;
+  commissionId: string;
 
   @Field({ nullable: true })
   txType?: string;
@@ -29,20 +29,8 @@ export class CreatePrepaidCommissionInput {
   @Field(() => ID, { nullable: true })
   txId?: string;
 
-  @Field(() => Int)
-  pkgL: number;
-
-  @Field(() => Int)
-  pkgR: number;
-
-  @Field(() => Int)
-  commission: number;
-
   @Field()
   orderedAt: Date;
-
-  @Field()
-  weekStartDate: Date;
 
   @Field(() => [ID], { nullable: 'itemsAndList' })
   fileIds?: string[];
@@ -61,7 +49,7 @@ export class UpdatePrepaidCommissionInput {
   id: string;
 
   @Field(() => ID, { nullable: true })
-  memberId?: string;
+  commissionId?: string;
 
   @Field({ nullable: true })
   txType?: string;
@@ -69,20 +57,8 @@ export class UpdatePrepaidCommissionInput {
   @Field(() => ID, { nullable: true })
   txId?: string;
 
-  @Field(() => Int, { nullable: true })
-  pkgL?: number;
-
-  @Field(() => Int, { nullable: true })
-  pkgR?: number;
-
-  @Field(() => Int, { nullable: true })
-  commission?: number;
-
   @Field({ nullable: true })
   orderedAt?: Date;
-
-  @Field({ nullable: true })
-  weekStartDate?: Date;
 
   @Field(() => [ID], { nullable: 'itemsAndList' })
   fileIds?: string[];

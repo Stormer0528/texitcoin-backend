@@ -60,7 +60,7 @@ ON CONFLICT ("refId", type) DO NOTHING;
 
 -- prepay note
 INSERT INTO additionalinformations (id, "refId", "note", "amount", type, "createdAt", "updatedAt")
-SELECT gen_random_uuid(), CONCAT('PC-', LPAD("ID"::TEXT, 7, '0')), "note", "commission", 'PREPAY', NOW(), NOW()
+SELECT gen_random_uuid(), "id", "note", "commission", 'PREPAY', NOW(), NOW()
 FROM prepaidcommissions
 ON CONFLICT ("refId", type) DO NOTHING;
 
@@ -79,7 +79,7 @@ WHERE f."commissionId" = c.id and a.type='COMMISSION';
 UPDATE filerelations f
 SET "addInfoId" = a.id
 FROM additionalinformations a
-JOIN prepaidcommissions pc ON CONCAT('PC-', LPAD(pc."ID"::TEXT, 7, '0')) = a."refId"
+JOIN prepaidcommissions pc ON pc."id" = a."refId"
 WHERE f."prepaidCommissionId" = pc.id and a.type = 'PREPAY';
 
 -- Update with saleId references
@@ -110,7 +110,7 @@ WHERE rl."commissionId" = c.id and a.type='COMMISSION';
 UPDATE referencelinks rl
 SET "addInfoId" = a.id
 FROM additionalinformations a
-JOIN prepaidcommissions pc ON CONCAT('PC-', LPAD(pc."ID"::TEXT, 7, '0')) = a."refId"
+JOIN prepaidcommissions pc ON pc.id = a."refId"
 WHERE rl."prepaidCommissionId" = pc.id and a.type = 'PREPAY';
 
 -- Update with saleId references
@@ -126,11 +126,12 @@ DROP COLUMN "prepaidCommissionId",
 DROP COLUMN "saleId",
 ALTER COLUMN "addInfoId" DROP DEFAULT;;
 
-
 -- AlterTable
 ALTER TABLE "prepaidcommissions" DROP COLUMN "note";
 ALTER TABLE "sales" DROP COLUMN "note";
 ALTER TABLE "weeklycommissions" DROP COLUMN "note";
+DROP INDEX "index_prepaidcommissions_on_ID";
+ALTER TABLE "prepaidcommissions" DROP COLUMN "ID";
 DROP TABLE "proofs";
 ALTER TABLE "filerelations" ADD CONSTRAINT "filerelations_addInfoId_fkey" FOREIGN KEY ("addInfoId") REFERENCES "additionalinformations"("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
 ALTER TABLE "referencelinks" ADD CONSTRAINT "referencelinks_addInfoId_fkey" FOREIGN KEY ("addInfoId") REFERENCES "additionalinformations"("id") ON DELETE NO ACTION ON UPDATE NO ACTION;

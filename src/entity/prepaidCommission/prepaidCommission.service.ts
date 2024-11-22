@@ -35,13 +35,17 @@ export class PrepaidCommissionService {
     });
   }
 
-  async createPrepaidCommission(data: CreatePrepaidCommissionInput) {
+  async createPrepaidCommission(
+    data: Omit<CreatePrepaidCommissionInput, 'fileIds' | 'reflinks' | 'note'>
+  ) {
     return this.prisma.prepaidCommission.create({
       data,
     });
   }
 
-  async updatePrepaidCommission(data: UpdatePrepaidCommissionInput) {
+  async updatePrepaidCommission(
+    data: Omit<UpdatePrepaidCommissionInput, 'fileIds' | 'reflinks' | 'note'>
+  ) {
     return this.prisma.prepaidCommission.update({
       data,
       where: {

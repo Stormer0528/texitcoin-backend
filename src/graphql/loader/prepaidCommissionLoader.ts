@@ -1,23 +1,23 @@
 import DataLoader from 'dataloader';
 
 import RootDataLoader from '.';
-import { Member } from '@/entity/member/member.entity';
 import { Proof } from '@/entity/proof/proof.entity';
+import { WeeklyCommission } from '@/entity/weeklycommission/weeklycommission.entity';
 
-export const memberForPrepaidCommissionLoader = (parent: RootDataLoader) => {
-  return new DataLoader<string, Member>(
-    async (memberIds: string[]) => {
-      const uniqueMemberIds = [...new Set(memberIds)];
-      const members = await parent.prisma.member.findMany({
-        where: { id: { in: uniqueMemberIds } },
+export const commissionForPrepaidCommissionLoader = (parent: RootDataLoader) => {
+  return new DataLoader<string, WeeklyCommission>(
+    async (weeklyCommissionIds: string[]) => {
+      const uniqueweeklyCommissionIds = [...new Set(weeklyCommissionIds)];
+      const weeklyCommissions = await parent.prisma.weeklyCommission.findMany({
+        where: { id: { in: weeklyCommissionIds } },
       });
 
-      const membersMap: Record<string, Member> = {};
-      members.forEach((member) => {
-        membersMap[member.id] = member;
+      const commissionMap: Record<string, WeeklyCommission> = {};
+      weeklyCommissions.forEach((commission) => {
+        commissionMap[commission.id] = commission;
       });
 
-      return uniqueMemberIds.map((id) => membersMap[id]);
+      return uniqueweeklyCommissionIds.map((id) => commissionMap[id]);
     },
     {
       ...parent.dataLoaderOptions,

@@ -7,6 +7,7 @@ import { PaginatedResponse } from '@/graphql/paginatedResponse';
 import { Proof } from './proof.entity';
 import { ProofType } from '@/graphql/enum';
 import { LinkInput } from '../referenceLink/referenceLink.type';
+import { IsNotIn } from 'class-validator';
 
 // Proof Query Args
 @ArgsType()
@@ -26,6 +27,7 @@ export class CreateProofInput {
   refId: string;
 
   @Field(() => ProofType)
+  @IsNotIn(['PREPAY'])
   type: PROOFTYPE;
 
   @Field()
@@ -50,6 +52,7 @@ export class UpdateProofByIDInput {
   refId?: string;
 
   @Field(() => ProofType, { nullable: true })
+  @IsNotIn(['PREPAY'])
   type?: PROOFTYPE;
 
   @Field({ nullable: true })
@@ -71,6 +74,7 @@ export class UpdateProofByReferenceInput {
   refId: string;
 
   @Field(() => ProofType)
+  @IsNotIn(['PREPAY'])
   type: PROOFTYPE;
 
   @Field({ nullable: true })

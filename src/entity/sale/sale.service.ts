@@ -37,7 +37,7 @@ export class SaleService {
     });
   }
 
-  async updateSale(data: UpdateSaleInput) {
+  async updateSale(data: Omit<UpdateSaleInput, 'fileIds' | 'reflinks' | 'note'>) {
     return this.prisma.sale.update({
       data,
       where: {

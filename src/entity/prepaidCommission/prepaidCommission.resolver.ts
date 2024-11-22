@@ -32,7 +32,7 @@ import { Transaction } from '@/graphql/decorator';
 import { MemberService } from '../member/member.service';
 import { FileRelationService } from '../fileRelation/fileRelation.service';
 import { IDInput, SuccessResponse } from '@/graphql/common.type';
-import { SuccessResult } from '@/graphql/enum';
+import { ConfirmationStatus, SuccessResult } from '@/graphql/enum';
 import { PFile } from '../file/file.entity';
 import { Member } from '../member/member.entity';
 import { ReferenceLinkService } from '../referenceLink/referenceLink.service';
@@ -40,6 +40,8 @@ import { RefLink } from '../referenceLink/referenceLink.entity';
 import { ProofService } from '../proof/proof.service';
 import { Proof } from '../proof/proof.entity';
 import { convertNumToString } from '@/utils/convertNumToString';
+import { WeeklyCommissionService } from '../weeklycommission/weeklycommission.service';
+import { WeeklyCommission } from '../weeklycommission/weeklycommission.entity';
 
 dayjs.extend(utcPlugin);
 
@@ -48,7 +50,7 @@ dayjs.extend(utcPlugin);
 export class PrepaidCommissionResolver {
   constructor(
     private readonly service: PrepaidCommissionService,
-    private memberService: MemberService,
+    private readonly commissionService: WeeklyCommissionService,
     private proofService: ProofService
   ) {}
 
@@ -89,26 +91,16 @@ export class PrepaidCommissionResolver {
   async createPrepaidCommission(
     @Arg('data') data: CreatePrepaidCommissionInput
   ): Promise<PrepaidCommission> {
-    const member = await this.memberService.getMemberById(data.memberId);
-    if (!member) {
-      throw new GraphQLError('You have to select the member', {
-        extensions: {
-          path: ['memberId'],
-        },
-      });
-    } else if (!member.status) {
-      throw new GraphQLError('This member is not allowed', {
-        extensions: {
-          path: ['memberId'],
-        },
-      });
-    }
-
     const { fileIds, reflinks, note, ...restData } = data;
     const prepaidCommission = await this.service.createPrepaidCommission(restData);
+    const commission = await this.commissionService.updateWeeklyCommission({
+      id: prepaidCommission.commissionId,
+      status: ConfirmationStatus.PAID,
+    });
+
     await this.proofService.createProof({
-      amount: prepaidCommission.commission,
-      refId: convertNumToString({ value: prepaidCommission.ID, length: 7, prefix: 'PC' }),
+      amount: commission.commission,
+      refId: prepaidCommission.id,
       type: 'PREPAY',
       fileIds,
       reflinks,
@@ -126,12 +118,16 @@ export class PrepaidCommissionResolver {
   ): Promise<PrepaidCommission> {
     const { fileIds, reflinks, note, ...restData } = data;
     const prepaidCommission = await this.service.updatePrepaidCommission(restData);
+    const commission = await this.commissionService.getWeeklyCommissionById({
+      id: prepaidCommission.commissionId,
+    });
+
     await this.proofService.updateProofByReference({
-      amount: prepaidCommission.commission,
+      amount: commission.commission,
       fileIds,
       reflinks,
       note,
-      refId: convertNumToString({ value: prepaidCommission.ID, length: 7, prefix: 'PC' }),
+      refId: prepaidCommission.id,
       type: 'PREPAY',
     });
 
@@ -144,7 +140,7 @@ export class PrepaidCommissionResolver {
   async removePrepaidCommission(@Arg('data') data: IDInput): Promise<SuccessResponse> {
     const prepaidCommission = await this.service.getPrepaidCommissionById(data.id);
     await this.proofService.removeProof({
-      refId: convertNumToString({ value: prepaidCommission.ID, length: 7, prefix: 'PC' }),
+      refId: prepaidCommission.id,
       type: 'PREPAY',
     });
 
@@ -155,14 +151,17 @@ export class PrepaidCommissionResolver {
   }
 
   @FieldResolver({ nullable: 'itemsAndList' })
-  async member(@Root() prepaidCommission: PrepaidCommission, @Ctx() ctx: Context): Promise<Member> {
-    return ctx.dataLoader.get('memberForPrepaidCommissionLoader').load(prepaidCommission.memberId);
+  async commission(
+    @Root() prepaidCommission: PrepaidCommission,
+    @Ctx() ctx: Context
+  ): Promise<WeeklyCommission> {
+    return ctx.dataLoader
+      .get('commissionForPrepaidCommissionLoader')
+      .load(prepaidCommission.commissionId);
   }
 
   @FieldResolver({ nullable: 'itemsAndList' })
   async proof(@Root() prepaidCommission: PrepaidCommission, @Ctx() ctx: Context): Promise<Proof> {
-    return ctx.dataLoader
-      .get('proofForPrepaidCommissionLoader')
-      .load(convertNumToString({ value: prepaidCommission.ID, length: 7, prefix: 'PC' }));
+    return ctx.dataLoader.get('proofForPrepaidCommissionLoader').load(prepaidCommission.id);
   }
 }
