@@ -87,7 +87,7 @@ export const proofForSaleLoader = (parent: RootDataLoader) => {
         proofsMap[proof.refId] = proof;
       });
 
-      return saleIds.map((id) => proofs[id]);
+      return saleIds.map((id) => proofsMap[id]);
     },
     {
       ...parent.dataLoaderOptions,

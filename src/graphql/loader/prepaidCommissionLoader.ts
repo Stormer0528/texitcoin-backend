@@ -42,7 +42,7 @@ export const proofForPrepaidCommissionLoader = (parent: RootDataLoader) => {
         proofsMap[proof.refId] = proof;
       });
 
-      return prepaidIds.map((id) => proofs[id]);
+      return prepaidIds.map((id) => proofsMap[id]);
     },
     {
       ...parent.dataLoaderOptions,

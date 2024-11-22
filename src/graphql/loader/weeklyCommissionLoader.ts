@@ -41,7 +41,7 @@ export const proofForWeeklyCommissionLoader = (parent: RootDataLoader) => {
         proofsMap[proof.refId] = proof;
       });
 
-      return commissionIds.map((id) => proofs[id]);
+      return commissionIds.map((id) => proofsMap[id]);
     },
     {
       ...parent.dataLoaderOptions,
