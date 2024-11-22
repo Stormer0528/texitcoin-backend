@@ -4,7 +4,11 @@ import { PrismaService } from '@/service/prisma';
 
 import { IDInput } from '@/graphql/common.type';
 
-import { WeeklyCommissionQueryArgs, WeeklyCommissionUpdateInput } from './weeklycommission.type';
+import {
+  WeeklyCommissionGetInput,
+  WeeklyCommissionQueryArgs,
+  WeeklyCommissionUpdateInput,
+} from './weeklycommission.type';
 import { WeeklyCommission } from './weeklycommission.entity';
 
 @Service()
@@ -43,6 +47,16 @@ export class WeeklyCommissionService {
       },
     });
     return commission?.ID || 0;
+  }
+
+  async getWeeklyCommissionByMemberIDWithDate(
+    data: WeeklyCommissionGetInput
+  ): Promise<WeeklyCommission> {
+    return this.prisma.weeklyCommission.findUnique({
+      where: {
+        memberId_weekStartDate: data,
+      },
+    });
   }
 
   async updateWeeklyCommission(

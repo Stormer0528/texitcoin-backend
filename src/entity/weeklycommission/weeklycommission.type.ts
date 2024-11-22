@@ -38,3 +38,12 @@ export class WeeklyCommissionUpdateInput {
 }
 
 export type CONFIRMATIONSTATUS = 'NONE' | 'PENDING' | 'APPROVED' | 'PAID' | 'DECLINED' | 'PREVIEW';
+
+@InputType()
+export class WeeklyCommissionGetInput {
+  @Field(() => ID)
+  memberId: string;
+
+  @Field()
+  weekStartDate: Date;
+}

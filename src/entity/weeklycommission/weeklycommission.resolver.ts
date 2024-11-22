@@ -19,6 +19,7 @@ import { GraphQLResolveInfo } from 'graphql';
 import { Context } from '@/context';
 
 import {
+  WeeklyCommissionGetInput,
   WeeklyCommissionQueryArgs,
   WeeklyCommissionResponse,
   WeeklyCommissionUpdateInput,
@@ -131,6 +132,14 @@ export class WeeklyCommissionResolver {
       result: stderr ? SuccessResult.failed : SuccessResult.success,
       message: stderr,
     };
+  }
+
+  @Authorized([UserRole.Admin])
+  @Query(() => WeeklyCommission)
+  async commissionByMemberIDWithWeek(
+    @Arg('data') data: WeeklyCommissionGetInput
+  ): Promise<WeeklyCommission> {
+    return this.service.getWeeklyCommissionByMemberIDWithDate(data);
   }
 
   @FieldResolver({ nullable: true })
