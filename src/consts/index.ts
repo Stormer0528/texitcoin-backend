@@ -61,10 +61,20 @@ export const GET_NETWORK_HASH_PS = 'getnetworkhashps';
 
 export const DEFAULT_PASSWORD = '123456789';
 
-export const DAILYBLOCK_LIMIT = 30;
-export const WEEKLYBLOCK_LIMIT = 13;
-export const MONTHLYBLOCK_LIMIT = 12;
+export const DAILY_BLOCK_LIMIT = 30;
+export const WEEKLY_BLOCK_LIMIT = 13;
+export const MONTHLY_BLOCK_LIMIT = 12;
 export const BLOCK_LIMIT = 200;
+
+export const DAILY_MINER_LIMIT = 30;
+export const WEEKLY_MINER_LIMIT = 13;
+export const MONTHLY_MINER_LIMIT = 12;
+export const QUATER_MINER_LIMIT = 16;
+
+export const DAILY_MINER_REWARD_LIMIT = 30;
+export const WEEKLY_MINER_REWARD_LIMIT = 13;
+export const MONTHLY_MINER_REWARD_LIMIT = 12;
+export const QUATER_MINER_REWARD_LIMIT = 16;
 
 export const SPONSOR_BONOUS_CNT = 3;
 

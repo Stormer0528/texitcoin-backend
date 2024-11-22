@@ -35,6 +35,24 @@ export class BlockStatsResponse {
 }
 
 @ObjectType()
+export class MinerCountStatsResponse {
+  @Field(() => Int)
+  minerCount: number;
+
+  @Field()
+  base: string;
+}
+
+@ObjectType()
+export class MinerRewardStatsResponse {
+  @Field()
+  reward: number;
+
+  @Field()
+  base: string;
+}
+
+@ObjectType()
 export class CommissionOverview {
   @Field()
   weekStartDate: Date;

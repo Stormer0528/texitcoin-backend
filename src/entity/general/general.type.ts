@@ -8,12 +8,12 @@ export class LiveStatsArgs {
   pastDays: number;
 }
 
-export type BLOCKSTATETYPE = 'day' | 'week' | 'month' | 'block';
+export type PERIODSTATETYPE = 'day' | 'week' | 'month' | 'block' | 'quater';
 
 @InputType()
-export class BlockStatsArgs {
+export class PeriodStatsArgs {
   @Field()
-  type: BLOCKSTATETYPE;
+  type: PERIODSTATETYPE;
 }
 
 @ArgsType()

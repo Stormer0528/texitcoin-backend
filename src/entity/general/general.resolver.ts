@@ -5,15 +5,30 @@ import weekOfYear from 'dayjs/plugin/weekOfYear';
 
 dayjs.extend(weekOfYear);
 
-import { BLOCK_LIMIT, DAILYBLOCK_LIMIT, MONTHLYBLOCK_LIMIT, WEEKLYBLOCK_LIMIT } from '@/consts';
+import {
+  BLOCK_LIMIT,
+  DAILY_BLOCK_LIMIT,
+  DAILY_MINER_LIMIT,
+  DAILY_MINER_REWARD_LIMIT,
+  MONTHLY_BLOCK_LIMIT,
+  MONTHLY_MINER_LIMIT,
+  MONTHLY_MINER_REWARD_LIMIT,
+  QUATER_MINER_LIMIT,
+  QUATER_MINER_REWARD_LIMIT,
+  WEEKLY_BLOCK_LIMIT,
+  WEEKLY_MINER_LIMIT,
+  WEEKLY_MINER_REWARD_LIMIT,
+} from '@/consts';
 
 import {
   BlockStatsResponse,
   CommissionOverview,
   CommissionOverviewResponse,
   EntityStats,
+  MinerCountStatsResponse,
+  MinerRewardStatsResponse,
 } from './general.entity';
-import { BlockStatsArgs, CommissionOverviewQueryArgs, LiveStatsArgs } from './general.type';
+import { PeriodStatsArgs, CommissionOverviewQueryArgs, LiveStatsArgs } from './general.type';
 import { BlockService } from '@/entity/block/block.service';
 import { StatisticsService } from '@/entity/statistics/statistics.service';
 import { MemberService } from '@/entity/member/member.service';
@@ -21,6 +36,7 @@ import { GraphQLResolveInfo } from 'graphql';
 import { PrismaService } from '@/service/prisma';
 import graphqlFields from 'graphql-fields';
 import { UserRole } from '@/type';
+import { TXC } from '@/consts/db';
 
 @Service()
 @Resolver()
@@ -121,7 +137,7 @@ export class GeneralResolver {
   }
 
   @Query(() => [BlockStatsResponse])
-  async blocksData(@Arg('data') data: BlockStatsArgs): Promise<BlockStatsResponse[]> {
+  async blocksData(@Arg('data') data: PeriodStatsArgs): Promise<BlockStatsResponse[]> {
     switch (data.type) {
       case 'day':
         const daydata = await this.prisma.$queryRaw<BlockStatsResponse[]>`
@@ -129,16 +145,16 @@ export class GeneralResolver {
           FROM blocks
           GROUP BY base
           ORDER BY "base" DESC
-          LIMIT ${DAILYBLOCK_LIMIT};
+          LIMIT ${DAILY_BLOCK_LIMIT};
         `;
         return daydata;
       case 'week':
         const weekdata = await this.prisma.$queryRaw<BlockStatsResponse[]>`
-          SELECT (TO_CHAR("issuedAt", 'MM') || '-' || TO_CHAR("issuedAt" - INTERVAL '1 day', 'IW')) AS base, AVG("hashRate") as "hashRate", AVG("difficulty") as "difficulty"
+          SELECT (TO_CHAR("issuedAt", 'MM') || '-' || TO_CHAR("issuedAt" + INTERVAL '1 day', 'IW')) AS base, AVG("hashRate") as "hashRate", AVG("difficulty") as "difficulty"
           FROM blocks
           GROUP BY base
           ORDER BY "base" DESC
-          LIMIT ${WEEKLYBLOCK_LIMIT};
+          LIMIT ${WEEKLY_BLOCK_LIMIT};
         `;
         return weekdata;
       case 'month':
@@ -147,7 +163,7 @@ export class GeneralResolver {
           FROM blocks
           GROUP BY base
           ORDER BY "base" DESC
-          LIMIT ${MONTHLYBLOCK_LIMIT};
+          LIMIT ${MONTHLY_BLOCK_LIMIT};
         `;
         return monthdata;
       case 'block':
@@ -258,5 +274,93 @@ export class GeneralResolver {
     }
 
     return response;
+  }
+
+  @Query(() => [MinerCountStatsResponse])
+  async memberCounts(@Arg('data') data: PeriodStatsArgs): Promise<MinerCountStatsResponse[]> {
+    switch (data.type) {
+      case 'day':
+        const daydata = await this.prisma.$queryRaw<MinerCountStatsResponse[]>`
+          SELECT TO_CHAR("createdAt", 'MM/DD/YYYY') AS base, COUNT('*')::Integer AS "minerCount"
+          FROM members
+          GROUP BY base
+          ORDER BY "base" DESC
+          LIMIT ${DAILY_MINER_LIMIT};
+        `;
+        return daydata;
+      case 'week':
+        const weekdata = await this.prisma.$queryRaw<MinerCountStatsResponse[]>`
+          SELECT (TO_CHAR("createdAt", 'MM') || '-' || TO_CHAR("createdAt" + INTERVAL '1 day', 'IW')) AS base, COUNT('*')::Integer AS "minerCount"
+          FROM members
+          GROUP BY base
+          ORDER BY "base" DESC
+          LIMIT ${WEEKLY_MINER_LIMIT};
+      `;
+        return weekdata;
+      case 'month':
+        const monthdata = await this.prisma.$queryRaw<MinerCountStatsResponse[]>`
+          SELECT TO_CHAR("createdAt", 'MM/YYYY') AS base, COUNT('*')::Integer AS "minerCount"
+          FROM members
+          GROUP BY base
+          ORDER BY "base" DESC
+          LIMIT ${MONTHLY_MINER_LIMIT};
+        `;
+        return monthdata;
+      case 'quater':
+        const quaterdata = await this.prisma.$queryRaw<MinerCountStatsResponse[]>`
+          SELECT TO_CHAR("createdAt", 'YYYY "Q"Q') AS base, COUNT('*')::Integer AS "minerCount"
+          FROM members
+          GROUP BY base
+          ORDER BY "base" DESC
+          LIMIT ${QUATER_MINER_LIMIT};
+        `;
+        return quaterdata;
+      default:
+        return [];
+    }
+  }
+
+  @Query(() => [MinerRewardStatsResponse])
+  async memberRewards(@Arg('data') data: PeriodStatsArgs): Promise<MinerRewardStatsResponse[]> {
+    switch (data.type) {
+      case 'day':
+        const daydata = await this.prisma.$queryRaw<MinerRewardStatsResponse[]>`
+          SELECT TO_CHAR("issuedAt", 'MM/DD/YYYY') AS base, AVG("txcShared") / ${TXC} AS "reward"
+          FROM member_statistics
+          GROUP BY base
+          ORDER BY "base" DESC
+          LIMIT ${DAILY_MINER_REWARD_LIMIT};
+        `;
+        return daydata;
+      case 'week':
+        const weekdata = await this.prisma.$queryRaw<MinerRewardStatsResponse[]>`
+          SELECT (TO_CHAR("issuedAt", 'MM') || '-' || TO_CHAR("createdAt" + INTERVAL '1 day', 'IW')) AS base, AVG("txcShared") / ${TXC} AS "reward"
+          FROM member_statistics
+          GROUP BY base
+          ORDER BY "base" DESC
+          LIMIT ${WEEKLY_MINER_REWARD_LIMIT};
+      `;
+        return weekdata;
+      case 'month':
+        const monthdata = await this.prisma.$queryRaw<MinerRewardStatsResponse[]>`
+          SELECT TO_CHAR("createdAt", 'MM/YYYY') AS base, AVG("txcShared") / ${TXC} AS "reward"
+          FROM member_statistics
+          GROUP BY base
+          ORDER BY "base" DESC
+          LIMIT ${MONTHLY_MINER_REWARD_LIMIT};
+        `;
+        return monthdata;
+      case 'quater':
+        const quaterdata = await this.prisma.$queryRaw<MinerRewardStatsResponse[]>`
+          SELECT TO_CHAR("createdAt", 'YYYY "Q"Q') AS base, AVG("txcShared") / ${TXC} AS "reward"
+          FROM member_statistics
+          GROUP BY base
+          ORDER BY "base" DESC
+          LIMIT ${QUATER_MINER_REWARD_LIMIT};
+        `;
+        return quaterdata;
+      default:
+        return [];
+    }
   }
 }
