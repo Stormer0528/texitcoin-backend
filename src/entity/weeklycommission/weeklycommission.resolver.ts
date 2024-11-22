@@ -111,14 +111,16 @@ export class WeeklyCommissionResolver {
       throw new Error('You can not change status of the commission');
     }
 
-    await this.proofService.updateProofById({
-      id: data.id,
+    const updatedCommission = await this.service.updateWeeklyCommission(restData);
+    await this.proofService.updateProofByReference({
+      refId: convertNumToString({ value: updatedCommission.ID, length: 7, prefix: 'C' }),
+      type: 'COMMISSION',
       fileIds,
       note,
       reflinks,
     });
 
-    return this.service.updateWeeklyCommission(restData);
+    return updatedCommission;
   }
 
   @Mutation(() => SuccessResponse)

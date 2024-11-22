@@ -131,7 +131,7 @@ export class PrepaidCommissionResolver {
       fileIds,
       reflinks,
       note,
-      refId: `PC-${prepaidCommission.ID}`,
+      refId: convertNumToString({ value: prepaidCommission.ID, length: 7, prefix: 'PC' }),
       type: 'PREPAY',
     });
 

@@ -173,7 +173,7 @@ export class SaleResolver {
       note,
       fileIds,
       reflinks,
-      refId: `S-${newsale.ID}`,
+      refId: convertNumToString({ value: newsale.ID, length: 7, prefix: 'S' }),
       type: 'SALE',
     });
 
