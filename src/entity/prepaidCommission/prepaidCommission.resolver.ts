@@ -108,7 +108,7 @@ export class PrepaidCommissionResolver {
     const prepaidCommission = await this.service.createPrepaidCommission(restData);
     await this.proofService.createProof({
       amount: prepaidCommission.commission,
-      refId: `PC-${prepaidCommission.ID}`,
+      refId: convertNumToString({ value: prepaidCommission.ID, length: 7, prefix: 'PC' }),
       type: 'PREPAY',
       fileIds,
       reflinks,

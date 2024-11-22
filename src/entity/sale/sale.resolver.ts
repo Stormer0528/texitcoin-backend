@@ -134,7 +134,7 @@ export class SaleResolver {
     const pkg = await this.packageService.getPackageById(sale.packageId);
     await this.proofService.createProof({
       amount: pkg.amount,
-      refId: sale.id,
+      refId: convertNumToString({ value: sale.ID, length: 7, prefix: 'S' }),
       type: 'SALE',
       fileIds,
       note,
