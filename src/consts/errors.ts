@@ -42,7 +42,7 @@ export const uniqueErrors = [
   {
     modelName: 'Proof',
     path: ['refId', 'type'],
-    message: 'Proof already exists for the specified refId and type',
+    message: 'Proof already exists for the specified reference ID and type',
   },
 ];
 
