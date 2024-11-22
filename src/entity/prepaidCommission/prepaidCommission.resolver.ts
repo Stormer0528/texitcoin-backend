@@ -144,7 +144,7 @@ export class PrepaidCommissionResolver {
   async removePrepaidCommission(@Arg('data') data: IDInput): Promise<SuccessResponse> {
     const prepaidCommission = await this.service.getPrepaidCommissionById(data.id);
     await this.proofService.removeProof({
-      refId: `PC-${prepaidCommission.ID}`,
+      refId: convertNumToString({ value: prepaidCommission.ID, length: 7, prefix: 'PC' }),
       type: 'PREPAY',
     });
 

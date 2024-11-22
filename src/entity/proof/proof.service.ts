@@ -75,14 +75,15 @@ export class ProofService {
 
   async updateProofByReference(data: UpdateProofByReferenceInput) {
     const { fileIds, reflinks, ...restData } = data;
-    const proof = await this.prisma.proof.update({
+    const proof = await this.prisma.proof.upsert({
       where: {
         refId_type: {
           refId: data.refId,
           type: data.type,
         },
       },
-      data: restData,
+      create: restData,
+      update: restData,
     });
     if (fileIds) {
       await this.fileRelationService.setFileRelationsByProofId(proof.id, fileIds);
@@ -98,8 +99,10 @@ export class ProofService {
     const whereClause = 'id' in data ? { id: data.id } : { refId_type: data };
     const proof = await this.prisma.proof.findUnique({ where: whereClause });
 
-    await this.fileRelationService.removeFileRelationsByProofId(proof.id);
-    await this.referenceLinkService.removeReferenceLinksByProofId(proof.id);
+    if (proof) {
+      await this.fileRelationService.removeFileRelationsByProofId(proof.id);
+      await this.referenceLinkService.removeReferenceLinksByProofId(proof.id);
+    }
     return this.prisma.proof.delete({
       where: {
         id: proof.id,

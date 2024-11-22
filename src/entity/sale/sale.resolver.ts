@@ -188,7 +188,7 @@ export class SaleResolver {
   async removeSale(@Arg('data') data: IDInput): Promise<SuccessResponse> {
     const sale = await this.service.getSaleById(data.id);
     await this.proofService.removeProof({
-      refId: `S-${sale.ID}`,
+      refId: convertNumToString({ value: sale.ID, length: 7, prefix: 'S' }),
       type: 'SALE',
     });
     await this.service.removeSale(data);
