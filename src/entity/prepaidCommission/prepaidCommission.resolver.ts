@@ -92,6 +92,22 @@ export class PrepaidCommissionResolver {
     @Arg('data') data: CreatePrepaidCommissionInput
   ): Promise<PrepaidCommission> {
     const { fileIds, reflinks, note, ...restData } = data;
+    const curCommission = await this.commissionService.getWeeklyCommissionById({
+      id: restData.commissionId,
+    });
+    if (curCommission.commission === 0) {
+      throw new GraphQLError('Commission must be greater than 0', {
+        extensions: {
+          path: 'commissionId',
+        },
+      });
+    } else if (curCommission.status != 'PREVIEW') {
+      throw new GraphQLError('Commission must be fresh', {
+        extensions: {
+          path: 'commissionId',
+        },
+      });
+    }
     const prepaidCommission = await this.service.createPrepaidCommission(restData);
     const maxCommissionID = await this.commissionService.getMaxCommissionID();
     const commission = await this.commissionService.updateWeeklyCommission({
@@ -119,6 +135,23 @@ export class PrepaidCommissionResolver {
     @Arg('data') data: UpdatePrepaidCommissionInput
   ): Promise<PrepaidCommission> {
     const { fileIds, reflinks, note, ...restData } = data;
+    const curCommission = await this.commissionService.getWeeklyCommissionById({
+      id: restData.commissionId,
+    });
+    if (curCommission.commission === 0) {
+      throw new GraphQLError('Commission must be greater than 0', {
+        extensions: {
+          path: 'commissionId',
+        },
+      });
+    } else if (curCommission.status != 'PREVIEW') {
+      throw new GraphQLError('Commission must be fresh', {
+        extensions: {
+          path: 'commissionId',
+        },
+      });
+    }
+
     const prepaidCommission = await this.service.updatePrepaidCommission(restData);
     const commission = await this.commissionService.getWeeklyCommissionById({
       id: prepaidCommission.commissionId,
