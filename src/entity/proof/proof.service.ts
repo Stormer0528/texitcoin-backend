@@ -102,11 +102,12 @@ export class ProofService {
     if (proof) {
       await this.fileRelationService.removeFileRelationsByProofId(proof.id);
       await this.referenceLinkService.removeReferenceLinksByProofId(proof.id);
+      return this.prisma.proof.delete({
+        where: {
+          id: proof.id,
+        },
+      });
     }
-    return this.prisma.proof.delete({
-      where: {
-        id: proof.id,
-      },
-    });
+    return null;
   }
 }
