@@ -59,6 +59,17 @@ export class WeeklyCommissionService {
     });
   }
 
+  async getWeeklyCommissionsByMemberId(memberId: string): Promise<WeeklyCommission[]> {
+    return this.prisma.weeklyCommission.findMany({
+      where: {
+        memberId,
+        status: {
+          not: 'PREVIEW',
+        },
+      },
+    });
+  }
+
   async updateWeeklyCommission(
     data: Omit<WeeklyCommissionUpdateInput, 'fileIds' | 'reflinks' | 'note'> & { ID?: number }
   ): Promise<WeeklyCommission> {

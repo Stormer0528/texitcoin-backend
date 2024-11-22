@@ -74,6 +74,7 @@ import { QueryOrderPagination } from '@/graphql/queryArgs';
 import { PrismaService } from '@/service/prisma';
 import { getDynamicOrderBy } from '@/utils/getDynamicOrderBy';
 import { CommissionStatus } from '../weeklycommission/weeklycommission.type';
+import { WeeklyCommissionService } from '../weeklycommission/weeklycommission.service';
 
 @Service()
 @Resolver(() => Member)
@@ -84,6 +85,7 @@ export class MemberResolver {
     private readonly memberStatisticsService: MemberStatisticsService,
     private readonly saleService: SaleService,
     private readonly packageService: PackageService,
+    private readonly commissionService: WeeklyCommissionService,
     @Inject(() => ElasticSearchService)
     private readonly elasticService: ElasticSearchService,
     @Inject(() => MailerService)
@@ -322,6 +324,14 @@ export class MemberResolver {
 
     if (data.id === PLACEMENT_ROOT && data.placementParentId !== PLACEMENT_ROOT) {
       throw new Error('You can not change parent of root node');
+    }
+
+    const weeklyCommissions = await this.commissionService.getWeeklyCommissionsByMemberId(data.id);
+
+    if ((data.placementParentId || data.placementPosition) && weeklyCommissions.length) {
+      throw new Error(
+        'You cannot modify the placement tree data because the commission has already been calculated'
+      );
     }
 
     let newData: UpdateMemberInput = {
