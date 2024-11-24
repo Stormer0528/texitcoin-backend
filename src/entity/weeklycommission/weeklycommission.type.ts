@@ -1,5 +1,5 @@
 import type { Prisma } from '@prisma/client';
-import { ObjectType, InputType, Field, ArgsType, ID } from 'type-graphql';
+import { ObjectType, InputType, Field, ArgsType, ID, Int } from 'type-graphql';
 
 import { QueryArgsBase } from '@/graphql/queryArgs';
 import { PaginatedResponse } from '@/graphql/paginatedResponse';
@@ -46,4 +46,19 @@ export class WeeklyCommissionGetInput {
 
   @Field()
   weekStartDate: Date;
+}
+
+@ObjectType()
+export class CommissionStatus {
+  @Field(() => Int)
+  begL: number;
+
+  @Field(() => Int)
+  begR: number;
+
+  @Field(() => Int)
+  newL: number;
+
+  @Field(() => Int)
+  newR: number;
 }

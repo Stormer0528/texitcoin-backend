@@ -7,6 +7,8 @@ import { MemberWallet } from '@/entity/memberWallet/memberWallet.entity';
 import { Member } from '@/entity/member/member.entity';
 import { AdminNotes, WeeklyCommission } from '@prisma/client';
 import { ConfirmationStatus } from '../enum';
+import { CommissionStatus } from '@/entity/weeklycommission/weeklycommission.type';
+import dayjs from 'dayjs';
 
 export const salesForMemberLoader = (parent: RootDataLoader) => {
   return new DataLoader<string, Sale[]>(
@@ -221,6 +223,38 @@ export const adminNotesForMemberLoader = (parent: RootDataLoader) => {
       });
 
       return memberIds.map((id) => membersWithAdminNotesMap[id] ?? []);
+    },
+    {
+      ...parent.dataLoaderOptions,
+    }
+  );
+};
+
+export const commissionStatusForMemberLoader = (parent: RootDataLoader) => {
+  return new DataLoader<string, CommissionStatus>(
+    async (memberIds: string[]) => {
+      const weeklyCommissions = await parent.prisma.weeklyCommission.findMany({
+        where: {
+          memberId: {
+            in: memberIds,
+          },
+          status: 'PREVIEW',
+          weekStartDate: dayjs().utc().startOf('week').toDate(),
+        },
+      });
+
+      const commissionStatusMap: Record<string, CommissionStatus> = {};
+
+      weeklyCommissions.forEach((weeklyCommission) => {
+        commissionStatusMap[weeklyCommission.memberId] = {
+          begL: weeklyCommission.begL,
+          begR: weeklyCommission.begR,
+          newL: weeklyCommission.newL,
+          newR: weeklyCommission.newR,
+        };
+      });
+
+      return memberIds.map((id) => commissionStatusMap[id]);
     },
     {
       ...parent.dataLoaderOptions,

@@ -156,31 +156,6 @@ async function weeklyCommission(tranPrisma: PrismaClient, preview: boolean = fal
       Object.entries(resultMap),
       async ([id, points]) => {
         const [finalLeft, finalRight, left, right, commission] = calculatePoint(points);
-
-        await tranPrisma.member.update({
-          where: {
-            id,
-          },
-          data: {
-            begL: finalLeft - left,
-            begR: finalRight - right,
-            newL: 0,
-            newR: 0,
-          },
-        });
-
-        await tranPrisma.member.update({
-          where: {
-            id,
-          },
-          data: {
-            begL: finalLeft - left,
-            begR: finalRight - right,
-            newL: 0,
-            newR: 0,
-          },
-        });
-
         return tranPrisma.weeklyCommission.upsert({
           where: {
             memberId_weekStartDate: {

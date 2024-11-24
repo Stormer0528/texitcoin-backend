@@ -11,6 +11,7 @@ import { UserRole } from '@/type';
 import { PlacementPosition } from '@/graphql/enum';
 import { WeeklyCommission } from '../weeklycommission/weeklycommission.entity';
 import { AdminNotes } from '../adminNotes/adminNotes.entity';
+import { CommissionStatus } from '../weeklycommission/weeklycommission.type';
 
 @ObjectType()
 export class Member extends BaseEntity {
@@ -81,17 +82,8 @@ export class Member extends BaseEntity {
   @Field({ nullable: true })
   preferredContactDetail?: string;
 
-  @Field(() => Int)
-  begL: number;
-
-  @Field(() => Int)
-  begR: number;
-
-  @Field(() => Int)
-  newL: number;
-
-  @Field(() => Int)
-  newR: number;
+  @Field(() => CommissionStatus)
+  commission?: CommissionStatus;
 
   @Field(() => [Sale], { nullable: 'itemsAndList' })
   sales?: Sale[];

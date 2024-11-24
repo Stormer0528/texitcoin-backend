@@ -85,10 +85,6 @@ model Member {
   syncWithSendy          Boolean            @default(true)
   preferredContact       String?
   preferredContactDetail String?
-  begL                   Int                @default(0)
-  begR                   Int                @default(0)
-  newL                   Int                @default(0)
-  newR                   Int                @default(0)
 
   sponsor         Member? @relation("MemberSponsor", fields: [sponsorId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   placementParent Member? @relation("MemberPlacementParent", fields: [placementParentId], references: [id], onDelete: NoAction, onUpdate: NoAction)

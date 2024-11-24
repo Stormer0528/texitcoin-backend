@@ -73,6 +73,7 @@ import { PackageService } from '../package/package.service';
 import { QueryOrderPagination } from '@/graphql/queryArgs';
 import { PrismaService } from '@/service/prisma';
 import { getDynamicOrderBy } from '@/utils/getDynamicOrderBy';
+import { CommissionStatus } from '../weeklycommission/weeklycommission.type';
 
 @Service()
 @Resolver(() => Member)
@@ -647,15 +648,6 @@ export class MemberResolver {
     };
   }
 
-  @Mutation(() => SuccessResponse)
-  @Transaction()
-  async recalculateCurrentCommission(): Promise<SuccessResponse> {
-    await this.service.reCalculateCurrentLR();
-    return {
-      result: SuccessResult.success,
-    };
-  }
-
   @FieldResolver(() => [MemberLog])
   async logs(@Root() member: Member, @Arg('logsize', { defaultValue: 10 }) logsize: number) {
     const logres = await this.elasticService.getLogByMinerId(member.id, logsize);
@@ -692,5 +684,10 @@ export class MemberResolver {
     @Ctx() ctx: Context
   ): Promise<WeeklyCommission[]> {
     return ctx.dataLoader.get('weeklyCommissionsForMemberLoader').load(member.id);
+  }
+
+  @FieldResolver(() => [CommissionStatus])
+  async commission(@Root() member: Member, @Ctx() ctx: Context): Promise<CommissionStatus> {
+    return ctx.dataLoader.get('commissionStatusForMemberLoader').load(member.id);
   }
 }
