@@ -82,7 +82,7 @@ export class Member extends BaseEntity {
   @Field({ nullable: true })
   preferredContactDetail?: string;
 
-  @Field(() => CommissionStatus)
+  @Field(() => CommissionStatus, { nullable: true })
   commission?: CommissionStatus;
 
   @Field(() => [Sale], { nullable: 'itemsAndList' })

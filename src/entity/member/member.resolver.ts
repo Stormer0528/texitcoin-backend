@@ -686,7 +686,7 @@ export class MemberResolver {
     return ctx.dataLoader.get('weeklyCommissionsForMemberLoader').load(member.id);
   }
 
-  @FieldResolver(() => [CommissionStatus])
+  @FieldResolver(() => CommissionStatus, { nullable: true })
   async commission(@Root() member: Member, @Ctx() ctx: Context): Promise<CommissionStatus> {
     return ctx.dataLoader.get('commissionStatusForMemberLoader').load(member.id);
   }
