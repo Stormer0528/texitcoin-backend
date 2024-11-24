@@ -80,10 +80,12 @@ async function weeklyCommission(tranPrisma: PrismaClient, preview: boolean = fal
   for (
     ;
     iStartDate.isBefore(nowStartDate.toDate(), 'day') ||
-    (preview && iStartDate.isSame(nowStartDate.toDate(), 'day'));
+    iStartDate.isSame(nowStartDate.toDate(), 'day');
     iStartDate = iStartDate.add(1, 'week')
   ) {
     console.log(`${formatDate(iStartDate.toDate())}, ${iStartDate.week()} started`);
+
+    const nowWeek = iStartDate.isSame(nowStartDate.toDate(), 'day');
 
     const weekSales = await getSalesByWeekStart(tranPrisma, iStartDate.toDate());
     const addedLeftPoint: Record<string, number> = {};
@@ -199,11 +201,12 @@ async function weeklyCommission(tranPrisma: PrismaClient, preview: boolean = fal
             pkgL: left,
             pkgR: right,
             commission,
-            status: preview
-              ? ConfirmationStatus.PREVIEW
-              : commission > 0
-                ? ConfirmationStatus.PENDING
-                : ConfirmationStatus.NONE,
+            status:
+              preview || nowWeek
+                ? ConfirmationStatus.PREVIEW
+                : commission > 0
+                  ? ConfirmationStatus.PENDING
+                  : ConfirmationStatus.NONE,
             ID: preview || commission == 0 ? -1 : ID++,
             weekStartDate: iStartDate.toDate(),
           },
