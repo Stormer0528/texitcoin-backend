@@ -34,6 +34,9 @@ export class CreateProofInput {
   amount: number;
 
   @Field({ nullable: true })
+  orderedAt?: Date;
+
+  @Field({ nullable: true })
   note?: string;
 
   @Field(() => [ID], { nullable: 'itemsAndList' })
@@ -59,6 +62,9 @@ export class UpdateProofByIDInput {
   amount?: number;
 
   @Field({ nullable: true })
+  orderedAt?: Date;
+
+  @Field({ nullable: true })
   note?: string;
 
   @Field(() => [ID], { nullable: 'itemsAndList' })
@@ -81,6 +87,9 @@ export class UpdateProofByReferenceInput {
   amount?: number;
 
   @Field({ nullable: true })
+  orderedAt?: Date;
+
+  @Field({ nullable: true })
   note?: string;
 
   @Field(() => [ID], { nullable: 'itemsAndList' })
@@ -92,14 +101,23 @@ export class UpdateProofByReferenceInput {
 
 export type PROOFTYPE =
   | 'COMMISSION'
-  | 'MINE'
+  | 'MINENEWEQUIPMENT'
+  | 'MINEELECTRICITY'
+  | 'MINEMAINTAINANCE'
+  | 'MINEFACILITYRENTMORTAGE'
+  | 'MARKETINGTXCPROMOTION'
+  | 'MARKETINGMINETXCPROMOTION'
   | 'INFRASTRUCTURE'
   | 'OVERHEAD'
-  | 'SALARY'
+  | 'ADMINISTRATIONSALARY'
   | 'PROMOTION'
   | 'PROFIT'
   | 'SALE'
-  | 'PREPAY';
+  | 'PREPAY'
+  | 'DEVELOPERSPROTOCOL'
+  | 'DEVELOPERSWEB'
+  | 'DEVELOPERSAPPS'
+  | 'DEVELOPERSINTEGRATIONS';
 
 @InputType()
 export class ReferenceInput {

@@ -43,6 +43,10 @@ enum ProofType {
   PROFIT
   SALE
   PREPAY
+  DEVELOPERSPROTOCOL
+  DEVELOPERSWEB
+  DEVELOPERSAPPS
+  DEVELOPERSINTEGRATIONS
 }
 
 model Admin {
@@ -414,11 +418,12 @@ model FileRelation {
 }
 
 model Proof {
-  id     String    @id @default(uuid())
-  refId  String
-  type   ProofType
-  amount Float     @default(0.0)
-  note   String?   @default("")
+  id        String    @id @default(uuid())
+  refId     String?
+  type      ProofType
+  amount    Float     @default(0.0)
+  note      String?   @default("")
+  orderedAt DateTime  @default(now())
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt

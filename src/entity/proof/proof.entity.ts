@@ -21,6 +21,9 @@ export class Proof extends BaseEntity {
   @Field()
   amount: number;
 
+  @Field()
+  orderedAt: Date;
+
   @Field({ nullable: true })
   note?: string;
 
