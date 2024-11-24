@@ -52,6 +52,12 @@ async function weeklyCommission(tranPrisma: PrismaClient, preview: boolean = fal
       weekStartDate: true,
     },
   });
+  const maxIDCommission = await tranPrisma.weeklyCommission.findFirst({
+    orderBy: {
+      ID: 'desc',
+    },
+  });
+  let ID = (maxIDCommission?.ID || 0) + 1;
 
   const allMembers = await tranPrisma.member.findMany({});
   const mapMembers = {};
@@ -198,7 +204,7 @@ async function weeklyCommission(tranPrisma: PrismaClient, preview: boolean = fal
               : commission > 0
                 ? ConfirmationStatus.PENDING
                 : ConfirmationStatus.NONE,
-            ID: preview || commission == 0 ? -1 : undefined,
+            ID: preview || commission == 0 ? -1 : ID++,
             weekStartDate: iStartDate.toDate(),
           },
           update: {},
