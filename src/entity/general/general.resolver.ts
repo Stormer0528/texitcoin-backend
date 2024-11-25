@@ -11,11 +11,14 @@ import {
   DAILY_MINER_LIMIT,
   DAILY_MINER_REWARD_LIMIT,
   MONTHLY_BLOCK_LIMIT,
+  MONTHLY_COMMISSION_LIMIT,
   MONTHLY_MINER_LIMIT,
   MONTHLY_MINER_REWARD_LIMIT,
+  QUATER_COMMISSION_LIMIT,
   QUATER_MINER_LIMIT,
   QUATER_MINER_REWARD_LIMIT,
   WEEKLY_BLOCK_LIMIT,
+  WEEKLY_COMMISSION_LIMIT,
   WEEKLY_MINER_LIMIT,
   WEEKLY_MINER_REWARD_LIMIT,
 } from '@/consts';
@@ -24,9 +27,11 @@ import {
   BlockStatsResponse,
   CommissionOverview,
   CommissionOverviewResponse,
+  CommissionPeriodResponse,
   EntityStats,
   MinerCountStatsResponse,
   MinerRewardStatsResponse,
+  RevenueOverviewResponse,
 } from './general.entity';
 import { PeriodStatsArgs, CommissionOverviewQueryArgs, LiveStatsArgs } from './general.type';
 import { BlockService } from '@/entity/block/block.service';
@@ -37,6 +42,7 @@ import { PrismaService } from '@/service/prisma';
 import graphqlFields from 'graphql-fields';
 import { UserRole } from '@/type';
 import { TXC } from '@/consts/db';
+import Bluebird from 'bluebird';
 
 @Service()
 @Resolver()
@@ -325,7 +331,7 @@ export class GeneralResolver {
     switch (data.type) {
       case 'day':
         const daydata = await this.prisma.$queryRaw<MinerRewardStatsResponse[]>`
-          SELECT TO_CHAR("issuedAt", 'MM/DD/YYYY') AS base, AVG("txcShared") / ${TXC} AS "reward"
+          SELECT TO_CHAR("issuedAt", 'MM/DD/YYYY') AS base, COALESCE(AVG("txcShared"), 0) / ${TXC} AS "reward"
           FROM member_statistics
           GROUP BY base
           ORDER BY "base" DESC
@@ -334,7 +340,7 @@ export class GeneralResolver {
         return daydata;
       case 'week':
         const weekdata = await this.prisma.$queryRaw<MinerRewardStatsResponse[]>`
-          SELECT (TO_CHAR("issuedAt", 'MM') || '-' || TO_CHAR("createdAt" + INTERVAL '1 day', 'IW')) AS base, AVG("txcShared") / ${TXC} AS "reward"
+          SELECT (TO_CHAR("issuedAt", 'MM') || '-' || TO_CHAR("issuedAt" + INTERVAL '1 day', 'IW')) AS base, COALESCE(AVG("txcShared"), 0) / ${TXC} AS "reward"
           FROM member_statistics
           GROUP BY base
           ORDER BY "base" DESC
@@ -343,7 +349,7 @@ export class GeneralResolver {
         return weekdata;
       case 'month':
         const monthdata = await this.prisma.$queryRaw<MinerRewardStatsResponse[]>`
-          SELECT TO_CHAR("createdAt", 'MM/YYYY') AS base, AVG("txcShared") / ${TXC} AS "reward"
+          SELECT TO_CHAR("issuedAt", 'MM/YYYY') AS base, COALESCE(AVG("txcShared"), 0) / ${TXC} AS "reward"
           FROM member_statistics
           GROUP BY base
           ORDER BY "base" DESC
@@ -352,11 +358,138 @@ export class GeneralResolver {
         return monthdata;
       case 'quater':
         const quaterdata = await this.prisma.$queryRaw<MinerRewardStatsResponse[]>`
-          SELECT TO_CHAR("createdAt", 'YYYY "Q"Q') AS base, AVG("txcShared") / ${TXC} AS "reward"
+          SELECT TO_CHAR("issuedAt", 'YYYY "Q"Q') AS base, COALESCE(AVG("txcShared"), 0) / ${TXC} AS "reward"
           FROM member_statistics
           GROUP BY base
           ORDER BY "base" DESC
           LIMIT ${QUATER_MINER_REWARD_LIMIT};
+        `;
+        return quaterdata;
+      default:
+        return [];
+    }
+  }
+
+  @Query(() => RevenueOverviewResponse)
+  async revenueOverview(): Promise<RevenueOverviewResponse> {
+    const revenueQuery = this.prisma.$queryRaw`
+      SELECT COALESCE(SUM(packages.amount), 0)::INTEGER
+      FROM sales
+      LEFT JOIN packages ON sales."packageId" = packages.id
+    `.then((res) => res[0].coalesce);
+    const commissionPendingQuery = this.prisma.$queryRaw`
+      SELECT COALESCE(SUM(weeklycommissions.commission), 0)::INTEGER
+      FROM weeklycommissions
+      WHERE status='PENDING'
+    `.then((res) => res[0].coalesce);
+    const commissionApprovedPaidQuery = this.prisma.$queryRaw`
+    SELECT COALESCE(SUM(weeklycommissions.commission), 0)::INTEGER
+    FROM weeklycommissions
+    WHERE status='APPROVED' OR status='PAID'
+  `.then((res) => res[0].coalesce);
+    const mineElectricyQuery = this.prisma.$queryRaw`
+      SELECT COALESCE(SUM(proofs.amount), 0)::INTEGER
+      FROM proofs
+      WHERE type = 'MINEELECTRICITY'
+    `.then((res) => res[0].coalesce);
+    const mineFacilityQuery = this.prisma.$queryRaw`
+      SELECT COALESCE(SUM(proofs.amount), 0)::INTEGER
+      FROM proofs
+      WHERE type = 'MINEFACILITYRENTMORTAGE'
+    `.then((res) => res[0].coalesce);
+    const mineMaintainanceQuery = this.prisma.$queryRaw`
+      SELECT COALESCE(SUM(proofs.amount), 0)::INTEGER
+      FROM proofs
+      WHERE type = 'MINEFACILITYRENTMORTAGE'
+    `.then((res) => res[0].coalesce);
+    const mineNewEquipmentQuery = this.prisma.$queryRaw`
+    SELECT COALESCE(SUM(proofs.amount), 0)::INTEGER
+    FROM proofs
+    WHERE type = 'MINENEWEQUIPMENT'
+  `.then((res) => res[0].coalesce);
+    const infrastructureQuery = this.prisma.$queryRaw`
+      SELECT COALESCE(SUM(proofs.amount), 0)::INTEGER
+      FROM proofs
+      WHERE type = 'INFRASTRUCTURE'
+    `.then((res) => res[0].coalesce);
+    const marketingMineTXCPromotionQuery = this.prisma.$queryRaw`
+      SELECT COALESCE(SUM(proofs.amount), 0)::INTEGER
+      FROM proofs
+      WHERE type = 'MARKETINGMINETXCPROMOTION'
+    `.then((res) => res[0].coalesce);
+    const marketingTXCPromotionQuery = this.prisma.$queryRaw`
+      SELECT COALESCE(SUM(proofs.amount), 0)::INTEGER
+      FROM proofs
+      WHERE type = 'MARKETINGTXCPROMOTION'
+    `.then((res) => res[0].coalesce);
+
+    const [
+      revenue,
+      commissionPending,
+      commissionApprovedPaid,
+      mineElectricy,
+      mineFacility,
+      mineMaintainance,
+      mineNewEquipment,
+      infrastructure,
+      marketingMineTXCPromotion,
+      marketingTXCPromotion,
+    ] = await Bluebird.all([
+      revenueQuery,
+      commissionPendingQuery,
+      commissionApprovedPaidQuery,
+      mineElectricyQuery,
+      mineFacilityQuery,
+      mineMaintainanceQuery,
+      mineNewEquipmentQuery,
+      infrastructureQuery,
+      marketingMineTXCPromotionQuery,
+      marketingTXCPromotionQuery,
+    ]);
+    return {
+      revenue,
+      commissionPending,
+      commissionApprovedPaid,
+      mineElectricy,
+      mineFacility,
+      mineMaintainance,
+      mineNewEquipment,
+      infrastructure,
+      marketingMineTXCPromotion,
+      marketingTXCPromotion,
+    };
+  }
+
+  @Query(() => [CommissionPeriodResponse])
+  async commissionByPeriod(
+    @Arg('data') data: PeriodStatsArgs
+  ): Promise<CommissionPeriodResponse[]> {
+    switch (data.type) {
+      case 'week':
+        const weekdata = await this.prisma.$queryRaw<CommissionPeriodResponse[]>`
+          SELECT (TO_CHAR("weekStartDate", 'MM') || '-' || TO_CHAR("weekStartDate" + INTERVAL '1 day', 'IW')) AS base, COALESCE(SUM("commission"), 0)::INTEGER AS "commission"
+          FROM weeklycommissions
+          GROUP BY base
+          ORDER BY "base" DESC
+          LIMIT ${WEEKLY_COMMISSION_LIMIT};
+      `;
+        return weekdata;
+      case 'month':
+        const monthdata = await this.prisma.$queryRaw<CommissionPeriodResponse[]>`
+          SELECT TO_CHAR("weekStartDate", 'MM/YYYY') AS base, COALESCE(SUM("commission"), 0)::INTEGER AS "commission"
+          FROM weeklycommissions
+          GROUP BY base
+          ORDER BY "base" DESC
+          LIMIT ${MONTHLY_COMMISSION_LIMIT};
+        `;
+        return monthdata;
+      case 'quater':
+        const quaterdata = await this.prisma.$queryRaw<CommissionPeriodResponse[]>`
+          SELECT TO_CHAR("weekStartDate", 'YYYY "Q"Q') AS base, COALESCE(SUM("commission"), 0)::INTEGER AS "commission"
+          FROM weeklycommissions
+          GROUP BY base
+          ORDER BY "base" DESC
+          LIMIT ${QUATER_COMMISSION_LIMIT};
         `;
         return quaterdata;
       default:

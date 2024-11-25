@@ -66,15 +66,19 @@ export const WEEKLY_BLOCK_LIMIT = 13;
 export const MONTHLY_BLOCK_LIMIT = 12;
 export const BLOCK_LIMIT = 200;
 
-export const DAILY_MINER_LIMIT = 30;
-export const WEEKLY_MINER_LIMIT = 13;
+export const DAILY_MINER_LIMIT = 20;
+export const WEEKLY_MINER_LIMIT = 15;
 export const MONTHLY_MINER_LIMIT = 12;
 export const QUATER_MINER_LIMIT = 16;
 
-export const DAILY_MINER_REWARD_LIMIT = 30;
-export const WEEKLY_MINER_REWARD_LIMIT = 13;
+export const DAILY_MINER_REWARD_LIMIT = 20;
+export const WEEKLY_MINER_REWARD_LIMIT = 15;
 export const MONTHLY_MINER_REWARD_LIMIT = 12;
 export const QUATER_MINER_REWARD_LIMIT = 16;
+
+export const WEEKLY_COMMISSION_LIMIT = 15;
+export const MONTHLY_COMMISSION_LIMIT = 12;
+export const QUATER_COMMISSION_LIMIT = 16;
 
 export const SPONSOR_BONOUS_CNT = 3;
 

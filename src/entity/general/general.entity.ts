@@ -75,3 +75,45 @@ export class CommissionOverviewResponse extends PaginatedResponse {
   @Field(() => [CommissionOverview], { nullable: 'itemsAndList' })
   commissions?: CommissionOverview[];
 }
+
+@ObjectType()
+export class RevenueOverviewResponse {
+  @Field()
+  revenue: number;
+
+  @Field()
+  commissionPending: number;
+
+  @Field()
+  commissionApprovedPaid: number;
+
+  @Field()
+  mineElectricy: number;
+
+  @Field()
+  mineFacility: number;
+
+  @Field()
+  mineMaintainance: number;
+
+  @Field()
+  mineNewEquipment: number;
+
+  @Field()
+  infrastructure: number;
+
+  @Field()
+  marketingMineTXCPromotion: number;
+
+  @Field()
+  marketingTXCPromotion: number;
+}
+
+@ObjectType()
+export class CommissionPeriodResponse {
+  @Field(() => Int)
+  commission: number;
+
+  @Field()
+  base: string;
+}
