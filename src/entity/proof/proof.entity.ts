@@ -21,6 +21,9 @@ export class Proof extends BaseEntity {
   @Field()
   amount: number;
 
+  @Field({ nullable: true })
+  mineLocation?: string;
+
   @Field()
   orderedAt: Date;
 

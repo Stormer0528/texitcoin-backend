@@ -37,6 +37,9 @@ export class CreateProofInput {
   orderedAt?: Date;
 
   @Field({ nullable: true })
+  mineLocation?: string;
+
+  @Field({ nullable: true })
   note?: string;
 
   @Field(() => [ID], { nullable: 'itemsAndList' })
@@ -65,6 +68,9 @@ export class UpdateProofByIDInput {
   orderedAt?: Date;
 
   @Field({ nullable: true })
+  mineLocation?: string;
+
+  @Field({ nullable: true })
   note?: string;
 
   @Field(() => [ID], { nullable: 'itemsAndList' })
@@ -85,6 +91,9 @@ export class UpdateProofByReferenceInput {
 
   @Field({ nullable: true })
   amount?: number;
+
+  @Field({ nullable: true })
+  mineLocation?: string;
 
   @Field({ nullable: true })
   orderedAt?: Date;
