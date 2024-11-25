@@ -25,6 +25,7 @@ async function getSalesByWeekStart(tranPrisma: PrismaClient, startDate: Date) {
         gte: startDate,
         lt: dayjs(startDate).add(1, 'week').toDate(),
       },
+      status: true,
     },
     include: {
       member: true,

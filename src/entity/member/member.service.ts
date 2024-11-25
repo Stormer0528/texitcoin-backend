@@ -227,6 +227,7 @@ export class MemberService {
     const sales = await this.prisma.sale.findMany({
       where: {
         memberId: id,
+        status: true,
       },
       include: {
         package: true,
