@@ -469,6 +469,7 @@ export class GeneralResolver {
         const weekdata = await this.prisma.$queryRaw<CommissionPeriodResponse[]>`
           SELECT (TO_CHAR("weekStartDate", 'MM') || '-' || TO_CHAR("weekStartDate" + INTERVAL '1 day', 'IW')) AS base, COALESCE(SUM("commission"), 0)::INTEGER AS "commission"
           FROM weeklycommissions
+          WHERE status='PAID'
           GROUP BY base
           ORDER BY "base" DESC
           LIMIT ${WEEKLY_COMMISSION_LIMIT};
@@ -478,6 +479,7 @@ export class GeneralResolver {
         const monthdata = await this.prisma.$queryRaw<CommissionPeriodResponse[]>`
           SELECT TO_CHAR("weekStartDate", 'MM/YYYY') AS base, COALESCE(SUM("commission"), 0)::INTEGER AS "commission"
           FROM weeklycommissions
+          WHERE status='PAID'
           GROUP BY base
           ORDER BY "base" DESC
           LIMIT ${MONTHLY_COMMISSION_LIMIT};
@@ -487,6 +489,7 @@ export class GeneralResolver {
         const quaterdata = await this.prisma.$queryRaw<CommissionPeriodResponse[]>`
           SELECT TO_CHAR("weekStartDate", 'YYYY "Q"Q') AS base, COALESCE(SUM("commission"), 0)::INTEGER AS "commission"
           FROM weeklycommissions
+          WHERE status='PAID'
           GROUP BY base
           ORDER BY "base" DESC
           LIMIT ${QUATER_COMMISSION_LIMIT};
