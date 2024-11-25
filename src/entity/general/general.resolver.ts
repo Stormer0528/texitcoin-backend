@@ -144,7 +144,7 @@ export class GeneralResolver {
 
   @Query(() => [BlockStatsResponse])
   async blocksData(@Arg('data') data: PeriodStatsArgs): Promise<BlockStatsResponse[]> {
-    switch (data.type) {
+    switch (data.type.toLowerCase()) {
       case 'day':
         const daydata = await this.prisma.$queryRaw<BlockStatsResponse[]>`
           SELECT TO_CHAR("issuedAt", 'MM/DD/YYYY') AS base, AVG("hashRate") as "hashRate", AVG("difficulty") as "difficulty"
@@ -284,7 +284,7 @@ export class GeneralResolver {
 
   @Query(() => [MinerCountStatsResponse])
   async memberCounts(@Arg('data') data: PeriodStatsArgs): Promise<MinerCountStatsResponse[]> {
-    switch (data.type) {
+    switch (data.type.toLowerCase()) {
       case 'day':
         const daydata = await this.prisma.$queryRaw<MinerCountStatsResponse[]>`
           SELECT TO_CHAR("createdAt", 'MM/DD/YYYY') AS base, COUNT('*')::Integer AS "minerCount"
@@ -328,7 +328,7 @@ export class GeneralResolver {
 
   @Query(() => [MinerRewardStatsResponse])
   async memberRewards(@Arg('data') data: PeriodStatsArgs): Promise<MinerRewardStatsResponse[]> {
-    switch (data.type) {
+    switch (data.type.toLowerCase()) {
       case 'day':
         const daydata = await this.prisma.$queryRaw<MinerRewardStatsResponse[]>`
           SELECT TO_CHAR("issuedAt", 'MM/DD/YYYY') AS base, COALESCE(AVG("txcShared"), 0) / ${TXC} AS "reward"
@@ -464,7 +464,7 @@ export class GeneralResolver {
   async commissionByPeriod(
     @Arg('data') data: PeriodStatsArgs
   ): Promise<CommissionPeriodResponse[]> {
-    switch (data.type) {
+    switch (data.type.toLowerCase()) {
       case 'week':
         const weekdata = await this.prisma.$queryRaw<CommissionPeriodResponse[]>`
           SELECT (TO_CHAR("weekStartDate", 'MM') || '-' || TO_CHAR("weekStartDate" + INTERVAL '1 day', 'IW')) AS base, COALESCE(SUM("commission"), 0)::INTEGER AS "commission"
