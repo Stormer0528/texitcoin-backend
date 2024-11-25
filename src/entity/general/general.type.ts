@@ -8,7 +8,7 @@ export class LiveStatsArgs {
   pastDays: number;
 }
 
-export type PERIODSTATETYPE = 'day' | 'week' | 'month' | 'block' | 'quater';
+export type PERIODSTATETYPE = 'day' | 'week' | 'month' | 'block' | 'quarter';
 
 @InputType()
 export class PeriodStatsArgs {

@@ -312,15 +312,15 @@ export class GeneralResolver {
           LIMIT ${MONTHLY_MINER_LIMIT};
         `;
         return monthdata;
-      case 'quater':
-        const quaterdata = await this.prisma.$queryRaw<MinerCountStatsResponse[]>`
+      case 'quarter':
+        const quarterdata = await this.prisma.$queryRaw<MinerCountStatsResponse[]>`
           SELECT TO_CHAR("createdAt", 'YYYY "Q"Q') AS base, COUNT('*')::Integer AS "minerCount"
           FROM members
           GROUP BY base
           ORDER BY "base" DESC
           LIMIT ${QUATER_MINER_LIMIT};
         `;
-        return quaterdata;
+        return quarterdata;
       default:
         return [];
     }
@@ -356,15 +356,15 @@ export class GeneralResolver {
           LIMIT ${MONTHLY_MINER_REWARD_LIMIT};
         `;
         return monthdata;
-      case 'quater':
-        const quaterdata = await this.prisma.$queryRaw<MinerRewardStatsResponse[]>`
+      case 'quarter':
+        const quarterdata = await this.prisma.$queryRaw<MinerRewardStatsResponse[]>`
           SELECT TO_CHAR("issuedAt", 'YYYY "Q"Q') AS base, COALESCE(AVG("txcShared"), 0) / ${TXC} AS "reward"
           FROM member_statistics
           GROUP BY base
           ORDER BY "base" DESC
           LIMIT ${QUATER_MINER_REWARD_LIMIT};
         `;
-        return quaterdata;
+        return quarterdata;
       default:
         return [];
     }
@@ -485,8 +485,8 @@ export class GeneralResolver {
           LIMIT ${MONTHLY_COMMISSION_LIMIT};
         `;
         return monthdata;
-      case 'quater':
-        const quaterdata = await this.prisma.$queryRaw<CommissionPeriodResponse[]>`
+      case 'quarter':
+        const quarterdata = await this.prisma.$queryRaw<CommissionPeriodResponse[]>`
           SELECT TO_CHAR("weekStartDate", 'YYYY "Q"Q') AS base, COALESCE(SUM("commission"), 0)::INTEGER AS "commission"
           FROM weeklycommissions
           WHERE status='PAID'
@@ -494,7 +494,7 @@ export class GeneralResolver {
           ORDER BY "base" DESC
           LIMIT ${QUATER_COMMISSION_LIMIT};
         `;
-        return quaterdata;
+        return quarterdata;
       default:
         return [];
     }
