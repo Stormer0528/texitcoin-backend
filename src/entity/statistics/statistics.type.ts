@@ -111,7 +111,7 @@ export class LatestStatistics {
   totalMembers: number;
 
   @Field()
-  txcShared: bigint;
+  txcShared: number;
 
   @Field()
   issuedAt: Date;
