@@ -605,10 +605,12 @@ export class GeneralResolver {
   @Query(() => [TopRecruitersResponse])
   async topRecruiters(): Promise<TopRecruitersResponse[]> {
     return this.prisma.member.findMany({
-      orderBy: {
-        totalIntroducers: 'desc',
-        createdAt: 'asc',
-      },
+      orderBy: [
+        {
+          totalIntroducers: 'desc',
+        },
+        { createdAt: 'asc' },
+      ],
       take: 3,
     });
   }
