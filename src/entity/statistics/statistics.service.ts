@@ -48,6 +48,18 @@ export class StatisticsService {
     return this.prisma.statistics.findFirst({ orderBy: { to: 'desc' } });
   }
 
+  async getLatestNStatistics(limit: number) {
+    return this.prisma.statistics.findMany({
+      orderBy: {
+        issuedAt: 'desc',
+      },
+      where: {
+        status: true,
+      },
+      take: limit,
+    });
+  }
+
   async getStatisticsById(id: string) {
     return this.prisma.statistics.findUnique({ where: { id } });
   }

@@ -5,6 +5,7 @@ import { QueryArgsBase } from '@/graphql/queryArgs';
 import { PaginatedResponse } from '@/graphql/paginatedResponse';
 
 import { Statistics } from '@/entity/statistics/statistics.entity';
+import { BaseEntity } from '@/graphql/baseEntity';
 
 // Statistics Query Args
 @ArgsType()
@@ -96,4 +97,22 @@ export class UpdateStatisticsInput {
 
   @Field(() => ID, { nullable: true })
   transactionId?: string;
+}
+
+@ObjectType()
+export class LatestStatistics {
+  @Field(() => ID)
+  id: string;
+
+  @Field()
+  newBlocks: number;
+
+  @Field()
+  totalMembers: number;
+
+  @Field()
+  txcShared: bigint;
+
+  @Field()
+  issuedAt: Date;
 }

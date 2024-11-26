@@ -25,6 +25,7 @@ import {
   UpdateStatisticsInput,
   CreateStatisticsMemberStatisticsInput,
   ConfirmStatistics,
+  LatestStatistics,
 } from './statistics.type';
 import { Statistics } from './statistics.entity';
 import { MemberStatistics } from '../memberStatistics/memberStatistics.entity';
@@ -49,6 +50,7 @@ export class StatisticsResolver {
     private readonly memberService: MemberService
   ) {}
 
+  @Authorized()
   @Query(() => StatisticsResponse)
   async statistics(
     @Ctx() ctx: Context,
@@ -220,5 +222,11 @@ export class StatisticsResolver {
     @Ctx() ctx: Context
   ): Promise<StatisticsSale[]> {
     return ctx.dataLoader.get('statisticsSalesForStatisticsLoader').load(statistics.id);
+  }
+
+  @Query(() => [LatestStatistics])
+  async latestStatistics(): Promise<LatestStatistics[]> {
+    const statistics = await this.statisticsService.getLatestNStatistics(5);
+    return statistics as LatestStatistics[];
   }
 }
