@@ -16,6 +16,7 @@ import {
   MONTHLY_COMMISSION_LIMIT,
   MONTHLY_MINER_LIMIT,
   MONTHLY_MINER_REWARD_LIMIT,
+  MONTHLY_STATISTICS_LIMIT,
   QUATER_COMMISSION_LIMIT,
   QUATER_MINER_LIMIT,
   QUATER_MINER_REWARD_LIMIT,
@@ -23,6 +24,7 @@ import {
   WEEKLY_COMMISSION_LIMIT,
   WEEKLY_MINER_LIMIT,
   WEEKLY_MINER_REWARD_LIMIT,
+  WEEKLY_STATISTICS_LIMIT,
 } from '@/consts';
 
 import {
@@ -621,9 +623,6 @@ export class GeneralResolver {
   async txcShares(@Arg('data') data: PeriodStatsArgs): Promise<TXCSharedResponse[]> {
     switch (data.type) {
       case 'day':
-      case 'month':
-      case 'quarter':
-      default:
         const daydata = await this.prisma.$queryRaw<TXCSharedResponse[]>`
           SELECT "issuedAt"::Date as "baseDate", TO_CHAR("issuedAt", 'MM/DD/YYYY') AS base, COALESCE(AVG("txcShared"), 0) / ${TXC} AS "txc"
           FROM statistics
@@ -632,6 +631,34 @@ export class GeneralResolver {
           LIMIT ${DAILY_STATISTICS_LIMIT};
         `;
         return daydata;
+      case 'week':
+        const weekdata = await this.prisma.$queryRaw<TXCSharedResponse[]>`
+          SELECT DATE_TRUNC('week', "issuedAt" + INTERVAL '1 day') - INTERVAL '1 day' as "baseDate", (TO_CHAR("issuedAt", 'MM') || '-' || TO_CHAR("issuedAt" + INTERVAL '1 day', 'IW')) AS base, COALESCE(AVG("txcShared"), 0) / ${TXC} AS "txc"
+          FROM statistics
+          GROUP BY "baseDate", base
+          ORDER BY "baseDate" DESC
+          LIMIT ${WEEKLY_STATISTICS_LIMIT};
+        `;
+        return weekdata;
+      case 'month':
+        const monthdata = await this.prisma.$queryRaw<TXCSharedResponse[]>`
+          SELECT DATE_TRUNC('month', "issuedAt") as "baseDate", TO_CHAR("issuedAt", 'MM/YYYY') AS base, COALESCE(AVG("txcShared"), 0) / ${TXC} AS "txc"
+          FROM statistics
+          GROUP BY "baseDate", base
+          ORDER BY "baseDate" DESC
+          LIMIT ${MONTHLY_STATISTICS_LIMIT};
+        `;
+        return monthdata;
+      case 'quarter':
+        const quarterdata = await this.prisma.$queryRaw<TXCSharedResponse[]>`
+          SELECT DATE_TRUNC('quarter', "issuedAt") as "baseDate", TO_CHAR("issuedAt", 'YYYY "Q"Q') AS base, COALESCE(AVG("txcShared"), 0) / ${TXC} AS "txc"
+          FROM statistics
+          GROUP BY "baseDate", base
+          ORDER BY "baseDate" DESC
+          LIMIT ${MONTHLY_STATISTICS_LIMIT};
+        `;
+        return quarterdata;
+      default:
     }
   }
 }
