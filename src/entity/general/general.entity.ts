@@ -90,47 +90,8 @@ export class RevenueOverviewResponse {
   @Field()
   revenue: number;
 
-  @Field()
-  commissionPending: number;
-
-  @Field()
-  commissionApproved: number;
-
-  @Field()
-  commissionPaid: number;
-
-  @Field()
-  mineElectricy: number;
-
-  @Field()
-  mineFacility: number;
-
-  @Field()
-  mineMaintainance: number;
-
-  @Field()
-  mineNewEquipment: number;
-
-  @Field()
-  infrastructure: number;
-
-  @Field()
-  marketingMineTXCPromotion: number;
-
-  @Field()
-  marketingTXCPromotion: number;
-
-  @Field()
-  developersApp: number;
-
-  @Field()
-  developersWeb: number;
-
-  @Field()
-  developersProtocol: number;
-
-  @Field()
-  developersIntegrations: number;
+  @Field(() => [RevenueSpentItem], { nullable: 'itemsAndList' })
+  spent?: RevenueSpentItem[];
 }
 
 @ObjectType()
@@ -170,4 +131,13 @@ export class TopEarnersResponse {
 
   @Field()
   earned: number;
+}
+
+@ObjectType()
+export class RevenueSpentItem {
+  @Field()
+  label: string;
+
+  @Field()
+  value: number;
 }

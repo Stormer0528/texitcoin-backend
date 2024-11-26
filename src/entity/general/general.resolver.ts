@@ -36,6 +36,7 @@ import {
   HashPowerResponse,
   TopRecruitersResponse,
   TopEarnersResponse,
+  RevenueSpentItem,
 } from './general.entity';
 import { PeriodStatsArgs, CommissionOverviewQueryArgs, LiveStatsArgs } from './general.type';
 import { BlockService } from '@/entity/block/block.service';
@@ -472,115 +473,39 @@ export class GeneralResolver {
     FROM weeklycommissions
     WHERE status='PAID'
   `.then((res) => res[0].coalesce);
-    const mineElectricyQuery = this.prisma.$queryRaw`
-      SELECT COALESCE(SUM(proofs.amount), 0)::INTEGER
-      FROM proofs
-      WHERE type = 'MINEELECTRICITY'
-    `.then((res) => res[0].coalesce);
-    const mineFacilityQuery = this.prisma.$queryRaw`
-      SELECT COALESCE(SUM(proofs.amount), 0)::INTEGER
-      FROM proofs
-      WHERE type = 'MINEFACILITYRENTMORTAGE'
-    `.then((res) => res[0].coalesce);
-    const mineMaintainanceQuery = this.prisma.$queryRaw`
-      SELECT COALESCE(SUM(proofs.amount), 0)::INTEGER
-      FROM proofs
-      WHERE type = 'MINEFACILITYRENTMORTAGE'
-    `.then((res) => res[0].coalesce);
-    const mineNewEquipmentQuery = this.prisma.$queryRaw`
-    SELECT COALESCE(SUM(proofs.amount), 0)::INTEGER
-    FROM proofs
-    WHERE type = 'MINENEWEQUIPMENT'
-  `.then((res) => res[0].coalesce);
-    const infrastructureQuery = this.prisma.$queryRaw`
-      SELECT COALESCE(SUM(proofs.amount), 0)::INTEGER
-      FROM proofs
-      WHERE type = 'INFRASTRUCTURE'
-    `.then((res) => res[0].coalesce);
-    const marketingMineTXCPromotionQuery = this.prisma.$queryRaw`
-      SELECT COALESCE(SUM(proofs.amount), 0)::INTEGER
-      FROM proofs
-      WHERE type = 'MARKETINGMINETXCPROMOTION'
-    `.then((res) => res[0].coalesce);
-    const marketingTXCPromotionQuery = this.prisma.$queryRaw`
-      SELECT COALESCE(SUM(proofs.amount), 0)::INTEGER
-      FROM proofs
-      WHERE type = 'MARKETINGTXCPROMOTION'
-    `.then((res) => res[0].coalesce);
 
-    const developersAppsQuery = this.prisma.$queryRaw`
-      SELECT COALESCE(SUM(proofs.amount), 0)::INTEGER
+    const proofQuery = this.prisma.$queryRaw<RevenueSpentItem[]>`
+      SELECT proofs.type as label, COALESCE(SUM(proofs.amount), 0)::INTEGER as value
       FROM proofs
-      WHERE type = 'DEVELOPERSAPPS'
-    `.then((res) => res[0].coalesce);
+      WHERE proofs.type != 'SALE' AND proofs.type != 'COMMISSION'
+      GROUP BY proofs.type
+    `;
 
-    const developersWebQuery = this.prisma.$queryRaw`
-      SELECT COALESCE(SUM(proofs.amount), 0)::INTEGER
-      FROM proofs
-      WHERE type = 'DEVELOPERSWEB'
-    `.then((res) => res[0].coalesce);
-
-    const developersProtocolQuery = this.prisma.$queryRaw`
-      SELECT COALESCE(SUM(proofs.amount), 0)::INTEGER
-      FROM proofs
-      WHERE type = 'DEVELOPERSPROTOCOL'
-    `.then((res) => res[0].coalesce);
-
-    const developersIntegrationsQuery = this.prisma.$queryRaw`
-      SELECT COALESCE(SUM(proofs.amount), 0)::INTEGER
-      FROM proofs
-      WHERE type = 'DEVELOPERSINTEGRATIONS'
-    `.then((res) => res[0].coalesce);
-
-    const [
-      revenue,
-      commissionPending,
-      commissionApproved,
-      commissionPaid,
-      mineElectricy,
-      mineFacility,
-      mineMaintainance,
-      mineNewEquipment,
-      infrastructure,
-      marketingMineTXCPromotion,
-      marketingTXCPromotion,
-      developersApp,
-      developersWeb,
-      developersProtocol,
-      developersIntegrations,
-    ] = await Bluebird.all([
-      revenueQuery,
-      commissionPendingQuery,
-      commissionApprovedQuery,
-      commissionPaidQuery,
-      mineElectricyQuery,
-      mineFacilityQuery,
-      mineMaintainanceQuery,
-      mineNewEquipmentQuery,
-      infrastructureQuery,
-      marketingMineTXCPromotionQuery,
-      marketingTXCPromotionQuery,
-      developersAppsQuery,
-      developersWebQuery,
-      developersProtocolQuery,
-      developersIntegrationsQuery,
-    ]);
+    const [revenue, commissionPending, commissionApproved, commissionPaid, proofs] =
+      await Bluebird.all([
+        revenueQuery,
+        commissionPendingQuery,
+        commissionApprovedQuery,
+        commissionPaidQuery,
+        proofQuery,
+      ]);
     return {
       revenue,
-      commissionPending,
-      commissionApproved,
-      commissionPaid,
-      mineElectricy,
-      mineFacility,
-      mineMaintainance,
-      mineNewEquipment,
-      infrastructure,
-      marketingMineTXCPromotion,
-      marketingTXCPromotion,
-      developersApp,
-      developersIntegrations,
-      developersProtocol,
-      developersWeb,
+      spent: [
+        {
+          label: 'COMMISSIONPENDING',
+          value: commissionPending,
+        },
+        {
+          label: 'COMMISSIONAPPROVED',
+          value: commissionApproved,
+        },
+        {
+          label: 'COMMISSIONPAID',
+          value: commissionPaid,
+        },
+        ...proofs,
+      ],
     };
   }
 
