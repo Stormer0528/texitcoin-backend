@@ -1,4 +1,4 @@
-import { ObjectType, Field, Int, InputType } from 'type-graphql';
+import { ObjectType, Field, Int, InputType, ID } from 'type-graphql';
 import { PaginatedResponse } from '@/graphql/paginatedResponse';
 
 @ObjectType()
@@ -140,4 +140,34 @@ export class RevenueSpentItem {
 
   @Field()
   value: number;
+}
+
+@ObjectType()
+export class LatestStatistics {
+  @Field(() => ID)
+  id: string;
+
+  @Field()
+  newBlocks: number;
+
+  @Field()
+  totalMembers: number;
+
+  @Field()
+  txcShared: number;
+
+  @Field()
+  issuedAt: Date;
+}
+
+@ObjectType()
+export class TXCSharedResponse {
+  @Field()
+  txc: number;
+
+  @Field()
+  base: string;
+
+  @Field()
+  baseDate: Date;
 }

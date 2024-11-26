@@ -98,21 +98,3 @@ export class UpdateStatisticsInput {
   @Field(() => ID, { nullable: true })
   transactionId?: string;
 }
-
-@ObjectType()
-export class LatestStatistics {
-  @Field(() => ID)
-  id: string;
-
-  @Field()
-  newBlocks: number;
-
-  @Field()
-  totalMembers: number;
-
-  @Field()
-  txcShared: number;
-
-  @Field()
-  issuedAt: Date;
-}

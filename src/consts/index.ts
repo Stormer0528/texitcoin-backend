@@ -80,6 +80,11 @@ export const WEEKLY_COMMISSION_LIMIT = 15;
 export const MONTHLY_COMMISSION_LIMIT = 12;
 export const QUATER_COMMISSION_LIMIT = 16;
 
+export const DAILY_STATISTICS_LIMIT = 20;
+export const WEEKLY_STATISTICS_LIMIT = 15;
+export const MONTHLY_STATISTICS_LIMIT = 12;
+export const QUATER_STATISTICS_LIMIT = 16;
+
 export const SPONSOR_BONOUS_CNT = 3;
 
 export const FREE_SHARE_ID_1 = 'c62357db-0572-4600-98dc-43d92621cfa5';

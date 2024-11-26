@@ -10,6 +10,7 @@ import {
   DAILY_BLOCK_LIMIT,
   DAILY_MINER_LIMIT,
   DAILY_MINER_REWARD_LIMIT,
+  DAILY_STATISTICS_LIMIT,
   GET_MINING_INFO,
   MONTHLY_BLOCK_LIMIT,
   MONTHLY_COMMISSION_LIMIT,
@@ -37,6 +38,8 @@ import {
   TopRecruitersResponse,
   TopEarnersResponse,
   RevenueSpentItem,
+  LatestStatistics,
+  TXCSharedResponse,
 } from './general.entity';
 import { PeriodStatsArgs, CommissionOverviewQueryArgs, LiveStatsArgs } from './general.type';
 import { BlockService } from '@/entity/block/block.service';
@@ -603,5 +606,32 @@ export class GeneralResolver {
       ORDER BY earned DESC
       LIMIT 3
     `;
+  }
+
+  @Query(() => [LatestStatistics])
+  async latestStatistics(): Promise<LatestStatistics[]> {
+    const statistics = await this.statisticsService.getLatestNStatistics(5);
+    return statistics.map((st) => ({
+      ...st,
+      txcShared: Number(st.txcShared) / TXC,
+    })) as LatestStatistics[];
+  }
+
+  @Query(() => [TXCSharedResponse])
+  async txcShares(@Arg('data') data: PeriodStatsArgs): Promise<TXCSharedResponse[]> {
+    switch (data.type) {
+      case 'day':
+      case 'month':
+      case 'quarter':
+      default:
+        const daydata = await this.prisma.$queryRaw<TXCSharedResponse[]>`
+          SELECT "issuedAt"::Date as "baseDate", TO_CHAR("issuedAt", 'MM/DD/YYYY') AS base, COALESCE(AVG("txcShared"), 0) / ${TXC} AS "txc"
+          FROM statistics
+          GROUP BY "baseDate", base
+          ORDER BY "baseDate" DESC
+          LIMIT ${DAILY_STATISTICS_LIMIT};
+        `;
+        return daydata;
+    }
   }
 }

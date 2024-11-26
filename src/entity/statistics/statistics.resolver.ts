@@ -25,7 +25,6 @@ import {
   UpdateStatisticsInput,
   CreateStatisticsMemberStatisticsInput,
   ConfirmStatistics,
-  LatestStatistics,
 } from './statistics.type';
 import { Statistics } from './statistics.entity';
 import { MemberStatistics } from '../memberStatistics/memberStatistics.entity';
@@ -37,7 +36,6 @@ import { StatisticsSaleService } from '../statisticsSale/statisticsSale.service'
 import { MemberStatisticsWalletService } from '../memberStatisticsWallet/memberStatisticsWallet.service';
 import { MemberService } from '../member/member.service';
 import { Transaction } from '@/graphql/decorator';
-import { TXC } from '@/consts/db';
 
 @Service()
 @Resolver(() => Statistics)
@@ -223,14 +221,5 @@ export class StatisticsResolver {
     @Ctx() ctx: Context
   ): Promise<StatisticsSale[]> {
     return ctx.dataLoader.get('statisticsSalesForStatisticsLoader').load(statistics.id);
-  }
-
-  @Query(() => [LatestStatistics])
-  async latestStatistics(): Promise<LatestStatistics[]> {
-    const statistics = await this.statisticsService.getLatestNStatistics(5);
-    return statistics.map((st) => ({
-      ...st,
-      txcShared: Number(st.txcShared) / TXC,
-    })) as LatestStatistics[];
   }
 }
