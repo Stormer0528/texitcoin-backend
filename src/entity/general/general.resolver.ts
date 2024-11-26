@@ -50,6 +50,7 @@ import { TXC } from '@/consts/db';
 import Bluebird from 'bluebird';
 
 import shelljs from 'shelljs';
+import { proofTypeData } from 'prisma/seed/proof';
 
 @Service()
 @Resolver()
@@ -493,18 +494,28 @@ export class GeneralResolver {
       revenue,
       spent: [
         {
-          label: 'COMMISSIONPENDING',
+          label: 'Pending Commission',
           value: commissionPending,
         },
         {
-          label: 'COMMISSIONAPPROVED',
+          label: 'Approved Commission',
           value: commissionApproved,
         },
         {
-          label: 'COMMISSIONPAID',
+          label: 'Paid Commission',
           value: commissionPaid,
         },
-        ...proofs,
+        ...proofs
+          .map((proof) => {
+            const ptype = proofTypeData.find((ptd) => ptd.proofType === proof.label);
+            return ptype
+              ? {
+                  label: ptype.display,
+                  value: proof.value,
+                }
+              : null;
+          })
+          .filter(Boolean),
       ],
     };
   }
