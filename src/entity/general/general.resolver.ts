@@ -659,6 +659,7 @@ export class GeneralResolver {
         `;
         return quarterdata;
       default:
+        return [];
     }
   }
 }
