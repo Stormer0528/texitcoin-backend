@@ -621,7 +621,7 @@ export class GeneralResolver {
 
   @Query(() => [TXCSharedResponse])
   async txcShares(@Arg('data') data: PeriodStatsArgs): Promise<TXCSharedResponse[]> {
-    switch (data.type) {
+    switch (data.type.toLowerCase()) {
       case 'day':
         const daydata = await this.prisma.$queryRaw<TXCSharedResponse[]>`
           SELECT "issuedAt"::Date as "baseDate", TO_CHAR("issuedAt", 'MM/DD/YYYY') AS base, COALESCE(AVG("txcShared"), 0) / ${TXC} AS "txc"
