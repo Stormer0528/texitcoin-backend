@@ -169,11 +169,15 @@ export class GeneralResolver {
         return daydata;
       case 'week':
         const weekdata = await this.prisma.$queryRaw<BlockStatsResponse[]>`
-          SELECT DATE_TRUNC('week', "createdAt" + INTERVAL '1 day') - INTERVAL '1 day' as "baseDate", (TO_CHAR("issuedAt", 'MM') || '-' || TO_CHAR("issuedAt" + INTERVAL '1 day', 'IW')) AS base, AVG("hashRate") as "hashRate", AVG("difficulty") as "difficulty"
-          FROM blocks
-          GROUP BY "baseDate", base
-          ORDER BY "baseDate" DESC
-          LIMIT ${WEEKLY_BLOCK_LIMIT};
+          WITH unique_bases AS (
+            SELECT DATE_TRUNC('week', "createdAt" + INTERVAL '1 day') - INTERVAL '1 day' as "baseDate", AVG("hashRate") as "hashRate", AVG("difficulty") as "difficulty"
+            FROM blocks
+            GROUP BY "baseDate"
+            ORDER BY "baseDate" DESC
+            LIMIT ${WEEKLY_BLOCK_LIMIT}
+          )
+          SELECT unique_bases.*, (TO_CHAR("baseDate", 'MM') || '-' || TO_CHAR("baseDate" + INTERVAL '1 day', 'IW')) AS base
+          FROM unique_bases
         `;
         return weekdata;
       case 'month':
@@ -309,11 +313,15 @@ export class GeneralResolver {
         return daydata;
       case 'week':
         const weekdata = await this.prisma.$queryRaw<MinerCountStatsResponse[]>`
-          SELECT DATE_TRUNC('week', "createdAt" + INTERVAL '1 day') - INTERVAL '1 day' as "baseDate", (TO_CHAR("createdAt", 'MM') || '-' || TO_CHAR("createdAt" + INTERVAL '1 day', 'IW')) AS base, COUNT('*')::Integer AS "minerCount"
-          FROM members
-          GROUP BY "baseDate", base
-          ORDER BY "baseDate" DESC
-          LIMIT ${WEEKLY_MINER_LIMIT};
+          WITH unique_bases AS (
+            SELECT DATE_TRUNC('week', "createdAt" + INTERVAL '1 day') - INTERVAL '1 day' as "baseDate", COUNT('*')::Integer AS "minerCount"
+            FROM members
+            GROUP BY "baseDate"
+            ORDER BY "baseDate" DESC
+            LIMIT ${WEEKLY_MINER_LIMIT}
+          )
+          SELECT unique_bases.*, (TO_CHAR("baseDate", 'MM') || '-' || TO_CHAR("baseDate" + INTERVAL '1 day', 'IW')) AS base
+          FROM unique_bases
       `;
         return weekdata;
       case 'month':
@@ -361,15 +369,15 @@ export class GeneralResolver {
       case 'week':
         const weekdata = await this.prisma.$queryRaw<MinerCountStatsResponse[]>`
           WITH UNIQUE_BASES AS (
-              SELECT DATE_TRUNC('week', "createdAt" + INTERVAL '1 day') - INTERVAL '1 day' as "baseDate", (TO_CHAR("createdAt", 'MM') || '-' || TO_CHAR("createdAt" + INTERVAL '1 day', 'IW')) AS base
+              SELECT DATE_TRUNC('week', "createdAt" + INTERVAL '1 day') - INTERVAL '1 day' as "baseDate"
               FROM members
-              GROUP BY "baseDate", base
+              GROUP BY "baseDate"
               ORDER BY "baseDate" DESC
           )
-          SELECT "baseDate", base, COUNT('*')::Integer AS "minerCount"
+          SELECT "baseDate", COUNT('*')::Integer AS "minerCount", (TO_CHAR("baseDate", 'MM') || '-' || TO_CHAR("baseDate" + INTERVAL '1 day', 'IW')) AS base
           FROM UNIQUE_BASES
           LEFT JOIN members m ON (DATE_TRUNC('week', m."createdAt" + INTERVAL '1 day') - INTERVAL '1 day') <= "baseDate"
-          GROUP BY "baseDate", base
+          GROUP BY "baseDate"
           ORDER BY "baseDate" DESC
           LIMIT ${WEEKLY_MINER_LIMIT};
         `;
@@ -427,11 +435,15 @@ export class GeneralResolver {
         return daydata;
       case 'week':
         const weekdata = await this.prisma.$queryRaw<AverageMinerRewardStatsResponse[]>`
-          SELECT DATE_TRUNC('week', "issuedAt" + INTERVAL '1 day') - INTERVAL '1 day' as "baseDate", (TO_CHAR("issuedAt", 'MM') || '-' || TO_CHAR("issuedAt" + INTERVAL '1 day', 'IW')) AS base, COALESCE(AVG("txcShared"), 0) / ${TXC} AS "reward"
-          FROM member_statistics
-          GROUP BY "baseDate", base
-          ORDER BY "baseDate" DESC
-          LIMIT ${WEEKLY_MINER_REWARD_LIMIT};
+          WITH unique_bases AS (
+            SELECT DATE_TRUNC('week', "issuedAt" + INTERVAL '1 day') - INTERVAL '1 day' as "baseDate", COALESCE(AVG("txcShared"), 0) / ${TXC} AS "reward"
+            FROM member_statistics
+            GROUP BY "baseDate"
+            ORDER BY "baseDate" DESC
+            LIMIT ${WEEKLY_MINER_REWARD_LIMIT}
+          )
+          SELECT unique_bases.*, (TO_CHAR("baseDate", 'MM') || '-' || TO_CHAR("baseDate" + INTERVAL '1 day', 'IW')) AS base
+          FROM unique_bases
       `;
         return weekdata;
       case 'month':
@@ -532,12 +544,16 @@ export class GeneralResolver {
     switch (data.type.toLowerCase()) {
       case 'week':
         const weekdata = await this.prisma.$queryRaw<CommissionPeriodResponse[]>`
-          SELECT DATE_TRUNC('week', "weekStartDate" + INTERVAL '1 day') - INTERVAL '1 day' as "baseDate", (TO_CHAR("weekStartDate", 'MM') || '-' || TO_CHAR("weekStartDate" + INTERVAL '1 day', 'IW')) AS base, COALESCE(SUM("commission"), 0)::INTEGER AS "commission"
-          FROM weeklycommissions
-          WHERE status='PAID'
-          GROUP BY "baseDate", base
-          ORDER BY "baseDate" DESC
-          LIMIT ${WEEKLY_COMMISSION_LIMIT};
+          WITH unique_bases AS (
+            SELECT DATE_TRUNC('week', "weekStartDate" + INTERVAL '1 day') - INTERVAL '1 day' as "baseDate", COALESCE(SUM("commission"), 0)::INTEGER AS "commission"
+            FROM weeklycommissions
+            WHERE status='PAID'
+            GROUP BY "baseDate"
+            ORDER BY "baseDate" DESC
+            LIMIT ${WEEKLY_COMMISSION_LIMIT}
+          )
+          SELECT unique_bases.*, (TO_CHAR("baseDate", 'MM') || '-' || TO_CHAR("baseDate" + INTERVAL '1 day', 'IW')) AS base
+          FROM unique_bases
       `;
         return weekdata;
       case 'month':
@@ -633,11 +649,15 @@ export class GeneralResolver {
         return daydata;
       case 'week':
         const weekdata = await this.prisma.$queryRaw<TXCSharedResponse[]>`
-          SELECT DATE_TRUNC('week', "issuedAt" + INTERVAL '1 day') - INTERVAL '1 day' as "baseDate", (TO_CHAR("issuedAt", 'MM') || '-' || TO_CHAR("issuedAt" + INTERVAL '1 day', 'IW')) AS base, COALESCE(AVG("txcShared"), 0) / ${TXC} AS "txc"
-          FROM statistics
-          GROUP BY "baseDate", base
-          ORDER BY "baseDate" DESC
-          LIMIT ${WEEKLY_STATISTICS_LIMIT};
+          WITH unique_bases AS (
+            SELECT DATE_TRUNC('week', "issuedAt" + INTERVAL '1 day') - INTERVAL '1 day' as "baseDate", COALESCE(AVG("txcShared"), 0) / ${TXC} AS "txc"
+            FROM statistics
+            GROUP BY "baseDate"
+            ORDER BY "baseDate" DESC
+            LIMIT ${WEEKLY_STATISTICS_LIMIT}
+          )
+          SELECT unique_bases.*, (TO_CHAR("baseDate", 'MM') || '-' || TO_CHAR("baseDate" + INTERVAL '1 day', 'IW')) AS base
+          FROM unique_bases;
         `;
         return weekdata;
       case 'month':
