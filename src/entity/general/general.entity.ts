@@ -119,6 +119,18 @@ export class RevenueOverviewResponse {
 
   @Field()
   marketingTXCPromotion: number;
+
+  @Field()
+  developersApp: number;
+
+  @Field()
+  developersWeb: number;
+
+  @Field()
+  developersProtocol: number;
+
+  @Field()
+  developersIntegrations: number;
 }
 
 @ObjectType()

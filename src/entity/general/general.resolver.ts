@@ -508,6 +508,30 @@ export class GeneralResolver {
       WHERE type = 'MARKETINGTXCPROMOTION'
     `.then((res) => res[0].coalesce);
 
+    const developersAppsQuery = this.prisma.$queryRaw`
+      SELECT COALESCE(SUM(proofs.amount), 0)::INTEGER
+      FROM proofs
+      WHERE type = 'DEVELOPERSAPPS'
+    `.then((res) => res[0].coalesce);
+
+    const developersWebQuery = this.prisma.$queryRaw`
+      SELECT COALESCE(SUM(proofs.amount), 0)::INTEGER
+      FROM proofs
+      WHERE type = 'DEVELOPERSWEB'
+    `.then((res) => res[0].coalesce);
+
+    const developersProtocolQuery = this.prisma.$queryRaw`
+      SELECT COALESCE(SUM(proofs.amount), 0)::INTEGER
+      FROM proofs
+      WHERE type = 'DEVELOPERSPROTOCOL'
+    `.then((res) => res[0].coalesce);
+
+    const developersIntegrationsQuery = this.prisma.$queryRaw`
+      SELECT COALESCE(SUM(proofs.amount), 0)::INTEGER
+      FROM proofs
+      WHERE type = 'DEVELOPERSINTEGRATIONS'
+    `.then((res) => res[0].coalesce);
+
     const [
       revenue,
       commissionPending,
@@ -520,6 +544,10 @@ export class GeneralResolver {
       infrastructure,
       marketingMineTXCPromotion,
       marketingTXCPromotion,
+      developersApp,
+      developersWeb,
+      developersProtocol,
+      developersIntegrations,
     ] = await Bluebird.all([
       revenueQuery,
       commissionPendingQuery,
@@ -532,6 +560,10 @@ export class GeneralResolver {
       infrastructureQuery,
       marketingMineTXCPromotionQuery,
       marketingTXCPromotionQuery,
+      developersAppsQuery,
+      developersWebQuery,
+      developersProtocolQuery,
+      developersIntegrationsQuery,
     ]);
     return {
       revenue,
@@ -545,6 +577,10 @@ export class GeneralResolver {
       infrastructure,
       marketingMineTXCPromotion,
       marketingTXCPromotion,
+      developersApp,
+      developersIntegrations,
+      developersProtocol,
+      developersWeb,
     };
   }
 
