@@ -122,10 +122,7 @@ export class MemberService {
     });
   }
 
-  async updateMember({
-    id,
-    ...data
-  }: UpdateMemberInput & { password?: string; introducerCount?: number }) {
+  async updateMember({ id, ...data }: UpdateMemberInput & { password?: string }) {
     return this.prisma.member.update({
       where: { id },
       data,
@@ -296,81 +293,6 @@ export class MemberService {
     }
   }
 
-  async calculateSponsorBonous(id: string): Promise<void> {
-    // if (!id) return;
-    // const { introducerCount, freeShareSaleCount } = await this.prisma.member.findUnique({
-    //   where: { id },
-    // });
-    // const actualSaleCount = Math.floor(introducerCount / SPONSOR_BONOUS_CNT);
-    // if (actualSaleCount < freeShareSaleCount) {
-    //   const remain = freeShareSaleCount - actualSaleCount;
-    //   const sales = await this.prisma.sale.findMany({
-    //     where: {
-    //       memberId: id,
-    //       freeShareSale: true,
-    //       status: true,
-    //     },
-    //     orderBy: {
-    //       createdAt: 'desc',
-    //     },
-    //     include: {
-    //       statisticsSales: true,
-    //     },
-    //     take: remain,
-    //   });
-    //   const permanentDelete = sales.filter((sale) => sale.statisticsSales.length === 0);
-    //   const softDelete = sales.filter((sale) => sale.statisticsSales.length > 0);
-    //   await this.prisma.sale.deleteMany({
-    //     where: {
-    //       id: {
-    //         in: permanentDelete.map((sale) => sale.id),
-    //       },
-    //     },
-    //   });
-    //   await this.prisma.sale.updateMany({
-    //     where: {
-    //       id: {
-    //         in: softDelete.map((sale) => sale.id),
-    //       },
-    //     },
-    //     data: {
-    //       status: false,
-    //     },
-    //   });
-    //   await this.prisma.member.update({
-    //     where: {
-    //       id,
-    //     },
-    //     data: {
-    //       freeShareSaleCount: actualSaleCount,
-    //     },
-    //   });
-    // } else if (actualSaleCount > freeShareSaleCount) {
-    //   const member = await this.prisma.member.findUnique({
-    //     where: {
-    //       id,
-    //     },
-    //   });
-    //   const packageId = member.createdAt < FREE_SHARE_DIVIDER1 ? FREE_SHARE_ID_1 : FREE_SHARE_ID_2;
-    //   await this.prisma.sale.createMany({
-    //     data: new Array(actualSaleCount - freeShareSaleCount).fill(0).map((_, idx) => ({
-    //       memberId: id,
-    //       packageId: packageId,
-    //       paymentMethod: 'free',
-    //       freeShareSale: true,
-    //     })),
-    //   });
-    //   await this.prisma.member.update({
-    //     where: {
-    //       id,
-    //     },
-    //     data: {
-    //       freeShareSaleCount: actualSaleCount,
-    //     },
-    //   });
-    // }
-  }
-
   async checkSponsorBonous(id: string, notifyEmail: boolean = true): Promise<void> {
     if (!id) return;
     const { totalIntroducers, username, fullName } = await this.prisma.member.findUnique({
@@ -381,22 +303,6 @@ export class MemberService {
         this.mailerService.notifyMiner3rdIntroducersToAdmin(username, fullName, totalIntroducers);
       }
     }
-  }
-
-  async incraseIntroducerCount(id: string): Promise<void> {
-    await this.prisma.$queryRaw`
-    UPDATE members
-      SET "introducerCount" = "introducerCount" + 1, "totalIntroducers" = "totalIntroducers" + 1
-      WHERE id=${id}
-    `;
-  }
-
-  async decreaseIntroducerCount(id: string): Promise<void> {
-    await this.prisma.$queryRaw`
-    UPDATE members
-      SET "introducerCount" = GREATEST("introducerCount" - 1, 0), "totalIntroducers" = GREATEST("totalIntroducers" - 1, 0)
-      WHERE id=${id}
-    `;
   }
 
   async calculateTotalIntroducerCount(id: string): Promise<void> {

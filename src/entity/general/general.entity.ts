@@ -141,3 +141,21 @@ export class HashPowerResponse {
   @Field()
   soldHashPower: number;
 }
+
+@ObjectType()
+export class TopRecruitersResponse {
+  @Field()
+  fullName: string;
+
+  @Field()
+  totalIntroducers: number;
+}
+
+@ObjectType()
+export class TopEarnersResponse {
+  @Field()
+  fullName: string;
+
+  @Field()
+  earned: number;
+}

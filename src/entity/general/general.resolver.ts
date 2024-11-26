@@ -34,6 +34,8 @@ import {
   AverageMinerRewardStatsResponse,
   RevenueOverviewResponse,
   HashPowerResponse,
+  TopRecruitersResponse,
+  TopEarnersResponse,
 } from './general.entity';
 import { PeriodStatsArgs, CommissionOverviewQueryArgs, LiveStatsArgs } from './general.type';
 import { BlockService } from '@/entity/block/block.service';
@@ -605,5 +607,29 @@ export class GeneralResolver {
     } catch (_err) {
       throw new Error('Error occurred while getting network hash power');
     }
+  }
+
+  @Query(() => [TopRecruitersResponse])
+  async topRecruiters(): Promise<TopRecruitersResponse[]> {
+    return this.prisma.member.findMany({
+      orderBy: {
+        totalIntroducers: 'desc',
+        createdAt: 'asc',
+      },
+      take: 3,
+    });
+  }
+
+  @Query(() => [TopEarnersResponse])
+  async topEarners(): Promise<TopEarnersResponse[]> {
+    return this.prisma.$queryRaw<TopEarnersResponse[]>`
+      SELECT members.id, members."fullName", SUM(c.commission)::Integer as earned
+      FROM members
+      LEFT JOIN weeklycommissions c ON c."memberId" = members.id
+      WHERE c.status = 'PAID'
+      GROUP BY members.id, members."fullName"
+      ORDER BY earned DESC
+      LIMIT 3
+    `;
   }
 }
