@@ -32,6 +32,9 @@ export class BlockStatsResponse {
 
   @Field()
   base: string;
+
+  @Field({ nullable: true })
+  baseDate?: Date;
 }
 
 @ObjectType()
@@ -41,15 +44,21 @@ export class MinerCountStatsResponse {
 
   @Field()
   base: string;
+
+  @Field()
+  baseDate: Date;
 }
 
 @ObjectType()
-export class MinerRewardStatsResponse {
+export class AverageMinerRewardStatsResponse {
   @Field()
   reward: number;
 
   @Field()
   base: string;
+
+  @Field()
+  baseDate: Date;
 }
 
 @ObjectType()
@@ -85,7 +94,10 @@ export class RevenueOverviewResponse {
   commissionPending: number;
 
   @Field()
-  commissionApprovedPaid: number;
+  commissionApproved: number;
+
+  @Field()
+  commissionPaid: number;
 
   @Field()
   mineElectricy: number;
@@ -116,4 +128,16 @@ export class CommissionPeriodResponse {
 
   @Field()
   base: string;
+
+  @Field()
+  baseDate: Date;
+}
+
+@ObjectType()
+export class HashPowerResponse {
+  @Field()
+  actualHashPower: number;
+
+  @Field()
+  soldHashPower: number;
 }

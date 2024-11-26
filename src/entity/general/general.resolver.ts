@@ -10,6 +10,7 @@ import {
   DAILY_BLOCK_LIMIT,
   DAILY_MINER_LIMIT,
   DAILY_MINER_REWARD_LIMIT,
+  GET_MINING_INFO,
   MONTHLY_BLOCK_LIMIT,
   MONTHLY_COMMISSION_LIMIT,
   MONTHLY_MINER_LIMIT,
@@ -30,8 +31,9 @@ import {
   CommissionPeriodResponse,
   EntityStats,
   MinerCountStatsResponse,
-  MinerRewardStatsResponse,
+  AverageMinerRewardStatsResponse,
   RevenueOverviewResponse,
+  HashPowerResponse,
 } from './general.entity';
 import { PeriodStatsArgs, CommissionOverviewQueryArgs, LiveStatsArgs } from './general.type';
 import { BlockService } from '@/entity/block/block.service';
@@ -43,6 +45,8 @@ import graphqlFields from 'graphql-fields';
 import { UserRole } from '@/type';
 import { TXC } from '@/consts/db';
 import Bluebird from 'bluebird';
+
+import shelljs from 'shelljs';
 
 @Service()
 @Resolver()
@@ -147,28 +151,28 @@ export class GeneralResolver {
     switch (data.type.toLowerCase()) {
       case 'day':
         const daydata = await this.prisma.$queryRaw<BlockStatsResponse[]>`
-          SELECT TO_CHAR("issuedAt", 'MM/DD/YYYY') AS base, AVG("hashRate") as "hashRate", AVG("difficulty") as "difficulty"
+          SELECT "issuedAt"::Date as "baseDate", TO_CHAR("issuedAt", 'MM/DD/YYYY') AS base, AVG("hashRate") as "hashRate", AVG("difficulty") as "difficulty"
           FROM blocks
-          GROUP BY base
-          ORDER BY "base" DESC
+          GROUP BY "baseDate", base
+          ORDER BY "baseDate" DESC
           LIMIT ${DAILY_BLOCK_LIMIT};
         `;
         return daydata;
       case 'week':
         const weekdata = await this.prisma.$queryRaw<BlockStatsResponse[]>`
-          SELECT (TO_CHAR("issuedAt", 'MM') || '-' || TO_CHAR("issuedAt" + INTERVAL '1 day', 'IW')) AS base, AVG("hashRate") as "hashRate", AVG("difficulty") as "difficulty"
+          SELECT DATE_TRUNC('week', "createdAt" + INTERVAL '1 day') - INTERVAL '1 day' as "baseDate", (TO_CHAR("issuedAt", 'MM') || '-' || TO_CHAR("issuedAt" + INTERVAL '1 day', 'IW')) AS base, AVG("hashRate") as "hashRate", AVG("difficulty") as "difficulty"
           FROM blocks
-          GROUP BY base
-          ORDER BY "base" DESC
+          GROUP BY "baseDate", base
+          ORDER BY "baseDate" DESC
           LIMIT ${WEEKLY_BLOCK_LIMIT};
         `;
         return weekdata;
       case 'month':
         const monthdata = await this.prisma.$queryRaw<BlockStatsResponse[]>`
-          SELECT TO_CHAR("issuedAt", 'MM/YYYY') AS base, AVG("hashRate") as "hashRate", AVG("difficulty") as "difficulty"
+          SELECT DATE_TRUNC('month', "createdAt") as "baseDate", TO_CHAR("issuedAt", 'MM/YYYY') AS base, AVG("hashRate") as "hashRate", AVG("difficulty") as "difficulty"
           FROM blocks
-          GROUP BY base
-          ORDER BY "base" DESC
+          GROUP BY "baseDate", base
+          ORDER BY "baseDate" DESC
           LIMIT ${MONTHLY_BLOCK_LIMIT};
         `;
         return monthdata;
@@ -283,41 +287,41 @@ export class GeneralResolver {
   }
 
   @Query(() => [MinerCountStatsResponse])
-  async memberCounts(@Arg('data') data: PeriodStatsArgs): Promise<MinerCountStatsResponse[]> {
+  async newMemberCounts(@Arg('data') data: PeriodStatsArgs): Promise<MinerCountStatsResponse[]> {
     switch (data.type.toLowerCase()) {
       case 'day':
         const daydata = await this.prisma.$queryRaw<MinerCountStatsResponse[]>`
-          SELECT TO_CHAR("createdAt", 'MM/DD/YYYY') AS base, COUNT('*')::Integer AS "minerCount"
+          SELECT "createdAt"::Date as "baseDate", TO_CHAR("createdAt", 'MM/DD/YYYY') AS base, COUNT('*')::Integer AS "minerCount"
           FROM members
-          GROUP BY base
-          ORDER BY "base" DESC
+          GROUP BY "baseDate", base
+          ORDER BY "baseDate" DESC
           LIMIT ${DAILY_MINER_LIMIT};
         `;
         return daydata;
       case 'week':
         const weekdata = await this.prisma.$queryRaw<MinerCountStatsResponse[]>`
-          SELECT (TO_CHAR("createdAt", 'MM') || '-' || TO_CHAR("createdAt" + INTERVAL '1 day', 'IW')) AS base, COUNT('*')::Integer AS "minerCount"
+          SELECT DATE_TRUNC('week', "createdAt" + INTERVAL '1 day') - INTERVAL '1 day' as "baseDate", (TO_CHAR("createdAt", 'MM') || '-' || TO_CHAR("createdAt" + INTERVAL '1 day', 'IW')) AS base, COUNT('*')::Integer AS "minerCount"
           FROM members
-          GROUP BY base
-          ORDER BY "base" DESC
+          GROUP BY "baseDate", base
+          ORDER BY "baseDate" DESC
           LIMIT ${WEEKLY_MINER_LIMIT};
       `;
         return weekdata;
       case 'month':
         const monthdata = await this.prisma.$queryRaw<MinerCountStatsResponse[]>`
-          SELECT TO_CHAR("createdAt", 'MM/YYYY') AS base, COUNT('*')::Integer AS "minerCount"
+          SELECT DATE_TRUNC('month', "createdAt") as "baseDate", TO_CHAR("createdAt", 'MM/YYYY') AS base, COUNT('*')::Integer AS "minerCount"
           FROM members
-          GROUP BY base
-          ORDER BY "base" DESC
+          GROUP BY "baseDate", base
+          ORDER BY "baseDate" DESC
           LIMIT ${MONTHLY_MINER_LIMIT};
         `;
         return monthdata;
       case 'quarter':
         const quarterdata = await this.prisma.$queryRaw<MinerCountStatsResponse[]>`
-          SELECT TO_CHAR("createdAt", 'YYYY "Q"Q') AS base, COUNT('*')::Integer AS "minerCount"
+          SELECT DATE_TRUNC('quarter', "createdAt") as "baseDate", TO_CHAR("createdAt", 'YYYY "Q"Q') AS base, COUNT('*')::Integer AS "minerCount"
           FROM members
-          GROUP BY base
-          ORDER BY "base" DESC
+          GROUP BY "baseDate", base
+          ORDER BY "baseDate" DESC
           LIMIT ${QUATER_MINER_LIMIT};
         `;
         return quarterdata;
@@ -326,42 +330,116 @@ export class GeneralResolver {
     }
   }
 
-  @Query(() => [MinerRewardStatsResponse])
-  async memberRewards(@Arg('data') data: PeriodStatsArgs): Promise<MinerRewardStatsResponse[]> {
+  @Query(() => [MinerCountStatsResponse])
+  async totalMemberCounts(@Arg('data') data: PeriodStatsArgs): Promise<MinerCountStatsResponse[]> {
     switch (data.type.toLowerCase()) {
       case 'day':
-        const daydata = await this.prisma.$queryRaw<MinerRewardStatsResponse[]>`
-          SELECT TO_CHAR("issuedAt", 'MM/DD/YYYY') AS base, COALESCE(AVG("txcShared"), 0) / ${TXC} AS "reward"
+        const daydata = await this.prisma.$queryRaw<MinerCountStatsResponse[]>`
+          WITH UNIQUE_BASES AS (
+              SELECT "createdAt"::Date as "baseDate", TO_CHAR(members."createdAt", 'MM/DD/YYYY') AS base
+              FROM members
+              GROUP BY "baseDate", base
+              ORDER BY "baseDate" DESC
+          )
+          SELECT "baseDate", base, COUNT('*')::Integer AS "minerCount"
+          FROM UNIQUE_BASES
+          LEFT JOIN members m ON m."createdAt"::Date <= "baseDate"
+          GROUP BY "baseDate", base
+          ORDER BY "baseDate" DESC
+          LIMIT ${DAILY_MINER_LIMIT};
+        `;
+        return daydata;
+      case 'week':
+        const weekdata = await this.prisma.$queryRaw<MinerCountStatsResponse[]>`
+          WITH UNIQUE_BASES AS (
+              SELECT DATE_TRUNC('week', "createdAt" + INTERVAL '1 day') - INTERVAL '1 day' as "baseDate", (TO_CHAR("createdAt", 'MM') || '-' || TO_CHAR("createdAt" + INTERVAL '1 day', 'IW')) AS base
+              FROM members
+              GROUP BY "baseDate", base
+              ORDER BY "baseDate" DESC
+          )
+          SELECT "baseDate", base, COUNT('*')::Integer AS "minerCount"
+          FROM UNIQUE_BASES
+          LEFT JOIN members m ON (DATE_TRUNC('week', m."createdAt" + INTERVAL '1 day') - INTERVAL '1 day') <= "baseDate"
+          GROUP BY "baseDate", base
+          ORDER BY "baseDate" DESC
+          LIMIT ${WEEKLY_MINER_LIMIT};
+        `;
+        return weekdata;
+      case 'month':
+        const monthdata = await this.prisma.$queryRaw<MinerCountStatsResponse[]>`
+          WITH UNIQUE_BASES AS (
+              SELECT DATE_TRUNC('month', "createdAt") as "baseDate", TO_CHAR("createdAt", 'MM/YYYY') AS base
+              FROM members
+              GROUP BY "baseDate", base
+              ORDER BY "baseDate" DESC
+          )
+          SELECT "baseDate", base, COUNT('*')::Integer AS "minerCount"
+          FROM UNIQUE_BASES
+          LEFT JOIN members m ON DATE_TRUNC('month', m."createdAt") <= "baseDate"
+          GROUP BY "baseDate", base
+          ORDER BY "baseDate" DESC
+          LIMIT ${MONTHLY_MINER_LIMIT};
+        `;
+        return monthdata;
+      case 'quarter':
+        const quarterdata = await this.prisma.$queryRaw<MinerCountStatsResponse[]>`
+          WITH UNIQUE_BASES AS (
+              SELECT DATE_TRUNC('quarter', "createdAt") as "baseDate", TO_CHAR("createdAt", 'YYYY "Q"Q') AS base
+              FROM members
+              GROUP BY "baseDate", base
+              ORDER BY "baseDate" DESC
+          )
+          SELECT "baseDate", base, COUNT('*')::Integer AS "minerCount"
+          FROM UNIQUE_BASES
+          LEFT JOIN members m ON DATE_TRUNC('quarter', m."createdAt") <= "baseDate"
+          GROUP BY "baseDate", base
+          ORDER BY "baseDate" DESC
+          LIMIT ${QUATER_MINER_LIMIT};
+        `;
+        return quarterdata;
+      default:
+        return [];
+    }
+  }
+
+  @Query(() => [AverageMinerRewardStatsResponse])
+  async averageMemberReward(
+    @Arg('data') data: PeriodStatsArgs
+  ): Promise<AverageMinerRewardStatsResponse[]> {
+    switch (data.type.toLowerCase()) {
+      case 'day':
+        const daydata = await this.prisma.$queryRaw<AverageMinerRewardStatsResponse[]>`
+          SELECT "issuedAt"::Date as "baseDate", TO_CHAR("issuedAt", 'MM/DD/YYYY') AS base, COALESCE(AVG("txcShared"), 0) / ${TXC} AS "reward"
           FROM member_statistics
-          GROUP BY base
-          ORDER BY "base" DESC
+          GROUP BY "baseDate", base
+          ORDER BY "baseDate" DESC
           LIMIT ${DAILY_MINER_REWARD_LIMIT};
         `;
         return daydata;
       case 'week':
-        const weekdata = await this.prisma.$queryRaw<MinerRewardStatsResponse[]>`
-          SELECT (TO_CHAR("issuedAt", 'MM') || '-' || TO_CHAR("issuedAt" + INTERVAL '1 day', 'IW')) AS base, COALESCE(AVG("txcShared"), 0) / ${TXC} AS "reward"
+        const weekdata = await this.prisma.$queryRaw<AverageMinerRewardStatsResponse[]>`
+          SELECT DATE_TRUNC('week', "issuedAt" + INTERVAL '1 day') - INTERVAL '1 day' as "baseDate", (TO_CHAR("issuedAt", 'MM') || '-' || TO_CHAR("issuedAt" + INTERVAL '1 day', 'IW')) AS base, COALESCE(AVG("txcShared"), 0) / ${TXC} AS "reward"
           FROM member_statistics
-          GROUP BY base
-          ORDER BY "base" DESC
+          GROUP BY "baseDate", base
+          ORDER BY "baseDate" DESC
           LIMIT ${WEEKLY_MINER_REWARD_LIMIT};
       `;
         return weekdata;
       case 'month':
-        const monthdata = await this.prisma.$queryRaw<MinerRewardStatsResponse[]>`
-          SELECT TO_CHAR("issuedAt", 'MM/YYYY') AS base, COALESCE(AVG("txcShared"), 0) / ${TXC} AS "reward"
+        const monthdata = await this.prisma.$queryRaw<AverageMinerRewardStatsResponse[]>`
+          SELECT DATE_TRUNC('month', "issuedAt") as "baseDate", TO_CHAR("issuedAt", 'MM/YYYY') AS base, COALESCE(AVG("txcShared"), 0) / ${TXC} AS "reward"
           FROM member_statistics
-          GROUP BY base
-          ORDER BY "base" DESC
+          GROUP BY "baseDate", base
+          ORDER BY "baseDate" DESC
           LIMIT ${MONTHLY_MINER_REWARD_LIMIT};
         `;
         return monthdata;
       case 'quarter':
-        const quarterdata = await this.prisma.$queryRaw<MinerRewardStatsResponse[]>`
-          SELECT TO_CHAR("issuedAt", 'YYYY "Q"Q') AS base, COALESCE(AVG("txcShared"), 0) / ${TXC} AS "reward"
+        const quarterdata = await this.prisma.$queryRaw<AverageMinerRewardStatsResponse[]>`
+          SELECT DATE_TRUNC('quarter', "issuedAt") as "baseDate", TO_CHAR("issuedAt", 'YYYY "Q"Q') AS base, COALESCE(AVG("txcShared"), 0) / ${TXC} AS "reward"
           FROM member_statistics
-          GROUP BY base
-          ORDER BY "base" DESC
+          GROUP BY "baseDate", base
+          ORDER BY "baseDate" DESC
           LIMIT ${QUATER_MINER_REWARD_LIMIT};
         `;
         return quarterdata;
@@ -382,10 +460,15 @@ export class GeneralResolver {
       FROM weeklycommissions
       WHERE status='PENDING'
     `.then((res) => res[0].coalesce);
-    const commissionApprovedPaidQuery = this.prisma.$queryRaw`
+    const commissionApprovedQuery = this.prisma.$queryRaw`
     SELECT COALESCE(SUM(weeklycommissions.commission), 0)::INTEGER
     FROM weeklycommissions
-    WHERE status='APPROVED' OR status='PAID'
+    WHERE status='APPROVED'
+    `.then((res) => res[0].coalesce);
+    const commissionPaidQuery = this.prisma.$queryRaw`
+    SELECT COALESCE(SUM(weeklycommissions.commission), 0)::INTEGER
+    FROM weeklycommissions
+    WHERE status='PAID'
   `.then((res) => res[0].coalesce);
     const mineElectricyQuery = this.prisma.$queryRaw`
       SELECT COALESCE(SUM(proofs.amount), 0)::INTEGER
@@ -426,7 +509,8 @@ export class GeneralResolver {
     const [
       revenue,
       commissionPending,
-      commissionApprovedPaid,
+      commissionApproved,
+      commissionPaid,
       mineElectricy,
       mineFacility,
       mineMaintainance,
@@ -437,7 +521,8 @@ export class GeneralResolver {
     ] = await Bluebird.all([
       revenueQuery,
       commissionPendingQuery,
-      commissionApprovedPaidQuery,
+      commissionApprovedQuery,
+      commissionPaidQuery,
       mineElectricyQuery,
       mineFacilityQuery,
       mineMaintainanceQuery,
@@ -449,7 +534,8 @@ export class GeneralResolver {
     return {
       revenue,
       commissionPending,
-      commissionApprovedPaid,
+      commissionApproved,
+      commissionPaid,
       mineElectricy,
       mineFacility,
       mineMaintainance,
@@ -467,36 +553,57 @@ export class GeneralResolver {
     switch (data.type.toLowerCase()) {
       case 'week':
         const weekdata = await this.prisma.$queryRaw<CommissionPeriodResponse[]>`
-          SELECT (TO_CHAR("weekStartDate", 'MM') || '-' || TO_CHAR("weekStartDate" + INTERVAL '1 day', 'IW')) AS base, COALESCE(SUM("commission"), 0)::INTEGER AS "commission"
+          SELECT DATE_TRUNC('week', "weekStartDate" + INTERVAL '1 day') - INTERVAL '1 day' as "baseDate", (TO_CHAR("weekStartDate", 'MM') || '-' || TO_CHAR("weekStartDate" + INTERVAL '1 day', 'IW')) AS base, COALESCE(SUM("commission"), 0)::INTEGER AS "commission"
           FROM weeklycommissions
           WHERE status='PAID'
-          GROUP BY base
-          ORDER BY "base" DESC
+          GROUP BY "baseDate", base
+          ORDER BY "baseDate" DESC
           LIMIT ${WEEKLY_COMMISSION_LIMIT};
       `;
         return weekdata;
       case 'month':
         const monthdata = await this.prisma.$queryRaw<CommissionPeriodResponse[]>`
-          SELECT TO_CHAR("weekStartDate", 'MM/YYYY') AS base, COALESCE(SUM("commission"), 0)::INTEGER AS "commission"
+          SELECT DATE_TRUNC('month', "weekStartDate") as "baseDate", TO_CHAR("weekStartDate", 'MM/YYYY') AS base, COALESCE(SUM("commission"), 0)::INTEGER AS "commission"
           FROM weeklycommissions
           WHERE status='PAID'
-          GROUP BY base
-          ORDER BY "base" DESC
+          GROUP BY "baseDate", base
+          ORDER BY "baseDate" DESC
           LIMIT ${MONTHLY_COMMISSION_LIMIT};
         `;
         return monthdata;
       case 'quarter':
         const quarterdata = await this.prisma.$queryRaw<CommissionPeriodResponse[]>`
-          SELECT TO_CHAR("weekStartDate", 'YYYY "Q"Q') AS base, COALESCE(SUM("commission"), 0)::INTEGER AS "commission"
+          SELECT DATE_TRUNC('quarter', "weekStartDate") as "baseDate", TO_CHAR("weekStartDate", 'YYYY "Q"Q') AS base, COALESCE(SUM("commission"), 0)::INTEGER AS "commission"
           FROM weeklycommissions
           WHERE status='PAID'
-          GROUP BY base
-          ORDER BY "base" DESC
+          GROUP BY "baseDate", base
+          ORDER BY "baseDate" DESC
           LIMIT ${QUATER_COMMISSION_LIMIT};
         `;
         return quarterdata;
       default:
         return [];
+    }
+  }
+
+  @Query(() => HashPowerResponse)
+  async hashPowerResponse(): Promise<HashPowerResponse> {
+    try {
+      const { stdout: strMiningInfo } = shelljs.exec(GET_MINING_INFO);
+      const miningInfo = JSON.parse(strMiningInfo);
+
+      const soldHashPower = await this.prisma.$queryRaw`
+      SELECT SUM(pkg.token)::Float as "totalHashPower"
+      FROM sales
+      LEFT JOIN packages pkg ON sales."packageId" = pkg.id
+    `.then((res) => res[0].totalHashPower);
+
+      return {
+        actualHashPower: miningInfo.networkhashps,
+        soldHashPower,
+      };
+    } catch (_err) {
+      throw new Error('Error occurred while getting network hash power');
     }
   }
 }

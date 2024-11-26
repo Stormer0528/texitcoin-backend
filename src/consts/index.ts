@@ -92,3 +92,5 @@ export const UPLOAD_DIR = process.env.UPLOAD_DIR ?? path.join(process.cwd(), 'up
 export const PAYMENT_UPLOAD_DIR = path.join(UPLOAD_DIR, 'payment');
 
 export const COMMISSION_PREVIEW_COMMAND = `cd ${process.cwd()} && ./node_modules/.bin/ts-node -r tsconfig-paths/register src/scripts/weeklyCommission.ts -preview`;
+
+export const GET_MINING_INFO = 'texitcoin-cli getmininginfo';
