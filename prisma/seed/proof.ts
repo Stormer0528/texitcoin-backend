@@ -78,4 +78,8 @@ export const proofTypeData: ProofTypeDataInterface[] = [
     proofType: ProofType.DEVELOPERSINTEGRATIONS,
     display: 'Integration',
   },
+  {
+    proofType: ProofType.EXCHANGEFEE,
+    display: 'Exchange Fee',
+  },
 ];
