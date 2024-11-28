@@ -16,7 +16,7 @@ export class ProofQueryArgs extends QueryArgsBase<Prisma.ProofWhereInput> {}
 // Proof list response with pagination ( total )
 @ObjectType()
 export class ProofResponse extends PaginatedResponse {
-  @Field(() => [Proof], { nullable: 'itemsAndList' })
+  @Field(() => [Proof], { nullable: true })
   proofs?: Proof[];
 }
 
