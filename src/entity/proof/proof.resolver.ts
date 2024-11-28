@@ -70,6 +70,12 @@ export class ProofResolver {
   }
 
   @Authorized([UserRole.Admin])
+  @Query(() => Proof)
+  async proofById(@Arg('data') data: IDInput): Promise<Proof> {
+    return this.service.getProofById(data.id);
+  }
+
+  @Authorized([UserRole.Admin])
   @Transaction()
   @Mutation(() => Proof)
   async createProof(@Arg('data') data: CreateProofInput): Promise<Proof> {
