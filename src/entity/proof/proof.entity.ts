@@ -30,9 +30,9 @@ export class Proof extends BaseEntity {
   @Field({ nullable: true })
   note?: string;
 
-  @Field(() => [PFile], { nullable: 'itemsAndList' })
+  @Field(() => [PFile], { nullable: true })
   files?: PFile[];
 
-  @Field(() => [RefLink], { nullable: 'itemsAndList' })
+  @Field(() => [RefLink], { nullable: true })
   reflinks?: RefLink[];
 }

@@ -93,13 +93,13 @@ export class ProofResolver {
   }
 
   @Authorized([UserRole.Admin])
-  @FieldResolver({ nullable: 'itemsAndList' })
+  @FieldResolver({ nullable: true })
   async files(@Root() proof: Proof, @Ctx() ctx: Context): Promise<PFile[]> {
     return ctx.dataLoader.get('filesForProofLoader').load(proof.id);
   }
 
   @Authorized([UserRole.Admin])
-  @FieldResolver({ nullable: 'itemsAndList' })
+  @FieldResolver({ nullable: true })
   async reflinks(@Root() proof: Proof, @Ctx() ctx: Context): Promise<RefLink[]> {
     return ctx.dataLoader.get('referenceLinksForProofLoader').load(proof.id);
   }
