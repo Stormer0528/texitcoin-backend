@@ -41,6 +41,16 @@ async function getSalesByWeekStart(tranPrisma: PrismaClient, startDate: Date) {
 async function weeklyCommission(tranPrisma: PrismaClient, preview: boolean = false) {
   console.log('Started weekly commission operation');
 
+  const individualMembers = await tranPrisma.member.findMany({
+    where: {
+      placementParentId: null,
+    },
+  });
+
+  if (individualMembers.length) {
+    throw new Error('There are individual members');
+  }
+
   await tranPrisma.weeklyCommission.deleteMany({
     where: {
       status: ConfirmationStatus.PREVIEW,

@@ -128,9 +128,14 @@ export class WeeklyCommissionResolver {
   @Mutation(() => SuccessResponse)
   async calculatePreview(): Promise<SuccessResponse> {
     const { stderr } = shelljs.exec(COMMISSION_PREVIEW_COMMAND);
+
     return {
       result: stderr ? SuccessResult.failed : SuccessResult.success,
-      message: stderr,
+      message:
+        (stderr as string)
+          .split('\n')
+          .find((err) => err.startsWith('Error: '))
+          .slice(7) ?? 'Error occurred in commission calculation',
     };
   }
 
