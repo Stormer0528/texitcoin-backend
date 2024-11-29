@@ -355,6 +355,19 @@ export class MemberResolver {
       });
     }
 
+    const children = await this.service.getPlacementChildren(member.placementParentId);
+
+    if (
+      children.filter((child) => child.placementPosition === 'LEFT').length > 1 ||
+      children.filter((child) => child.placementPosition === 'RIGHT').length > 1
+    ) {
+      throw new GraphQLError('Each member can have only one leg on each side.', {
+        extensions: {
+          path: ['placementParentId', 'placementPosition'],
+        },
+      });
+    }
+
     if (prevSponsorID !== member.sponsorId) {
       if (prevSponsorID) {
         await this.service.calculateTotalIntroducerCount(prevSponsorID);

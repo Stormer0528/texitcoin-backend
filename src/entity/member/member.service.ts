@@ -110,6 +110,14 @@ export class MemberService {
     });
   }
 
+  async getPlacementChildren(id: string) {
+    return this.prisma.member.findMany({
+      where: {
+        placementParentId: id,
+      },
+    });
+  }
+
   async createMember(
     data: CreateMemberInput & {
       password: string;
