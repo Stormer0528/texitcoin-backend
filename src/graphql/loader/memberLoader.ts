@@ -261,3 +261,32 @@ export const commissionStatusForMemberLoader = (parent: RootDataLoader) => {
     }
   );
 };
+
+export const commissionCountForMemberLoader = (parent: RootDataLoader) => {
+  return new DataLoader<string, number>(
+    async (memberIds: string[]) => {
+      const weeklyCommissions = await parent.prisma.weeklyCommission.groupBy({
+        by: ['memberId'],
+        where: {
+          memberId: {
+            in: memberIds,
+          },
+          status: {
+            not: 'PREVIEW',
+          },
+        },
+        _count: true,
+      });
+
+      const commissionStatusMap: Record<string, number> = {};
+      weeklyCommissions.forEach((weeklyCommission) => {
+        commissionStatusMap[weeklyCommission.memberId] = weeklyCommission._count;
+      });
+
+      return memberIds.map((id) => commissionStatusMap[id] ?? 0);
+    },
+    {
+      ...parent.dataLoaderOptions,
+    }
+  );
+};

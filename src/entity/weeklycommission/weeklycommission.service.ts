@@ -70,6 +70,17 @@ export class WeeklyCommissionService {
     });
   }
 
+  async getWeeklyCommissionsCountByMemberId(memberId: string): Promise<number> {
+    return this.prisma.weeklyCommission.count({
+      where: {
+        memberId,
+        status: {
+          not: 'PREVIEW',
+        },
+      },
+    });
+  }
+
   async updateWeeklyCommission(
     data: Omit<WeeklyCommissionUpdateInput, 'fileIds' | 'reflinks' | 'note'> & { ID?: number }
   ): Promise<WeeklyCommission> {

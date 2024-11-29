@@ -116,4 +116,7 @@ export class Member extends BaseEntity {
   @Authorized([UserRole.Admin])
   @Field(() => [AdminNotes], { nullable: 'itemsAndList' })
   adminNotes?: AdminNotes[];
+
+  @Field(() => Int)
+  cmnCalculatedWeeks?: number;
 }

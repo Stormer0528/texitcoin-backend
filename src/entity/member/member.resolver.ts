@@ -12,6 +12,7 @@ import {
   Ctx,
   Root,
   UseMiddleware,
+  Int,
 } from 'type-graphql';
 import graphqlFields from 'graphql-fields';
 import { GraphQLError, GraphQLResolveInfo } from 'graphql';
@@ -96,7 +97,7 @@ export class MemberResolver {
     private readonly prisma: PrismaService
   ) {}
 
-  @Authorized()
+  // @Authorized()
   @Query(() => MembersResponse)
   async members(
     @Args() query: MemberQueryArgs,
@@ -712,5 +713,10 @@ export class MemberResolver {
   @FieldResolver(() => CommissionStatus, { nullable: true })
   async commission(@Root() member: Member, @Ctx() ctx: Context): Promise<CommissionStatus> {
     return ctx.dataLoader.get('commissionStatusForMemberLoader').load(member.id);
+  }
+
+  @FieldResolver(() => Int)
+  async cmnCalculatedWeeks(@Root() member: Member, @Ctx() ctx: Context): Promise<number> {
+    return ctx.dataLoader.get('commissionCountForMemberLoader').load(member.id);
   }
 }
