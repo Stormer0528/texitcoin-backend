@@ -131,11 +131,12 @@ export class WeeklyCommissionResolver {
 
     return {
       result: stderr ? SuccessResult.failed : SuccessResult.success,
-      message:
-        (stderr as string)
-          .split('\n')
-          .find((err) => err.startsWith('Error: '))
-          .slice(7) ?? 'Error occurred in commission calculation',
+      message: stderr
+        ? (stderr as string)
+            .split('\n')
+            .find((err) => err.startsWith('Error: '))
+            .slice(7) ?? 'Error occurred in commission calculation'
+        : '',
     };
   }
 
