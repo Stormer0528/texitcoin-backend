@@ -84,7 +84,7 @@ export class MemberWalletResolver {
     return ctx.dataLoader.get('payoutForMemberWalletLoader').load(memberWallet.payoutId);
   }
 
-  @FieldResolver({ nullable: 'itemsAndList' })
+  @FieldResolver({ nullable: true })
   async memberStatisticsWallets(
     @Root() member: MemberWallet,
     @Ctx() ctx: Context

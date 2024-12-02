@@ -85,36 +85,36 @@ export class Member extends BaseEntity {
   @Field(() => CommissionStatus, { nullable: true })
   commission?: CommissionStatus;
 
-  @Field(() => [Sale], { nullable: 'itemsAndList' })
+  @Field(() => [Sale], { nullable: true })
   sales?: Sale[];
 
-  @Field(() => [MemberStatistics], { nullable: 'itemsAndList' })
+  @Field(() => [MemberStatistics], { nullable: true })
   statistics?: MemberStatistics[];
 
   @Field(() => Member, { nullable: true })
   sponsor?: Member;
 
-  @Field(() => [Member], { nullable: 'itemsAndList' })
+  @Field(() => [Member], { nullable: true })
   introduceMembers?: Member[];
 
-  @Field(() => [MemberWallet], { nullable: 'itemsAndList' })
+  @Field(() => [MemberWallet], { nullable: true })
   memberWallets?: MemberWallet[];
 
   @Field(() => Member, { nullable: true })
   placementParent?: Member;
 
-  @Field(() => [Member], { nullable: 'itemsAndList' })
+  @Field(() => [Member], { nullable: true })
   placementChildren?: Member[];
 
-  @Field(() => [WeeklyCommission], { nullable: 'itemsAndList' })
+  @Field(() => [WeeklyCommission], { nullable: true })
   weeklyCommissions?: WeeklyCommission[];
 
   @Authorized([UserRole.Admin])
-  @Field(() => [MemberLog], { nullable: 'itemsAndList' })
+  @Field(() => [MemberLog], { nullable: true })
   logs?: MemberLog[];
 
   @Authorized([UserRole.Admin])
-  @Field(() => [AdminNotes], { nullable: 'itemsAndList' })
+  @Field(() => [AdminNotes], { nullable: true })
   adminNotes?: AdminNotes[];
 
   @Field(() => Int)

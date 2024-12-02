@@ -207,7 +207,7 @@ export class StatisticsResolver {
     return await this.statisticsService.removeStatisticByIds(data.ids);
   }
 
-  @FieldResolver({ nullable: 'itemsAndList' })
+  @FieldResolver({ nullable: true })
   async memberStatistics(
     @Root() statistics: Statistics,
     @Ctx() ctx: Context
@@ -215,7 +215,7 @@ export class StatisticsResolver {
     return ctx.dataLoader.get('memberStatisticsForStatisticsLoader').load(statistics.id);
   }
 
-  @FieldResolver({ nullable: 'itemsAndList' })
+  @FieldResolver({ nullable: true })
   async statisticsSales(
     @Root() statistics: Statistics,
     @Ctx() ctx: Context

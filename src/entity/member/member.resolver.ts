@@ -465,12 +465,12 @@ export class MemberResolver {
     };
   }
 
-  @FieldResolver({ nullable: 'itemsAndList' })
+  @FieldResolver({ nullable: true })
   async sales(@Root() member: Member, @Ctx() ctx: Context): Promise<Sale[]> {
     return ctx.dataLoader.get('salesForMemberLoader').load(member.id);
   }
 
-  @FieldResolver({ nullable: 'itemsAndList' })
+  @FieldResolver({ nullable: true })
   async statistics(@Root() member: Member, @Ctx() ctx: Context): Promise<MemberStatistics[]> {
     return ctx.dataLoader.get('memberStatisticsForMemberLoader').load(member.id);
   }
@@ -482,12 +482,12 @@ export class MemberResolver {
       : null;
   }
 
-  @FieldResolver({ nullable: 'itemsAndList' })
+  @FieldResolver({ nullable: true })
   async introduceMembers(@Root() member: Member, @Ctx() ctx: Context): Promise<Member[]> {
     return ctx.dataLoader.get('introduceMembersForMemberLoader').load(member.id);
   }
 
-  @FieldResolver({ nullable: 'itemsAndList' })
+  @FieldResolver({ nullable: true })
   async memberWallets(@Root() member: Member, @Ctx() ctx: Context): Promise<MemberWallet[]> {
     return ctx.dataLoader.get('memberWalletsForMemberLoader').load(member.id);
   }
@@ -499,7 +499,7 @@ export class MemberResolver {
       : null;
   }
 
-  @FieldResolver({ nullable: 'itemsAndList' })
+  @FieldResolver({ nullable: true })
   async placementChildren(@Root() member: Member, @Ctx() ctx: Context): Promise<Member[]> {
     return ctx.dataLoader.get('placementChildrenForMemberLoader').load(member.id);
   }

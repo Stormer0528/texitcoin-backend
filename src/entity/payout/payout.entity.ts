@@ -21,6 +21,6 @@ export class Payout extends BaseEntity {
   @Field()
   display: string;
 
-  @Field(() => [MemberWallet], { nullable: 'itemsAndList' })
+  @Field(() => [MemberWallet], { nullable: true })
   memberWallets?: MemberWallet[];
 }

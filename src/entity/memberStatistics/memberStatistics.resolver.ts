@@ -108,12 +108,12 @@ export class MemberStatisticsResolver {
     return await this.service.removeMemberStatisticsByStatisticId(data);
   }
 
-  @FieldResolver({ nullable: 'itemsAndList' })
+  @FieldResolver({ nullable: true })
   async member(@Root() memberStatistics: MemberStatistics, @Ctx() ctx: Context): Promise<Member> {
     return ctx.dataLoader.get('memberForMemberStatisticsLoader').load(memberStatistics.memberId);
   }
 
-  @FieldResolver({ nullable: 'itemsAndList' })
+  @FieldResolver({ nullable: true })
   async statistics(
     @Root() memberStatistics: MemberStatistics,
     @Ctx() ctx: Context
@@ -123,7 +123,7 @@ export class MemberStatisticsResolver {
       .load(memberStatistics.statisticsId);
   }
 
-  @FieldResolver({ nullable: 'itemsAndList' })
+  @FieldResolver({ nullable: true })
   async memberStatisticsWallets(
     @Root() memberStatistics: MemberStatistics,
     @Ctx() ctx: Context

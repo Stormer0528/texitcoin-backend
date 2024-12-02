@@ -32,6 +32,6 @@ export class MemberWallet extends BaseEntity {
   @Field(() => Payout, { nullable: true })
   payout?: Payout;
 
-  @Field(() => [MemberStatisticsWallet], { nullable: 'itemsAndList' })
+  @Field(() => [MemberStatisticsWallet], { nullable: true })
   memberStatisticsWallets?: MemberStatisticsWallet[];
 }

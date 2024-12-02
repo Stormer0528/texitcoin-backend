@@ -198,17 +198,17 @@ export class SaleResolver {
     };
   }
 
-  @FieldResolver({ nullable: 'itemsAndList' })
+  @FieldResolver({ nullable: true })
   async member(@Root() sale: Sale, @Ctx() ctx: Context): Promise<Member> {
     return ctx.dataLoader.get('memberForSaleLoader').load(sale.memberId);
   }
 
-  @FieldResolver({ nullable: 'itemsAndList' })
+  @FieldResolver({ nullable: true })
   async package(@Root() sale: Sale, @Ctx() ctx: Context): Promise<Package> {
     return ctx.dataLoader.get('packageForSaleLoader').load(sale.packageId);
   }
 
-  @FieldResolver({ nullable: 'itemsAndList' })
+  @FieldResolver({ nullable: true })
   async statisticsSales(@Root() sale: Sale, @Ctx() ctx: Context): Promise<StatisticsSale[]> {
     return ctx.dataLoader.get('statisticsSalesForSaleLoader').load(sale.id);
   }

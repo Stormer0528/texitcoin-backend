@@ -61,7 +61,7 @@ export class PayoutResolver {
     return this.service.createPayout(data);
   }
 
-  @FieldResolver({ nullable: 'itemsAndList' })
+  @FieldResolver({ nullable: true })
   async memberWallets(@Root() payout: Payout, @Ctx() ctx: Context): Promise<MemberWallet[]> {
     return ctx.dataLoader.get('memberWalletsForPayoutLoader').load(payout.id);
   }

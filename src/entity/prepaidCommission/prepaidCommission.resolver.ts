@@ -188,7 +188,7 @@ export class PrepaidCommissionResolver {
     };
   }
 
-  @FieldResolver({ nullable: 'itemsAndList' })
+  @FieldResolver({ nullable: true })
   async commission(
     @Root() prepaidCommission: PrepaidCommission,
     @Ctx() ctx: Context
@@ -198,7 +198,7 @@ export class PrepaidCommissionResolver {
       .load(prepaidCommission.commissionId);
   }
 
-  @FieldResolver({ nullable: 'itemsAndList' })
+  @FieldResolver({ nullable: true })
   async proof(@Root() prepaidCommission: PrepaidCommission, @Ctx() ctx: Context): Promise<Proof> {
     return ctx.dataLoader.get('proofForPrepaidCommissionLoader').load(prepaidCommission.id);
   }

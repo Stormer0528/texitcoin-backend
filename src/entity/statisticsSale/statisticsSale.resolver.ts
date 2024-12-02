@@ -91,12 +91,12 @@ export class StatisticsSaleResolver {
     return await this.service.removeStatisticsSalesByStatisticId(data);
   }
 
-  @FieldResolver({ nullable: 'itemsAndList' })
+  @FieldResolver({ nullable: true })
   async sale(@Root() statisticsSale: StatisticsSale, @Ctx() ctx: Context): Promise<Sale> {
     return ctx.dataLoader.get('saleForStatisticsSaleLoader').load(statisticsSale.saleId);
   }
 
-  @FieldResolver({ nullable: 'itemsAndList' })
+  @FieldResolver({ nullable: true })
   async statistics(
     @Root() statisticsSale: StatisticsSale,
     @Ctx() ctx: Context

@@ -42,10 +42,10 @@ export class Statistics extends BaseEntity {
   transactionId: string;
 
   @Authorized()
-  @Field(() => [MemberStatistics], { nullable: 'itemsAndList' })
+  @Field(() => [MemberStatistics], { nullable: true })
   memberStatistics?: MemberStatistics[];
 
   @Authorized()
-  @Field(() => [StatisticsSale], { nullable: 'itemsAndList' })
+  @Field(() => [StatisticsSale], { nullable: true })
   statisticsSales?: StatisticsSale[];
 }

@@ -94,7 +94,7 @@ export class PackageResolver {
     };
   }
 
-  @FieldResolver({ nullable: 'itemsAndList' })
+  @FieldResolver({ nullable: true })
   async sales(@Root() pkg: Package, @Ctx() ctx: Context): Promise<Sale[]> {
     return ctx.dataLoader.get('salesForPackageLoader').load(pkg.id);
   }
