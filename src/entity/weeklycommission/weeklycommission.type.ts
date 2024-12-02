@@ -37,6 +37,15 @@ export class WeeklyCommissionUpdateInput {
   reflinks?: LinkInput[];
 }
 
+@InputType()
+export class WeeklyCommissionsStatusUpdateInput {
+  @Field(() => [ID])
+  ids: string[];
+
+  @Field(() => ConfirmationStatus)
+  status: ConfirmationStatus;
+}
+
 export type CONFIRMATIONSTATUS = 'NONE' | 'PENDING' | 'APPROVED' | 'PAID' | 'DECLINED' | 'PREVIEW';
 
 @InputType()

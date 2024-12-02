@@ -22,6 +22,7 @@ import {
   WeeklyCommissionGetInput,
   WeeklyCommissionQueryArgs,
   WeeklyCommissionResponse,
+  WeeklyCommissionsStatusUpdateInput,
   WeeklyCommissionUpdateInput,
 } from './weeklycommission.type';
 import { WeeklyCommissionService } from './weeklycommission.service';
@@ -93,7 +94,7 @@ export class WeeklyCommissionResolver {
   @Authorized([UserRole.Admin])
   @Transaction()
   @Mutation(() => WeeklyCommission)
-  async updateCommissionStatus(@Arg('data') data: WeeklyCommissionUpdateInput) {
+  async updateCommission(@Arg('data') data: WeeklyCommissionUpdateInput) {
     const { fileIds, note, reflinks, ...restData } = data;
     const prevCommission = await this.service.getWeeklyCommissionById({ id: data.id });
     if (
@@ -122,6 +123,51 @@ export class WeeklyCommissionResolver {
     });
 
     return updatedCommission;
+  }
+
+  @Authorized([UserRole.Admin])
+  @Transaction()
+  @Mutation(() => SuccessResponse)
+  async updateCommissionsStatus(
+    @Arg('data') data: WeeklyCommissionsStatusUpdateInput
+  ): Promise<SuccessResponse> {
+    const prevCommissions = await this.service.getWeeklyCommissions({
+      where: {
+        id: {
+          in: data.ids,
+        },
+      },
+      orderBy: {},
+      parsePage: {},
+    });
+    prevCommissions.forEach((prevCommission) => {
+      if (
+        prevCommission.status !== ConfirmationStatus.PREVIEW &&
+        (prevCommission.status === ConfirmationStatus.NONE ||
+          !(
+            prevCommission.status === ConfirmationStatus.PENDING ||
+            (prevCommission.status === ConfirmationStatus.APPROVED &&
+              (data.status === ConfirmationStatus.DECLINED ||
+                data.status === ConfirmationStatus.PAID)) ||
+            (prevCommission.status === ConfirmationStatus.DECLINED &&
+              data.status === ConfirmationStatus.APPROVED)
+          ))
+      ) {
+        throw new Error('You can not change status of the commission');
+      }
+    });
+
+    try {
+      await this.service.updateWeeklyCommissionsStatus(data);
+      return {
+        result: SuccessResult.success,
+      };
+    } catch (err) {
+      return {
+        result: SuccessResult.failed,
+        message: err.message,
+      };
+    }
   }
 
   @Authorized([UserRole.Admin])

@@ -7,6 +7,7 @@ import { IDInput } from '@/graphql/common.type';
 import {
   WeeklyCommissionGetInput,
   WeeklyCommissionQueryArgs,
+  WeeklyCommissionsStatusUpdateInput,
   WeeklyCommissionUpdateInput,
 } from './weeklycommission.type';
 import { WeeklyCommission } from './weeklycommission.entity';
@@ -89,6 +90,19 @@ export class WeeklyCommissionService {
         id: data.id,
       },
       data,
+    });
+  }
+
+  async updateWeeklyCommissionsStatus(data: WeeklyCommissionsStatusUpdateInput) {
+    return this.prisma.weeklyCommission.updateMany({
+      where: {
+        id: {
+          in: data.ids,
+        },
+      },
+      data: {
+        status: data.status,
+      },
     });
   }
 }
