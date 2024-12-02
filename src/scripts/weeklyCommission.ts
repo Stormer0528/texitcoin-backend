@@ -38,7 +38,7 @@ async function getSalesByWeekStart(tranPrisma: PrismaClient, startDate: Date) {
   });
 }
 
-async function weeklyCommission(tranPrisma: PrismaClient, preview: boolean = false) {
+async function weeklyCommission(tranPrisma: PrismaClient) {
   console.log('Started weekly commission operation');
 
   const individualMembers = await tranPrisma.member.findMany({
@@ -164,7 +164,7 @@ async function weeklyCommission(tranPrisma: PrismaClient, preview: boolean = fal
     });
 
     await Bluebird.map(
-      Object.entries(resultMap),
+      Object.entries(resultMap).sort((result1, result2) => result1[0].localeCompare(result2[0])),
       async ([id, points]) => {
         const [finalLeft, finalRight, left, right, commission] = calculatePoint(points);
         return tranPrisma.weeklyCommission.upsert({
@@ -187,13 +187,12 @@ async function weeklyCommission(tranPrisma: PrismaClient, preview: boolean = fal
             pkgL: left,
             pkgR: right,
             commission,
-            status:
-              preview || nowWeek
-                ? ConfirmationStatus.PREVIEW
-                : commission > 0
-                  ? ConfirmationStatus.PENDING
-                  : ConfirmationStatus.NONE,
-            ID: preview || commission == 0 ? -1 : ID++,
+            status: nowWeek
+              ? ConfirmationStatus.PREVIEW
+              : commission > 0
+                ? ConfirmationStatus.PENDING
+                : ConfirmationStatus.NONE,
+            ID: nowWeek || commission == 0 ? -1 : ID++,
             weekStartDate: iStartDate.toDate(),
           },
           update: {},
@@ -208,6 +207,5 @@ async function weeklyCommission(tranPrisma: PrismaClient, preview: boolean = fal
 
 prisma.$transaction(async (tranPrisma: PrismaClient) => {
   const args: string[] = process.argv;
-  const preview = args.findIndex((arg) => arg.toLowerCase() === '-preview') !== -1;
-  await weeklyCommission(tranPrisma, preview);
+  await weeklyCommission(tranPrisma);
 });
