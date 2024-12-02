@@ -157,17 +157,10 @@ export class WeeklyCommissionResolver {
       }
     });
 
-    try {
-      await this.service.updateWeeklyCommissionsStatus(data);
-      return {
-        result: SuccessResult.success,
-      };
-    } catch (err) {
-      return {
-        result: SuccessResult.failed,
-        message: err.message,
-      };
-    }
+    await this.service.updateWeeklyCommissionsStatus(data);
+    return {
+      result: SuccessResult.success,
+    };
   }
 
   @Authorized([UserRole.Admin])
