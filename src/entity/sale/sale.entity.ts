@@ -37,7 +37,7 @@ export class Sale extends BaseEntity {
   @Field()
   orderedAt: Date;
 
-  @Field(() => [StatisticsSale], { nullable: 'itemsAndList' })
+  @Field(() => [StatisticsSale], { nullable: true })
   statisticsSales?: StatisticsSale[];
 
   @Authorized([UserRole.Admin])
