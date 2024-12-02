@@ -15,7 +15,7 @@ export class WeeklyCommissionQueryArgs extends QueryArgsBase<Prisma.WeeklyCommis
 // WeeklyCommission list response with pagination ( total )
 @ObjectType()
 export class WeeklyCommissionResponse extends PaginatedResponse {
-  @Field(() => [WeeklyCommission], { nullable: 'itemsAndList' })
+  @Field(() => [WeeklyCommission], { nullable: true })
   weeklyCommissions?: WeeklyCommission[];
 }
 
@@ -30,10 +30,10 @@ export class WeeklyCommissionUpdateInput {
   @Field({ nullable: true })
   note?: string;
 
-  @Field(() => [ID], { nullable: 'itemsAndList' })
+  @Field(() => [ID], { nullable: true })
   fileIds?: string[];
 
-  @Field(() => [LinkInput], { nullable: 'itemsAndList' })
+  @Field(() => [LinkInput], { nullable: true })
   reflinks?: LinkInput[];
 }
 

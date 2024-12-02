@@ -14,7 +14,7 @@ export class MemberStatisticsWalletQueryArgs extends QueryArgsBase<Prisma.Member
 // MemberStatisticsWallet list response with pagination ( total )
 @ObjectType()
 export class MemberStatisticsWalletResponse extends PaginatedResponse {
-  @Field(() => [MemberStatisticsWallet], { nullable: 'itemsAndList' })
+  @Field(() => [MemberStatisticsWallet], { nullable: true })
   memberStatisticsWallets?: MemberStatisticsWallet[];
 }
 

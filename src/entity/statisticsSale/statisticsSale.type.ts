@@ -13,7 +13,7 @@ export class StatisticsSaleQueryArgs extends QueryArgsBase<Prisma.StatisticsSale
 // StatisticsSale list response with pagination ( total )
 @ObjectType()
 export class StatisticsSaleResponse extends PaginatedResponse {
-  @Field(() => [StatisticsSale], { nullable: 'itemsAndList' })
+  @Field(() => [StatisticsSale], { nullable: true })
   statisticsSales?: StatisticsSale[];
 }
 

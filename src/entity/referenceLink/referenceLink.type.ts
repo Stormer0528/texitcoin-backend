@@ -14,7 +14,7 @@ export class ReferenceLinkQueryArgs extends QueryArgsBase<Prisma.ReferenceLinkWh
 // ReferenceLink list response with pagination ( total )
 @ObjectType()
 export class ReferenceLinkResponse extends PaginatedResponse {
-  @Field(() => [ReferenceLink], { nullable: 'itemsAndList' })
+  @Field(() => [ReferenceLink], { nullable: true })
   referenceLinks?: ReferenceLink[];
 }
 

@@ -24,6 +24,6 @@ export class Admin extends BaseEntity {
   avatar: string;
 
   @Authorized([UserRole.Admin])
-  @Field(() => [AdminNotes], { nullable: 'itemsAndList' })
+  @Field(() => [AdminNotes], { nullable: true })
   adminNotes?: AdminNotes[];
 }

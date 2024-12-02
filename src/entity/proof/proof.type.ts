@@ -42,10 +42,10 @@ export class CreateProofInput {
   @Field({ nullable: true })
   note?: string;
 
-  @Field(() => [ID], { nullable: 'itemsAndList' })
+  @Field(() => [ID], { nullable: true })
   fileIds?: string[];
 
-  @Field(() => [LinkInput], { nullable: 'itemsAndList' })
+  @Field(() => [LinkInput], { nullable: true })
   reflinks?: LinkInput[];
 }
 
@@ -73,10 +73,10 @@ export class UpdateProofByIDInput {
   @Field({ nullable: true })
   note?: string;
 
-  @Field(() => [ID], { nullable: 'itemsAndList' })
+  @Field(() => [ID], { nullable: true })
   fileIds?: string[];
 
-  @Field(() => [LinkInput], { nullable: 'itemsAndList' })
+  @Field(() => [LinkInput], { nullable: true })
   reflinks?: LinkInput[];
 }
 
@@ -101,10 +101,10 @@ export class UpdateProofByReferenceInput {
   @Field({ nullable: true })
   note?: string;
 
-  @Field(() => [ID], { nullable: 'itemsAndList' })
+  @Field(() => [ID], { nullable: true })
   fileIds?: string[];
 
-  @Field(() => [LinkInput], { nullable: 'itemsAndList' })
+  @Field(() => [LinkInput], { nullable: true })
   reflinks?: LinkInput[];
 }
 

@@ -81,7 +81,7 @@ export class CommissionOverview {
 
 @ObjectType()
 export class CommissionOverviewResponse extends PaginatedResponse {
-  @Field(() => [CommissionOverview], { nullable: 'itemsAndList' })
+  @Field(() => [CommissionOverview], { nullable: true })
   commissions?: CommissionOverview[];
 }
 
@@ -90,7 +90,7 @@ export class RevenueOverviewResponse {
   @Field()
   revenue: number;
 
-  @Field(() => [RevenueSpentItem], { nullable: 'itemsAndList' })
+  @Field(() => [RevenueSpentItem], { nullable: true })
   spent?: RevenueSpentItem[];
 }
 

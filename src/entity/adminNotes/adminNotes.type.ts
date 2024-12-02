@@ -13,7 +13,7 @@ export class AdminNotesQueryArgs extends QueryArgsBase<Prisma.AdminNotesWhereInp
 // AdminNotes list response with pagination ( total )
 @ObjectType()
 export class AdminNotesResponse extends PaginatedResponse {
-  @Field(() => [AdminNotes], { nullable: 'itemsAndList' })
+  @Field(() => [AdminNotes], { nullable: true })
   adminNotes?: AdminNotes[];
 }
 

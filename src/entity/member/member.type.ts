@@ -18,7 +18,7 @@ export class MemberQueryArgs extends QueryArgsBase<Prisma.MemberWhereInput> {}
 // Member list response with pagination ( total )
 @ObjectType()
 export class MembersResponse extends PaginatedResponse {
-  @Field(() => [Member], { nullable: 'itemsAndList' })
+  @Field(() => [Member], { nullable: true })
   members?: Member[];
 }
 
@@ -39,7 +39,7 @@ export class Introducer {
 
 @ObjectType()
 export class IntroducersResponse extends PaginatedResponse {
-  @Field(() => [Introducer], { nullable: 'itemsAndList' })
+  @Field(() => [Introducer], { nullable: true })
   introducers?: Introducer[];
 }
 
@@ -214,7 +214,7 @@ export class UpdateMemberInput {
   @Field({ nullable: true })
   preferredContactDetail?: string;
 
-  @Field(() => [MemberWalletDataInput], { nullable: 'itemsAndList' })
+  @Field(() => [MemberWalletDataInput], { nullable: true })
   wallets?: MemberWalletDataInput[];
 }
 

@@ -13,7 +13,7 @@ export class MemberStatisticsQueryArgs extends QueryArgsBase<Prisma.MemberStatis
 // MemberStatistics list response with pagination ( total )
 @ObjectType()
 export class MemberStatisticsResponse extends PaginatedResponse {
-  @Field(() => [MemberStatistics], { nullable: 'itemsAndList' })
+  @Field(() => [MemberStatistics], { nullable: true })
   memberStatistics?: MemberStatistics[];
 }
 

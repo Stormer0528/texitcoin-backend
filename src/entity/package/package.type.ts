@@ -13,7 +13,7 @@ export class PackageQueryArgs extends QueryArgsBase<Prisma.PackageWhereInput> {}
 // Package list response with pagination ( total )
 @ObjectType()
 export class PackageResponse extends PaginatedResponse {
-  @Field(() => [Package], { nullable: 'itemsAndList' })
+  @Field(() => [Package], { nullable: true })
   packages?: Package[];
 }
 

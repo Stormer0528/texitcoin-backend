@@ -13,7 +13,7 @@ export class FileRelationQueryArgs extends QueryArgsBase<Prisma.FileRelationWher
 // FileRelation list response with pagination ( total )
 @ObjectType()
 export class FileRelationResponse extends PaginatedResponse {
-  @Field(() => [FileRelation], { nullable: 'itemsAndList' })
+  @Field(() => [FileRelation], { nullable: true })
   fileRelations?: FileRelation[];
 }
 

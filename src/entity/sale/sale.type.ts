@@ -14,7 +14,7 @@ export class SaleQueryArgs extends QueryArgsBase<Prisma.SaleWhereInput> {}
 // Sale list response with pagination ( total )
 @ObjectType()
 export class SalesResponse extends PaginatedResponse {
-  @Field(() => [Sale], { nullable: 'itemsAndList' })
+  @Field(() => [Sale], { nullable: true })
   sales?: Sale[];
 }
 
@@ -36,10 +36,10 @@ export class CreateSaleInput {
   @Field()
   orderedAt: Date;
 
-  @Field(() => [ID], { nullable: 'itemsAndList' })
+  @Field(() => [ID], { nullable: true })
   fileIds?: string[];
 
-  @Field(() => [LinkInput], { nullable: 'itemsAndList' })
+  @Field(() => [LinkInput], { nullable: true })
   reflinks?: LinkInput[];
 
   @Field({ nullable: true })
@@ -67,12 +67,12 @@ export class UpdateSaleInput {
   @Field({ nullable: true })
   status?: boolean;
 
-  @Field(() => [ID], { nullable: 'itemsAndList' })
+  @Field(() => [ID], { nullable: true })
   fileIds?: string[];
 
   @Field({ nullable: true })
   note?: string;
 
-  @Field(() => [LinkInput], { nullable: 'itemsAndList' })
+  @Field(() => [LinkInput], { nullable: true })
   reflinks?: LinkInput[];
 }

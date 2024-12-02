@@ -13,7 +13,7 @@ export class PrepaidCommissionQueryArgs extends QueryArgsBase<Prisma.PrepaidComm
 // PrepaidCommission list response with pagination ( total )
 @ObjectType()
 export class PrepaidCommissionResponse extends PaginatedResponse {
-  @Field(() => [PrepaidCommission], { nullable: 'itemsAndList' })
+  @Field(() => [PrepaidCommission], { nullable: true })
   prepaidCommissions?: PrepaidCommission[];
 }
 
@@ -32,13 +32,13 @@ export class CreatePrepaidCommissionInput {
   @Field()
   orderedAt: Date;
 
-  @Field(() => [ID], { nullable: 'itemsAndList' })
+  @Field(() => [ID], { nullable: true })
   fileIds?: string[];
 
   @Field({ nullable: true })
   note?: string;
 
-  @Field(() => [LinkInput], { nullable: 'itemsAndList' })
+  @Field(() => [LinkInput], { nullable: true })
   reflinks?: LinkInput[];
 }
 
@@ -60,12 +60,12 @@ export class UpdatePrepaidCommissionInput {
   @Field({ nullable: true })
   orderedAt?: Date;
 
-  @Field(() => [ID], { nullable: 'itemsAndList' })
+  @Field(() => [ID], { nullable: true })
   fileIds?: string[];
 
   @Field({ nullable: true })
   note?: string;
 
-  @Field(() => [LinkInput], { nullable: 'itemsAndList' })
+  @Field(() => [LinkInput], { nullable: true })
   reflinks?: LinkInput[];
 }

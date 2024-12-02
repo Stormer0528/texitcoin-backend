@@ -14,7 +14,7 @@ export class AdminQueryArgs extends QueryArgsBase<Prisma.AdminWhereInput> {}
 // User list response with pagination ( total )
 @ObjectType()
 export class AdminsResponse extends PaginatedResponse {
-  @Field(() => [Admin], { nullable: 'itemsAndList' })
+  @Field(() => [Admin], { nullable: true })
   admins?: Admin[];
 }
 

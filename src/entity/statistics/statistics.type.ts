@@ -14,7 +14,7 @@ export class StatisticsQueryArgs extends QueryArgsBase<Prisma.StatisticsWhereInp
 // Statistics list response with pagination ( total )
 @ObjectType()
 export class StatisticsResponse extends PaginatedResponse {
-  @Field(() => [Statistics], { nullable: 'itemsAndList' })
+  @Field(() => [Statistics], { nullable: true })
   statistics?: Statistics[];
 }
 

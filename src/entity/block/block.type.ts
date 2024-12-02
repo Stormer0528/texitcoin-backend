@@ -13,7 +13,7 @@ export class BlockQueryArgs extends QueryArgsBase<Prisma.BlockWhereInput> {}
 // Block list response with pagination ( total )
 @ObjectType()
 export class BlocksResponse extends PaginatedResponse {
-  @Field(() => [Block], { nullable: 'itemsAndList' })
+  @Field(() => [Block], { nullable: true })
   blocks?: Block[];
 }
 

@@ -13,7 +13,7 @@ export class PayoutQueryArgs extends QueryArgsBase<Prisma.PayoutWhereInput> {}
 // Payout list response with pagination ( total )
 @ObjectType()
 export class PayoutResponse extends PaginatedResponse {
-  @Field(() => [Payout], { nullable: 'itemsAndList' })
+  @Field(() => [Payout], { nullable: true })
   payouts?: Payout[];
 }
 
