@@ -738,6 +738,8 @@ export class GeneralResolver {
       txc: sumTXC,
       txcCost,
       extraTXC: Math.max(data.target - txcCost, 0) / EXPECTED_TXC_COST,
+      endDate: dayjs(PROFITABILITY_CALCULATION_DAY, { utc: true }).toDate(),
+      txcPrice: EXPECTED_TXC_COST,
     };
   }
 }

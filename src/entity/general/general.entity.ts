@@ -194,4 +194,10 @@ export class ProfitabilityCalculationResponse {
 
   @Field()
   extraTXC: number;
+
+  @Field()
+  endDate: Date;
+
+  @Field()
+  txcPrice: number;
 }
