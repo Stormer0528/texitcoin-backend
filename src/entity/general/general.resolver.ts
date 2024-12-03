@@ -11,15 +11,19 @@ import {
   DAILY_MINER_LIMIT,
   DAILY_MINER_REWARD_LIMIT,
   DAILY_STATISTICS_LIMIT,
+  EXPECTED_HASH_POWER_TREND,
+  EXPECTED_TXC_COST,
   GET_MINING_INFO,
   MONTHLY_BLOCK_LIMIT,
   MONTHLY_COMMISSION_LIMIT,
   MONTHLY_MINER_LIMIT,
   MONTHLY_MINER_REWARD_LIMIT,
   MONTHLY_STATISTICS_LIMIT,
+  PROFITABILITY_CALCULATION_DAY,
   QUATER_COMMISSION_LIMIT,
   QUATER_MINER_LIMIT,
   QUATER_MINER_REWARD_LIMIT,
+  REWARD_PER_BLOCK,
   WEEKLY_BLOCK_LIMIT,
   WEEKLY_COMMISSION_LIMIT,
   WEEKLY_MINER_LIMIT,
@@ -42,12 +46,18 @@ import {
   RevenueSpentItem,
   LatestStatistics,
   TXCSharedResponse,
+  ProfitabilityCalculationResponse,
 } from './general.entity';
-import { PeriodStatsArgs, CommissionOverviewQueryArgs, LiveStatsArgs } from './general.type';
+import {
+  PeriodStatsArgs,
+  CommissionOverviewQueryArgs,
+  LiveStatsArgs,
+  ProfitabilityCalculationInput,
+} from './general.type';
 import { BlockService } from '@/entity/block/block.service';
 import { StatisticsService } from '@/entity/statistics/statistics.service';
 import { MemberService } from '@/entity/member/member.service';
-import { GraphQLResolveInfo } from 'graphql';
+import { GraphQLError, GraphQLResolveInfo } from 'graphql';
 import { PrismaService } from '@/service/prisma';
 import graphqlFields from 'graphql-fields';
 import { UserRole } from '@/type';
@@ -683,5 +693,51 @@ export class GeneralResolver {
       default:
         return [];
     }
+  }
+
+  @Query(() => ProfitabilityCalculationResponse)
+  async calculateProfitability(
+    @Arg('data') data: ProfitabilityCalculationInput
+  ): Promise<ProfitabilityCalculationResponse> {
+    const joinDate = dayjs(data.joinDate).utc();
+    if (joinDate.isBefore(dayjs('2024-11-01', { utc: true }), 'month')) {
+      throw new GraphQLError('Joined Date must be at least Nov, 2024', {
+        extensions: {
+          path: ['joinDate'],
+        },
+      });
+    }
+
+    const avgDailyBlock = await this.prisma.$queryRaw<{ avg: number }[]>`
+      SELECT AVG("newBlocks")::Float
+      FROM statistics
+    `.then((res) => res[0].avg);
+    const avgDailyTXC = avgDailyBlock * REWARD_PER_BLOCK;
+
+    const endDate = dayjs(PROFITABILITY_CALCULATION_DAY, { utc: true });
+
+    const period = endDate.diff(joinDate, 'day');
+    let sumTXC = 0;
+    for (
+      let i = joinDate;
+      i.isBefore(endDate, 'month') || i.isSame(endDate, 'month');
+      i = i.add(1, 'month')
+    ) {
+      const remainDays = i.isSame(joinDate) ? i.daysInMonth() - i.date() + 1 : i.daysInMonth();
+      const monthIdx = i.diff(dayjs('2024-11-01', { utc: true }), 'month');
+      const txcPerDay = (avgDailyTXC * data.init) / EXPECTED_HASH_POWER_TREND[monthIdx];
+      sumTXC += txcPerDay * remainDays;
+    }
+    const txcCost = sumTXC * EXPECTED_TXC_COST;
+
+    return {
+      init: data.init,
+      period,
+      startDate: data.joinDate,
+      target: data.target,
+      txc: sumTXC,
+      txcCost,
+      extraTXC: Math.max(data.target - txcCost, 0) / EXPECTED_TXC_COST,
+    };
   }
 }

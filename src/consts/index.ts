@@ -99,3 +99,13 @@ export const PAYMENT_UPLOAD_DIR = path.join(UPLOAD_DIR, 'payment');
 export const COMMISSION_PREVIEW_COMMAND = `cd ${process.cwd()} && ./node_modules/.bin/ts-node -r tsconfig-paths/register src/scripts/weeklyCommission.ts`;
 
 export const GET_MINING_INFO = 'texitcoin-cli getmininginfo';
+
+export const PROFITABILITY_CALCULATION_DAY = '2026-02-28';
+
+export const EXPECTED_HASH_POWER_TREND = [
+  200000, 250000, 375000, 562500, 843750, 1265625, 1898438, 2847656, 4271484, 6407227, 9610840,
+  14416260, 21624390, 32436584, 48654877, 72982315,
+]; //start at Nov, 2024
+export const EXPECTED_TXC_COST = 16;
+
+export const REWARD_PER_BLOCK = 254;

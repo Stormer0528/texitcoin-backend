@@ -1,5 +1,5 @@
 import { QueryOrderPagination } from '@/graphql/queryArgs';
-import { InputType, Field, ArgsType } from 'type-graphql';
+import { InputType, Field, ArgsType, Int } from 'type-graphql';
 import dayjs from 'dayjs';
 
 @InputType()
@@ -20,4 +20,16 @@ export class PeriodStatsArgs {
 export class CommissionOverviewQueryArgs extends QueryOrderPagination {
   @Field({ nullable: true, defaultValue: new Date() })
   weekStartDate?: Date;
+}
+
+@InputType()
+export class ProfitabilityCalculationInput {
+  @Field()
+  joinDate: Date;
+
+  @Field(() => Int)
+  target: number;
+
+  @Field(() => Int)
+  init: number;
 }
