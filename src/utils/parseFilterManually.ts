@@ -23,12 +23,17 @@ export const parseFilterManually = (columns: ColumnInterface[], filter) => {
 
     switch (key) {
       case 'not':
+        if (value === null) {
+          return Prisma.sql`IS NOT NULL`;
+        }
         return Prisma.sql`NOT ${operationToSql(value, column)}`;
       case 'contains':
         return Prisma.sql`${modeOperator} ${`%${value}%`}`;
       case 'eq':
+      case 'equals':
         return Prisma.sql`= ${value}${getPrismaParsingType(column)}`;
       case 'ne':
+      case 'notEquals':
         return Prisma.sql`!= ${value}${getPrismaParsingType(column)}`;
       case 'startsWith':
         return Prisma.sql`${modeOperator} ${`${value}%`}${getPrismaParsingType(column)}`;
