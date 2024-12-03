@@ -1,6 +1,7 @@
 import { ColumnInterface } from '@/type';
 import { Prisma } from '@prisma/client';
 import { getColumnQuery } from './getColumnQuery';
+import _ from 'lodash';
 
 export const parseFilterManually = (columns: ColumnInterface[], filter) => {
   const isWhereOperation = (value: string) => ['AND', 'OR'].includes(value);
@@ -61,15 +62,5 @@ export const parseFilterManually = (columns: ColumnInterface[], filter) => {
     }
   };
 
-  const { organizationId, vendorId, ...query } = filter || {};
-  const entityFilter = organizationId
-    ? Prisma.sql`${getColumnQuery('entry.organizationId', columns).sql} = ${organizationId}`
-    : vendorId
-      ? Prisma.sql`${getColumnQuery('entry_items.payableId', columns).sql} = ${vendorId}`
-      : Prisma.empty;
-  const extraFilter = Object.keys(query).length
-    ? Prisma.sql`AND ${parsingFilter(query)}`
-    : Prisma.empty;
-
-  return filter ? Prisma.sql`WHERE ${entityFilter} ${extraFilter}` : Prisma.empty;
+  return _.isEmpty(filter) ? Prisma.empty : Prisma.sql`WHERE ${parsingFilter(filter)}`;
 };
