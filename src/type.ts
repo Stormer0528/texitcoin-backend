@@ -1,4 +1,4 @@
-import { Package } from '@prisma/client';
+import { Package, Prisma } from '@prisma/client';
 
 export enum UserRole {
   Admin = 'Admin',
@@ -66,4 +66,10 @@ export interface SaleSearchResult {
   id: string;
   memberId: string;
   package: Package;
+}
+
+export interface ColumnInterface {
+  column: string;
+  parsing?: Prisma.Sql;
+  sql?: Prisma.Sql;
 }
