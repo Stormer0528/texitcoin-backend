@@ -15,8 +15,14 @@ export const parseFilterManually = (columns: ColumnInterface[], filter) => {
     }
     return column.parsing;
   };
-  const operationToSql = (operation: Record<string, any> | null, column?: ColumnInterface) => {
+  const operationToSql = (
+    operation: Record<string, any> | string | number | boolean | bigint | Date | null,
+    column?: ColumnInterface
+  ) => {
     if (operation === null) return Prisma.sql`IS NULL`;
+    if (!_.isPlainObject(operation)) {
+      return Prisma.sql` = ${operation}`;
+    }
 
     const [key, value] = Object.entries(operation)[0];
     const modeOperator = operation['mode'] === 'insensitive' ? Prisma.sql`ILIKE` : Prisma.sql`LIKE`;
