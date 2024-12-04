@@ -82,7 +82,7 @@ export class SaleService {
     return res;
   }
 
-  async getSalesCount({ filter }: SaleQueryArgs): Promise<number> {
+  async getSalesCountAG({ filter }: SaleQueryArgs): Promise<number> {
     const whereQuery = parseFilterManually(SALE_COLUMNS, filter);
 
     return this.prisma.$queryRaw<{ count: bigint }[]>`
@@ -94,6 +94,12 @@ export class SaleService {
         LEFT JOIN "packages" ON "sales"."packageId" = "packages"."id"
       ${whereQuery}
     `.then((res) => Number(res[0].count));
+  }
+
+  async getSalesCount(params: SaleQueryArgs): Promise<number> {
+    return this.prisma.sale.count({
+      where: params.where,
+    });
   }
 
   async getSaleById(id: string) {

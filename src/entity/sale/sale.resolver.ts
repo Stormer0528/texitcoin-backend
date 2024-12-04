@@ -72,7 +72,7 @@ export class SaleResolver {
     }
 
     if ('total' in fields) {
-      promises.total = this.service.getSalesCount(query);
+      promises.total = this.service.getSalesCountAG(query);
     }
 
     if ('sales' in fields) {
