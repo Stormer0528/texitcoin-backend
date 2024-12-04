@@ -98,7 +98,7 @@ export class PackageResolver {
   async sales(@Root() pkg: Package, @Ctx() ctx: Context): Promise<Sale[]> {
     return ctx.dataLoader.get('salesForPackageLoader').load(pkg.id);
   }
-  @FieldResolver({ nullable: 'itemsAndList' })
+  @FieldResolver({ nullable: true })
   async paymentMethodLinks(
     @Root() pkg: Package,
     @Ctx() ctx: Context

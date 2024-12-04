@@ -34,6 +34,6 @@ export class Package extends BaseEntity {
   @Field(() => [Sale], { nullable: true })
   sales?: Sale[];
 
-  @Field(() => [PaymentMethodLink], { nullable: 'itemsAndList' })
+  @Field(() => [PaymentMethodLink], { nullable: true })
   paymentMethodLinks?: PaymentMethodLink[];
 }
