@@ -108,7 +108,7 @@ export class PaymentMethodResolver {
     };
   }
 
-  @FieldResolver({ nullable: 'itemsAndList' })
+  @FieldResolver({ nullable: true })
   async paymentMethodLinks(
     @Root() method: PaymentMethod,
     @Ctx() ctx: Context

@@ -17,6 +17,6 @@ export class PaymentMethod extends BaseEntity {
   @Field({ nullable: true })
   defaultLink?: string;
 
-  @Field(() => [PaymentMethodLink], { nullable: 'itemsAndList' })
+  @Field(() => [PaymentMethodLink], { nullable: true })
   paymentMethodLinks?: PaymentMethodLink[];
 }
