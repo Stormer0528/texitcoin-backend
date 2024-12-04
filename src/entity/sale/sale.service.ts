@@ -15,6 +15,8 @@ const SALE_COLUMNS: ColumnInterface[] = [
     sql: Prisma.sql`"sales"."ID"`,
   },
   { column: 'member.username', sql: Prisma.sql`"members"."username"` },
+  { column: 'memberId', sql: Prisma.sql`"memberId"` },
+  { column: 'status', sql: Prisma.sql`"status"` },
   { column: 'member.assetId', sql: Prisma.sql`"member"."assetId"` },
   {
     column: 'package.productName',
