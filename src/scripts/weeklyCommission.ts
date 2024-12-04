@@ -41,9 +41,14 @@ async function getSalesByWeekStart(tranPrisma: PrismaClient, startDate: Date) {
 async function weeklyCommission(tranPrisma: PrismaClient) {
   console.log('Started weekly commission operation');
 
+  const nowStartDate = dayjs().utc().startOf('week');
+
   const individualMembers = await tranPrisma.member.findMany({
     where: {
       placementParentId: null,
+      createdAt: {
+        lt: nowStartDate.toDate(),
+      },
     },
   });
 
@@ -80,7 +85,6 @@ async function weeklyCommission(tranPrisma: PrismaClient) {
 
   let iStartDate = dayjs('2024-04-06').utc().startOf('week');
 
-  const nowStartDate = dayjs().utc().startOf('week');
   if (weekStartDates?.length) {
     iStartDate = dayjs(
       Math.min(...weekStartDates.map((wsd) => new Date(wsd._max.weekStartDate).getTime()))
