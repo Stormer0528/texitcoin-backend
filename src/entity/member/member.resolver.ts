@@ -269,7 +269,7 @@ export class MemberResolver {
       password: hashedPassword,
       status: false,
       signupFormRequest: {
-        ..._.omit(data, 'password', 'packageId'),
+        ..._.omit(data, 'password'),
         package: requestPkg?.productName,
       },
       emailVerified: false,
