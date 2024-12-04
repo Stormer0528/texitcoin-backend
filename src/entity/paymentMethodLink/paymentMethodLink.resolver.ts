@@ -44,7 +44,7 @@ export class PaymentMethodLinkResolver {
     return response;
   }
 
-  @FieldResolver({ nullable: 'itemsAndList' })
+  @FieldResolver({ nullable: true })
   async paymentMethod(
     @Root() methodlink: PaymentMethodLink,
     @Ctx() ctx: Context
@@ -54,7 +54,7 @@ export class PaymentMethodLinkResolver {
       .load(methodlink.paymentMethodId);
   }
 
-  @FieldResolver({ nullable: 'itemsAndList' })
+  @FieldResolver({ nullable: true })
   async package(@Root() methodlink: PaymentMethodLink, @Ctx() ctx: Context): Promise<Package> {
     return ctx.dataLoader.get('packageForPaymentMethodLinkLoader').load(methodlink.packageId);
   }
