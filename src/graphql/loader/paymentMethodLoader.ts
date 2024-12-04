@@ -12,8 +12,8 @@ export const paymentMethodLinksForPaymentMethodLoader = (parent: RootDataLoader)
 
       const linksMap: Record<string, PaymentMethodLink[]> = {};
       links.forEach((link) => {
-        if (!linksMap[link.packageId]) linksMap[link.packageId] = [];
-        linksMap[link.packageId].push(link);
+        if (!linksMap[link.paymentMethodId]) linksMap[link.paymentMethodId] = [];
+        linksMap[link.paymentMethodId].push(link);
       });
 
       return paymentMethodIds.map((id) => linksMap[id] ?? []);
