@@ -12,7 +12,7 @@ export class PaymentMethodLinksQueryArgs extends QueryArgsBase<Prisma.PaymentMet
 // PaymentMethodLink list response with pagination ( total )
 @ObjectType()
 export class PaymentMethodLinkResponse extends PaginatedResponse {
-  @Field(() => [PaymentMethodLink], { nullable: 'itemsAndList' })
+  @Field(() => [PaymentMethodLink], { nullable: true })
   paymentMethodLinks?: PaymentMethodLink[];
 }
 

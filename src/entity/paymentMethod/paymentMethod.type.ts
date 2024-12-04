@@ -13,7 +13,7 @@ export class PaymentMethodQueryArgs extends QueryArgsBase<Prisma.PaymentMethodWh
 // PaymentMethod list response with pagination ( total )
 @ObjectType()
 export class PaymentMethodResponse extends PaginatedResponse {
-  @Field(() => [PaymentMethod], { nullable: 'itemsAndList' })
+  @Field(() => [PaymentMethod], { nullable: true })
   paymentMethods?: PaymentMethod[];
 }
 
@@ -29,7 +29,7 @@ export class CreatePaymentMethodInput {
   @Field({ nullable: true })
   defaultLink?: string;
 
-  @Field(() => [PaymentMethodLinkInput], { nullable: 'itemsAndList' })
+  @Field(() => [PaymentMethodLinkInput], { nullable: true })
   paymentMethodLinks?: PaymentMethodLinkInput[];
 }
 
@@ -47,6 +47,6 @@ export class UpdatePaymentMethodInput {
   @Field({ nullable: true })
   defaultLink?: string;
 
-  @Field(() => [PaymentMethodLinkInput], { nullable: 'itemsAndList' })
+  @Field(() => [PaymentMethodLinkInput], { nullable: true })
   paymentMethodLinks?: PaymentMethodLinkInput[];
 }
