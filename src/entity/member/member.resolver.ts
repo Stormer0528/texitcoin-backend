@@ -599,9 +599,7 @@ export class MemberResolver {
 
   @Mutation(() => VerifyTokenResponse)
   async resetTokenVerify(@Arg('data') data: TokenInput): Promise<VerifyTokenResponse> {
-    const member = await this.service.verifyAndUpdateToken(data);
-    if (member) return member;
-    else throw new Error('Invalid token');
+    return this.service.verifyAndUpdateToken(data);
   }
 
   @Authorized()

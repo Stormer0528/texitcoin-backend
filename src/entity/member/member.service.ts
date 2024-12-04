@@ -207,6 +207,16 @@ export class MemberService {
 
       const randomLength = Math.floor(Math.random() * 60) + 40;
 
+      const member = await this.prisma.member.findUnique({
+        where: {
+          token: data.token,
+        },
+      });
+
+      if (!member) {
+        throw new Error('Invalid Token');
+      }
+
       return this.prisma.member.update({
         where: {
           token: data.token,
