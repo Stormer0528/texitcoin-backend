@@ -12,7 +12,7 @@ import { parseFilterManually } from '@/utils/parseFilterManually';
 const SALE_COLUMNS: ColumnInterface[] = [
   {
     column: 'ID',
-    sql: Prisma.sql`"ID"`,
+    sql: Prisma.sql`"sales"."ID"`,
   },
   { column: 'member.username', sql: Prisma.sql`"members"."username"` },
   { column: 'member.assetId', sql: Prisma.sql`"member"."assetId"` },
