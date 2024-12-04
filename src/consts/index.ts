@@ -49,6 +49,17 @@ export const PACKAGES = [
   '5553932b-b87d-45b0-b459-dad44582348e',
 ];
 
+export const PAYMENT_METHODS = [
+  'fa51399b-ea7f-4a03-9258-2ea85699f710',
+  'b94920c9-309d-4d12-b9f8-5065d359b239',
+  '0e73ff77-a6ea-44dd-949f-720905f34f2d',
+  '2cf180fd-3888-4b8c-956f-dae2e06f5dab',
+  '2a7ef882-8923-4c24-9a32-7e930bd8ee91',
+  'e1e86e96-a1ec-4ba5-b74e-a7111e18284e',
+  '01828920-ea4b-40a1-ac4e-58613b896ade',
+  'c5d87c08-4d4c-4243-acc7-466925791501',
+];
+
 export const rpc_url = process.env.RPC_URL;
 export const rpc_username = process.env.RPC_USERNAME;
 export const rpc_password = process.env.RPC_PASSWORD;
