@@ -20,6 +20,7 @@ import { Context } from '@/context';
 
 import {
   WeeklyCommissionGetInput,
+  WeeklyCommissionNoteInput,
   WeeklyCommissionQueryArgs,
   WeeklyCommissionResponse,
   WeeklyCommissionsStatusUpdateInput,
@@ -161,6 +162,12 @@ export class WeeklyCommissionResolver {
     return {
       result: SuccessResult.success,
     };
+  }
+
+  @Authorized([UserRole.Admin])
+  @Mutation(() => WeeklyCommission)
+  async updateCommissionShortNote(@Arg('data') data: WeeklyCommissionNoteInput) {
+    return this.service.updateWeeklyCommission(data);
   }
 
   @Authorized([UserRole.Admin])

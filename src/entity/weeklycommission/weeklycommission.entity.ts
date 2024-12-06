@@ -56,7 +56,7 @@ export class WeeklyCommission extends BaseEntity {
   commission: number;
 
   @Field({ nullable: true })
-  shortNode?: string;
+  shortNote?: string;
 
   @Field(() => ConfirmationStatus)
   status: CONFIRMATIONSTATUS;

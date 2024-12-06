@@ -30,6 +30,9 @@ export class WeeklyCommissionUpdateInput {
   @Field({ nullable: true })
   note?: string;
 
+  @Field({ nullable: true })
+  shortNote?: string;
+
   @Field(() => [ID], { nullable: true })
   fileIds?: string[];
 
@@ -70,4 +73,13 @@ export class CommissionStatus {
 
   @Field(() => Int)
   newR: number;
+}
+
+@InputType()
+export class WeeklyCommissionNoteInput {
+  @Field(() => ID)
+  id: string;
+
+  @Field({ nullable: true })
+  shortNote?: string;
 }
