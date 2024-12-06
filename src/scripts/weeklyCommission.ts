@@ -171,6 +171,27 @@ async function weeklyCommission(tranPrisma: PrismaClient) {
       Object.entries(resultMap).sort((result1, result2) => result1[0].localeCompare(result2[0])),
       async ([id, points]) => {
         const [finalLeft, finalRight, left, right, commission] = calculatePoint(points);
+        const data = {
+          memberId: id,
+          begL: points.left - (combinedMap[id]?.left ?? 0),
+          begR: points.right - (combinedMap[id]?.right ?? 0),
+          newL: combinedMap[id]?.left ?? 0,
+          newR: combinedMap[id]?.right ?? 0,
+          maxL: finalLeft,
+          maxR: finalRight,
+          endL: finalLeft - left,
+          endR: finalRight - right,
+          pkgL: left,
+          pkgR: right,
+          commission,
+          status: nowWeek
+            ? ConfirmationStatus.PREVIEW
+            : commission > 0
+              ? ConfirmationStatus.PENDING
+              : ConfirmationStatus.NONE,
+          ID: nowWeek || commission == 0 ? -1 : ID++,
+          weekStartDate: iStartDate.toDate(),
+        };
         return tranPrisma.weeklyCommission.upsert({
           where: {
             memberId_weekStartDate: {
@@ -178,28 +199,8 @@ async function weeklyCommission(tranPrisma: PrismaClient) {
               weekStartDate: iStartDate.toDate(),
             },
           },
-          create: {
-            memberId: id,
-            begL: points.left - (combinedMap[id]?.left ?? 0),
-            begR: points.right - (combinedMap[id]?.right ?? 0),
-            newL: combinedMap[id]?.left ?? 0,
-            newR: combinedMap[id]?.right ?? 0,
-            maxL: finalLeft,
-            maxR: finalRight,
-            endL: finalLeft - left,
-            endR: finalRight - right,
-            pkgL: left,
-            pkgR: right,
-            commission,
-            status: nowWeek
-              ? ConfirmationStatus.PREVIEW
-              : commission > 0
-                ? ConfirmationStatus.PENDING
-                : ConfirmationStatus.NONE,
-            ID: nowWeek || commission == 0 ? -1 : ID++,
-            weekStartDate: iStartDate.toDate(),
-          },
-          update: {},
+          create: data,
+          update: data,
         });
       },
       { concurrency: 10 }

@@ -316,6 +316,8 @@ model WeeklyCommission {
   memberId      String
   status        ConfirmationStatus @default(NONE)
 
+  shortNote String?
+
   member            Member?            @relation(fields: [memberId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   prepaidCommission PrepaidCommission?
 
