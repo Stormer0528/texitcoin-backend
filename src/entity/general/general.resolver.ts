@@ -554,36 +554,68 @@ export class GeneralResolver {
     switch (data.type.toLowerCase()) {
       case 'week':
         const weekdata = await this.prisma.$queryRaw<CommissionPeriodResponse[]>`
-          WITH unique_bases AS (
+          WITH commissions AS (
             SELECT DATE_TRUNC('week', "weekStartDate" + INTERVAL '1 day') - INTERVAL '1 day' as "baseDate", COALESCE(SUM("commission"), 0)::INTEGER AS "commission"
             FROM weeklycommissions
-            WHERE status='PAID'
+            GROUP BY "baseDate"
+            ORDER BY "baseDate" DESC
+            LIMIT ${WEEKLY_COMMISSION_LIMIT}
+          ),
+          revenues AS (
+            SELECT DATE_TRUNC('week', sales."orderedAt" + INTERVAL '1 day') - INTERVAL '1 day' as "baseDate", COALESCE(SUM(packages."amount"), 0)::INTEGER AS "revenue"
+            FROM sales
+                LEFT JOIN packages ON packages.id = sales."packageId"
             GROUP BY "baseDate"
             ORDER BY "baseDate" DESC
             LIMIT ${WEEKLY_COMMISSION_LIMIT}
           )
-          SELECT unique_bases.*, (TO_CHAR("baseDate", 'MM') || '-' || TO_CHAR("baseDate" + INTERVAL '1 day', 'IW')) AS base
-          FROM unique_bases
+          SELECT commissions.*, (TO_CHAR(commissions."baseDate", 'MM') || '-' || TO_CHAR(commissions."baseDate" + INTERVAL '1 day', 'IW')) AS base, COALESCE(revenues.revenue, 0) AS revenue
+          FROM commissions
+              LEFT JOIN revenues ON commissions."baseDate" = revenues."baseDate"
       `;
         return weekdata;
       case 'month':
         const monthdata = await this.prisma.$queryRaw<CommissionPeriodResponse[]>`
-          SELECT DATE_TRUNC('month', "weekStartDate") as "baseDate", TO_CHAR("weekStartDate", 'MM/YYYY') AS base, COALESCE(SUM("commission"), 0)::INTEGER AS "commission"
-          FROM weeklycommissions
-          WHERE status='PAID'
-          GROUP BY "baseDate", base
-          ORDER BY "baseDate" DESC
-          LIMIT ${MONTHLY_COMMISSION_LIMIT};
+          WITH commissions AS (
+            SELECT DATE_TRUNC('month', "weekStartDate") as "baseDate", TO_CHAR("weekStartDate", 'MM/YYYY') AS base, COALESCE(SUM("commission"), 0)::INTEGER AS "commission"
+            FROM weeklycommissions
+            GROUP BY "baseDate", base
+            ORDER BY "baseDate" DESC
+            LIMIT ${MONTHLY_COMMISSION_LIMIT}
+          ),
+          revenues AS (
+            SELECT DATE_TRUNC('month', sales."orderedAt") as "baseDate", COALESCE(SUM(packages."amount"), 0)::INTEGER AS "revenue"
+            FROM sales
+                LEFT JOIN packages ON packages.id = sales."packageId"
+            GROUP BY "baseDate"
+            ORDER BY "baseDate" DESC
+            LIMIT ${MONTHLY_COMMISSION_LIMIT}
+          )
+          SELECT commissions.*, COALESCE(revenues.revenue, 0) AS revenue
+          FROM commissions
+              LEFT JOIN revenues ON commissions."baseDate" = revenues."baseDate"
         `;
         return monthdata;
       case 'quarter':
         const quarterdata = await this.prisma.$queryRaw<CommissionPeriodResponse[]>`
-          SELECT DATE_TRUNC('quarter', "weekStartDate") as "baseDate", TO_CHAR("weekStartDate", 'YYYY "Q"Q') AS base, COALESCE(SUM("commission"), 0)::INTEGER AS "commission"
-          FROM weeklycommissions
-          WHERE status='PAID'
-          GROUP BY "baseDate", base
-          ORDER BY "baseDate" DESC
-          LIMIT ${QUATER_COMMISSION_LIMIT};
+          WITH commissions AS (
+            SELECT DATE_TRUNC('quarter', "weekStartDate") as "baseDate", TO_CHAR("weekStartDate", 'YYYY "Q"Q') AS base, COALESCE(SUM("commission"), 0)::INTEGER AS "commission"
+            FROM weeklycommissions
+            GROUP BY "baseDate", base
+            ORDER BY "baseDate" DESC
+            LIMIT ${QUATER_COMMISSION_LIMIT}
+          ),
+          revenues AS (
+            SELECT DATE_TRUNC('quarter', sales."orderedAt") as "baseDate", COALESCE(SUM(packages."amount"), 0)::INTEGER AS "revenue"
+            FROM sales
+                LEFT JOIN packages ON packages.id = sales."packageId"
+            GROUP BY "baseDate"
+            ORDER BY "baseDate" DESC
+            LIMIT ${QUATER_COMMISSION_LIMIT}
+          )
+          SELECT commissions.*, COALESCE(revenues.revenue, 0) AS revenue
+          FROM commissions
+              LEFT JOIN revenues ON commissions."baseDate" = revenues."baseDate"
         `;
         return quarterdata;
       default:

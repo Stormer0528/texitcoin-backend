@@ -99,6 +99,9 @@ export class CommissionPeriodResponse {
   @Field(() => Int)
   commission: number;
 
+  @Field(() => Int)
+  revenue: number;
+
   @Field()
   base: string;
 
