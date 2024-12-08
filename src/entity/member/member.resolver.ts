@@ -419,12 +419,21 @@ export class MemberResolver {
       where: {
         memberId: data.id,
       },
-      orderBy: [],
-      parsePage: {},
     });
     const placementChildrenCount = await this.service.getMembersCount({
       where: {
         placementParentId: data.id,
+      },
+    });
+    const commissionCnt = await this.commissionService.getWeeklyCommissionsCount({
+      where: {
+        memberId: data.id,
+        status: {
+          not: 'PREVIEW',
+        },
+        commission: {
+          gt: 0,
+        },
       },
     });
 
@@ -434,7 +443,23 @@ export class MemberResolver {
     if (placementChildrenCount) {
       throw new Error(`There are placement children`);
     }
+    if (commissionCnt) {
+      throw new Error('There are commissions the miner received');
+    }
 
+    await this.commissionService.removeWeeklyCommissions({
+      where: {
+        OR: [
+          {
+            status: 'PREVIEW',
+          },
+          {
+            commission: 0,
+          },
+        ],
+        memberId: data.id,
+      },
+    });
     await this.memberWalletService.removeMemberWalletsByMemberId(data);
     const member = await this.service.removeMember(data.id);
 

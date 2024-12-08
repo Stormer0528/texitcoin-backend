@@ -26,7 +26,9 @@ export class WeeklyCommissionService {
     });
   }
 
-  async getWeeklyCommissionsCount(params: WeeklyCommissionQueryArgs): Promise<number> {
+  async getWeeklyCommissionsCount(
+    params: Pick<WeeklyCommissionQueryArgs, 'where'>
+  ): Promise<number> {
     return this.prisma.weeklyCommission.count({ where: params.where });
   }
 
@@ -104,5 +106,9 @@ export class WeeklyCommissionService {
         status: data.status,
       },
     });
+  }
+
+  async removeWeeklyCommissions(params: Pick<WeeklyCommissionQueryArgs, 'where'>) {
+    return this.prisma.weeklyCommission.deleteMany({ where: params.where });
   }
 }

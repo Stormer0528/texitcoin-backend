@@ -96,7 +96,7 @@ export class SaleService {
     `.then((res) => Number(res[0].count));
   }
 
-  async getSalesCount(params: SaleQueryArgs): Promise<number> {
+  async getSalesCount(params: Pick<SaleQueryArgs, 'where'>): Promise<number> {
     return this.prisma.sale.count({
       where: params.where,
     });
