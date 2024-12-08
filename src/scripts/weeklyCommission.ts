@@ -49,6 +49,7 @@ async function weeklyCommission(tranPrisma: PrismaClient) {
       createdAt: {
         lt: nowStartDate.toDate(),
       },
+      status: true,
     },
   });
 
@@ -75,7 +76,11 @@ async function weeklyCommission(tranPrisma: PrismaClient) {
   });
   let ID = (maxIDCommission?.ID || 0) + 1;
 
-  const allMembers = await tranPrisma.member.findMany({});
+  const allMembers = await tranPrisma.member.findMany({
+    where: {
+      status: true,
+    },
+  });
   const mapMembers = {};
   allMembers.forEach((mb) => {
     mapMembers[mb.id] = {
@@ -131,6 +136,7 @@ async function weeklyCommission(tranPrisma: PrismaClient) {
         createdAt: {
           lt: new Date(formatDate(iStartDate.add(1, 'week').toDate())),
         },
+        status: true,
       },
     });
     members.forEach((member) => (resultMap[member.id] = { left: 0, right: 0 }));
