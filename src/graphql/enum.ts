@@ -3,6 +3,7 @@ import { registerEnumType } from 'type-graphql';
 export enum PlacementPosition {
   LEFT = 'LEFT',
   RIGHT = 'RIGHT',
+  NONE = 'NONE',
 }
 
 export enum ConfirmationStatus {
@@ -41,6 +42,13 @@ export enum SuccessResult {
   failed = 'failed',
 }
 
+export enum TeamStrategy {
+  LEFT = 'LEFT',
+  RIGHT = 'RIGHT',
+  BALANCE = 'BALANCE',
+  MANUAL = 'MANUAL',
+}
+
 registerEnumType(PlacementPosition, {
   name: 'PlacementPosition',
 });
@@ -55,4 +63,8 @@ registerEnumType(SuccessResult, {
 
 registerEnumType(ProofType, {
   name: 'ProofType',
+});
+
+registerEnumType(TeamStrategy, {
+  name: 'TeamStrategy',
 });

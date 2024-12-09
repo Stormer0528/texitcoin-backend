@@ -69,7 +69,7 @@ import { PERCENT } from '@/consts/db';
 import { ElasticSearchService } from '@/service/elasticsearch';
 import { SendyService } from '@/service/sendy';
 import { AdminNotes } from '../adminNotes/adminNotes.entity';
-import { SuccessResult } from '@/graphql/enum';
+import { PlacementPosition, SuccessResult } from '@/graphql/enum';
 import { PackageService } from '../package/package.service';
 import { QueryOrderPagination } from '@/graphql/queryArgs';
 import { PrismaService } from '@/service/prisma';
@@ -483,7 +483,7 @@ export class MemberResolver {
     const placements = await this.service.getAllPlacementAncestorsById(data.id);
     await this.service.updateManyMember(
       { id: { in: placements.map((pmnt) => pmnt.id) } },
-      { placementParentId: null, placementPosition: null }
+      { placementParentId: null, placementPosition: PlacementPosition.NONE }
     );
     return {
       result: SuccessResult.success,
