@@ -50,6 +50,13 @@ enum ProofType {
   EXCHANGEFEE
 }
 
+enum TeamStrategy {
+  LEFT
+  RIGHT
+  BALANCE
+  MANUAL
+}
+
 model Admin {
   id       String  @id @default(uuid())
   username String  @unique(map: "index_admins_on_username") @db.Citext
@@ -94,6 +101,7 @@ model Member {
   syncWithSendy          Boolean            @default(true)
   preferredContact       String?
   preferredContactDetail String?
+  teamStrategy           TeamStrategy       @default(MANUAL)
 
   sponsor         Member? @relation("MemberSponsor", fields: [sponsorId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   placementParent Member? @relation("MemberPlacementParent", fields: [placementParentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
