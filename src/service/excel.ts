@@ -208,7 +208,6 @@ export class ExcelService {
       members.map((member, idx) => ({
         ...member,
         no: idx + 1,
-        ID: convertNumToString({ value: member.ID, length: 7, prefix: 'M' }),
         sponsor: member.sponsorId ? `${member.sponsor.fullName}(${member.sponsor.username})` : '',
         placementParent:
           member.placementParentId && member.id !== PLACEMENT_ROOT

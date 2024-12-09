@@ -102,7 +102,7 @@ export class MemberService {
     });
   }
 
-  async getMemberByID(ID: number) {
+  async getMemberByID(ID: string) {
     return this.prisma.member.findUnique({
       where: {
         ID,
@@ -137,7 +137,10 @@ export class MemberService {
     });
   }
 
-  async updateManyMember(where: Prisma.MemberWhereInput, data: UpdateMemberInput) {
+  async updateManyMember(
+    where: Prisma.MemberWhereInput,
+    data: Omit<UpdateMemberInput, 'id'> & { id?: string }
+  ) {
     return this.prisma.member.updateMany({
       where,
       data,

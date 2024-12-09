@@ -1,6 +1,6 @@
 import type { Prisma } from '@prisma/client';
 import GraphQLJSON from 'graphql-type-json';
-import { IsEmail, IsNotEmpty, Length, ValidateIf } from 'class-validator';
+import { IsAlphanumeric, IsEmail, IsNotEmpty, Length, ValidateIf } from 'class-validator';
 import { ObjectType, InputType, Field, ArgsType, ID } from 'type-graphql';
 
 import { QueryArgsBase } from '@/graphql/queryArgs';
@@ -46,6 +46,11 @@ export class IntroducersResponse extends PaginatedResponse {
 // Create Member Input and Response
 @InputType()
 export class CreateMemberInput {
+  @Field()
+  @IsNotEmpty()
+  @IsAlphanumeric()
+  ID: string;
+
   @Field()
   @IsNotEmpty()
   username: string;
@@ -159,8 +164,13 @@ export class SignupFormInput {
 
 @InputType()
 export class UpdateMemberInput {
-  @Field(() => ID, { nullable: true })
-  id?: string;
+  @Field(() => ID)
+  id: string;
+
+  @Field({ nullable: true })
+  @IsNotEmpty()
+  @IsAlphanumeric()
+  ID?: string;
 
   @Field({ nullable: true })
   username?: string;

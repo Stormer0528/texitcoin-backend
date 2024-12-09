@@ -31,8 +31,8 @@ export class Member extends BaseEntity {
   @IsEmail()
   email: string;
 
-  @Field(() => Int)
-  ID: number;
+  @Field()
+  ID: string;
 
   @Field()
   mobile: string;
