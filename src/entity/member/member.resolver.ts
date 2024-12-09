@@ -337,7 +337,7 @@ export class MemberResolver {
 
     let newData: UpdateMemberInput = {
       id: ctx.isAdmin ? data.id : ctx.user.id,
-      ..._.omit(data, ['wallets', ctx.isAdmin ? null : 'sponsorId']),
+      ..._.omit(data, ['wallets', ...(ctx.isAdmin ? [] : ['sponsorId', 'ID', 'assetId'])]),
     };
     if ('sponsorId' in newData && !newData.sponsorId) {
       newData.sponsorId = null;
