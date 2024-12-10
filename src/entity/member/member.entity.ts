@@ -1,5 +1,5 @@
 import { ObjectType, Field, ID, Args, Authorized, Int } from 'type-graphql';
-import { IsEmail } from 'class-validator';
+import { IsAlphanumeric, IsEmail } from 'class-validator';
 
 import { BaseEntity } from '@/graphql/baseEntity';
 
@@ -19,6 +19,7 @@ export class Member extends BaseEntity {
   id: string;
 
   @Field()
+  @IsAlphanumeric()
   username: string;
 
   @Field()
@@ -31,8 +32,8 @@ export class Member extends BaseEntity {
   @IsEmail()
   email: string;
 
-  @Field()
-  ID: string;
+  @Field(() => Int, { nullable: true })
+  ID: number;
 
   @Field()
   mobile: string;

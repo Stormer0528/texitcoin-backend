@@ -274,6 +274,7 @@ export class MemberResolver {
       },
       emailVerified: false,
       sponsorId,
+      ID: null,
     });
 
     this.mailerService.notifyMinerSignupToAdmin(newmember.email, newmember.fullName, sponsorName);

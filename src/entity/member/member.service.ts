@@ -102,7 +102,7 @@ export class MemberService {
     });
   }
 
-  async getMemberByID(ID: string) {
+  async getMemberByID(ID: number) {
     return this.prisma.member.findUnique({
       where: {
         ID,
@@ -125,8 +125,12 @@ export class MemberService {
       sponsorId?: string;
     }
   ) {
+    const maxID = await this.getMaxID();
     return this.prisma.member.create({
-      data,
+      data: {
+        ...data,
+        ID: maxID + 1,
+      },
     });
   }
 
@@ -349,9 +353,12 @@ export class MemberService {
       data.syncWithSendy = true;
     }
 
+    const maxID = await this.getMaxID();
+
     const member = await this.prisma.member.update({
       where: {
         id,
+        ID: maxID + 1,
       },
       data,
     });
@@ -364,5 +371,15 @@ export class MemberService {
       // sendy
       this.sendyService.addSubscriber(member.email, member.fullName);
     }
+  }
+
+  async getMaxID(): Promise<number> {
+    const { ID: maxID } = await this.prisma.member.findFirst({
+      orderBy: {
+        ID: 'desc',
+      },
+    });
+
+    return maxID;
   }
 }

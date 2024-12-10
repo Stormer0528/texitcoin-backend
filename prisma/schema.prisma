@@ -77,7 +77,7 @@ model Admin {
 
 model Member {
   id                     String            @id @default(uuid())
-  ID                     String?           @unique(map: "index_members_on_ID")
+  ID                     Int?              @unique(map: "index_members_on_ID") @default(autoincrement()) @db.Integer
   username               String            @unique(map: "index_members_on_username") @db.Citext
   fullName               String            @db.VarChar
   sponsorId              String?           @db.VarChar
