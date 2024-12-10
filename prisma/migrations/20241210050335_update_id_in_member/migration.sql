@@ -18,7 +18,7 @@ SET "ID" = (
     SELECT
         CASE
             WHEN "ID" LIKE 'M-%' THEN SUBSTRING("ID" FROM 3) -- Extract the integer part from 'M-'
-            ELSE (seq_id + 31)::Text --Max ID 596, Max row number 566--
+            ELSE (-seq_id)::Text --Max ID 596, Max row number 566--
         END
     FROM ranked_data
     WHERE members.id = ranked_data.id
