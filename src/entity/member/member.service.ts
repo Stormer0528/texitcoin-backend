@@ -343,7 +343,7 @@ export class MemberService {
 
         const sale = await this.prisma.sale.create({
           data: {
-            paymentMethod: 'Sponsor Bonus',
+            paymentMethod: 'BONUS',
             freeShareSale: true,
             memberId: id,
             packageId: group === BonusGroup.EARLYADOPTER ? FREE_SHARE_ID_2 : FREE_SHARE_ID_1,
