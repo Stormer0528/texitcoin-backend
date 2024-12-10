@@ -100,6 +100,7 @@ export const SPONSOR_BONOUS_CNT = 3;
 
 export const FREE_SHARE_ID_1 = 'c62357db-0572-4600-98dc-43d92621cfa5';
 export const FREE_SHARE_ID_2 = 'aa8604b3-3f2a-4f9c-9ee5-1c9d1d76d726';
+export const NO_PRODUCT = '916170a2-6b73-450d-9c2a-6ee9cceab30a';
 export const FREE_SHARE_DIVIDER1 = new Date('2024-06-08');
 
 export const PLACEMENT_ROOT = 'affe34e8-891b-41c2-8405-d31df4dadb8c';
@@ -120,5 +121,3 @@ export const EXPECTED_HASH_POWER_TREND = [
 export const EXPECTED_TXC_COST = 16;
 
 export const REWARD_PER_BLOCK = 254;
-
-export const THRESHOLD_GROUP = '2024-06-08';

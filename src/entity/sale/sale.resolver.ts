@@ -30,7 +30,7 @@ import { MemberService } from '../member/member.service';
 import { Transaction } from '@/graphql/decorator';
 import { SuccessResult } from '@/graphql/enum';
 import { MemberWalletService } from '../memberWallet/memberWallet.service';
-import { PAYOUTS } from '@/consts';
+import { NO_PRODUCT, PAYOUTS } from '@/consts';
 import dayjs from 'dayjs';
 import utcPlugin from 'dayjs/plugin/utc';
 import { RefLink } from '../referenceLink/referenceLink.entity';
@@ -142,7 +142,10 @@ export class SaleResolver {
     });
 
     await this.memberService.updateMemberPointByMemberId(sale.memberId);
-    await this.memberService.approveMember(sale.memberId);
+    if (sale.packageId !== NO_PRODUCT) {
+      await this.memberService.approveMember(sale.memberId);
+    }
+
     return sale;
   }
 

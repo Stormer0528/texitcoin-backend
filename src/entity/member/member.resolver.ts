@@ -409,7 +409,7 @@ export class MemberResolver {
   @Transaction()
   @Mutation(() => SuccessResponse)
   async approveMember(@Arg('data') data: IDInput): Promise<SuccessResponse> {
-    const member = await this.service.approveMember(data.id, true);
+    const member = await this.service.approveMember(data.id);
 
     // Automatic replace placement tree
     if (member.sponsorId) {

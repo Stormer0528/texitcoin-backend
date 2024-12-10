@@ -23,11 +23,12 @@ import { SendyService } from '@/service/sendy';
 import dayjs from 'dayjs';
 import utcPlugin from 'dayjs/plugin/utc';
 import {
+  FREE_SHARE_DIVIDER1,
   FREE_SHARE_ID_1,
   FREE_SHARE_ID_2,
+  NO_PRODUCT,
   PLACEMENT_ROOT,
   SPONSOR_BONOUS_CNT,
-  THRESHOLD_GROUP,
 } from '@/consts';
 import { MailerService } from '@/service/mailer';
 import { SaleService } from '../sale/sale.service';
@@ -325,7 +326,7 @@ export class MemberService {
     }
   }
 
-  async checkSponsorBonous(id: string, notifyEmail: boolean = true): Promise<void> {
+  async checkSponsorBonous(id: string, isNew: boolean = true): Promise<void> {
     if (!id) return;
     const { totalIntroducers, username, fullName, createdAt } = await this.prisma.member.findUnique(
       {
@@ -333,10 +334,10 @@ export class MemberService {
       }
     );
     if (totalIntroducers && totalIntroducers % SPONSOR_BONOUS_CNT === 0) {
-      if (notifyEmail) {
+      if (isNew) {
         const group =
-          dayjs(createdAt).isBefore(THRESHOLD_GROUP, 'day') ||
-          dayjs(createdAt).isSame(THRESHOLD_GROUP, 'day')
+          dayjs(createdAt).isBefore(FREE_SHARE_DIVIDER1, 'day') ||
+          dayjs(createdAt).isSame(FREE_SHARE_DIVIDER1, 'day')
             ? BonusGroup.FOUNDER
             : BonusGroup.EARLYADOPTER;
 
@@ -363,6 +364,43 @@ export class MemberService {
           group
         );
       }
+    } else if (totalIntroducers % SPONSOR_BONOUS_CNT === SPONSOR_BONOUS_CNT - 1 && !isNew) {
+      const freeSales = await this.prisma.sale.findMany({
+        where: {
+          memberId: id,
+          freeShareSale: true,
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+        include: {
+          statisticsSales: {
+            select: {
+              id: true,
+            },
+          },
+        },
+        take: 1,
+      });
+      if (freeSales.length) {
+        if (freeSales[0].statisticsSales.length) {
+          await this.prisma.sale.update({
+            where: {
+              id: freeSales[0].id,
+            },
+            data: {
+              packageId: NO_PRODUCT,
+              status: false,
+            },
+          });
+        } else {
+          await this.prisma.sale.delete({
+            where: {
+              id: freeSales[0].id,
+            },
+          });
+        }
+      }
     }
   }
 
@@ -383,25 +421,27 @@ export class MemberService {
     });
   }
 
-  async approveMember(id: string, syncWithSendy?: boolean) {
-    const data: any = { status: true };
-    if (typeof syncWithSendy !== 'undefined') {
-      data.syncWithSendy = true;
-    }
-
+  async approveMember(id: string) {
     const prevMember = await this.prisma.member.findUnique({
       where: {
         id,
       },
     });
 
+    if (prevMember.status) {
+      return;
+    }
+
     const member = await this.prisma.member.update({
       where: {
         id,
         ...(prevMember.ID ? {} : { ID: (await this.getMaxID()) + 1 }),
       },
-      data,
+      data: {
+        status: true,
+      },
     });
+
     if (member.sponsorId) {
       await this.calculateTotalIntroducerCount(member.sponsorId);
       await this.checkSponsorBonous(member.sponsorId);
