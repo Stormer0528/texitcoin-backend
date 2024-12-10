@@ -120,3 +120,5 @@ export const EXPECTED_HASH_POWER_TREND = [
 export const EXPECTED_TXC_COST = 16;
 
 export const REWARD_PER_BLOCK = 254;
+
+export const THRESHOLD_GROUP = '2024-06-08';

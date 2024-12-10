@@ -17,17 +17,22 @@ import {
   ResetPasswordTokenInput,
   VerifyTokenResponse,
   EmailVerificationInput,
-  PLACEMENT_POSITION,
 } from './member.type';
 import { Member } from './member.entity';
 import { SendyService } from '@/service/sendy';
 import dayjs from 'dayjs';
 import utcPlugin from 'dayjs/plugin/utc';
-import { addPoint } from '@/utils/addPoint';
-import { formatDate } from '@/utils/common';
-import Bluebird from 'bluebird';
-import { PLACEMENT_ROOT, SPONSOR_BONOUS_CNT } from '@/consts';
+import {
+  FREE_SHARE_ID_1,
+  FREE_SHARE_ID_2,
+  PLACEMENT_ROOT,
+  SPONSOR_BONOUS_CNT,
+  THRESHOLD_GROUP,
+} from '@/consts';
 import { MailerService } from '@/service/mailer';
+import { SaleService } from '../sale/sale.service';
+import { convertNumToString } from '@/utils/convertNumToString';
+import { BonusGroup } from '@/enums/bonusGroup.enum';
 
 dayjs.extend(utcPlugin);
 
@@ -322,12 +327,41 @@ export class MemberService {
 
   async checkSponsorBonous(id: string, notifyEmail: boolean = true): Promise<void> {
     if (!id) return;
-    const { totalIntroducers, username, fullName } = await this.prisma.member.findUnique({
-      where: { id },
-    });
+    const { totalIntroducers, username, fullName, createdAt } = await this.prisma.member.findUnique(
+      {
+        where: { id },
+      }
+    );
     if (totalIntroducers && totalIntroducers % SPONSOR_BONOUS_CNT === 0) {
       if (notifyEmail) {
-        this.mailerService.notifyMiner3rdIntroducersToAdmin(username, fullName, totalIntroducers);
+        const group =
+          dayjs(createdAt).isBefore(THRESHOLD_GROUP, 'day') ||
+          dayjs(createdAt).isSame(THRESHOLD_GROUP, 'day')
+            ? BonusGroup.FOUNDER
+            : BonusGroup.EARLYADOPTER;
+
+        const sale = await this.prisma.sale.create({
+          data: {
+            paymentMethod: 'Sponsor Bonus',
+            freeShareSale: true,
+            memberId: id,
+            packageId: group === BonusGroup.EARLYADOPTER ? FREE_SHARE_ID_2 : FREE_SHARE_ID_1,
+          },
+        });
+        const saleID = convertNumToString({
+          value: sale.ID,
+          length: 7,
+          prefix: 'S',
+        });
+
+        this.mailerService.notifyMiner3rdIntroducersToAdmin(
+          username,
+          fullName,
+          totalIntroducers,
+          saleID,
+          `${process.env.ADMIN_URL}/sales/${saleID}`,
+          group
+        );
       }
     }
   }
