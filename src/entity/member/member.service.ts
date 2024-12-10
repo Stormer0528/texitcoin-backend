@@ -124,13 +124,14 @@ export class MemberService {
       password: string;
       signupFormRequest: any;
       sponsorId?: string;
+      ID?: number | null;
     }
   ) {
     const maxID = await this.getMaxID();
     return this.prisma.member.create({
       data: {
         ...data,
-        ID: maxID + 1,
+        ID: 'ID' in data ? data.ID : maxID + 1,
       },
     });
   }
