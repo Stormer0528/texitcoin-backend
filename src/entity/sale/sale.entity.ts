@@ -37,6 +37,9 @@ export class Sale extends BaseEntity {
   @Field()
   orderedAt: Date;
 
+  @Field()
+  freeShareSale: boolean;
+
   @Field(() => [StatisticsSale], { nullable: true })
   statisticsSales?: StatisticsSale[];
 
