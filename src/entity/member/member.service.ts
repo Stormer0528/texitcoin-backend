@@ -1,4 +1,4 @@
-import { Prisma } from '@prisma/client';
+import { PlacementPosition, Prisma } from '@prisma/client';
 import { Service, Inject } from 'typedi';
 
 import { EmailInput, TokenInput } from '@/graphql/common.type';
@@ -17,6 +17,7 @@ import {
   ResetPasswordTokenInput,
   VerifyTokenResponse,
   EmailVerificationInput,
+  PLACEMENT_POSITION,
 } from './member.type';
 import { Member } from './member.entity';
 import { SendyService } from '@/service/sendy';
@@ -347,7 +348,7 @@ export class MemberService {
     });
   }
 
-  async approveMember(id: string, syncWithSendy?: boolean): Promise<void> {
+  async approveMember(id: string, syncWithSendy?: boolean) {
     const data: any = { status: true };
     if (typeof syncWithSendy !== 'undefined') {
       data.syncWithSendy = true;
@@ -371,15 +372,67 @@ export class MemberService {
       // sendy
       this.sendyService.addSubscriber(member.email, member.fullName);
     }
+
+    return member;
   }
 
   async getMaxID(): Promise<number> {
     const { ID: maxID } = await this.prisma.member.findFirst({
+      where: {
+        ID: {
+          not: null,
+        },
+      },
       orderBy: {
         ID: 'desc',
       },
     });
 
     return maxID;
+  }
+
+  async getBottomOfTree(id: string, direction: Omit<PlacementPosition, 'NONE'>): Promise<string> {
+    const members = await this.prisma.member.findMany({
+      select: {
+        id: true,
+        placementParentId: true,
+        placementPosition: true,
+      },
+    });
+
+    let res = id;
+    while (true) {
+      const children = members.find(
+        (mb) => mb.placementParentId === res && mb.placementPosition === direction
+      );
+      if (children) {
+        res = children.id;
+      } else {
+        break;
+      }
+    }
+
+    return res;
+  }
+
+  async moveToBottomOfTree(parentID: string, targetID: string) {
+    const parentMember = await this.prisma.member.findUnique({
+      where: {
+        id: parentID,
+      },
+    });
+    if (parentMember.placementPosition != 'NONE') {
+      const targetDirection = parentMember.placementPosition === 'LEFT' ? 'RIGHT' : 'LEFT';
+      const bottomID = await this.getBottomOfTree(parentID, targetDirection);
+      await this.prisma.member.update({
+        where: {
+          id: targetID,
+        },
+        data: {
+          placementParentId: bottomID,
+          placementPosition: targetDirection,
+        },
+      });
+    }
   }
 }

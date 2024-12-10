@@ -234,6 +234,11 @@ export class MemberResolver {
       this.sendyService.addSubscriber(member.email, member.fullName);
     }
 
+    // Automatic replace placement tree
+    if (member.sponsorId) {
+      await this.service.moveToBottomOfTree(member.sponsorId, member.id);
+    }
+
     return member;
   }
 
@@ -404,7 +409,12 @@ export class MemberResolver {
   @Transaction()
   @Mutation(() => SuccessResponse)
   async approveMember(@Arg('data') data: IDInput): Promise<SuccessResponse> {
-    await this.service.approveMember(data.id, true);
+    const member = await this.service.approveMember(data.id, true);
+
+    // Automatic replace placement tree
+    if (member.sponsorId) {
+      await this.service.moveToBottomOfTree(member.sponsorId, member.id);
+    }
 
     return {
       result: SuccessResult.success,
