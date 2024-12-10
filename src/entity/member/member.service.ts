@@ -355,12 +355,16 @@ export class MemberService {
       data.syncWithSendy = true;
     }
 
-    const maxID = await this.getMaxID();
+    const prevMember = await this.prisma.member.findUnique({
+      where: {
+        id,
+      },
+    });
 
     const member = await this.prisma.member.update({
       where: {
         id,
-        ID: maxID + 1,
+        ...(prevMember.ID ? {} : { ID: (await this.getMaxID()) + 1 }),
       },
       data,
     });
