@@ -26,7 +26,7 @@ import utcPlugin from 'dayjs/plugin/utc';
 import { addPoint } from '@/utils/addPoint';
 import { formatDate } from '@/utils/common';
 import Bluebird from 'bluebird';
-import { SPONSOR_BONOUS_CNT } from '@/consts';
+import { PLACEMENT_ROOT, SPONSOR_BONOUS_CNT } from '@/consts';
 import { MailerService } from '@/service/mailer';
 
 dayjs.extend(utcPlugin);
@@ -421,7 +421,7 @@ export class MemberService {
         id: parentID,
       },
     });
-    if (parentMember.placementPosition != 'NONE') {
+    if (parentID === PLACEMENT_ROOT || parentMember.placementPosition != 'NONE') {
       const targetDirection = parentMember.placementPosition === 'LEFT' ? 'RIGHT' : 'LEFT';
       const bottomID = await this.getBottomOfTree(parentID, targetDirection);
       await this.prisma.member.update({
