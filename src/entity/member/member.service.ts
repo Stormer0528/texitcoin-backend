@@ -36,12 +36,15 @@ import { MailerService } from '@/service/mailer';
 import { SaleService } from '../sale/sale.service';
 import { convertNumToString } from '@/utils/convertNumToString';
 import { BonusGroup } from '@/enums/bonusGroup.enum';
+import { NotificationService } from '../notification/notification.service';
+import { NotificationLevel } from '@/graphql/enum';
 
 dayjs.extend(utcPlugin);
 
 @Service()
 export class MemberService {
   constructor(
+    private readonly notificationService: NotificationService,
     @Inject(() => PrismaService)
     private readonly prisma: PrismaService,
     @Inject(() => SendyService)
@@ -367,6 +370,24 @@ export class MemberService {
           // group
         );
       }
+
+      // mail service
+      this.mailerService.notifyMiner3rdIntroducersToAdmin(
+        username,
+        fullName,
+        totalIntroducers
+        // saleID,
+        // `${process.env.ADMIN_URL}/sales/${saleID}`,
+        // group
+      );
+    } else if (totalIntroducers % 1 === 1 && isNew) {
+      // notification system
+      const teamLeaders = await this.getTeamLeaders(id);
+      await this.notificationService.addNotify(
+        `${fullName}(${username}) achieved first sponsor`,
+        NotificationLevel.TEAMLEADER,
+        teamLeaders
+      );
     } else if (totalIntroducers % SPONSOR_BONOUS_CNT === SPONSOR_BONOUS_CNT - 1 && !isNew) {
       // const freeSales = await this.prisma.sale.findMany({
       //   where: {
@@ -520,5 +541,30 @@ export class MemberService {
         },
       });
     }
+  }
+
+  async getTeamLeaders(id: string) {
+    const members = await this.prisma.member.findMany({
+      select: {
+        id: true,
+        placementParentId: true,
+        placementPosition: true,
+      },
+    });
+    const membersMap: Record<string, (typeof members)[number]> = {};
+    members.forEach((mb) => (membersMap[mb.id] = mb));
+
+    const res = [];
+    for (let iID = id; id != PLACEMENT_ROOT; id) {
+      const pID = membersMap[iID].placementParentId;
+      if (pID === PLACEMENT_ROOT) {
+        res.push(pID);
+        return res.filter((resID) => resID !== id);
+      } else if (membersMap[iID].placementPosition !== membersMap[pID].placementPosition) {
+        res.push(pID);
+      }
+    }
+
+    return [];
   }
 }

@@ -14,6 +14,7 @@ import { Prisma } from '@prisma/client';
 import { getColumnQuery } from '@/utils/getColumnQuery';
 import { ORDER } from '@/consts/db';
 import { parseFilterManually } from '@/utils/parseFilterManually';
+import { NotificationLevel } from '@/graphql/enum';
 
 const NOTIFICATION_COLUMNS: ColumnInterface[] = [
   { column: 'notification.id', sql: Prisma.sql`"notifications"."id"` },
@@ -132,6 +133,29 @@ export class NotificationService {
     return this.prisma.notification.delete({
       where: {
         id: data.id,
+      },
+    });
+  }
+
+  async addNotify(message: string, level: NotificationLevel, memberIDs: string[] = []) {
+    const notifiyMembers =
+      level === NotificationLevel.ALL
+        ? await this.prisma.member
+            .findMany({ select: { id: true } })
+            .then((members) => members.map(({ id }) => id))
+        : memberIDs;
+
+    await this.prisma.notification.create({
+      data: {
+        message,
+        level,
+        notificationUsers: {
+          createMany: {
+            data: notifiyMembers.map((mID) => ({
+              memberId: mID,
+            })),
+          },
+        },
       },
     });
   }
