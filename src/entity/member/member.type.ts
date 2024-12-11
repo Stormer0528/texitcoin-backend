@@ -281,12 +281,6 @@ export class VerifyTokenResponse {
   token: string;
 }
 
-@InputType()
-export class MemberOverviewInput {
-  @Field(() => ID)
-  id: string;
-}
-
 @ObjectType()
 export class MemberOverview {
   @Field()

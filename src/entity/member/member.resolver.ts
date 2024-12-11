@@ -532,7 +532,7 @@ export class MemberResolver {
     return ctx.dataLoader.get('placementChildrenForMemberLoader').load(member.id);
   }
 
-  @Authorized()
+  @Authorized([UserRole.OnlyMember])
   @Query(() => Member)
   async memberMe(@Ctx() ctx: Context): Promise<Member> {
     return ctx.user! as Member;
@@ -548,7 +548,7 @@ export class MemberResolver {
     return await this.service.updateMember({ id: data.id, password: hashedPassword });
   }
 
-  @Authorized()
+  @Authorized([UserRole.OnlyMember])
   @Mutation(() => SuccessResponse)
   async updatePasswordMember(
     @Ctx() ctx: Context,
@@ -635,10 +635,12 @@ export class MemberResolver {
   @Authorized()
   @UseMiddleware(userPermission)
   @Query(() => MemberOverview)
-  async memberOverview(@Arg('data') { id }: IDInput): Promise<MemberOverview> {
-    const { txcShared: totalTXCShared } = await this.memberStatisticsService.getTotalTXCShared(id);
-    const currentHashPower = await this.saleService.getMemberHashPowerById({ id });
-    const { createdAt: joinDate, point } = await this.service.getMemberById(id);
+  async memberOverview(@Ctx() ctx: Context, @Arg('data') { id }: IDInput): Promise<MemberOverview> {
+    const rID = ctx.isAdmin ? id : ctx.user.id;
+
+    const { txcShared: totalTXCShared } = await this.memberStatisticsService.getTotalTXCShared(rID);
+    const currentHashPower = await this.saleService.getMemberHashPowerById({ id: rID });
+    const { createdAt: joinDate, point } = await this.service.getMemberById(rID);
 
     return {
       currentHashPower,
@@ -710,13 +712,9 @@ export class MemberResolver {
       : [];
   }
 
-  @Authorized()
+  @Authorized([UserRole.OnlyMember])
   @Query(() => ReferenceLink)
   generateReferenceLink(@Ctx() ctx: Context): ReferenceLink {
-    if (ctx.isAdmin) {
-      throw Error('Admin can not have sponsor link');
-    }
-
     return {
       link: `${process.env.MEMBER_URL}/sign-up?sponsor=${(ctx.user as Member).username}`,
     };

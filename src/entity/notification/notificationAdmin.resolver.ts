@@ -21,13 +21,14 @@ import {
 import { Notification, NotificationAdmin, NotificationMember } from './notification.entity';
 import { NotificationService } from './notification.service';
 import { Context } from '@/context';
+import { UserRole } from '@/type';
 
 @Service()
 @Resolver(() => NotificationAdmin)
 export class NotificationAdminResolver {
   constructor(private readonly service: NotificationService) {}
 
-  @Authorized()
+  @Authorized([UserRole.Admin])
   @Query(() => NotificationAdminResponse)
   async notificationAdmins(
     @Args() query: NotificationQueryArgs,

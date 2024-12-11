@@ -71,7 +71,7 @@ export class MemberStatisticsWalletResolver {
     return {
       rewards: await this.service.getRewardsByWallets({
         ...query,
-        memberId: query.memberId ?? ctx.user.id,
+        memberId: ctx.isAdmin ? query.memberId : ctx.user.id,
       }),
     };
   }
@@ -81,7 +81,7 @@ export class MemberStatisticsWalletResolver {
   async dailyRewards(@Ctx() ctx: Context, @Args() query: FromToQueryArgs): Promise<DailyRewards> {
     const dailyRewards = await this.service.getDailyRewards({
       ...query,
-      memberId: query.memberId ?? ctx.user.id,
+      memberId: ctx.isAdmin ? query.memberId : ctx.user.id,
     });
     return {
       rewards: dailyRewards.map((reward) => ({
