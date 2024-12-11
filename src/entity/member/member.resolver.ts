@@ -96,7 +96,7 @@ export class MemberResolver {
     private readonly prisma: PrismaService
   ) {}
 
-  // @Authorized()
+  @Authorized()
   @Query(() => MembersResponse)
   async members(
     @Args() query: MemberQueryArgs,
