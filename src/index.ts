@@ -35,6 +35,8 @@ import { PrepaidCommissionResolver } from './entity/prepaidCommission/prepaidCom
 import { ProofResolver } from './entity/proof/proof.resolver';
 import { PaymentMethodResolver } from './entity/paymentMethod/paymentMethod.resolver';
 import { PaymentMethodLinkResolver } from './entity/paymentMethodLink/paymentMethodLink.resolver';
+import { NotificationAdminResolver } from './entity/notification/notificationAdmin.resolver';
+import { NotificationMemberResolver } from './entity/notification/notificationMember.resolver';
 
 const app = async () => {
   const schema = await tq.buildSchema({
@@ -58,6 +60,8 @@ const app = async () => {
       ProofResolver,
       PaymentMethodResolver,
       PaymentMethodLinkResolver,
+      NotificationAdminResolver,
+      NotificationMemberResolver,
     ],
     authChecker,
     scalarsMap: [
