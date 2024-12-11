@@ -248,24 +248,13 @@ export class MemberResolver {
   async signUpMember(@Arg('data') data: SignupFormInput): Promise<Member> {
     const hashedPassword = await hashPassword(data.password);
     let sponsorId: string | null = null;
-    let sponsorName: string | null = null;
+    let sponsorName: string | null = data.sponsorUserId;
     if (data.sponsorUserId) {
       const member = await this.service.getMemberByUsername(data.sponsorUserId);
-      if (member && !member.status) {
-        throw new GraphQLError('Reference is not approved', {
-          extensions: {
-            path: ['sponsorUserId'],
-          },
-        });
-      } else if (!member) {
-        throw new GraphQLError('Invalid reference code', {
-          extensions: {
-            path: ['sponsorUserId'],
-          },
-        });
+      if (member?.status) {
+        sponsorId = member.id;
+        sponsorName = member.fullName;
       }
-      sponsorId = member.id;
-      sponsorName = member.fullName;
     }
     let requestPkg = null;
     if (data.packageId) requestPkg = await this.packageService.getPackageById(data.packageId);

@@ -107,7 +107,7 @@ export class MailerService {
         context: {
           signupName: minerFullname,
           signupEmail: minerEmail,
-          referenceMember: sponsorName,
+          referenceMember: sponsorName || 'No Reference',
         },
       };
       const sentMailInfo = await this.sendMail(mailOption);
