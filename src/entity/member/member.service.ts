@@ -335,72 +335,72 @@ export class MemberService {
     );
     if (totalIntroducers && totalIntroducers % SPONSOR_BONOUS_CNT === 0) {
       if (isNew) {
-        const group =
-          dayjs(createdAt).isBefore(FREE_SHARE_DIVIDER1, 'day') ||
-          dayjs(createdAt).isSame(FREE_SHARE_DIVIDER1, 'day')
-            ? BonusGroup.FOUNDER
-            : BonusGroup.EARLYADOPTER;
+        // const group =
+        //   dayjs(createdAt).isBefore(FREE_SHARE_DIVIDER1, 'day') ||
+        //   dayjs(createdAt).isSame(FREE_SHARE_DIVIDER1, 'day')
+        //     ? BonusGroup.FOUNDER
+        //     : BonusGroup.EARLYADOPTER;
 
-        const sale = await this.prisma.sale.create({
-          data: {
-            paymentMethod: 'BONUS',
-            freeShareSale: true,
-            memberId: id,
-            packageId: group === BonusGroup.EARLYADOPTER ? FREE_SHARE_ID_2 : FREE_SHARE_ID_1,
-          },
-        });
-        const saleID = convertNumToString({
-          value: sale.ID,
-          length: 7,
-          prefix: 'S',
-        });
+        // const sale = await this.prisma.sale.create({
+        //   data: {
+        //     paymentMethod: 'BONUS',
+        //     freeShareSale: true,
+        //     memberId: id,
+        //     packageId: group === BonusGroup.EARLYADOPTER ? FREE_SHARE_ID_2 : FREE_SHARE_ID_1,
+        //   },
+        // });
+        // const saleID = convertNumToString({
+        //   value: sale.ID,
+        //   length: 7,
+        //   prefix: 'S',
+        // });
 
         this.mailerService.notifyMiner3rdIntroducersToAdmin(
           username,
           fullName,
-          totalIntroducers,
-          saleID,
-          `${process.env.ADMIN_URL}/sales/${saleID}`,
-          group
+          totalIntroducers
+          // saleID,
+          // `${process.env.ADMIN_URL}/sales/${saleID}`,
+          // group
         );
       }
     } else if (totalIntroducers % SPONSOR_BONOUS_CNT === SPONSOR_BONOUS_CNT - 1 && !isNew) {
-      const freeSales = await this.prisma.sale.findMany({
-        where: {
-          memberId: id,
-          freeShareSale: true,
-        },
-        orderBy: {
-          createdAt: 'desc',
-        },
-        include: {
-          statisticsSales: {
-            select: {
-              id: true,
-            },
-          },
-        },
-        take: 1,
-      });
-      if (freeSales.length) {
-        if (freeSales[0].statisticsSales.length) {
-          await this.prisma.sale.update({
-            where: {
-              id: freeSales[0].id,
-            },
-            data: {
-              packageId: NO_PRODUCT,
-              status: false,
-            },
-          });
-        } else {
-          await this.prisma.sale.delete({
-            where: {
-              id: freeSales[0].id,
-            },
-          });
-        }
-      }
+      // const freeSales = await this.prisma.sale.findMany({
+      //   where: {
+      //     memberId: id,
+      //     freeShareSale: true,
+      //   },
+      //   orderBy: {
+      //     createdAt: 'desc',
+      //   },
+      //   include: {
+      //     statisticsSales: {
+      //       select: {
+      //         id: true,
+      //       },
+      //     },
+      //   },
+      //   take: 1,
+      // });
+      // if (freeSales.length) {
+      //   if (freeSales[0].statisticsSales.length) {
+      //     await this.prisma.sale.update({
+      //       where: {
+      //         id: freeSales[0].id,
+      //       },
+      //       data: {
+      //         packageId: NO_PRODUCT,
+      //         status: false,
+      //       },
+      //     });
+      //   } else {
+      //     await this.prisma.sale.delete({
+      //       where: {
+      //         id: freeSales[0].id,
+      //       },
+      //     });
+      //   }
+      // }
     }
   }
 
