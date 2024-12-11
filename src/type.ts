@@ -2,6 +2,7 @@ import { Package, Prisma } from '@prisma/client';
 
 export enum UserRole {
   Admin = 'Admin',
+  OnlyMember = 'OnlyMember',
 }
 
 enum UserGroupRole {

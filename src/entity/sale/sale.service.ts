@@ -8,6 +8,7 @@ import { Prisma } from '@prisma/client';
 import { ColumnInterface } from '@/type';
 import { getColumnQuery } from '@/utils/getColumnQuery';
 import { parseFilterManually } from '@/utils/parseFilterManually';
+import { ORDER } from '@/consts/db';
 
 const SALE_COLUMNS: ColumnInterface[] = [
   {
@@ -43,11 +44,6 @@ export class SaleService {
   async getSales(params: SaleQueryArgs) {
     const { orderBy, parsePage, filter } = params;
 
-    const orderMap: Record<'ASC' | 'DESC', Prisma.Sql> = {
-      ASC: Prisma.sql`ASC NULLS LAST`,
-      DESC: Prisma.sql`DESC NULLS LAST`,
-    };
-
     const orderQueryItems = (orderBy ? (Array.isArray(orderBy) ? orderBy : [orderBy]) : []).flatMap(
       (order) => Object.entries(order).map(([column, order]) => ({ column, order }))
     );
@@ -57,7 +53,7 @@ export class SaleService {
         ORDER BY ${Prisma.join(
           orderQueryItems.map(
             (orderQueryItem) =>
-              Prisma.sql`${getColumnQuery(orderQueryItem.column, SALE_COLUMNS).sql} ${orderMap[orderQueryItem.order.toUpperCase()]}`
+              Prisma.sql`${getColumnQuery(orderQueryItem.column, SALE_COLUMNS).sql} ${ORDER[orderQueryItem.order.toUpperCase()]}`
           ),
           ', '
         )}

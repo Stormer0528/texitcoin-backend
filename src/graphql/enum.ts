@@ -49,6 +49,12 @@ export enum TeamStrategy {
   MANUAL = 'MANUAL',
 }
 
+export enum NotificationLevel {
+  ALL = 'ALL',
+  INDIVIDUAL = 'INDIVIDUAL',
+  TEAMLEADER = 'TEAMLEADER',
+}
+
 registerEnumType(PlacementPosition, {
   name: 'PlacementPosition',
 });
@@ -67,4 +73,8 @@ registerEnumType(ProofType, {
 
 registerEnumType(TeamStrategy, {
   name: 'TeamStrategy',
+});
+
+registerEnumType(NotificationLevel, {
+  name: 'NotificationLevel',
 });

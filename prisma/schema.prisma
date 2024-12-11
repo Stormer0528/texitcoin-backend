@@ -58,6 +58,12 @@ enum TeamStrategy {
   MANUAL
 }
 
+enum NotificationLevel {
+  ALL
+  INDIVIDUAL
+  TEAMLEADER
+}
+
 model Admin {
   id       String  @id @default(uuid())
   username String  @unique(map: "index_admins_on_username") @db.Citext
@@ -114,11 +120,12 @@ model Member {
   // Relations
   sales             Sale[]
   statistics        MemberStatistics[]
-  introduceMembers  Member[]           @relation("MemberSponsor")
+  introduceMembers  Member[]             @relation("MemberSponsor")
   memberWallets     MemberWallet[]
-  placementChildren Member[]           @relation("MemberPlacementParent")
+  placementChildren Member[]             @relation("MemberPlacementParent")
   WeeklyCommission  WeeklyCommission[]
   adminNotes        AdminNotes[]
+  notificationUsers NotificationMember[]
 
   @@map("members")
 }
@@ -468,4 +475,36 @@ model PaymentMethodLink {
   deletedAt DateTime?
 
   @@map("paymentmethodlinks")
+}
+
+model NotificationMember {
+  id             String  @id @default(uuid())
+  memberId       String
+  notificationId String
+  read           Boolean @default(false)
+
+  notification Notification @relation(fields: [notificationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  member       Member       @relation(fields: [memberId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@unique([memberId, notificationId], map: "unique_index_on_notification_members")
+  @@map("notificationmembers")
+}
+
+model Notification {
+  id String @id @default(uuid())
+
+  message String
+  level   NotificationLevel @default(ALL)
+
+  notificationUsers NotificationMember[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@map("notifications")
 }

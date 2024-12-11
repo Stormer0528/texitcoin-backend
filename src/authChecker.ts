@@ -22,6 +22,10 @@ export const authChecker: AuthChecker<Context> = async ({ context: { user, isAdm
       return isAdmin;
     }
 
+    if (roles.includes(UserRole.OnlyMember)) {
+      return !isAdmin;
+    }
+
     return true;
   } catch (err) {
     throw new Error('Not authenticated');
