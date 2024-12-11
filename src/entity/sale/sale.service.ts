@@ -27,7 +27,7 @@ const SALE_COLUMNS: ColumnInterface[] = [
     sql: Prisma.sql`"paymentMethod"`,
   },
   { column: 'package.amount', sql: Prisma.sql`"packages"."amount"` },
-  { column: 'package.hashPower', sql: Prisma.sql`"packages"."token"` },
+  { column: 'package.token', sql: Prisma.sql`"packages"."token"` },
   { column: 'package.point', sql: Prisma.sql`"packages"."point"` },
   { column: 'orderedAt', sql: Prisma.sql`"orderedAt"` },
   { column: 'status', sql: Prisma.sql`"status"` },
