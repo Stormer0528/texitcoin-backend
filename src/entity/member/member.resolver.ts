@@ -308,6 +308,10 @@ export class MemberResolver {
 
     if (member) {
       const { signupFormRequest }: { signupFormRequest: any } = member;
+
+      // Send Email
+      this.mailerService.sendToSignUpConfirmation(member.email, member.fullName);
+
       return {
         result: SuccessResult.success,
         packageId: signupFormRequest?.packageId,
@@ -588,7 +592,9 @@ export class MemberResolver {
     } else if (!member.emailVerified) {
       throw new Error('Your email is not verified');
     } else if (!member.status) {
-      throw new Error('You are not allowed by admin');
+      throw new Error(
+        'You are not allowed by admin. Admin will reach out to you shortly to collect the necessary payment.'
+      );
     }
 
     const isValidPassword = await verifyPassword(data.password, member.password);

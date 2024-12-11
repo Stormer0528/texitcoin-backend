@@ -146,4 +146,22 @@ export class MailerService {
       );
     }
   }
+
+  public async sendToSignUpConfirmation(to: string, fullName: string) {
+    if (isEmail(to) && isEmail(SMTP_SENDER_EMAIL)) {
+      const mailOption = {
+        from: `"${SMTP_SENDER_NAME}" <${SMTP_SENDER_EMAIL}>`,
+        to,
+        subject: 'Welcome to Texitcoin',
+        template: 'signupsuccess',
+        context: {
+          fullName,
+        },
+      };
+      const sentMailInfo = await this.sendMail(mailOption);
+      console.log(
+        `Email was sent to ${ADMIN_EMAIL}, Type => Welcome to Texitcoin - Registration Confirmation, Message ID => ${sentMailInfo.messageId}`
+      );
+    }
+  }
 }

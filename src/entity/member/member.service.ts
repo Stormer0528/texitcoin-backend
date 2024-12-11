@@ -314,6 +314,7 @@ export class MemberService {
         },
         select: {
           email: true,
+          fullName: true,
           signupFormRequest: true,
         },
       });

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome to Texitcoin - Registration Confirmation</title>
+  <style>
+    .logo-container {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .logo-container img {
+      max-width: 100px;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      color: #333;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+
+    .section {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      color: #007bff;
+      font-size: 24px;
+    }
+
+    p {
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    .note {
+      font-size: 16px;
+      color: #666;
+      margin-top: 20px;
+      font-weight: bold;
+    }
+
+    .note a {
+      color: #666;
+      text-decoration: none;
+    }
+
+    .note a:hover {
+      text-decoration: underline;
+    }
+
+    footer {
+      margin-top: 20px;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .contact-info {
+      margin-top: 20px;
+    }
+
+    .contact-info a {
+      color: #007bff;
+      text-decoration: none;
+    }
+
+    .contact-info a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="section">
+    <div class="logo-container">
+      <a href="https://payout.minetxc.com" target="_blank"><img src="https://i.ibb.co/wYDCzV6/texit-logo-v4.png" alt="Texitcoin" /></a>
+    </div>
+    <div class="container">
+      <h1>Welcome to Texitcoin!</h1>
+      <p>Hello {{fullName}},</p>
+      <p>Thank you for signing up with Texitcoin! We are excited to have you on board.</p>
+      <p>To complete the registration process and activate your account, our team will contact you shortly to collect the necessary payment.</p>
+      <p>Once the payment is processed, your account will be fully activated, and you will be able to sign in right away!</p>
+
+      <p>If you have any questions or need further assistance, feel free to reach out to our support team:</p>
+
+      <div class="contact-info">
+        <p><strong>Email:</strong> <a href="mailto:mine@minetxc.com">mine@minetxc.com</a></p>
+        {{!-- <p><strong>Phone:</strong> <a href="tel:+1234567890">+1 (234) 567-890</a></p> --}}
+      </div>
+
+      <footer>
+        <p>Thank you,</p>
+        <p>The Texitcoin Team</p>
+      </footer>
+    </div>
+  </div>
+</body>
+
+</html>
