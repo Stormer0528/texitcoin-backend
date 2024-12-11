@@ -61,6 +61,7 @@ export class PackageService {
       ? {
           productName: data.productName,
           enrollVisibility: data.enrollVisibility,
+          status: data.status,
         }
       : data;
     return await this.prisma.package.update({
