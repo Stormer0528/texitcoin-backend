@@ -17,6 +17,7 @@ import {
   ResetPasswordTokenInput,
   VerifyTokenResponse,
   EmailVerificationInput,
+  PLACEMENT_POSITION,
 } from './member.type';
 import { Member } from './member.entity';
 import { SendyService } from '@/service/sendy';
@@ -501,8 +502,16 @@ export class MemberService {
         id: parentID,
       },
     });
-    if (parentID === PLACEMENT_ROOT || parentMember.placementPosition != 'NONE') {
-      const targetDirection = parentMember.placementPosition === 'LEFT' ? 'RIGHT' : 'LEFT';
+    if (parentMember.placementParentId && parentMember.placementPosition != 'NONE') {
+      let targetDirection: PLACEMENT_POSITION = 'NONE';
+      if (parentMember.teamStrategy === 'LEFT') {
+        targetDirection = 'RIGHT';
+      } else if (parentMember.teamStrategy === 'RIGHT') {
+        targetDirection = 'LEFT';
+      } else {
+        return;
+      }
+
       const bottomID = await this.getBottomOfTree(parentID, targetDirection);
       await this.prisma.member.update({
         where: {
