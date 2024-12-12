@@ -44,7 +44,6 @@ import {
   ResetPasswordTokenInput,
   VerifyTokenResponse,
   MemberOverview,
-  MemberOverviewInput,
   PlacementPositionCountResponse,
   MemberLog,
   ReferenceLink,
@@ -636,7 +635,7 @@ export class MemberResolver {
   @Authorized()
   @UseMiddleware(userPermission)
   @Query(() => MemberOverview)
-  async memberOverview(@Arg('data') { id }: MemberOverviewInput): Promise<MemberOverview> {
+  async memberOverview(@Arg('data') { id }: IDInput): Promise<MemberOverview> {
     const { txcShared: totalTXCShared } = await this.memberStatisticsService.getTotalTXCShared(id);
     const currentHashPower = await this.saleService.getMemberHashPowerById({ id });
     const { createdAt: joinDate, point } = await this.service.getMemberById(id);
