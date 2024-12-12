@@ -437,10 +437,10 @@ export class MemberService {
     const member = await this.prisma.member.update({
       where: {
         id,
-        ...(prevMember.ID ? {} : { ID: (await this.getMaxID()) + 1 }),
       },
       data: {
         status: true,
+        ...(prevMember.ID ? {} : { ID: (await this.getMaxID()) + 1 }),
       },
     });
 
