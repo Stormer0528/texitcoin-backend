@@ -18,6 +18,7 @@ import {
   VerifyTokenResponse,
   EmailVerificationInput,
   PLACEMENT_POSITION,
+  TEAM_STRATEGY,
 } from './member.type';
 import { Member } from './member.entity';
 import { SendyService } from '@/service/sendy';
@@ -503,12 +504,8 @@ export class MemberService {
       },
     });
     if (parentMember.placementParentId && parentMember.placementPosition != 'NONE') {
-      let targetDirection: PLACEMENT_POSITION = 'NONE';
-      if (parentMember.teamStrategy === 'LEFT') {
-        targetDirection = 'RIGHT';
-      } else if (parentMember.teamStrategy === 'RIGHT') {
-        targetDirection = 'LEFT';
-      } else {
+      let targetDirection: TEAM_STRATEGY = parentMember.teamStrategy;
+      if (!(targetDirection === 'LEFT' || targetDirection === 'RIGHT')) {
         return;
       }
 
