@@ -380,10 +380,10 @@ export class MemberService {
         // `${process.env.ADMIN_URL}/sales/${saleID}`,
         // group
       );
-    } else if (totalIntroducers % 1 === 1 && isNew) {
+    } else if (totalIntroducers % SPONSOR_BONOUS_CNT === 1 && isNew) {
       // notification system
       const teamLeaders = await this.getTeamLeaders(id);
-      await this.notificationService.addNotify(
+      await this.notificationService.addNotification(
         `${fullName}(${username}) achieved first sponsor`,
         NotificationLevel.TEAMLEADER,
         teamLeaders
@@ -547,21 +547,18 @@ export class MemberService {
     const members = await this.prisma.member.findMany({
       select: {
         id: true,
-        placementParentId: true,
-        placementPosition: true,
+        sponsorId: true,
       },
     });
     const membersMap: Record<string, (typeof members)[number]> = {};
     members.forEach((mb) => (membersMap[mb.id] = mb));
 
     const res = [];
-    for (let iID = id; id != PLACEMENT_ROOT; id) {
-      const pID = membersMap[iID].placementParentId;
+    for (let iID = id; iID != PLACEMENT_ROOT && iID; iID = membersMap[iID].sponsorId) {
+      const pID = membersMap[iID].sponsorId;
+      res.push(pID);
       if (pID === PLACEMENT_ROOT) {
-        res.push(pID);
         return res.filter((resID) => resID !== id);
-      } else if (membersMap[iID].placementPosition !== membersMap[pID].placementPosition) {
-        res.push(pID);
       }
     }
 

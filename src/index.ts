@@ -37,6 +37,12 @@ import { PaymentMethodResolver } from './entity/paymentMethod/paymentMethod.reso
 import { PaymentMethodLinkResolver } from './entity/paymentMethodLink/paymentMethodLink.resolver';
 import { NotificationAdminResolver } from './entity/notification/notificationAdmin.resolver';
 import { NotificationMemberResolver } from './entity/notification/notificationMember.resolver';
+import { NotificationResolver } from './entity/notification/notification.resolver';
+import { pubSub } from './pubsub';
+import { WebSocketServer } from 'ws';
+import { createServer } from 'http';
+import { useServer } from 'graphql-ws/lib/use/ws';
+import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
 
 const app = async () => {
   const schema = await tq.buildSchema({
@@ -62,6 +68,7 @@ const app = async () => {
       PaymentMethodLinkResolver,
       NotificationAdminResolver,
       NotificationMemberResolver,
+      NotificationResolver,
     ],
     authChecker,
     scalarsMap: [
@@ -71,17 +78,46 @@ const app = async () => {
     validate: { forbidUnknownValues: false },
     // Registry 3rd party IOC container
     container: Container,
+    pubSub,
   });
 
+  const mainServer = express();
+  const httpServer = createServer(mainServer);
+  const wsServer = new WebSocketServer({
+    server: httpServer,
+    path: '/subscriptions',
+  });
+  const serverCleanup = useServer(
+    {
+      schema,
+      context,
+      onConnect: (ctx) => {
+        (ctx as any).req = ctx.extra.request;
+      },
+    },
+    wsServer
+  );
   const apolloServer = new ApolloServer<Context>({
     schema,
     formatError,
     introspection: process.env.SERVER_TYPE !== 'production',
+    plugins: [
+      // Proper shutdown for the HTTP server.
+      ApolloServerPluginDrainHttpServer({ httpServer }),
+
+      // Proper shutdown for the WebSocket server.
+      {
+        async serverWillStart() {
+          return {
+            async drainServer() {
+              await serverCleanup.dispose();
+            },
+          };
+        },
+      },
+    ],
   });
   await apolloServer.start();
-
-  const mainServer = express();
-  // mainServer.set('trust proxy', process.env.USE_PROXY?.toLowerCase() === 'true');
 
   mainServer.use(
     process.env.SERVER_TYPE === 'production'
@@ -102,7 +138,7 @@ const app = async () => {
 
   const APP_HOST = process.env.APP_HOST ?? '0.0.0.0';
   const APP_PORT = process.env.APP_PORT ?? 4000;
-  mainServer.listen(+APP_PORT, APP_HOST, () => {
+  httpServer.listen(+APP_PORT, APP_HOST, () => {
     console.log(`🚀 Server ready at: ${APP_HOST}:${APP_PORT}`);
   });
 };

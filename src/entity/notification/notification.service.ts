@@ -5,6 +5,7 @@ import { PrismaService } from '@/service/prisma';
 import { IDInput } from '@/graphql/common.type';
 import {
   CreateNotificationInput,
+  NewNotificationInterface,
   NotificationMemberQueryArgs,
   NotificationQueryArgs,
   UpdateNotificationInput,
@@ -15,6 +16,9 @@ import { getColumnQuery } from '@/utils/getColumnQuery';
 import { ORDER } from '@/consts/db';
 import { parseFilterManually } from '@/utils/parseFilterManually';
 import { NotificationLevel } from '@/graphql/enum';
+
+import { pubSub } from '@/pubsub';
+import { ROUTING_NEW_NOTIFICATION } from '@/consts/subscription';
 
 const NOTIFICATION_COLUMNS: ColumnInterface[] = [
   { column: 'notification.id', sql: Prisma.sql`"notifications"."id"` },
@@ -137,15 +141,15 @@ export class NotificationService {
     });
   }
 
-  async addNotify(message: string, level: NotificationLevel, memberIDs: string[] = []) {
+  async addNotification(message: string, level: NotificationLevel, memberIds: string[] = []) {
     const notifiyMembers =
       level === NotificationLevel.ALL
         ? await this.prisma.member
             .findMany({ select: { id: true } })
             .then((members) => members.map(({ id }) => id))
-        : memberIDs;
+        : memberIds;
 
-    await this.prisma.notification.create({
+    const notification = await this.prisma.notification.create({
       data: {
         message,
         level,
@@ -158,5 +162,10 @@ export class NotificationService {
         },
       },
     });
+
+    pubSub.publish(ROUTING_NEW_NOTIFICATION, {
+      memberIds,
+      notification,
+    } as NewNotificationInterface);
   }
 }

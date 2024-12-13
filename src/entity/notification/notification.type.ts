@@ -45,4 +45,9 @@ export class UpdateNotificationInput {
   level: NOTIFICATION_LEVEL;
 }
 
+export interface NewNotificationInterface {
+  memberIds: string[];
+  notification: Notification;
+}
+
 export type NOTIFICATION_LEVEL = 'ALL' | 'INDIVIDUAL' | 'TEAMLEADER';
