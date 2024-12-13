@@ -27,7 +27,7 @@ export const totalMembersForNotificationLoader = (parent: RootDataLoader) => {
         memberCountMap[mbc.notificationId] = mbc._count;
       });
 
-      return notificationIds.map((id) => memberCountMap[id]);
+      return notificationIds.map((id) => memberCountMap[id] ?? 0);
     },
     {
       ...parent.dataLoaderOptions,
@@ -53,7 +53,7 @@ export const readMembersForNotificationLoader = (parent: RootDataLoader) => {
         memberCountMap[mbc.notificationId] = mbc._count;
       });
 
-      return notificationIds.map((id) => memberCountMap[id]);
+      return notificationIds.map((id) => memberCountMap[id] ?? 0);
     },
     {
       ...parent.dataLoaderOptions,
