@@ -69,27 +69,27 @@ export class ProofResolver {
     return response;
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Query(() => Proof)
   async proofById(@Arg('data') data: IDInput): Promise<Proof> {
     return this.service.getProofById(data.id);
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Transaction()
   @Mutation(() => Proof)
   async createProof(@Arg('data') data: CreateProofInput): Promise<Proof> {
     return this.service.createProof(data);
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Transaction()
   @Mutation(() => Proof)
   async updateProof(@Arg('data') data: UpdateProofByIDInput): Promise<Proof> {
     return this.service.updateProofById(data);
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Mutation(() => SuccessResponse)
   async removeProof(@Arg('data') data: IDInput): Promise<SuccessResponse> {
     await this.service.removeProof(data);
@@ -98,13 +98,13 @@ export class ProofResolver {
     };
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @FieldResolver({ nullable: true })
   async files(@Root() proof: Proof, @Ctx() ctx: Context): Promise<PFile[]> {
     return ctx.dataLoader.get('filesForProofLoader').load(proof.id);
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @FieldResolver({ nullable: true })
   async reflinks(@Root() proof: Proof, @Ctx() ctx: Context): Promise<RefLink[]> {
     return ctx.dataLoader.get('referenceLinksForProofLoader').load(proof.id);

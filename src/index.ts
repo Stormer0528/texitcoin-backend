@@ -35,14 +35,13 @@ import { PrepaidCommissionResolver } from './entity/prepaidCommission/prepaidCom
 import { ProofResolver } from './entity/proof/proof.resolver';
 import { PaymentMethodResolver } from './entity/paymentMethod/paymentMethod.resolver';
 import { PaymentMethodLinkResolver } from './entity/paymentMethodLink/paymentMethodLink.resolver';
-import { NotificationAdminResolver } from './entity/notification/notificationAdmin.resolver';
-import { NotificationMemberResolver } from './entity/notification/notificationMember.resolver';
 import { NotificationResolver } from './entity/notification/notification.resolver';
 import { pubSub } from './pubsub';
 import { WebSocketServer } from 'ws';
 import { createServer } from 'http';
 import { useServer } from 'graphql-ws/lib/use/ws';
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
+import { NotificationClientResolver } from './entity/notification/notificationClient.resolver';
 
 const app = async () => {
   const schema = await tq.buildSchema({
@@ -66,9 +65,8 @@ const app = async () => {
       ProofResolver,
       PaymentMethodResolver,
       PaymentMethodLinkResolver,
-      NotificationAdminResolver,
-      NotificationMemberResolver,
       NotificationResolver,
+      NotificationClientResolver,
     ],
     authChecker,
     scalarsMap: [
@@ -85,14 +83,21 @@ const app = async () => {
   const httpServer = createServer(mainServer);
   const wsServer = new WebSocketServer({
     server: httpServer,
-    path: '/subscriptions',
+    path: '/graphql',
   });
   const serverCleanup = useServer(
     {
       schema,
       context,
       onConnect: (ctx) => {
-        (ctx as any).req = ctx.extra.request;
+        (ctx as any).req = {
+          headers: Object.fromEntries(
+            Object.entries({
+              ...ctx.extra.request.headers,
+              ...ctx.connectionParams,
+            }).map(([key, value]) => [key.toLowerCase(), value])
+          ),
+        };
       },
     },
     wsServer

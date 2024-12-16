@@ -90,7 +90,7 @@ export class SaleResolver {
     return response;
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Transaction()
   @Mutation(() => Sale)
   async createSale(@Arg('data') data: CreateSaleInput): Promise<Sale> {
@@ -149,7 +149,7 @@ export class SaleResolver {
     return sale;
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Transaction()
   @Mutation(() => Sale)
   async updateSale(@Arg('data') data: UpdateSaleInput): Promise<Sale> {
@@ -185,7 +185,7 @@ export class SaleResolver {
     return newsale;
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Transaction()
   @Mutation(() => SuccessResponse)
   async removeSale(@Arg('data') data: IDInput): Promise<SuccessResponse> {
@@ -216,7 +216,7 @@ export class SaleResolver {
     return ctx.dataLoader.get('statisticsSalesForSaleLoader').load(sale.id);
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @FieldResolver({ nullable: true })
   async proof(@Root() sale: Sale, @Ctx() ctx: Context): Promise<Proof> {
     return ctx.dataLoader

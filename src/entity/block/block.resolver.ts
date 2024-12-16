@@ -42,7 +42,7 @@ export class BlockResolver {
     return response;
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Mutation(() => Block)
   async createBlock(@Arg('data') data: CreateBlockInput): Promise<Block> {
     return this.service.createBlock(data);

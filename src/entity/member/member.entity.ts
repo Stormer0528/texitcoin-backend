@@ -113,11 +113,11 @@ export class Member extends BaseEntity {
   @Field(() => [WeeklyCommission], { nullable: true })
   weeklyCommissions?: WeeklyCommission[];
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Field(() => [MemberLog], { nullable: true })
   logs?: MemberLog[];
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Field(() => [AdminNotes], { nullable: true })
   adminNotes?: AdminNotes[];
 

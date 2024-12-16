@@ -1,3 +1,4 @@
+import { UserRole } from '@/type';
 import { registerEnumType } from 'type-graphql';
 
 export enum PlacementPosition {
@@ -77,4 +78,8 @@ registerEnumType(TeamStrategy, {
 
 registerEnumType(NotificationLevel, {
   name: 'NotificationLevel',
+});
+
+registerEnumType(UserRole, {
+  name: 'UserRole',
 });

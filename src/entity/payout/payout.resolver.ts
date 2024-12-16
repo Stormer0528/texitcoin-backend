@@ -55,7 +55,7 @@ export class PayoutResolver {
     return response;
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Mutation(() => Payout)
   async createPayout(@Arg('data') data: CreatePayoutInput): Promise<Payout> {
     return this.service.createPayout(data);

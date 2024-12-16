@@ -23,7 +23,7 @@ export class Admin extends BaseEntity {
   @IsUrl()
   avatar: string;
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Field(() => [AdminNotes], { nullable: true })
   adminNotes?: AdminNotes[];
 }

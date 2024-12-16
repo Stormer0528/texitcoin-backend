@@ -54,7 +54,7 @@ export class PrepaidCommissionResolver {
     private proofService: ProofService
   ) {}
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Query(() => PrepaidCommissionResponse)
   async prepaidCommissions(
     @Ctx() ctx: Context,
@@ -85,7 +85,7 @@ export class PrepaidCommissionResolver {
     return response;
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Transaction()
   @Mutation(() => PrepaidCommission)
   async createPrepaidCommission(
@@ -128,7 +128,7 @@ export class PrepaidCommissionResolver {
     return prepaidCommission;
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Transaction()
   @Mutation(() => PrepaidCommission)
   async updatePrepaidCommission(
@@ -172,7 +172,7 @@ export class PrepaidCommissionResolver {
     return prepaidCommission;
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Transaction()
   @Mutation(() => SuccessResponse)
   async removePrepaidCommission(@Arg('data') data: IDInput): Promise<SuccessResponse> {

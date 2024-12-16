@@ -43,7 +43,7 @@ export class Sale extends BaseEntity {
   @Field(() => [StatisticsSale], { nullable: true })
   statisticsSales?: StatisticsSale[];
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Field(() => Proof, { nullable: true })
   proof?: Proof;
 }

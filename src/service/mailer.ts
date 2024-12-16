@@ -54,7 +54,7 @@ export class MailerService {
     return this.transporter.sendMail(mailOption);
   }
 
-  public async sendForgetpasswordLink(to: string, name: string, resetLink: string) {
+  public async sendForgetPasswordLink(to: string, name: string, resetLink: string) {
     if (isEmail(to) && isEmail(SMTP_SENDER_EMAIL)) {
       const mailOption = {
         from: `"${SMTP_SENDER_NAME}" <${SMTP_SENDER_EMAIL}>`,

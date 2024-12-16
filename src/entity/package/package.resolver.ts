@@ -69,21 +69,21 @@ export class PackageResolver {
     return response;
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Transaction()
   @Mutation(() => Package)
   async createPackage(@Arg('data') data: CreatePackageInput): Promise<Package> {
     return this.service.createPackage(data);
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Transaction()
   @Mutation(() => Package)
   async updatePackage(@Arg('data') data: UpdatePackageInput): Promise<Package> {
     return this.service.updatePackage(data);
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Transaction()
   @Mutation(() => SuccessResponse)
   async removePackage(@Arg('data') data: IDInput): Promise<SuccessResponse> {

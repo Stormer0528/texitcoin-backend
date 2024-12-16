@@ -2,16 +2,15 @@ import { Service, Inject } from 'typedi';
 
 import { PrismaService } from '@/service/prisma';
 
-import { IDInput } from '@/graphql/common.type';
 import {
-  CreateNotificationInput,
   NewNotificationInterface,
-  NotificationMemberQueryArgs,
+  NotificationClientIdentifier,
+  NotificationClientQueryArgs,
   NotificationQueryArgs,
   UpdateNotificationInput,
 } from './notification.type';
 import { ColumnInterface } from '@/type';
-import { Prisma } from '@prisma/client';
+import { Prisma, UserRole } from '@prisma/client';
 import { getColumnQuery } from '@/utils/getColumnQuery';
 import { ORDER } from '@/consts/db';
 import { parseFilterManually } from '@/utils/parseFilterManually';
@@ -25,7 +24,8 @@ const NOTIFICATION_COLUMNS: ColumnInterface[] = [
   { column: 'notification.message', sql: Prisma.sql`"notification"."message"` },
   { column: 'notification.level', sql: Prisma.sql`"notification"."level"` },
   { column: 'read', sql: Prisma.sql`"read"` },
-  { column: 'memberId', sql: Prisma.sql`"memberId"` },
+  { column: 'clientId', sql: Prisma.sql`"clientId"` },
+  { column: 'clientType', sql: Prisma.sql`"clientType"`, parsing: Prisma.sql`::Text` },
   { column: 'createdAt', sql: Prisma.sql`"createdAt"` },
 ];
 
@@ -35,19 +35,7 @@ export class NotificationService {
     @Inject(() => PrismaService)
     private readonly prisma: PrismaService
   ) {}
-  async getNotifications(params: NotificationQueryArgs) {
-    return this.prisma.notification.findMany({
-      where: params.where,
-      orderBy: params.orderBy,
-      ...params.parsePage,
-    });
-  }
-
-  async getNotificationsCount(params: NotificationQueryArgs): Promise<number> {
-    return this.prisma.notification.count({ where: params.where });
-  }
-
-  async getNotificationsByMemberID(params: NotificationMemberQueryArgs) {
+  async getNotificationsByClient(params: NotificationClientQueryArgs) {
     const { orderBy, parsePage, filter } = params;
 
     const orderQueryItems = (orderBy ? (Array.isArray(orderBy) ? orderBy : [orderBy]) : []).flatMap(
@@ -72,8 +60,8 @@ export class NotificationService {
       SELECT
         "notifications".*, "read"
       FROM
-        "notificationmembers"
-        LEFT JOIN "notifications" ON "notificationmembers"."notificationId" = "notifications"."id"
+        "notificationclients"
+        LEFT JOIN "notifications" ON "notificationclients"."notificationId" = "notifications"."id"
       ${whereQuery}
       ${fullOrderQuery}
       LIMIT ${parsePage.take}
@@ -83,26 +71,43 @@ export class NotificationService {
     return res;
   }
 
-  async getNotificationsCountByMemberID({ filter }: NotificationMemberQueryArgs): Promise<number> {
+  async getNotificationsCountByClient({ filter }: NotificationClientQueryArgs): Promise<number> {
     const whereQuery = parseFilterManually(NOTIFICATION_COLUMNS, filter);
 
     return this.prisma.$queryRaw<{ count: bigint }[]>`
       SELECT
         count("notifications".*) AS "count"
       FROM
-        "notificationmembers"
-        LEFT JOIN "notifications" ON "notificationmembers"."notificationId" = "notifications"."id"
+        "notificationclients"
+        LEFT JOIN "notifications" ON "notificationclients"."notificationId" = "notifications"."id"
       ${whereQuery}
     `.then((res) => Number(res[0].count));
   }
 
-  async setReadNotification(notificationId: string, memberId: string): Promise<void> {
-    await this.prisma.notificationMember.update({
+  async setReadNotificationByClient(
+    notificationId: string,
+    clientId: string,
+    clientType: UserRole
+  ): Promise<void> {
+    await this.prisma.notificationClient.update({
       where: {
-        memberId_notificationId: {
-          memberId,
+        clientId_clientType_notificationId: {
+          clientId,
+          clientType,
           notificationId,
         },
+      },
+      data: {
+        read: true,
+      },
+    });
+  }
+
+  async setReadAllNotificationsByClient(clientId: string, clientType: UserRole) {
+    return this.prisma.notificationClient.updateMany({
+      where: {
+        clientId,
+        clientType,
       },
       data: {
         read: true,
@@ -118,12 +123,6 @@ export class NotificationService {
     });
   }
 
-  async createPackage(data: CreateNotificationInput) {
-    return await this.prisma.notification.create({
-      data,
-    });
-  }
-
   async updateNotification(data: UpdateNotificationInput) {
     return this.prisma.notification.update({
       where: {
@@ -133,38 +132,59 @@ export class NotificationService {
     });
   }
 
-  async removePackage(data: IDInput) {
-    return this.prisma.notification.delete({
-      where: {
-        id: data.id,
-      },
-    });
+  async addNotification(message: string, level: NotificationLevel, memberIds: string[]) {
+    if (level === NotificationLevel.ALL) {
+      const members = await this.prisma.member.findMany({
+        where: {
+          status: true,
+        },
+        select: {
+          id: true,
+        },
+      });
+      const adminIds = await this.prisma.admin.findMany({
+        select: {
+          id: true,
+        },
+      });
+
+      await this._addNotification(message, level, [
+        ...members.map((member) => ({ clientId: member.id, clientType: UserRole.MEMBER })),
+        ...adminIds.map((admin) => ({ clientId: admin.id, clientType: UserRole.ADMIN })),
+      ]);
+    } else {
+      const adminIds = await this.prisma.admin.findMany({
+        select: {
+          id: true,
+        },
+      });
+
+      await this._addNotification(message, level, [
+        ...memberIds.map((mID) => ({ clientId: mID, clientType: UserRole.MEMBER })),
+        ...adminIds.map((admin) => ({ clientId: admin.id, clientType: UserRole.ADMIN })),
+      ]);
+    }
   }
 
-  async addNotification(message: string, level: NotificationLevel, memberIds: string[] = []) {
-    const notifiyMembers =
-      level === NotificationLevel.ALL
-        ? await this.prisma.member
-            .findMany({ select: { id: true } })
-            .then((members) => members.map(({ id }) => id))
-        : memberIds;
-
+  private async _addNotification(
+    message: string,
+    level: NotificationLevel,
+    clients: NotificationClientIdentifier[]
+  ) {
     const notification = await this.prisma.notification.create({
       data: {
         message,
         level,
-        notificationUsers: {
+        notificationClients: {
           createMany: {
-            data: notifiyMembers.map((mID) => ({
-              memberId: mID,
-            })),
+            data: clients,
           },
         },
       },
     });
 
     pubSub.publish(ROUTING_NEW_NOTIFICATION, {
-      memberIds,
+      clients,
       notification,
     } as NewNotificationInterface);
   }

@@ -40,7 +40,7 @@ import { SuccessResult } from '@/graphql/enum';
 export class AdminResolver {
   constructor(private readonly service: AdminService) {}
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Query(() => AdminsResponse)
   async admins(
     @Args() query: AdminQueryArgs,
@@ -69,13 +69,13 @@ export class AdminResolver {
     return response;
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Query(() => Admin)
   async adminMe(@Ctx() ctx: Context): Promise<Admin> {
     return ctx.user! as Admin;
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Mutation(() => Admin)
   async createAdmin(@Arg('data') data: CreateAdminInput): Promise<Admin> {
     // Hash the password
@@ -83,7 +83,7 @@ export class AdminResolver {
     return this.service.createAdmin({ ...data, password: hashedPassword });
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Mutation(() => Admin)
   async updateAdmin(@Ctx() ctx: Context, @Arg('data') data: UpdateAdminInput): Promise<Admin> {
     return this.service.updateAdmin({
@@ -92,7 +92,7 @@ export class AdminResolver {
     });
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Mutation(() => SuccessResponse)
   async updatePasswordAdmin(
     @Ctx() ctx: Context,
@@ -117,14 +117,14 @@ export class AdminResolver {
     };
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Mutation(() => Admin)
   async updatePasswordAdminById(@Arg('data') data: UpdateAdminPasswordByIdInput): Promise<Admin> {
     const hashedPassword = await hashPassword(data.newPassword);
     return this.service.updatePassword({ id: data.id, password: hashedPassword });
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Mutation(() => ManySuccessResponse)
   async removeAdmins(@Arg('data') data: IDsInput): Promise<ManySuccessResponse> {
     const { count } = await this.service.removeAdmins(data);
@@ -151,7 +151,7 @@ export class AdminResolver {
     };
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @FieldResolver(() => [AdminNotes])
   async adminNotes(@Root() admin: Admin, @Ctx() ctx: Context) {
     return ctx.dataLoader.get('adminNotesForAdminLoader').load(admin.id);

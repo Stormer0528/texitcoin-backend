@@ -125,7 +125,7 @@ export class MemberResolver {
     return response;
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Query(() => MembersResponse)
   async onepointAwayMembers(
     @Args() query: QueryOrderPagination,
@@ -199,7 +199,7 @@ export class MemberResolver {
     return response;
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @UseMiddleware(minerLog('create'))
   @Transaction()
   @Mutation(() => Member)
@@ -257,7 +257,7 @@ export class MemberResolver {
     }
     let requestPkg = null;
     if (data.packageId) requestPkg = await this.packageService.getPackageById(data.packageId);
-    const newmember = await this.service.createMember({
+    const newMember = await this.service.createMember({
       ..._.omit(data, ['packageId', 'paymentMethod', 'sponsorUserId']),
       password: hashedPassword,
       status: false,
@@ -270,8 +270,8 @@ export class MemberResolver {
       ID: null,
     });
 
-    this.mailerService.notifyMinerSignupToAdmin(newmember.email, newmember.fullName, sponsorName);
-    return newmember;
+    this.mailerService.notifyMinerSignupToAdmin(newMember.email, newMember.fullName, sponsorName);
+    return newMember;
   }
 
   @Mutation(() => EmailVerificationResponse)
@@ -397,7 +397,7 @@ export class MemberResolver {
     return member;
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Transaction()
   @Mutation(() => SuccessResponse)
   async approveMember(@Arg('data') data: IDInput): Promise<SuccessResponse> {
@@ -413,7 +413,7 @@ export class MemberResolver {
     };
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @UseMiddleware(minerLog('remove'))
   @Transaction()
   @Mutation(() => SuccessResponse)
@@ -479,7 +479,7 @@ export class MemberResolver {
     };
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Transaction()
   @Mutation(() => SuccessResponse)
   async removeCompleteMemberPlacement(@Arg('data') data: IDInput): Promise<SuccessResponse> {
@@ -532,13 +532,13 @@ export class MemberResolver {
     return ctx.dataLoader.get('placementChildrenForMemberLoader').load(member.id);
   }
 
-  @Authorized([UserRole.OnlyMember])
+  @Authorized([UserRole.MEMBER])
   @Query(() => Member)
   async memberMe(@Ctx() ctx: Context): Promise<Member> {
     return ctx.user! as Member;
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Mutation(() => Member)
   async updatePasswordMemberById(
     @Arg('data') data: UpdateMemberPasswordInputById
@@ -548,7 +548,7 @@ export class MemberResolver {
     return await this.service.updateMember({ id: data.id, password: hashedPassword });
   }
 
-  @Authorized([UserRole.OnlyMember])
+  @Authorized([UserRole.MEMBER])
   @Mutation(() => SuccessResponse)
   async updatePasswordMember(
     @Ctx() ctx: Context,
@@ -603,7 +603,7 @@ export class MemberResolver {
   async resetPasswordRequest(@Arg('data') data: EmailInput): Promise<SuccessResponse> {
     const { token, email, fullName } = await this.service.generateResetTokenByEmail(data);
     if (token) {
-      this.mailerService.sendForgetpasswordLink(
+      this.mailerService.sendForgetPasswordLink(
         email,
         fullName,
         `${process.env.MEMBER_URL}/reset-password?token=${token}`
@@ -650,7 +650,7 @@ export class MemberResolver {
     };
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Query(() => CountResponse)
   async countLeftMembers(@Arg('data') data: IDInput): Promise<CountResponse> {
     const count = await this.service.getMembersCount({
@@ -664,7 +664,7 @@ export class MemberResolver {
     };
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Query(() => CountResponse)
   async countRightMembers(@Arg('data') data: IDInput): Promise<CountResponse> {
     const count = await this.service.getMembersCount({
@@ -678,7 +678,7 @@ export class MemberResolver {
     };
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Query(() => PlacementPositionCountResponse)
   async countBelowMembers(@Arg('data') data: IDInput): Promise<PlacementPositionCountResponse> {
     const leftCount = await this.service.getMembersCount({
@@ -702,17 +702,17 @@ export class MemberResolver {
 
   @FieldResolver(() => [MemberLog])
   async logs(@Root() member: Member, @Arg('logsize', { defaultValue: 10 }) logsize: number) {
-    const logres = await this.elasticService.getLogByMinerId(member.id, logsize);
+    const logRes = await this.elasticService.getLogByMinerId(member.id, logsize);
 
-    return logres
-      ? logres.hits.hits.map((hit) => ({
+    return logRes
+      ? logRes.hits.hits.map((hit) => ({
           id: hit._id,
           ...(hit._source as object),
         }))
       : [];
   }
 
-  @Authorized([UserRole.OnlyMember])
+  @Authorized([UserRole.MEMBER])
   @Query(() => ReferenceLink)
   generateReferenceLink(@Ctx() ctx: Context): ReferenceLink {
     return {
@@ -720,7 +720,7 @@ export class MemberResolver {
     };
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @FieldResolver(() => [AdminNotes])
   async adminNotes(@Root() member: Member, @Ctx() ctx: Context) {
     return ctx.dataLoader.get('adminNotesForMemberLoader').load(member.id);

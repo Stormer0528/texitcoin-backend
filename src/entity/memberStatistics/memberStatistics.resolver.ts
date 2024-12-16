@@ -78,7 +78,7 @@ export class MemberStatisticsResolver {
     return response;
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Mutation(() => MemberStatistics)
   async createMemberStatistics(
     @Arg('data') data: CreateMemberStatisticsInput
@@ -86,7 +86,7 @@ export class MemberStatisticsResolver {
     return this.service.createMemberStatistics(data);
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Mutation(() => ManySuccessResponse)
   async createManyMemberStatistics(
     @Arg('data') data: CreateManyMemberStatisticsInput
@@ -94,13 +94,13 @@ export class MemberStatisticsResolver {
     return await this.service.createManyMemberStatistics(data);
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Mutation(() => ManySuccessResponse)
   async removeManyMemberStatistics(@Arg('data') data: IDsInput): Promise<ManySuccessResponse> {
     return await this.service.removeManyMemberStatistics(data);
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Mutation(() => ManySuccessResponse)
   async removeMemberStatisticsByStaitisId(
     @Arg('data') data: IDInput

@@ -68,7 +68,7 @@ export class PaymentMethodResolver {
     return response;
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Transaction()
   @Mutation(() => PaymentMethod)
   async createPaymentMethod(@Arg('data') data: CreatePaymentMethodInput): Promise<PaymentMethod> {
@@ -83,7 +83,7 @@ export class PaymentMethodResolver {
     return paymentMethod;
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Transaction()
   @Mutation(() => PaymentMethod)
   async updatePaymentMethod(@Arg('data') data: UpdatePaymentMethodInput): Promise<PaymentMethod> {
@@ -97,7 +97,7 @@ export class PaymentMethodResolver {
     return this.service.updatePaymentMethod(restData);
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Transaction()
   @Mutation(() => SuccessResponse)
   async removePaymentMethod(@Arg('data') data: IDInput): Promise<SuccessResponse> {

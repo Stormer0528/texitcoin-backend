@@ -1,10 +1,11 @@
-import { ObjectType, Field, ID, Int } from 'type-graphql';
+import { ObjectType, Field, ID, Int, Authorized } from 'type-graphql';
 
 import { BaseEntity } from '@/graphql/baseEntity';
 
 import { NotificationLevel } from '@/graphql/enum';
 import { NOTIFICATION_LEVEL } from './notification.type';
 import { Member } from '../member/member.entity';
+import { UserRole } from '@prisma/client';
 
 @ObjectType()
 export class Notification extends BaseEntity {
@@ -19,19 +20,19 @@ export class Notification extends BaseEntity {
 }
 
 @ObjectType()
-export class NotificationMember extends Notification {
-  @Field()
-  read: boolean;
-}
-
-@ObjectType()
-export class NotificationAdmin extends Notification {
+export class NotificationClient extends Notification {
+  @Authorized([UserRole.ADMIN])
   @Field(() => Int)
   totalMembers?: number;
 
+  @Authorized([UserRole.ADMIN])
   @Field(() => Int)
   readMembers?: number;
 
-  @Field(() => [Member], { nullable: true })
+  @Authorized([UserRole.ADMIN])
+  @Field(() => [Member])
   members?: Member[];
+
+  @Field()
+  read: boolean;
 }

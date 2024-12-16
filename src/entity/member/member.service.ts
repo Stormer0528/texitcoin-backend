@@ -268,13 +268,13 @@ export class MemberService {
         package: true,
       },
     });
-    const newpoint = sales.reduce((prev, cur) => prev + cur.package.point, 0);
+    const newPoint = sales.reduce((prev, cur) => prev + cur.package.point, 0);
     await this.prisma.member.update({
       where: {
         id,
       },
       data: {
-        point: newpoint,
+        point: newPoint,
       },
     });
   }
@@ -382,11 +382,10 @@ export class MemberService {
       );
     } else if (totalIntroducers % SPONSOR_BONOUS_CNT === 1 && isNew) {
       // notification system
-      const teamLeaders = await this.getTeamLeaders(id);
       await this.notificationService.addNotification(
         `${fullName}(${username}) achieved first sponsor`,
         NotificationLevel.TEAMLEADER,
-        teamLeaders
+        [id]
       );
     } else if (totalIntroducers % SPONSOR_BONOUS_CNT === SPONSOR_BONOUS_CNT - 1 && !isNew) {
       // const freeSales = await this.prisma.sale.findMany({
@@ -541,27 +540,5 @@ export class MemberService {
         },
       });
     }
-  }
-
-  async getTeamLeaders(id: string) {
-    const members = await this.prisma.member.findMany({
-      select: {
-        id: true,
-        sponsorId: true,
-      },
-    });
-    const membersMap: Record<string, (typeof members)[number]> = {};
-    members.forEach((mb) => (membersMap[mb.id] = mb));
-
-    const res = [];
-    for (let iID = id; iID != PLACEMENT_ROOT && iID; iID = membersMap[iID].sponsorId) {
-      const pID = membersMap[iID].sponsorId;
-      res.push(pID);
-      if (pID === PLACEMENT_ROOT) {
-        return res.filter((resID) => resID !== id);
-      }
-    }
-
-    return [];
   }
 }

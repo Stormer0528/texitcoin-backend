@@ -64,9 +64,16 @@ export const parseFilterManually = (columns: ColumnInterface[], filter) => {
   };
 
   const parsingFilter = (filter: Record<string, any>) => {
+    if (_.isEmpty(filter)) {
+      return Prisma.empty;
+    }
+
     const [key, value] = Object.entries(filter)[0];
     if (isWhereOperation(key)) {
-      return Prisma.sql`(${Prisma.join(value.map(parsingFilter), ` ${key} `)})`;
+      return Prisma.sql`(${Prisma.join(
+        value.map(parsingFilter).filter((sql) => sql !== Prisma.empty),
+        ` ${key} `
+      )})`;
     } else {
       const column = getColumnQuery(key, columns);
       return Prisma.sql`${column.sql} ${operationToSql(value, column)}`;

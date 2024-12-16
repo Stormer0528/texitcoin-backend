@@ -63,7 +63,7 @@ export class StatisticsSaleResolver {
     return response;
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Mutation(() => StatisticsSale)
   async createStatisticsSale(
     @Arg('data') data: CreateStatisticsSaleInput
@@ -71,7 +71,7 @@ export class StatisticsSaleResolver {
     return this.service.createStatisticsSale(data);
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Mutation(() => ManySuccessResponse)
   async createManyStatisticsSales(
     @Arg('data') data: CreateManyStatisticsSaleInput
@@ -79,13 +79,13 @@ export class StatisticsSaleResolver {
     return await this.service.createManyStatisticsSales(data);
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Mutation(() => ManySuccessResponse)
   async removeManyStatisticsSales(@Arg('data') data: IDsInput): Promise<ManySuccessResponse> {
     return await this.service.removeManyStatisticsSales(data);
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Mutation(() => ManySuccessResponse)
   async removeStatisticsSalesByStaitisId(@Arg('data') data: IDInput): Promise<ManySuccessResponse> {
     return await this.service.removeStatisticsSalesByStatisticId(data);

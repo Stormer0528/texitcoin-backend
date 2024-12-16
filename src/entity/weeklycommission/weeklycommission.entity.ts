@@ -64,7 +64,7 @@ export class WeeklyCommission extends BaseEntity {
   @Field(() => Member, { nullable: true })
   member?: Member;
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Field(() => Proof, { nullable: true })
   proof?: Proof;
 }

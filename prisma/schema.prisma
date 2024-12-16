@@ -62,6 +62,12 @@ enum NotificationLevel {
   ALL
   INDIVIDUAL
   TEAMLEADER
+  ADMIN
+}
+
+enum UserRole {
+  ADMIN
+  MEMBER
 }
 
 model Admin {
@@ -120,12 +126,11 @@ model Member {
   // Relations
   sales             Sale[]
   statistics        MemberStatistics[]
-  introduceMembers  Member[]             @relation("MemberSponsor")
+  introduceMembers  Member[]           @relation("MemberSponsor")
   memberWallets     MemberWallet[]
-  placementChildren Member[]             @relation("MemberPlacementParent")
+  placementChildren Member[]           @relation("MemberPlacementParent")
   WeeklyCommission  WeeklyCommission[]
   adminNotes        AdminNotes[]
-  notificationUsers NotificationMember[]
 
   @@map("members")
 }
@@ -477,21 +482,21 @@ model PaymentMethodLink {
   @@map("paymentmethodlinks")
 }
 
-model NotificationMember {
-  id             String  @id @default(uuid())
-  memberId       String
+model NotificationClient {
+  id             String   @id @default(uuid())
+  clientId       String
+  clientType     UserRole
   notificationId String
-  read           Boolean @default(false)
+  read           Boolean  @default(false)
 
   notification Notification @relation(fields: [notificationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  member       Member       @relation(fields: [memberId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  @@unique([memberId, notificationId], map: "unique_index_on_notification_members")
-  @@map("notificationmembers")
+  @@unique([clientId, clientType, notificationId], map: "unique_index_on_notification_clients")
+  @@map("notificationclients")
 }
 
 model Notification {
@@ -500,7 +505,7 @@ model Notification {
   message String
   level   NotificationLevel @default(ALL)
 
-  notificationUsers NotificationMember[]
+  notificationClients NotificationClient[]
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt

@@ -92,7 +92,7 @@ export class WeeklyCommissionResolver {
     return response;
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Transaction()
   @Mutation(() => WeeklyCommission)
   async updateCommission(@Arg('data') data: WeeklyCommissionUpdateInput) {
@@ -126,7 +126,7 @@ export class WeeklyCommissionResolver {
     return updatedCommission;
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Transaction()
   @Mutation(() => SuccessResponse)
   async updateCommissionsStatus(
@@ -164,13 +164,13 @@ export class WeeklyCommissionResolver {
     };
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Mutation(() => WeeklyCommission)
   async updateCommissionShortNote(@Arg('data') data: WeeklyCommissionNoteInput) {
     return this.service.updateWeeklyCommission(data);
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Mutation(() => SuccessResponse)
   async calculatePreview(): Promise<SuccessResponse> {
     const { stderr } = shelljs.exec(COMMISSION_PREVIEW_COMMAND);
@@ -186,7 +186,7 @@ export class WeeklyCommissionResolver {
     };
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Query(() => WeeklyCommission)
   async commissionByMemberIDAndWeek(
     @Arg('data') data: WeeklyCommissionGetInput
@@ -199,7 +199,7 @@ export class WeeklyCommissionResolver {
     return ctx.dataLoader.get('memberForWeeklyCommissionLoader').load(weeklyCommision.memberId);
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @FieldResolver({ nullable: true })
   async proof(@Root() commission: WeeklyCommission, @Ctx() ctx: Context): Promise<Proof> {
     return commission.ID > 0

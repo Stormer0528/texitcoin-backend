@@ -86,7 +86,7 @@ export class StatisticsResolver {
     return response;
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Transaction()
   @Mutation(() => Statistics)
   async createStatistics(@Arg('data') data: CreateStatisticsInput): Promise<Statistics> {
@@ -176,13 +176,13 @@ export class StatisticsResolver {
     return statistic;
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Mutation(() => Statistics)
   async updateStatistics(@Arg('data') data: UpdateStatisticsInput): Promise<Statistics> {
     return await this.statisticsService.updateStatistics(data);
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Transaction()
   @Mutation(() => Statistics)
   async confirmStatistics(@Arg('data') data: ConfirmStatistics): Promise<Statistics> {
@@ -198,7 +198,7 @@ export class StatisticsResolver {
     return statistic;
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Transaction()
   @Mutation(() => ManySuccessResponse)
   async removeManyStatistics(@Arg('data') data: IDsInput): Promise<ManySuccessResponse> {

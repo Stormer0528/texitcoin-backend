@@ -1,9 +1,9 @@
-import type { Prisma } from '@prisma/client';
+import type { Prisma, UserRole } from '@prisma/client';
 import { ObjectType, InputType, Field, ArgsType, ID } from 'type-graphql';
 
 import { QueryArgsBase } from '@/graphql/queryArgs';
 import { PaginatedResponse } from '@/graphql/paginatedResponse';
-import { Notification, NotificationAdmin, NotificationMember } from './notification.entity';
+import { Notification, NotificationClient } from './notification.entity';
 import { NotificationLevel } from '@/graphql/enum';
 
 // Notification Query Args
@@ -11,19 +11,13 @@ import { NotificationLevel } from '@/graphql/enum';
 export class NotificationQueryArgs extends QueryArgsBase<Prisma.NotificationWhereInput> {}
 
 @ArgsType()
-export class NotificationMemberQueryArgs extends QueryArgsBase<Prisma.NotificationMemberWhereInput> {}
+export class NotificationClientQueryArgs extends QueryArgsBase<Prisma.NotificationClientWhereInput> {}
 
 // Notification list response with pagination ( total )
 @ObjectType()
-export class NotificationMemberResponse extends PaginatedResponse {
-  @Field(() => [NotificationMember], { nullable: true })
-  notifications?: NotificationMember[];
-}
-
-@ObjectType()
-export class NotificationAdminResponse extends PaginatedResponse {
-  @Field(() => [NotificationAdmin], { nullable: true })
-  notifications?: NotificationAdmin[];
+export class NotificationResponse extends PaginatedResponse {
+  @Field(() => [NotificationClient], { nullable: true })
+  notifications?: NotificationClient[];
 }
 
 // Create Notification Input and Response
@@ -46,8 +40,13 @@ export class UpdateNotificationInput {
 }
 
 export interface NewNotificationInterface {
-  memberIds: string[];
+  clients: NotificationClientIdentifier[];
   notification: Notification;
 }
 
 export type NOTIFICATION_LEVEL = 'ALL' | 'INDIVIDUAL' | 'TEAMLEADER';
+
+export class NotificationClientIdentifier {
+  clientId: string;
+  clientType: UserRole;
+}

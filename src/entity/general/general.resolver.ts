@@ -220,7 +220,7 @@ export class GeneralResolver {
     }
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Query(() => CommissionOverviewResponse)
   async commissionsByWeek(
     @Args() query: CommissionOverviewQueryArgs,

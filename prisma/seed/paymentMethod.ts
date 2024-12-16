@@ -1,6 +1,5 @@
-import { PAYMENT_METHODS } from '@/consts';
+import { PAYMENT_METHODS } from '../../src/consts';
 import { Prisma } from '@prisma/client';
-import { hashSync } from 'bcryptjs';
 
 export const paymentMethodData: Prisma.PaymentMethodCreateManyInput[] = [
   {

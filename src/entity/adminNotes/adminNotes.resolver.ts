@@ -36,7 +36,7 @@ import { SuccessResult } from '@/graphql/enum';
 export class AdminNotesResolver {
   constructor(private readonly service: AdminNotesService) {}
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Query(() => AdminNotesResponse)
   async adminNotes(
     @Args() query: AdminNotesQueryArgs,
@@ -66,7 +66,7 @@ export class AdminNotesResolver {
     return response;
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Transaction()
   @Mutation(() => AdminNotes)
   async createAdminNote(
@@ -79,14 +79,14 @@ export class AdminNotesResolver {
     });
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Transaction()
   @Mutation(() => AdminNotes)
   async updateAdminNote(@Arg('data') data: UpdateAdminNotesInput): Promise<AdminNotes> {
     return this.service.updateAdminNote(data);
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Mutation(() => SuccessResponse)
   async removeAdminNote(@Arg('data') data: IDInput): Promise<SuccessResponse> {
     await this.service.removeAdminNote(data);
@@ -95,13 +95,13 @@ export class AdminNotesResolver {
     };
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @FieldResolver(() => Member)
   async member(@Root() adminNote: AdminNotes, @Ctx() ctx: Context): Promise<Member> {
     return ctx.dataLoader.get('memberForAdminNotesLoader').load(adminNote.memberId);
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @FieldResolver(() => Admin)
   async admin(@Root() adminNote: AdminNotes, @Ctx() ctx: Context): Promise<Admin> {
     return ctx.dataLoader.get('adminForAdminNotesLoader').load(adminNote.adminId);
