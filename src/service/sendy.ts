@@ -35,7 +35,7 @@ export class SendyService {
       res.data
     );
   }
-  async addSubscriber(email: string, name: string) {
+  async addSubscriber(email: string, name: string, state: string) {
     if (!SENDY_APIKEY || !SENDY_LISTID) {
       console.log('No API KEY or LISTID');
       return;
@@ -46,6 +46,7 @@ export class SendyService {
       name,
       list: SENDY_LISTID,
       boolean: 'true',
+      State: state,
     };
     const res = await axios.post(`${SENDY_URL}/subscribe`, body, {
       headers: {

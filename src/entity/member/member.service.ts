@@ -471,7 +471,7 @@ export class MemberService {
 
     if (member.syncWithSendy) {
       // sendy
-      this.sendyService.addSubscriber(member.email, member.fullName);
+      this.sendyService.addSubscriber(member.email, member.fullName, member.state);
     }
 
     return member;

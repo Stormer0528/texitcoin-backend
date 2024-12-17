@@ -230,7 +230,7 @@ export class MemberResolver {
     // sendy
 
     if (data.syncWithSendy) {
-      this.sendyService.addSubscriber(member.email, member.fullName);
+      this.sendyService.addSubscriber(member.email, member.fullName, member.state);
     }
 
     // Automatic replace placement tree
@@ -384,11 +384,11 @@ export class MemberResolver {
       this.sendyService.removeSubscriber(oldEmail);
 
       if (member.syncWithSendy) {
-        this.sendyService.addSubscriber(member.email, member.fullName);
+        this.sendyService.addSubscriber(member.email, member.fullName, member.state);
       }
     } else if (oldEmail === member.email) {
       if (!oldSyncWithSendy && member.syncWithSendy) {
-        this.sendyService.addSubscriber(member.email, member.fullName);
+        this.sendyService.addSubscriber(member.email, member.fullName, member.state);
       } else if (oldSyncWithSendy && !member.syncWithSendy) {
         this.sendyService.removeSubscriber(member.email);
       }
