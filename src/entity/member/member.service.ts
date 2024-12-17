@@ -277,6 +277,29 @@ export class MemberService {
         point: newPoint,
       },
     });
+
+    if (newPoint) {
+      const {
+        point: prevPoint,
+        sponsorId,
+        username,
+        fullName,
+      } = await this.prisma.member.findUnique({
+        where: { id },
+        select: {
+          point: true,
+          sponsorId: true,
+          username: true,
+          fullName: true,
+        },
+      });
+
+      await this.notificationService.addNotification(
+        `${fullName}(${username}) earned a total of ${newPoint} points, with ${newPoint - prevPoint} points added recently.`,
+        NotificationLevel.TEAMLEADER,
+        sponsorId ? [sponsorId] : []
+      );
+    }
   }
 
   async generateVerificationTokenAndDigitByEmail(data: EmailInput) {
@@ -423,6 +446,12 @@ export class MemberService {
       //     });
       //   }
       // }
+    } else if (totalIntroducers % SPONSOR_BONOUS_CNT === SPONSOR_BONOUS_CNT - 1 && isNew) {
+      await this.notificationService.addNotification(
+        `${fullName}(${username}) is 1 point away from a 1-2-free bonus`,
+        NotificationLevel.TEAMLEADER,
+        sponsorId ? [sponsorId] : []
+      );
     }
   }
 
