@@ -278,22 +278,22 @@ export class MemberService {
       },
     });
 
-    if (newPoint) {
-      const {
-        point: prevPoint,
-        sponsorId,
-        username,
-        fullName,
-      } = await this.prisma.member.findUnique({
-        where: { id },
-        select: {
-          point: true,
-          sponsorId: true,
-          username: true,
-          fullName: true,
-        },
-      });
+    const {
+      point: prevPoint,
+      sponsorId,
+      username,
+      fullName,
+    } = await this.prisma.member.findUnique({
+      where: { id },
+      select: {
+        point: true,
+        sponsorId: true,
+        username: true,
+        fullName: true,
+      },
+    });
 
+    if (newPoint - prevPoint) {
       await this.notificationService.addNotification(
         `${fullName}(${username}) earned a total of ${newPoint} points, with ${newPoint - prevPoint} points added recently.`,
         NotificationLevel.TEAMLEADER,
