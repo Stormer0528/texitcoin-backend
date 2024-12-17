@@ -1,5 +1,6 @@
 import * as excel from 'node-excel-export';
 import { Inject, Service } from 'typedi';
+import _ from 'lodash';
 
 import { PERCENT, TXC } from '@/consts/db';
 import { PrismaService } from './prisma';
@@ -202,34 +203,71 @@ export class ExcelService {
         width: 100,
       },
     };
-    return this.exportData(
-      'members',
-      specification,
-      members.map((member, idx) => ({
-        ...member,
-        no: idx + 1,
-        ID: convertNumToString({
-          value: member.ID,
-          prefix: 'M',
-          length: 7,
-        }),
-        sponsor: member.sponsorId ? `${member.sponsor.fullName}(${member.sponsor.username})` : '',
-        placementParent:
-          member.placementParentId && member.id !== PLACEMENT_ROOT
-            ? `${member.placementParent.assetId}`
-            : '',
-        placementPosition:
-          member.placementParentId && member.id !== PLACEMENT_ROOT ? member.placementPosition : '',
-        placementLeft: member.placementChildren
-          .filter((mb) => mb.placementPosition === 'LEFT' && mb.id !== PLACEMENT_ROOT)
-          .map((mb) => `${mb.assetId}`),
-        placementRight: member.placementChildren
-          .filter((mb) => mb.placementPosition === 'RIGHT' && mb.id !== PLACEMENT_ROOT)
-          .map((mb) => `${mb.assetId}`),
-        status: member.status ? 'Approved' : 'Pending',
-        joinedAt: member.createdAt,
-      }))
-    );
+    return this.exportMultiSheetExport([
+      {
+        name: 'Approved',
+        specification,
+        data: members
+          .filter((mb) => mb.status)
+          .map((member, idx) => ({
+            ...member,
+            no: idx + 1,
+            ID: convertNumToString({
+              value: member.ID,
+              prefix: 'M',
+              length: 7,
+            }),
+            sponsor: member.sponsorId
+              ? `${member.sponsor.fullName}(${member.sponsor.username})`
+              : '',
+            placementParent:
+              member.placementParentId && member.id !== PLACEMENT_ROOT
+                ? `${member.placementParent.assetId}`
+                : '',
+            placementPosition:
+              member.placementParentId && member.id !== PLACEMENT_ROOT
+                ? member.placementPosition
+                : '',
+            placementLeft: member.placementChildren
+              .filter((mb) => mb.placementPosition === 'LEFT' && mb.id !== PLACEMENT_ROOT)
+              .map((mb) => `${mb.assetId}`),
+            placementRight: member.placementChildren
+              .filter((mb) => mb.placementPosition === 'RIGHT' && mb.id !== PLACEMENT_ROOT)
+              .map((mb) => `${mb.assetId}`),
+            status: member.status ? 'Approved' : 'Pending',
+            joinedAt: member.createdAt,
+          })),
+      },
+      {
+        name: 'Pending',
+        specification: _.omit(specification, 'ID'),
+        data: members
+          .filter((mb) => !mb.status)
+          .map((member, idx) => ({
+            ...member,
+            no: idx + 1,
+            sponsor: member.sponsorId
+              ? `${member.sponsor.fullName}(${member.sponsor.username})`
+              : '',
+            placementParent:
+              member.placementParentId && member.id !== PLACEMENT_ROOT
+                ? `${member.placementParent.assetId}`
+                : '',
+            placementPosition:
+              member.placementParentId && member.id !== PLACEMENT_ROOT
+                ? member.placementPosition
+                : '',
+            placementLeft: member.placementChildren
+              .filter((mb) => mb.placementPosition === 'LEFT' && mb.id !== PLACEMENT_ROOT)
+              .map((mb) => `${mb.assetId}`),
+            placementRight: member.placementChildren
+              .filter((mb) => mb.placementPosition === 'RIGHT' && mb.id !== PLACEMENT_ROOT)
+              .map((mb) => `${mb.assetId}`),
+            status: member.status ? 'Approved' : 'Pending',
+            joinedAt: member.createdAt,
+          })),
+      },
+    ]);
   }
   public async exportSales() {
     const sales = await this.prisma.sale.findMany({
