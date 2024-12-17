@@ -31,6 +31,7 @@ const addSubscribers = async () => {
         name: member.fullName,
         list: SENDY_LISTID,
         boolean: 'true',
+        State: member.state,
       };
       const res = await axios.post(`${SENDY_URL}/subscribe`, body, {
         headers: {
