@@ -268,15 +268,6 @@ export class MemberService {
         package: true,
       },
     });
-    const newPoint = sales.reduce((prev, cur) => prev + cur.package.point, 0);
-    await this.prisma.member.update({
-      where: {
-        id,
-      },
-      data: {
-        point: newPoint,
-      },
-    });
 
     const {
       point: prevPoint,
@@ -290,6 +281,16 @@ export class MemberService {
         sponsorId: true,
         username: true,
         fullName: true,
+      },
+    });
+
+    const newPoint = sales.reduce((prev, cur) => prev + cur.package.point, 0);
+    await this.prisma.member.update({
+      where: {
+        id,
+      },
+      data: {
+        point: newPoint,
       },
     });
 
