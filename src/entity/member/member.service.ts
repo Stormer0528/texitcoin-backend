@@ -334,11 +334,10 @@ export class MemberService {
 
   async checkSponsorBonous(id: string, isNew: boolean = true): Promise<void> {
     if (!id) return;
-    const { totalIntroducers, username, fullName, createdAt } = await this.prisma.member.findUnique(
-      {
+    const { totalIntroducers, username, fullName, sponsorId, createdAt } =
+      await this.prisma.member.findUnique({
         where: { id },
-      }
-    );
+      });
     if (totalIntroducers && totalIntroducers % SPONSOR_BONOUS_CNT === 0) {
       if (isNew) {
         // const group =
@@ -385,7 +384,7 @@ export class MemberService {
       await this.notificationService.addNotification(
         `${fullName}(${username}) achieved first sponsor`,
         NotificationLevel.TEAMLEADER,
-        [id]
+        sponsorId ? [sponsorId] : []
       );
     } else if (totalIntroducers % SPONSOR_BONOUS_CNT === SPONSOR_BONOUS_CNT - 1 && !isNew) {
       // const freeSales = await this.prisma.sale.findMany({
