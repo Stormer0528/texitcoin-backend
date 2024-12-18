@@ -79,7 +79,7 @@ export class WeeklyReportResolver {
         ? (stderr as string)
             .split('\n')
             .find((err) => err.startsWith('Error: '))
-            .slice(7) ?? 'Error occurred in generating weekly reports'
+            ?.slice(7) ?? 'Error occurred in generating weekly reports'
         : '',
     };
   }
