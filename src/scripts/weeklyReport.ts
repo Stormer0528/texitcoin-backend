@@ -11,13 +11,24 @@ dayjs.extend(utcPlugin);
 
 const prisma = new PrismaClient();
 
-const generateWeeklyReport = async () => {
+const generateWeeklyReport = async (all: boolean) => {
   let iStartDate = dayjs('2024-04-06', { utc: true }).startOf('week');
+  if (!all) {
+    const lastWeeklyReport = await prisma.weeklyReport.findFirst({
+      orderBy: {
+        weekStartDate: 'desc',
+      },
+    });
+
+    if (lastWeeklyReport) {
+      iStartDate = dayjs(lastWeeklyReport.weekStartDate, { utc: true }).add(1, 'week');
+    }
+  }
+
   const nowStartDate = dayjs().utc().startOf('week');
   for (
     iStartDate;
-    iStartDate.isBefore(nowStartDate.toDate(), 'day') ||
-    iStartDate.isSame(nowStartDate.toDate(), 'day');
+    iStartDate.isBefore(nowStartDate.toDate(), 'day');
     iStartDate = iStartDate.add(1, 'week')
   ) {
     const sales = await prisma.sale.findMany({
@@ -209,4 +220,7 @@ const generateWeeklyReport = async () => {
   }
 };
 
-generateWeeklyReport();
+const args: string[] = process.argv;
+const all = args.findIndex((arg) => arg.toLowerCase() === '-all') !== -1;
+
+generateWeeklyReport(all);

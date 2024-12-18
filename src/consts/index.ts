@@ -110,6 +110,7 @@ export const PAYMENT_UPLOAD_DIR = path.join(UPLOAD_DIR, 'payment');
 export const WEEKLY_REPORT_UPLOAD_DIR = path.join(UPLOAD_DIR, 'weekly_report');
 
 export const COMMISSION_PREVIEW_COMMAND = `cd ${process.cwd()} && ./node_modules/.bin/ts-node -r tsconfig-paths/register src/scripts/weeklyCommission.ts`;
+export const GENERATE_WEEKLY_REPORT_COMMAND = `cd ${process.cwd()} && ./node_modules/.bin/ts-node -r tsconfig-paths/register src/scripts/weeklyReport.ts`;
 
 export const GET_MINING_INFO = 'texitcoin-cli getmininginfo';
 

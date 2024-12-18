@@ -43,6 +43,7 @@ import { useServer } from 'graphql-ws/lib/use/ws';
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
 import { NotificationClientResolver } from './entity/notification/notificationClient.resolver';
 import { adminAuthorized } from './rest/middlewares/adminAuthorized.middleware';
+import { WeeklyReportResolver } from './entity/weeklyReport/weeklyReport.resolver';
 
 const app = async () => {
   const schema = await tq.buildSchema({
@@ -68,6 +69,7 @@ const app = async () => {
       PaymentMethodLinkResolver,
       NotificationResolver,
       NotificationClientResolver,
+      WeeklyReportResolver,
     ],
     authChecker,
     scalarsMap: [

@@ -1,14 +1,33 @@
 import { Service } from 'typedi';
-import { Args, Authorized, Ctx, FieldResolver, Info, Query, Resolver, Root } from 'type-graphql';
+import {
+  Arg,
+  Args,
+  Authorized,
+  Ctx,
+  FieldResolver,
+  Info,
+  Mutation,
+  Query,
+  Resolver,
+  Root,
+} from 'type-graphql';
 
 import { WeeklyReport } from './weeklyReport.entity';
-import { WeeklyReportQueryArgs, WeeklyReportResponse } from './weeklyReport.type';
+import {
+  GenerateWeeklyReportInput,
+  WeeklyReportQueryArgs,
+  WeeklyReportResponse,
+} from './weeklyReport.type';
 import { GraphQLResolveInfo } from 'graphql';
 import graphqlFields from 'graphql-fields';
 import { WeeklyReportService } from './weeklyReport.service';
 import { UserRole } from '@/type';
 import { PFile } from '../file/file.entity';
 import { Context } from '@/context';
+import { SuccessResponse } from '@/graphql/common.type';
+import shelljs from 'shelljs';
+import { SuccessResult } from '@/graphql/enum';
+import { GENERATE_WEEKLY_REPORT_COMMAND } from '@/consts';
 
 @Service()
 @Resolver(() => WeeklyReport)
@@ -47,5 +66,21 @@ export class WeeklyReportResolver {
   @FieldResolver(() => PFile)
   async file(@Root() weeklyReport: WeeklyReport, @Ctx() ctx: Context): Promise<PFile> {
     return ctx.dataLoader.get('filesForWeeklyReportLoader').load(weeklyReport.fileId);
+  }
+
+  @Authorized([UserRole.ADMIN])
+  @Mutation(() => SuccessResponse)
+  async generateWeeklyReport(@Arg('data') data: GenerateWeeklyReportInput) {
+    const { stderr } = shelljs.exec(`${GENERATE_WEEKLY_REPORT_COMMAND} ${data.all ? '-all' : ''}`);
+
+    return {
+      result: stderr ? SuccessResult.failed : SuccessResult.success,
+      message: stderr
+        ? (stderr as string)
+            .split('\n')
+            .find((err) => err.startsWith('Error: '))
+            .slice(7) ?? 'Error occurred in generating weekly reports'
+        : '',
+    };
   }
 }

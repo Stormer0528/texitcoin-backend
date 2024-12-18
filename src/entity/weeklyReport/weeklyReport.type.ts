@@ -1,5 +1,5 @@
 import type { Prisma } from '@prisma/client';
-import { ObjectType, Field, ArgsType } from 'type-graphql';
+import { ObjectType, Field, ArgsType, InputType } from 'type-graphql';
 
 import { QueryArgsBase } from '@/graphql/queryArgs';
 import { PaginatedResponse } from '@/graphql/paginatedResponse';
@@ -15,4 +15,10 @@ export class WeeklyReportQueryArgs extends QueryArgsBase<Prisma.WeeklyReportWher
 export class WeeklyReportResponse extends PaginatedResponse {
   @Field(() => [WeeklyReport], { nullable: true })
   weeklyReports?: WeeklyReport[];
+}
+
+@InputType()
+export class GenerateWeeklyReportInput {
+  @Field()
+  all: boolean;
 }
