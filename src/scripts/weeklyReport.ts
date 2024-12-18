@@ -211,6 +211,7 @@ const generateWeeklyReport = async (all: boolean) => {
       })),
     };
 
+    const cloneDate = iStartDate;
     ejs.renderFile(
       path.join(__dirname, '../../views/report.ejs'),
       data,
@@ -222,7 +223,7 @@ const generateWeeklyReport = async (all: boolean) => {
 
         const filePath = path.join(
           WEEKLY_REPORT_UPLOAD_DIR,
-          `${iStartDate.format('YYYY-MM-DD')}`,
+          `${cloneDate.format('YYYY-MM-DD')}`,
           'report.html'
         );
         // Save the rendered HTML to a file
@@ -231,13 +232,13 @@ const generateWeeklyReport = async (all: boolean) => {
 
         await prisma.weeklyReport.upsert({
           where: {
-            weekStartDate: iStartDate.toDate(),
+            weekStartDate: cloneDate.toDate(),
           },
           create: {
-            weekStartDate: iStartDate.toDate(),
+            weekStartDate: cloneDate.toDate(),
             file: {
               create: {
-                url: `${process.env.PUBLIC_DOMAIN}/public/weeklyreports/${iStartDate.format('YYYY-MM-DD')}/report.html`,
+                url: `${process.env.PUBLIC_DOMAIN}/public/weeklyreports/${cloneDate.format('YYYY-MM-DD')}/report.html`,
                 originalName: 'report.html',
                 mimeType: 'text/html',
                 size: stats.size,
