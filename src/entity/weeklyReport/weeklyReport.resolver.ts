@@ -36,7 +36,7 @@ export class WeeklyReportResolver {
 
   @Authorized([UserRole.ADMIN])
   @Query(() => WeeklyReport)
-  async members(
+  async weeklyReports(
     @Args() query: WeeklyReportQueryArgs,
     @Info() info: GraphQLResolveInfo
   ): Promise<WeeklyReportResponse> {
