@@ -35,7 +35,7 @@ export class WeeklyReportResolver {
   constructor(private readonly service: WeeklyReportService) {}
 
   @Authorized([UserRole.ADMIN])
-  @Query(() => WeeklyReport)
+  @Query(() => WeeklyReportResponse)
   async weeklyReports(
     @Args() query: WeeklyReportQueryArgs,
     @Info() info: GraphQLResolveInfo
