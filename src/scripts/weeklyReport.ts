@@ -177,12 +177,33 @@ const generateWeeklyReport = async () => {
           return;
         }
 
-        // Save the rendered HTML to a file
-        await fse.outputFile(
-          path.join(WEEKLY_REPORT_UPLOAD_DIR, `${iStartDate.format('YYYY-MM-DD')}.html`),
-          renderedHTML,
-          'utf8'
+        const filePath = path.join(
+          WEEKLY_REPORT_UPLOAD_DIR,
+          `${iStartDate.format('YYYY-MM-DD')}`,
+          'report.html'
         );
+        // Save the rendered HTML to a file
+        await fse.outputFile(filePath, renderedHTML, 'utf8');
+        const stats = await fse.stat(filePath);
+
+        await prisma.weeklyReport.upsert({
+          where: {
+            weekStartDate: iStartDate.toDate(),
+          },
+          create: {
+            weekStartDate: iStartDate.toDate(),
+            file: {
+              create: {
+                url: `${process.env.PUBLIC_DOMAIN}/public/weeklyreports/${iStartDate.format('YYYY-MM-DD')}/report.html`,
+                originalName: 'report.html',
+                mimeType: 'text/html',
+                size: stats.size,
+                localPath: filePath,
+              },
+            },
+          },
+          update: {},
+        });
       }
     );
   }

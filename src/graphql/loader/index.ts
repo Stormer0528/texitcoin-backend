@@ -20,6 +20,7 @@ import * as proofLoader from './proofLoader';
 import * as paymentMethodLoader from './paymentMethodLoader';
 import * as paymentMethodLinkLoader from './paymentMethodLinkLoader';
 import * as notificationLoader from './notificationLoader';
+import * as weeklyReportLoader from './weeklyReportLoader';
 import { Member } from '@/entity/member/member.entity';
 import { Admin } from '@/entity/admin/admin.entity';
 
@@ -46,6 +47,7 @@ const loaderMakers = {
   ...paymentMethodLoader,
   ...paymentMethodLinkLoader,
   ...notificationLoader,
+  ...weeklyReportLoader,
 } as const;
 
 type LoaderMakers = typeof loaderMakers;

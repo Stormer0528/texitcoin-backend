@@ -9,7 +9,7 @@ import * as tq from 'type-graphql';
 import { Container } from 'typedi';
 import cors from 'cors';
 
-import { PAYMENT_UPLOAD_DIR } from './consts';
+import { PAYMENT_UPLOAD_DIR, WEEKLY_REPORT_UPLOAD_DIR } from './consts';
 import { authChecker } from './authChecker';
 import { Context, context } from './context';
 import { formatError } from './formatError';
@@ -42,6 +42,7 @@ import { createServer } from 'http';
 import { useServer } from 'graphql-ws/lib/use/ws';
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
 import { NotificationClientResolver } from './entity/notification/notificationClient.resolver';
+import { adminAuthorized } from './rest/middlewares/adminAuthorized.middleware';
 
 const app = async () => {
   const schema = await tq.buildSchema({
@@ -139,7 +140,8 @@ const app = async () => {
     })
   );
   mainServer.use('/api', router);
-  mainServer.use('/public/payment', express.static(PAYMENT_UPLOAD_DIR));
+  mainServer.use('/public/payment', adminAuthorized, express.static(PAYMENT_UPLOAD_DIR));
+  mainServer.use('/public/weeklyreports', express.static(WEEKLY_REPORT_UPLOAD_DIR));
 
   const APP_HOST = process.env.APP_HOST ?? '0.0.0.0';
   const APP_PORT = process.env.APP_PORT ?? 4000;

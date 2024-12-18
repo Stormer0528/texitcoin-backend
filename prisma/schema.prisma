@@ -379,6 +379,7 @@ model File {
   deletedAt DateTime?
 
   fileRelation FileRelation?
+  weeklyReport WeeklyReport?
 
   @@map("files")
 }
@@ -512,4 +513,20 @@ model Notification {
   deletedAt DateTime?
 
   @@map("notifications")
+}
+
+model WeeklyReport {
+  id            String   @id @default(uuid())
+  weekStartDate DateTime
+  fileId        String
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  file File? @relation(fields: [fileId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([fileId], map: "unique_file_index_on_weeklyreport")
+  @@unique([weekStartDate], map: "unique_week_index_on_weeklyreport")
+  @@map("weeklyreports")
 }
