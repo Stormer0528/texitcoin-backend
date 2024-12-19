@@ -36,4 +36,7 @@ export class Package extends BaseEntity {
 
   @Field(() => [PaymentMethodLink], { nullable: true })
   paymentMethodLinks?: PaymentMethodLink[];
+
+  @Field()
+  freeShare?: boolean;
 }

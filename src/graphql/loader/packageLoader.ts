@@ -45,3 +45,24 @@ export const paymentMethodLinksForPackageLoader = (parent: RootDataLoader) => {
     }
   );
 };
+
+export const freeShareForPackageLoader = (parent: RootDataLoader) => {
+  return new DataLoader<string, boolean>(
+    async (packageIds: string[]) => {
+      const groupSettings = await parent.prisma.groupSetting.findMany({
+        select: {
+          sponsorBonusPackageId: true,
+        },
+      });
+      const groupSettingMap: Record<string, boolean> = {};
+      groupSettings.forEach(
+        (groupSetting) => (groupSettingMap[groupSetting.sponsorBonusPackageId] = true)
+      );
+
+      return packageIds.map((id) => Boolean(groupSettingMap[id]));
+    },
+    {
+      ...parent.dataLoaderOptions,
+    }
+  );
+};

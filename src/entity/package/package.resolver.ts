@@ -105,4 +105,9 @@ export class PackageResolver {
   ): Promise<PaymentMethodLink[]> {
     return ctx.dataLoader.get('paymentMethodLinksForPackageLoader').load(pkg.id);
   }
+
+  @FieldResolver()
+  async freeShare(@Root() pkg: Package, @Ctx() ctx: Context): Promise<boolean> {
+    return ctx.dataLoader.get('freeShareForPackageLoader').load(pkg.id);
+  }
 }
