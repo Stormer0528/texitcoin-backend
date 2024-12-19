@@ -1,4 +1,4 @@
-import { GROUP_SETTINGS } from '@/consts';
+import { GROUP_SETTINGS } from '../../src/consts';
 
 interface GroupSettingCommissionBonusInterface {
   lPoint: number;

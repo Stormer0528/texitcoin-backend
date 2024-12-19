@@ -24,18 +24,8 @@ import { Member } from './member.entity';
 import { SendyService } from '@/service/sendy';
 import dayjs from 'dayjs';
 import utcPlugin from 'dayjs/plugin/utc';
-import {
-  FREE_SHARE_DIVIDER1,
-  FREE_SHARE_ID_1,
-  FREE_SHARE_ID_2,
-  NO_PRODUCT,
-  PLACEMENT_ROOT,
-  SPONSOR_BONOUS_CNT,
-} from '@/consts';
+import { SPONSOR_BONOUS_CNT } from '@/consts';
 import { MailerService } from '@/service/mailer';
-import { SaleService } from '../sale/sale.service';
-import { convertNumToString } from '@/utils/convertNumToString';
-import { BonusGroup } from '@/enums/bonusGroup.enum';
 import { NotificationService } from '../notification/notification.service';
 import { NotificationLevel } from '@/graphql/enum';
 
