@@ -1,6 +1,7 @@
 import { ObjectType, Field, ID, Int } from 'type-graphql';
 
 import { BaseEntity } from '@/graphql/baseEntity';
+import { Package } from '../package/package.entity';
 
 @ObjectType()
 export class GroupSetting extends BaseEntity {
@@ -18,6 +19,9 @@ export class GroupSetting extends BaseEntity {
 
   @Field(() => [GroupSettingCommissionBonus])
   groupSettingCommissionBonuses?: GroupSettingCommissionBonus[];
+
+  @Field(() => Package, { nullable: true })
+  sponsorBonusPackage?: Package;
 }
 
 @ObjectType()

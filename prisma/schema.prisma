@@ -536,7 +536,7 @@ model GroupSetting {
   id                    String   @id @default(uuid())
   name                  String
   limitDate             DateTime @unique
-  sponsorBonusPackageId String
+  sponsorBonusPackageId String?
 
   sponsorBonusPackage Package? @relation(fields: [sponsorBonusPackageId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 

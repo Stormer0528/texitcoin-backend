@@ -27,6 +27,7 @@ import {
 import { GroupSetting, GroupSettingCommissionBonus } from './groupSetting.entity';
 import { GroupSettingService } from './groupSetting.service';
 import { Context } from '@/context';
+import { Package } from '../package/package.entity';
 
 @Service()
 @Resolver(() => GroupSetting)
@@ -92,5 +93,18 @@ export class GroupSettingResolver {
     return ctx.dataLoader
       .get('groupSettingCommissionBonusesForGroupSettingLoader')
       .load(groupSetting.id);
+  }
+
+  @Authorized([UserRole.ADMIN])
+  @FieldResolver(() => Package, { nullable: true })
+  async sponsorBonusPackage(
+    @Root() groupSetting: GroupSetting,
+    @Ctx() ctx: Context
+  ): Promise<Package> {
+    return groupSetting.sponsorBonusPackageId
+      ? ctx.dataLoader
+          .get('sponsorBonusPackageForGroupSettingLoader')
+          .load(groupSetting.sponsorBonusPackageId)
+      : null;
   }
 }

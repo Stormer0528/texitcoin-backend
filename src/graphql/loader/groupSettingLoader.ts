@@ -1,9 +1,8 @@
 import DataLoader from 'dataloader';
 
 import RootDataLoader from '.';
-import { Member } from '@/entity/member/member.entity';
-import { UserRole } from '@/type';
 import { GroupSettingCommissionBonus, Prisma } from '@prisma/client';
+import { Package } from '@/entity/package/package.entity';
 
 export const groupSettingCommissionBonusesForGroupSettingLoader = (parent: RootDataLoader) => {
   return new DataLoader<string, GroupSettingCommissionBonus[]>(
@@ -25,6 +24,29 @@ export const groupSettingCommissionBonusesForGroupSettingLoader = (parent: RootD
       });
 
       return groupSettingIds.map((id) => commissionBonusMap[id] ?? []);
+    },
+    {
+      ...parent.dataLoaderOptions,
+    }
+  );
+};
+
+export const sponsorBonusPackageForGroupSettingLoader = (parent: RootDataLoader) => {
+  return new DataLoader<string, Package>(
+    async (packageIds: string[]) => {
+      const packages = await parent.prisma.package.findMany({
+        where: {
+          id: {
+            in: packageIds,
+          },
+        },
+      });
+      const packageMap: Record<string, Package> = {};
+      packages.forEach((pkg) => {
+        packageMap[pkg.id] = pkg;
+      });
+
+      return packageIds.map((id) => packageMap[id]);
     },
     {
       ...parent.dataLoaderOptions,
