@@ -14,7 +14,7 @@ export class GroupSetting extends BaseEntity {
   @Field()
   limitDate: Date;
 
-  @Field()
+  @Field({ nullable: true })
   sponsorBonusPackageId: string;
 
   @Field(() => [GroupSettingCommissionBonus])
