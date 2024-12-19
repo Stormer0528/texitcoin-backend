@@ -71,12 +71,12 @@ export class PackageService {
       freeShare || sale
         ? {
             productName: data.productName,
-            enrollVisibility: !newStatus && newEnrollVisibility,
+            enrollVisibility: newStatus && newEnrollVisibility,
             status: newStatus,
           }
         : {
             ...data,
-            enrollVisibility: !newStatus && newEnrollVisibility,
+            enrollVisibility: newStatus && newEnrollVisibility,
             status: newStatus,
           };
     return await this.prisma.package.update({
