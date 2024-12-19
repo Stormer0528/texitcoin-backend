@@ -743,4 +743,9 @@ export class MemberResolver {
   async cmnCalculatedWeeks(@Root() member: Member, @Ctx() ctx: Context): Promise<number> {
     return ctx.dataLoader.get('commissionCountForMemberLoader').load(member.id);
   }
+
+  @FieldResolver()
+  async groupName(@Root() member: Member, @Ctx() ctx: Context): Promise<string> {
+    return ctx.dataLoader.get('groupNameForMemberLoader').load(member.id);
+  }
 }

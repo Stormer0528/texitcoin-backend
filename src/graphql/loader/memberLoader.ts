@@ -290,3 +290,42 @@ export const commissionCountForMemberLoader = (parent: RootDataLoader) => {
     }
   );
 };
+
+export const groupNameForMemberLoader = (parent: RootDataLoader) => {
+  return new DataLoader<string, string>(
+    async (memberIds: string[]) => {
+      const members = await parent.prisma.member.findMany({
+        where: {
+          id: {
+            in: memberIds,
+          },
+        },
+        select: {
+          id: true,
+          createdAt: true,
+        },
+      });
+      const membersMap: Record<string, Date> = {};
+      members.forEach((member) => (membersMap[member.id] = member.createdAt));
+
+      const groupSettings = await parent.prisma.groupSetting.findMany({
+        orderBy: {
+          limitDate: 'desc',
+        },
+        select: {
+          limitDate: true,
+          name: true,
+        },
+      });
+      const findGroupName = (date: Date) => {
+        const group = groupSettings.find((groupSetting) => date <= groupSetting.limitDate);
+        return group ? group.name : '';
+      };
+
+      return memberIds.map((id) => findGroupName(membersMap[id]));
+    },
+    {
+      ...parent.dataLoaderOptions,
+    }
+  );
+};

@@ -123,4 +123,7 @@ export class Member extends BaseEntity {
 
   @Field(() => Int)
   cmnCalculatedWeeks?: number;
+
+  @Field()
+  groupName?: string;
 }
