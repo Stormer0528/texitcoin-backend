@@ -40,6 +40,7 @@ export class ProofResolver {
     private readonly fileRelationService: FileRelationService
   ) {}
 
+  @Authorized([UserRole.ADMIN])
   @Query(() => ProofResponse)
   async proofs(
     @Args() query: ProofQueryArgs,
@@ -99,13 +100,13 @@ export class ProofResolver {
   }
 
   @Authorized([UserRole.ADMIN])
-  @FieldResolver({ nullable: true })
+  @FieldResolver(() => [PFile], { nullable: true })
   async files(@Root() proof: Proof, @Ctx() ctx: Context): Promise<PFile[]> {
     return ctx.dataLoader.get('filesForProofLoader').load(proof.id);
   }
 
   @Authorized([UserRole.ADMIN])
-  @FieldResolver({ nullable: true })
+  @FieldResolver(() => [RefLink], { nullable: true })
   async reflinks(@Root() proof: Proof, @Ctx() ctx: Context): Promise<RefLink[]> {
     return ctx.dataLoader.get('referenceLinksForProofLoader').load(proof.id);
   }

@@ -44,6 +44,7 @@ import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHt
 import { NotificationClientResolver } from './entity/notification/notificationClient.resolver';
 import { adminAuthorized } from './rest/middlewares/adminAuthorized.middleware';
 import { WeeklyReportResolver } from './entity/weeklyReport/weeklyReport.resolver';
+import { GroupSettingResolver } from './entity/groupSetting/groupSetting.resolver';
 
 const app = async () => {
   const schema = await tq.buildSchema({
@@ -70,6 +71,7 @@ const app = async () => {
       NotificationResolver,
       NotificationClientResolver,
       WeeklyReportResolver,
+      GroupSettingResolver,
     ],
     authChecker,
     scalarsMap: [

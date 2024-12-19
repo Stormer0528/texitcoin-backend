@@ -21,6 +21,7 @@ import * as paymentMethodLoader from './paymentMethodLoader';
 import * as paymentMethodLinkLoader from './paymentMethodLinkLoader';
 import * as notificationLoader from './notificationLoader';
 import * as weeklyReportLoader from './weeklyReportLoader';
+import * as groupSettingLoader from './groupSettingLoader';
 import { Member } from '@/entity/member/member.entity';
 import { Admin } from '@/entity/admin/admin.entity';
 
@@ -48,6 +49,7 @@ const loaderMakers = {
   ...paymentMethodLinkLoader,
   ...notificationLoader,
   ...weeklyReportLoader,
+  ...groupSettingLoader,
 } as const;
 
 type LoaderMakers = typeof loaderMakers;
