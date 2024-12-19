@@ -18,7 +18,7 @@ export function calculatePoint(
   points: { date: Date; left: number; right: number }
 ) {
   const sortedGroupSetting: GroupSettingInterface[] = groupSetting
-    .sort((group1, group2) => Number(group2.limitDate) - Number(group1.limitDate))
+    .sort((group1, group2) => Number(group1.limitDate) - Number(group2.limitDate))
     .map((group) => ({
       limitDate: group.limitDate,
       groupSettingCommissionBonuses: group.groupSettingCommissionBonuses.sort((bonus1, bonus2) =>

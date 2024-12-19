@@ -310,7 +310,7 @@ export const groupNameForMemberLoader = (parent: RootDataLoader) => {
 
       const groupSettings = await parent.prisma.groupSetting.findMany({
         orderBy: {
-          limitDate: 'desc',
+          limitDate: 'asc',
         },
         select: {
           limitDate: true,
