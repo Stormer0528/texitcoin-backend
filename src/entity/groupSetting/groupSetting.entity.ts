@@ -22,12 +22,6 @@ export class GroupSetting extends BaseEntity {
 
 @ObjectType()
 export class GroupSettingCommissionBonus extends BaseEntity {
-  @Field(() => ID)
-  id: string;
-
-  @Field()
-  groupSettingId: string;
-
   @Field(() => Int)
   lPoint: number;
 
