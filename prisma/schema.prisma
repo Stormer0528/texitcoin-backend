@@ -260,6 +260,7 @@ model Package {
   // relation
   sales              Sale[]
   paymentMethodLinks PaymentMethodLink[]
+  groupSettings      GroupSetting[]
 
   @@map("packages")
 }
@@ -529,4 +530,38 @@ model WeeklyReport {
   @@unique([fileId], map: "unique_file_index_on_weeklyreport")
   @@unique([weekStartDate], map: "unique_week_index_on_weeklyreport")
   @@map("weeklyreports")
+}
+
+model GroupSetting {
+  id                    String   @id @default(uuid())
+  name                  String
+  limitDate             DateTime @unique
+  sponsorBonusPackageId String
+
+  sponsorBonusPackage Package? @relation(fields: [sponsorBonusPackageId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  groupSettingCommissionBonuses GroupSettingCommissionBonus[]
+
+  @@map("groupsettings")
+}
+
+model GroupSettingCommissionBonus {
+  id             String @id @default(uuid())
+  groupSettingId String
+  lPoint         Int
+  rPoint         Int
+  commission     Int
+
+  groupSetting GroupSetting? @relation(fields: [groupSettingId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@unique([groupSettingId, lPoint, rPoint], map: "unique_index_on_group_setting_commission_bonus")
+  @@map("groupsettingcommissionbonuses")
 }
