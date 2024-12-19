@@ -57,18 +57,23 @@ async function weeklyCommission(tranPrisma: PrismaClient) {
     throw new Error('There are individual members');
   }
 
-  await tranPrisma.weeklyCommission.deleteMany({
-    where: {
-      status: ConfirmationStatus.PREVIEW,
-    },
-  });
-
   const weekStartDates = await tranPrisma.weeklyCommission.groupBy({
     by: ['memberId'],
+    where: {
+      status: {
+        not: ConfirmationStatus.PREVIEW,
+      },
+    },
     _max: {
       weekStartDate: true,
     },
   });
+  const groupSetting = await tranPrisma.groupSetting.findMany({
+    include: {
+      groupSettingCommissionBonuses: true,
+    },
+  });
+
   const maxIDCommission = await tranPrisma.weeklyCommission.findFirst({
     orderBy: {
       ID: 'desc',
@@ -129,7 +134,7 @@ async function weeklyCommission(tranPrisma: PrismaClient) {
         weekStartDate: prevWeekStartDate,
       },
     });
-    const resultMap: Record<string, { left: number; right: number }> = {}; //initial with previous status
+    const resultMap: Record<string, { left: number; right: number; date: Date }> = {}; //initial with previous status
 
     const members = await tranPrisma.member.findMany({
       where: {
@@ -139,13 +144,16 @@ async function weeklyCommission(tranPrisma: PrismaClient) {
         status: true,
       },
     });
-    members.forEach((member) => (resultMap[member.id] = { left: 0, right: 0 }));
+    members.forEach(
+      (member) => (resultMap[member.id] = { left: 0, right: 0, date: member.createdAt })
+    );
 
     if (lastWeeklyCommissions.length > 0) {
       lastWeeklyCommissions.forEach((commissionstatus) => {
         resultMap[commissionstatus.memberId] = {
           left: commissionstatus.endL,
           right: commissionstatus.endR,
+          date: resultMap[commissionstatus.memberId].date,
         };
       });
     }
@@ -170,13 +178,17 @@ async function weeklyCommission(tranPrisma: PrismaClient) {
       resultMap[id] = {
         left: (resultMap[id]?.left ?? 0) + combinedMap[id].left,
         right: (resultMap[id]?.right ?? 0) + combinedMap[id].right,
+        date: resultMap[id].date,
       };
     });
 
     await Bluebird.map(
       Object.entries(resultMap).sort((result1, result2) => result1[0].localeCompare(result2[0])),
       async ([id, points]) => {
-        const [finalLeft, finalRight, left, right, commission] = calculatePoint(points);
+        const [finalLeft, finalRight, left, right, commission] = calculatePoint(
+          groupSetting,
+          points
+        );
         const data = {
           memberId: id,
           begL: points.left - (combinedMap[id]?.left ?? 0),

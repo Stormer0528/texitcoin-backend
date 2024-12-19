@@ -60,6 +60,11 @@ export const PAYMENT_METHODS = [
   'c5d87c08-4d4c-4243-acc7-466925791501',
 ];
 
+export const GROUP_SETTINGS = [
+  '0d8c0f7a-cd9c-4a95-aa97-4d8d27595166',
+  'c63565e9-c321-47a3-8ba8-f2297b30ca36',
+];
+
 export const rpc_url = process.env.RPC_URL;
 export const rpc_username = process.env.RPC_USERNAME;
 export const rpc_password = process.env.RPC_PASSWORD;
@@ -123,3 +128,6 @@ export const EXPECTED_HASH_POWER_TREND = [
 export const EXPECTED_TXC_COST = 16;
 
 export const REWARD_PER_BLOCK = 254;
+
+export const LIMIT_COMMISSION_L_POINT = 9;
+export const LIMIT_COMMISSION_R_POINT = 9;

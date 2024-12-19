@@ -79,6 +79,7 @@ export class GroupSettingResolver {
   }
 
   @Authorized([UserRole.ADMIN])
+  @Transaction()
   @Mutation(() => GroupSetting)
   async removeGroupSetting(@Arg('data') data: IDInput): Promise<GroupSetting> {
     return this.service.removeGroupSetting(data);

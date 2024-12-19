@@ -8,6 +8,9 @@ import {
   GroupSettingQueryArgs,
   UpdateGroupSettingInput,
 } from './groupSetting.type';
+import { GroupSettingCommissionBonus } from './groupSetting.entity';
+import { GraphQLError } from 'graphql';
+import { LIMIT_COMMISSION_L_POINT, LIMIT_COMMISSION_R_POINT } from '@/consts';
 
 @Service()
 export class GroupSettingService {
@@ -31,6 +34,17 @@ export class GroupSettingService {
 
   async createGroupSetting(data: CreateGroupSettingInput) {
     const { groupSettingCommissionBonuses, ...rest } = data;
+    const { result, message } = this.validateGroupSettingCommissionBonus(
+      groupSettingCommissionBonuses
+    );
+    if (result) {
+      throw new GraphQLError(message, {
+        extensions: {
+          path: 'groupSettingCommissionBonuses',
+        },
+      });
+    }
+
     return this.prisma.groupSetting.create({
       data: {
         ...rest,
@@ -47,6 +61,17 @@ export class GroupSettingService {
   async updateGroupSetting(data: UpdateGroupSettingInput) {
     const { groupSettingCommissionBonuses, ...rest } = data;
     if (groupSettingCommissionBonuses) {
+      const { result, message } = this.validateGroupSettingCommissionBonus(
+        groupSettingCommissionBonuses
+      );
+      if (result) {
+        throw new GraphQLError(message, {
+          extensions: {
+            path: 'groupSettingCommissionBonuses',
+          },
+        });
+      }
+
       await this.prisma.groupSettingCommissionBonus.deleteMany({
         where: {
           groupSettingId: data.id,
@@ -78,5 +103,38 @@ export class GroupSettingService {
         id: data.id,
       },
     });
+  }
+
+  private validateGroupSettingCommissionBonus(data: GroupSettingCommissionBonus[]) {
+    const maxLimit = data.find(
+      (bonus) => bonus.lPoint > LIMIT_COMMISSION_L_POINT || bonus.rPoint > LIMIT_COMMISSION_R_POINT
+    );
+    if (maxLimit) {
+      return {
+        result: 2,
+        message: `The commission bonus L, R points are maximum ${LIMIT_COMMISSION_L_POINT}, ${LIMIT_COMMISSION_R_POINT}`,
+      }; // Max Limit Exceed
+    }
+    const sortedData = data.sort((bonus1, bonus2) =>
+      bonus1.lPoint !== bonus2.lPoint
+        ? bonus1.lPoint - bonus2.lPoint
+        : bonus1.rPoint - bonus2.rPoint
+    );
+    for (let i = 1; i < sortedData.length; i++) {
+      if (
+        !(
+          (sortedData[i - 1].lPoint < sortedData[i].lPoint &&
+            sortedData[i - 1].rPoint <= sortedData[i].rPoint) ||
+          (sortedData[i - 1].lPoint === sortedData[i].lPoint &&
+            sortedData[i - 1].rPoint < sortedData[i].rPoint)
+        )
+      ) {
+        return {
+          result: 1,
+          message: 'The commission bonus structure should be adjusted to higher values.',
+        };
+      }
+    }
+    return { result: 0, message: '' };
   }
 }
