@@ -47,7 +47,9 @@ export class PackageService {
     return Boolean(groupSetting);
   }
   async updatePackage(data: UpdatePackageInput) {
-    if (this.isFreeShare(data.id) || data.id === NO_PRODUCT) {
+    const freeShare = await this.isFreeShare(data.id);
+    const noProduct = data.id === NO_PRODUCT;
+    if (noProduct) {
       throw new Error('Can not edit this product.');
     }
     const sale = await this.prisma.sale.findFirst({
@@ -55,23 +57,28 @@ export class PackageService {
         packageId: data.id,
       },
     });
-    const oldPackage = await this.prisma.package.findUnique({
-      where: {
-        id: data.id,
-      },
-    });
+    const { status: oldStatus, enrollVisibility: oldEnrollVisibility } =
+      await this.prisma.package.findUnique({
+        where: {
+          id: data.id,
+        },
+      });
+    const newStatus = 'status' in data ? data.status : oldStatus;
+    const newEnrollVisibility =
+      'enrollVisibility' in data ? data.enrollVisibility : oldEnrollVisibility;
 
-    if (!oldPackage.status && data.enrollVisibility) {
-      throw new Error('You can not show the inactive package');
-    }
-
-    const updateData: Omit<UpdatePackageInput, 'id'> = sale
-      ? {
-          productName: data.productName,
-          enrollVisibility: data.enrollVisibility,
-          status: data.status,
-        }
-      : data;
+    const updateData: Omit<UpdatePackageInput, 'id'> =
+      freeShare || sale
+        ? {
+            productName: data.productName,
+            enrollVisibility: !newStatus && newEnrollVisibility,
+            status: newStatus,
+          }
+        : {
+            ...data,
+            enrollVisibility: !newStatus && newEnrollVisibility,
+            status: newStatus,
+          };
     return await this.prisma.package.update({
       where: {
         id: data.id,
@@ -81,6 +88,11 @@ export class PackageService {
   }
 
   async removePackage(data: IDInput) {
+    const freeShare = await this.isFreeShare(data.id);
+    const noProduct = data.id === NO_PRODUCT;
+    if (freeShare || noProduct) {
+      throw new Error('Can not remove this product.');
+    }
     return this.prisma.package.delete({
       where: {
         id: data.id,
