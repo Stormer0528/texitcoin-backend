@@ -27,11 +27,12 @@ import { Member } from './member.entity';
 import { SendyService } from '@/service/sendy';
 import dayjs from 'dayjs';
 import utcPlugin from 'dayjs/plugin/utc';
-import { SPONSOR_BONOUS_CNT } from '@/consts';
+import { NO_PRODUCT, SPONSOR_BONOUS_CNT, SPONSOR_ROLL_DURATION } from '@/consts';
 import { MailerService } from '@/service/mailer';
 import { NotificationService } from '../notification/notification.service';
 import { MemberState, NotificationLevel } from '@/graphql/enum';
 import { GroupSettingService } from '../groupSetting/groupSetting.service';
+import { convertNumToString } from '@/utils/convertNumToString';
 
 dayjs.extend(utcPlugin);
 

@@ -41,7 +41,7 @@ export class PackageService {
   async isFreeShare(id: string) {
     const groupSetting = await this.prisma.groupSetting.findFirst({
       where: {
-        sponsorBonusPackageId: id,
+        OR: [{ sponsorBonusPackageId: id }, { rollSponsorBonusPackageId: id }],
       },
     });
     return Boolean(groupSetting);
