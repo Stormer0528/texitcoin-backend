@@ -26,8 +26,11 @@ export class CreateGroupSettingInput {
   @Field()
   limitDate: Date;
 
-  @Field(() => ID)
-  sponsorBonusPackageId: string;
+  @Field(() => ID, { nullable: true })
+  sponsorBonusPackageId?: string;
+
+  @Field(() => ID, { nullable: true })
+  rollSponsorBonusPackageId?: string;
 
   @Field(() => [CreateGroupSettingCommissionBonusInput])
   groupSettingCommissionBonuses: CreateGroupSettingCommissionBonusInput[];
@@ -58,6 +61,9 @@ export class UpdateGroupSettingInput {
 
   @Field(() => ID, { nullable: true })
   sponsorBonusPackageId?: string;
+
+  @Field(() => ID, { nullable: true })
+  rollSponsorBonusPackageId?: string;
 
   @Field(() => [CreateGroupSettingCommissionBonusInput], { nullable: true })
   groupSettingCommissionBonuses: CreateGroupSettingCommissionBonusInput[];
