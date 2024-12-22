@@ -164,4 +164,32 @@ export class MailerService {
       );
     }
   }
+
+  public async sendWelcomeEmail(to: string) {
+    if (isEmail(to) && isEmail(SMTP_SENDER_EMAIL)) {
+      const mailOption0 = {
+        from: `"${SMTP_SENDER_NAME}" <${SMTP_SENDER_EMAIL}>`,
+        to,
+        subject: 'Welcome to Texitcoin: Your Account is Approved and Ready!',
+        template: 'welcome0',
+        context: {},
+      };
+      const sentMailInfo0 = await this.sendMail(mailOption0);
+      console.log(
+        `Email was sent to ${ADMIN_EMAIL}, Type => Welcome to Texitcoin - Your Account is Approved and Ready!, Message ID => ${sentMailInfo0.messageId}`
+      );
+
+      const mailOption1 = {
+        from: `"${SMTP_SENDER_NAME}" <${SMTP_SENDER_EMAIL}>`,
+        to,
+        subject: 'Welcome to Texitcoin: Your Texitcoin Adventure Begins',
+        template: 'welcome1',
+        context: {},
+      };
+      const sentMailInfo1 = await this.sendMail(mailOption1);
+      console.log(
+        `Email was sent to ${ADMIN_EMAIL}, Type => Welcome to Texitcoin - Your Texitcoin Adventure Begins, Message ID => ${sentMailInfo1.messageId}`
+      );
+    }
+  }
 }

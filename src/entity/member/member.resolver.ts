@@ -721,6 +721,24 @@ export class MemberResolver {
   }
 
   @Authorized([UserRole.ADMIN])
+  @Mutation(() => SuccessResponse)
+  async sendWelcomeEmail(@Arg('data') data: EmailInput): Promise<SuccessResponse> {
+    const member = await this.service.getMemberByEmail(data.email);
+    if (!member) {
+      throw new GraphQLError('No miner associated with the provided email address', {
+        extensions: {
+          path: ['email'],
+        },
+      });
+    }
+
+    await this.mailerService.sendWelcomeEmail(data.email);
+    return {
+      result: SuccessResult.success,
+    };
+  }
+
+  @Authorized([UserRole.ADMIN])
   @FieldResolver(() => [AdminNotes])
   async adminNotes(@Root() member: Member, @Ctx() ctx: Context) {
     return ctx.dataLoader.get('adminNotesForMemberLoader').load(member.id);
