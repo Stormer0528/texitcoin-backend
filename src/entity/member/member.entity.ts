@@ -128,6 +128,6 @@ export class Member extends BaseEntity {
   @Field()
   groupName?: string;
 
-  @Field(() => [Balance])
+  @Field(() => [Balance], { nullable: true })
   balances?: Balance[];
 }

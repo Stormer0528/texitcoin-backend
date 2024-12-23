@@ -768,7 +768,7 @@ export class MemberResolver {
     return ctx.dataLoader.get('groupNameForMemberLoader').load(member.id);
   }
 
-  @FieldResolver(() => [Balance])
+  @FieldResolver(() => [Balance], { nullable: true })
   async balances(@Root() member: Member, @Ctx() ctx: Context): Promise<Balance[]> {
     return ctx.dataLoader.get('balancesForMemberLoader').load(member.id);
   }

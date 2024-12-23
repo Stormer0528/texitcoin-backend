@@ -89,7 +89,7 @@ export class BalanceResolver {
     };
   }
 
-  @FieldResolver(() => Member)
+  @FieldResolver(() => Member, { nullable: true })
   async member(@Root() balance: Balance, @Ctx() ctx: Context): Promise<Member> {
     return ctx.dataLoader.get('memberForBalanceLoader').load(balance.memberId);
   }
