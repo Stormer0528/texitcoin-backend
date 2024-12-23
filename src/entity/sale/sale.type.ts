@@ -36,6 +36,9 @@ export class CreateSaleInput {
   @Field()
   orderedAt: Date;
 
+  @Field(() => ID, { nullable: true })
+  toMemberId?: string;
+
   @Field(() => [ID], { nullable: true })
   fileIds?: string[];
 
@@ -66,6 +69,9 @@ export class UpdateSaleInput {
 
   @Field({ nullable: true })
   status?: boolean;
+
+  @Field(() => ID, { nullable: true })
+  toMemberId?: string;
 
   @Field(() => [ID], { nullable: true })
   fileIds?: string[];

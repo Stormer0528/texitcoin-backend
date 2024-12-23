@@ -40,6 +40,12 @@ export class Sale extends BaseEntity {
   @Field()
   freeShareSale: boolean;
 
+  @Field(() => ID, { nullable: true })
+  toMemberId?: string;
+
+  @Field(() => Member, { nullable: true })
+  toMember?: Member;
+
   @Field(() => [StatisticsSale], { nullable: true })
   statisticsSales?: StatisticsSale[];
 

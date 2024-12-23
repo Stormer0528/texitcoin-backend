@@ -124,7 +124,8 @@ model Member {
   deletedAt DateTime?
 
   // Relations
-  sales             Sale[]
+  sales             Sale[]             @relation("member_sales")
+  p2pSales          Sale[]             @relation("p2p_member_sales")
   statistics        MemberStatistics[]
   introduceMembers  Member[]           @relation("MemberSponsor")
   memberWallets     MemberWallet[]
@@ -144,9 +145,11 @@ model Sale {
   orderedAt     DateTime @default(now())
   status        Boolean  @default(true)
   freeShareSale Boolean  @default(false) @db.Boolean
+  toMemberId    String? // P2P to miner
 
-  member  Member?  @relation(fields: [memberId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  package Package? @relation(fields: [packageId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  member   Member?  @relation("member_sales", fields: [memberId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  toMember Member?  @relation("p2p_member_sales", fields: [toMemberId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  package  Package? @relation(fields: [packageId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   statisticsSales StatisticsSale[]
 
@@ -564,4 +567,19 @@ model GroupSettingCommissionBonus {
 
   @@unique([groupSettingId, lPoint, rPoint], map: "unique_index_on_group_setting_commission_bonus")
   @@map("groupsettingcommissionbonuses")
+}
+
+model Balance {
+  id            String   @id @default(uuid())
+  date          DateTime
+  type          String
+  note          String
+  amountInCents Int
+  balance       Int
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@map("balances")
 }

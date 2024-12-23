@@ -24,7 +24,6 @@ import { Sale } from './sale.entity';
 import { Member } from '../member/member.entity';
 import { Package } from '../package/package.entity';
 import { StatisticsSale } from '../statisticsSale/statisticsSale.entity';
-import { PFile } from '../file/file.entity';
 import { SaleService } from './sale.service';
 import { MemberService } from '../member/member.service';
 import { Transaction } from '@/graphql/decorator';
@@ -33,7 +32,6 @@ import { MemberWalletService } from '../memberWallet/memberWallet.service';
 import { NO_PRODUCT, PAYOUTS } from '@/consts';
 import dayjs from 'dayjs';
 import utcPlugin from 'dayjs/plugin/utc';
-import { RefLink } from '../referenceLink/referenceLink.entity';
 import { ProofService } from '../proof/proof.service';
 import { PackageService } from '../package/package.service';
 import { Proof } from '../proof/proof.entity';
@@ -204,6 +202,11 @@ export class SaleResolver {
   @FieldResolver({ nullable: true })
   async member(@Root() sale: Sale, @Ctx() ctx: Context): Promise<Member> {
     return ctx.dataLoader.get('memberForSaleLoader').load(sale.memberId);
+  }
+
+  @FieldResolver({ nullable: true })
+  async toMember(@Root() sale: Sale, @Ctx() ctx: Context): Promise<Member> {
+    return ctx.dataLoader.get('memberForSaleLoader').load(sale.toMemberId);
   }
 
   @FieldResolver({ nullable: true })
