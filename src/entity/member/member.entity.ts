@@ -12,6 +12,7 @@ import { PlacementPosition, TeamStrategy } from '@/graphql/enum';
 import { WeeklyCommission } from '../weeklycommission/weeklycommission.entity';
 import { AdminNotes } from '../adminNotes/adminNotes.entity';
 import { CommissionStatus } from '../weeklycommission/weeklycommission.type';
+import { Balance } from '../balance/balance.entity';
 
 @ObjectType()
 export class Member extends BaseEntity {
@@ -126,4 +127,7 @@ export class Member extends BaseEntity {
 
   @Field()
   groupName?: string;
+
+  @Field(() => [Balance])
+  balances?: Balance[];
 }

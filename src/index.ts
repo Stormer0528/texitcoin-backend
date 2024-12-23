@@ -45,6 +45,7 @@ import { NotificationClientResolver } from './entity/notification/notificationCl
 import { adminAuthorized } from './rest/middlewares/adminAuthorized.middleware';
 import { WeeklyReportResolver } from './entity/weeklyReport/weeklyReport.resolver';
 import { GroupSettingResolver } from './entity/groupSetting/groupSetting.resolver';
+import { BalanceResolver } from './entity/balance/balance.resolver';
 
 const app = async () => {
   const schema = await tq.buildSchema({
@@ -72,6 +73,7 @@ const app = async () => {
       NotificationClientResolver,
       WeeklyReportResolver,
       GroupSettingResolver,
+      BalanceResolver,
     ],
     authChecker,
     scalarsMap: [

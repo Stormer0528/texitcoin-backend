@@ -5,7 +5,7 @@ import { Sale } from '@/entity/sale/sale.entity';
 import { MemberStatistics } from '@/entity/memberStatistics/memberStatistics.entity';
 import { MemberWallet } from '@/entity/memberWallet/memberWallet.entity';
 import { Member } from '@/entity/member/member.entity';
-import { AdminNotes, WeeklyCommission } from '@prisma/client';
+import { AdminNotes, Balance, WeeklyCommission } from '@prisma/client';
 import { ConfirmationStatus } from '../enum';
 import { CommissionStatus } from '@/entity/weeklycommission/weeklycommission.type';
 import dayjs from 'dayjs';
@@ -323,6 +323,32 @@ export const groupNameForMemberLoader = (parent: RootDataLoader) => {
       };
 
       return memberIds.map((id) => findGroupName(membersMap[id]));
+    },
+    {
+      ...parent.dataLoaderOptions,
+    }
+  );
+};
+
+export const balancesForMemberLoader = (parent: RootDataLoader) => {
+  return new DataLoader<string, Balance[]>(
+    async (memberIds: string[]) => {
+      const balances = await parent.prisma.balance.findMany({
+        where: {
+          memberId: {
+            in: memberIds,
+          },
+        },
+      });
+      const balanceMap: Record<string, Balance[]> = {};
+      balances.forEach((balance) => {
+        if (!balanceMap[balance.memberId]) {
+          balanceMap[balance.memberId] = [];
+        }
+        balanceMap[balance.memberId].push(balance);
+      });
+
+      return memberIds.map((id) => balanceMap[id] ?? []);
     },
     {
       ...parent.dataLoaderOptions,

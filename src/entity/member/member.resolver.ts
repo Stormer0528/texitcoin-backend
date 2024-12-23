@@ -75,6 +75,7 @@ import { PrismaService } from '@/service/prisma';
 import { getDynamicOrderBy } from '@/utils/getDynamicOrderBy';
 import { CommissionStatus } from '../weeklycommission/weeklycommission.type';
 import { WeeklyCommissionService } from '../weeklycommission/weeklycommission.service';
+import { Balance } from '../balance/balance.entity';
 
 @Service()
 @Resolver(() => Member)
@@ -765,5 +766,10 @@ export class MemberResolver {
   @FieldResolver()
   async groupName(@Root() member: Member, @Ctx() ctx: Context): Promise<string> {
     return ctx.dataLoader.get('groupNameForMemberLoader').load(member.id);
+  }
+
+  @FieldResolver(() => [Balance])
+  async balances(@Root() member: Member, @Ctx() ctx: Context): Promise<Balance[]> {
+    return ctx.dataLoader.get('balancesForMemberLoader').load(member.id);
   }
 }
