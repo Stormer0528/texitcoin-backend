@@ -115,6 +115,7 @@ model Member {
   preferredContact       String?
   preferredContactDetail String?
   teamStrategy           TeamStrategy      @default(MANUAL)
+  balanceInCents         Int               @default(0)
 
   sponsor         Member? @relation("MemberSponsor", fields: [sponsorId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   placementParent Member? @relation("MemberPlacementParent", fields: [placementParentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -570,12 +571,12 @@ model GroupSettingCommissionBonus {
 }
 
 model Balance {
-  id            String   @id @default(uuid())
-  date          DateTime
-  type          String
-  note          String
-  amountInCents Int
-  balance       Int
+  id             String   @id @default(uuid())
+  date           DateTime
+  type           String
+  note           String
+  amountInCents  Int
+  balanceInCents Int
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
