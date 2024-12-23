@@ -128,3 +128,5 @@ export const REWARD_PER_BLOCK = 254;
 
 export const LIMIT_COMMISSION_L_POINT = 9;
 export const LIMIT_COMMISSION_R_POINT = 9;
+
+export const WEEK_START = '2024-03-31';

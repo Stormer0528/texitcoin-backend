@@ -35,8 +35,7 @@
         <img class="size-20 rounded-full ring-2 ring-white shadow-xl"
           src="https://i.ibb.co/4RkCZF4/txc-logo-frame-large.png" alt="txc-logo-frame-large" border="0">
       </div>
-      <h2 class="text-2xl/7 font-bold text-gray-700 sm:truncate sm:text-4xl sm:tracking-tight">Financial
-        Report</h2>
+      <h2 class="text-2xl/7 font-bold text-gray-700 sm:truncate sm:text-4xl sm:tracking-tight">Weekly Financial Report</h2>
       <h5 class="text-2xl/7 font-semibold text-gray-700 sm:truncate sm:text-lg sm:tracking-tight"><%= date %>
       </h5>
     </div>
@@ -44,20 +43,12 @@
 
     <!-- Start Header with Subscription -->
     <div class="grid lg:grid-cols-4 max-sm:grid-cols-2 space-x-10 my-2 max-sm:text-right font-semibold text-gray-700">
-      <div class="col-start-3">
-        <p class="text-lg">Expensenses: $ <%= newExpenses %>
-        </p>
-        <p class="text-lg">Retained Earnings: $ <%= retainedEarning %>
-        </p>
-        <p class="text-lg">Bobby's Earnings: $ <%= bobbyEarning %>
-        </p>
-      </div>
       <div class="max-sm:col-start-3">
-        <p class="text-lg">New Revenue: $ <%= newRevenue %>
+        <p class="text-lg">Revenue: New: $<%= newRevenue %>, Total: $<%= totalRevenue %>(<%= revenueGrowth %>)%
         </p>
-        <p class="text-lg">New Hash: <%= newHash %>
+        <p class="text-lg">Hash: New: <%= newHash %>, Total: <%= totalHash %>(<%= hashGrowth %>)%
         </p>
-        <p class="text-lg">New Commission: $ <%= newCommission %>
+        <p class="text-lg">Commission: New: $<%= newCommission %>, Total: $<%= totalCommission %>(<%= commissionGrowth %>)%
         </p>
       </div>
     </div>
@@ -67,24 +58,30 @@
     <div class="relative overflow-x-auto">
       <table class="w-full text-left">
         <caption class="caption-top text-left text-2xl font-semibold text-gray-700">
-          Sale
+          Sales
         </caption>
         <thead>
           <tr>
+            <th>DATE</th>
+            <th>BEVIS</th>
             <th>ID</th>
-            <th>Miner</th>
-            <th>Product Name</th>
-            <th>Payment Method</th>
-            <th>Amount</th>
-            <th>Hash Power</th>
-            <th>Point</th>
-            <th>Bevis</th>
-            <th>Ordered At</th>
+            <th>MINER</th>
+            <th>PRODUCT</th>
+            <th>PAYMENT</th>
+            <th>AMOUNT</th>
+            <th>HASH</th>
+            <th>POINT</th>
           </tr>
         </thead>
         <tbody>
           <% sales.forEach(function(sale) { %>
             <tr class="odd:dark:bg-gray-200 even:dark:bg-gray-5 border-b">
+              <td>
+                <%= sale.orderedAt %>
+              </td>
+              <td>
+                <%= sale.member.assetId %>
+              </td>
               <td>
                 <%= sale.ID %>
               </td>
@@ -105,12 +102,6 @@
               <td>
                 <%= sale.package.point %>
               </td>
-              <td>
-                <%= sale.member.assetId %>
-              </td>
-              <td>
-                <%= sale.orderedAt %>
-              </td>
             </tr>
             <% }) %>
         </tbody>
@@ -118,68 +109,86 @@
     </div>
     <!-- End Sale Table -->
 
-    <!-- Start Header with 1-2-Free Table -->
-    <div class="grid lg:grid-cols-4 max-sm:grid-cols-2 space-x-10 items-center text-gray-700 mb-8 mt-2">
-      <div class="lg:col-start-3">
-        <p class="text-lg font-semibold">Total Hash: <%= totalHashPower %></p>
-      </div>
-      <div>
-        <p class="text-lg font-semibold">Total Sales: <%= totalSale %></p>
-      </div>
-    </div>
-    <!-- End Header with 1-2-Free Table -->
-
     <!-- Start 1-2-Free Table -->
     <div class="relative overflow-x-auto">
       <table class="w-full text-left">
         <caption class="caption-top text-left text-2xl font-semibold text-gray-700">1-2-Free</caption>
         <thead>
           <tr>
-            <th>Miner</th>
-            <th>Hash Power</th>
-            <th>New Miners</th>
-            <th>Bevis</th>
-            <th>Date</th>
+            <th>DATE</th>
+            <th>BEVIS</th>
+            <th>ID</th>
+            <th>MINER</th>
+            <th>PRODUCT</th>
+            <th>HASH</th>
           </tr>
         </thead>
         <tbody>
-          <!-- <tr class="odd:dark:bg-gray-200 even:dark:bg-gray-5 border-b">
-            <td>Vitalii Ovodenko</td>
-            <td>300</td>
-            <td>20</td>
-            <td>m6S8K8</td>
-            <td>12/17/2024</td>
-          </tr> -->
+          <tr class="odd:dark:bg-gray-200 even:dark:bg-gray-5 border-b">
+            <% freeSales.forEach(function(sale) { %>
+              <tr class="odd:dark:bg-gray-200 even:dark:bg-gray-5 border-b">
+                <td>
+                  <%= sale.orderedAt %>
+                </td>
+                <td>
+                  <%= sale.member.assetId %>
+                </td>
+                <td>
+                  <%= sale.ID %>
+                </td>
+                <td>
+                  <%= sale.member.fullName %>
+                </td>
+                <td>
+                  <%= sale.package.productName %>
+                </td>
+                <td>
+                  <%= sale.package.token %>
+                </td>
+              </tr>
+              <% }) %>
+          </tr>
         </tbody>
       </table>
     </div>
     <!-- End 1-2-Free Table -->
 
+    Total Hash: <%= freeTotalHash %>
+
     <!-- Start Binary Commissions Table -->
     <div class="relative overflow-x-auto mt-16">
       <table class="w-full text-left">
-        <caption class="caption-top text-left text-2xl font-semibold text-gray-700">Binary Commissions</caption>
+        <caption class="caption-top text-left text-2xl font-semibold text-gray-700">Rapid Rewards</caption>
         <thead>
           <tr>
+            <th width="150">DATE</th>
+            <th width="150">BEVIS</th>
             <th width="150">ID</th>
-            <th width="300">Miner</th>
-            <th width="120">Beg</th>
-            <th width="120">New</th>
-            <th width="120">Max</th>
-            <th width="120">Package</th>
-            <th width="120">End</th>
-            <th width="150">Commission</th>
-            <th>Payment</th>
+            <th width="300">MINER</th>
+            <th width="120">BEG</th>
+            <th width="120">NEW</th>
+            <th width="120">MAX</th>
+            <th width="120">PACKAGE</th>
+            <th width="120">END</th>
+            <th width="150">COMMISSION</th>
+            <th>BOGO</th>
+            <th>NOTE</th>
           </tr>
         </thead>
         <tbody>
           <% commissions.forEach(function(cms) { %>
             <tr class="odd:dark:bg-gray-200 even:dark:bg-gray-5 border-b">
               <td>
+                <%= cms.date %>
+              </td>
+              <td>
+                <%= cms.assetId %>
+              </td>
+              <td>
                 <%= cms.ID %>
               </td>
               <td>
-                <%= cms.member.fullName %>
+                <%= cms.fullName %>
               </td>
               <td>L<%= cms.begL %>, R<%= cms.begR %>
               </td>
@@ -193,8 +202,13 @@
               </td>
               <td>$ <%= cms.commission %>
               </td>
+              <td style="display: flex; flex-direction: column;">
+                <% cms.links.forEach(function(link) { %>
+                  <a href="<%= link %>" target="_blank"><%= link %></a>
+                  <% }) %>
+              </td>
               <td>
-                <%= cms.paymentMethod %>
+                <%= cms.note %>
               </td>
             </tr>
             <% }) %>
@@ -218,9 +232,7 @@
         <caption class="caption-top text-left text-2xl font-semibold text-gray-700 mt-16 mb-2">Top 10 Earners</caption>
         <thead>
           <tr>
-            <th>Miner</th>
-            <th>Join Date</th>
-            <th>Sponsored</th>
+            <th>Earners</th>
             <th>Earnings</th>
           </tr>
         </thead>
@@ -229,12 +241,6 @@
             <tr class="odd:dark:bg-gray-200 even:dark:bg-gray-5 border-b">
               <td>
                 <%= earner.fullName %>
-              </td>
-              <td>
-                <%= earner.joinedAt %>
-              </td>
-              <td>
-                <%= earner.sponsor %>
               </td>
               <td>$ <%= earner.earning %>
               </td>
@@ -251,10 +257,8 @@
         <caption class="caption-top text-left text-2xl font-semibold text-gray-700 mt-16 mb-2">Top 10 Sponsors</caption>
         <thead>
           <tr>
-            <th>Miner</th>
-            <th>Join Date</th>
-            <th>Sponsored</th>
-            <th>Earnings</th>
+            <th>Sponsors</th>
+            <th>#Sponsored</th>
           </tr>
         </thead>
         <tbody>
@@ -264,12 +268,7 @@
                 <%= sponsor.fullName %>
               </td>
               <td>
-                <%= sponsor.joinedAt %>
-              </td>
-              <td>
                 <%= sponsor.sponsor %>
-              </td>
-              <td>$ <%= sponsor.earning %>
               </td>
             </tr>
             <% }) %>
