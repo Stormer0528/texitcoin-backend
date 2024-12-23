@@ -133,6 +133,7 @@ model Member {
   placementChildren Member[]           @relation("MemberPlacementParent")
   WeeklyCommission  WeeklyCommission[]
   adminNotes        AdminNotes[]
+  balances          Balance[]
 
   @@map("members")
 }
@@ -577,6 +578,9 @@ model Balance {
   note           String
   amountInCents  Int
   balanceInCents Int
+  memberId       String
+
+  member Member @relation(fields: [memberId], references: [id], onUpdate: NoAction, onDelete: NoAction)
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
