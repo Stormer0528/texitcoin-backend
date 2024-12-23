@@ -572,13 +572,12 @@ model GroupSettingCommissionBonus {
 }
 
 model Balance {
-  id             String   @id @default(uuid())
-  date           DateTime @default(now())
-  type           String
-  note           String?
-  amountInCents  Int      @default(0)
-  balanceInCents Int      @default(0)
-  memberId       String
+  id            String   @id @default(uuid())
+  date          DateTime @default(now())
+  type          String
+  note          String?
+  amountInCents Int      @default(0)
+  memberId      String
 
   member Member @relation(fields: [memberId], references: [id], onUpdate: NoAction, onDelete: NoAction)
 
