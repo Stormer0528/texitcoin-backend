@@ -206,7 +206,7 @@ export class SaleResolver {
 
   @FieldResolver({ nullable: true })
   async toMember(@Root() sale: Sale, @Ctx() ctx: Context): Promise<Member> {
-    return ctx.dataLoader.get('memberForSaleLoader').load(sale.toMemberId);
+    return sale.toMemberId ? ctx.dataLoader.get('memberForSaleLoader').load(sale.toMemberId) : null;
   }
 
   @FieldResolver({ nullable: true })
