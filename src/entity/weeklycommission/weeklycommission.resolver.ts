@@ -121,6 +121,7 @@ export class WeeklyCommissionResolver {
       fileIds,
       note,
       reflinks,
+      amount: updatedCommission.commission,
     });
 
     return updatedCommission;
