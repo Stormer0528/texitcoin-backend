@@ -13,7 +13,7 @@
   th {
     white-space: nowrap;
     padding: 4px 12px;
-    font-weight: 500;
+    font-weight: 480;
     --tw-text-opacity: 1;
     color: rgb(55 65 81/var(--tw-text-opacity));
   }
@@ -21,35 +21,93 @@
   td {
     white-space: nowrap;
     padding: 4px 12px;
-    font-weight: 480;
+    font-weight: 400;
     --tw-text-opacity: 1;
     color: rgb(107 114 128/var(--tw-text-opacity));
+  }
+
+  @media print {
+
+    table,
+    #subscription {
+      font-size: 8px;
+    }
+
+    caption,
+    .subtotal {
+      font-size: 12px !important;
+    }
+
+    h2 {
+      font-size: 20px !important;
+    }
+
+    h5 {
+      font-size: 14px !important;
+    }
+
+    th,
+    td {
+      padding: 3px 6px;
+    }
   }
 </style>
 
 <body>
+  <div class="mx-auto px-16 pt-4 max-sm:px-2">
+    <h2 class="text-2xl text-right font-semibold text-gray-700"><%= year %></h2>
+  </div>
   <div class="container mx-auto px-2 py-8">
     <!-- Start Header with Logo -->
-    <div class="lg:flex lg:items-center lg:justify-between max-sm:grid max-sm:text-center max-sm:space-y-2 max-sm:mb-8">
+    <div
+      class="flex items-center justify-between max-sm:grid max-sm:grid-cols-1 max-sm:text-center max-sm:space-y-2 max-sm:mb-8">
       <div class="max-sm:flex justify-center">
-        <img class="size-20 rounded-full ring-2 ring-white shadow-xl"
-          src="https://i.ibb.co/4RkCZF4/txc-logo-frame-large.png" alt="txc-logo-frame-large" border="0">
+        <img class="size-20" src="https://i.ibb.co/4RkCZF4/txc-logo-frame-large.png" alt="txc-logo-frame-large"
+          border="0">
       </div>
-      <h2 class="text-2xl/7 font-bold text-gray-700 sm:truncate sm:text-4xl sm:tracking-tight">Weekly Financial Report</h2>
-      <h5 class="text-2xl/7 font-semibold text-gray-700 sm:truncate sm:text-lg sm:tracking-tight"><%= date %>
+      <h2 class="text-2xl/7 font-semibold text-gray-700 sm:truncate sm:text-4xl sm:tracking-tight">Weekly Financial
+        Report
+      </h2>
+      <h5 class="text-lg font-semibold text-gray-700 sm:truncate sm:tracking-tight">
+        <%= date %>
       </h5>
     </div>
     <!-- End Header with Logo -->
 
     <!-- Start Header with Subscription -->
-    <div class="grid lg:grid-cols-4 max-sm:grid-cols-2 space-x-10 my-2 max-sm:text-right font-semibold text-gray-700">
-      <div class="max-sm:col-start-3">
-        <p class="text-lg">Revenue: New: $<%= newRevenue %>, Total: $<%= totalRevenue %>(<%= revenueGrowth %>)%
-        </p>
-        <p class="text-lg">Hash: New: <%= newHash %>, Total: <%= totalHash %>(<%= hashGrowth %>)%
-        </p>
-        <p class="text-lg">Commission: New: $<%= newCommission %>, Total: $<%= totalCommission %>(<%= commissionGrowth %>)%
-        </p>
+    <div class="py-2 text-md" id="subscription">
+      <div class="flex flex-row justify-end max-sm:grid max-sm:grid-cols-5 space-x-4 text-gray-700">
+        <div class="max-sm:text-right max-sm:col-span-2">Revenue:</div>
+        <div class="max-sm:col-span-3">
+          <span class="italic">New:</span>
+          $<%= newRevenue %>
+        </div>
+        <div class="max-sm:col-start-3 max-sm:col-span-3">
+          <span class="italic">Total: </span> $<%= totalRevenue %>(<%= revenueGrowth %>%)
+        </div>
+      </div>
+
+      <div class="flex flex-row justify-end max-sm:grid max-sm:grid-cols-5 space-x-4 text-gray-700">
+        <div class="max-sm:text-right max-sm:col-span-2">Hash Power:</div>
+        <div class="max-sm:col-span-3">
+          <span class="italic">New:</span>
+          <%= newHash %>
+        </div>
+        <div class="max-sm:col-start-3 max-sm:col-span-3">
+          <span class="italic">Total: </span>
+          <%= totalHash %>(<%= hashGrowth %>%)
+        </div>
+      </div>
+
+      <div class="flex flex-row justify-end max-sm:grid max-sm:grid-cols-5 space-x-4 text-gray-700">
+        <div class="max-sm:text-right max-sm:col-span-2">Commission:</div>
+        <div class="max-sm:col-span-3">
+          <span class="italic">New:</span>
+          $<%= newCommission %>
+        </div>
+        <div class="max-sm:col-start-3 max-sm:col-span-3">
+          <span class="italic">Total: </span> $<%= totalCommission %>(<%= commissionGrowth %>%)
+        </div>
       </div>
     </div>
     <!-- End Header with Subscription -->
@@ -57,11 +115,11 @@
     <!-- Start Sale Table -->
     <div class="relative overflow-x-auto">
       <table class="w-full text-left">
-        <caption class="caption-top text-left text-2xl font-semibold text-gray-700">
+        <caption class="caption-top text-left text-2xl text-gray-700">
           Sales
         </caption>
         <thead>
-          <tr>
+          <tr class="border-b">
             <th>DATE</th>
             <th>BEVIS</th>
             <th>ID</th>
@@ -75,7 +133,7 @@
         </thead>
         <tbody>
           <% sales.forEach(function(sale) { %>
-            <tr class="odd:dark:bg-gray-200 even:dark:bg-gray-5 border-b">
+            <tr class="border-b">
               <td>
                 <%= sale.orderedAt %>
               </td>
@@ -94,7 +152,8 @@
               <td>
                 <%= sale.paymentMethod %>
               </td>
-              <td>$ <%= sale.package.amount %>
+              <td>
+                $ <%= sale.package.amount %>
               </td>
               <td>
                 <%= sale.package.token %>
@@ -109,12 +168,12 @@
     </div>
     <!-- End Sale Table -->
 
-    <!-- Start 1-2-Free Table -->
-    <div class="relative overflow-x-auto">
+    <!-- Start Free Hash Power Table -->
+    <div class="relative overflow-x-auto mt-16">
       <table class="w-full text-left">
-        <caption class="caption-top text-left text-2xl font-semibold text-gray-700">1-2-Free</caption>
+        <caption class="caption-top text-left text-2xl text-gray-700">Free Hash Power</caption>
         <thead>
-          <tr>
+          <tr class="border-b">
             <th>DATE</th>
             <th>BEVIS</th>
             <th>ID</th>
@@ -124,43 +183,46 @@
           </tr>
         </thead>
         <tbody>
-          <tr class="odd:dark:bg-gray-200 even:dark:bg-gray-5 border-b">
-            <% freeSales.forEach(function(sale) { %>
-              <tr class="odd:dark:bg-gray-200 even:dark:bg-gray-5 border-b">
-                <td>
-                  <%= sale.orderedAt %>
-                </td>
-                <td>
-                  <%= sale.member.assetId %>
-                </td>
-                <td>
-                  <%= sale.ID %>
-                </td>
-                <td>
-                  <%= sale.member.fullName %>
-                </td>
-                <td>
-                  <%= sale.package.productName %>
-                </td>
-                <td>
-                  <%= sale.package.token %>
-                </td>
-              </tr>
-              <% }) %>
-          </tr>
+          <% freeSales.forEach(function(sale) { %>
+            <tr class="border-b">
+              <td>
+                <%= sale.orderedAt %>
+              </td>
+              <td>
+                <%= sale.member.assetId %>
+              </td>
+              <td>
+                <%= sale.ID %>
+              </td>
+              <td>
+                <%= sale.member.fullName %>
+              </td>
+              <td>
+                <%= sale.package.productName %>
+              </td>
+              <td>
+                <%= sale.package.token %>
+              </td>
+            </tr>
+            <% }) %>
         </tbody>
       </table>
     </div>
-    <!-- End 1-2-Free Table -->
+    <!-- End Free Hash Power Table -->
 
-    Total Hash: <%= freeTotalHash %>
+    <!-- Start Footer with Free Hash Power Table -->
+    <div class="flex flex-row-reverse text-gray-700 mb-8 mt-2">
+      <p class="subtotal text-lg">Total Hash: <%= freeTotalHash %>
+      </p>
+    </div>
+    <!-- End Footer with Free Hash Power Table -->
 
     <!-- Start Binary Commissions Table -->
     <div class="relative overflow-x-auto mt-16">
       <table class="w-full text-left">
-        <caption class="caption-top text-left text-2xl font-semibold text-gray-700">Rapid Rewards</caption>
+        <caption class="caption-top text-left text-2xl text-gray-700">Rapid Rewards</caption>
         <thead>
-          <tr>
+          <tr class="border-b">
             <th width="150">DATE</th>
             <th width="150">BEVIS</th>
             <th width="150">ID</th>
@@ -177,7 +239,7 @@
         </thead>
         <tbody>
           <% commissions.forEach(function(cms) { %>
-            <tr class="odd:dark:bg-gray-200 even:dark:bg-gray-5 border-b">
+            <tr class="border-b">
               <td>
                 <%= cms.date %>
               </td>
@@ -204,7 +266,9 @@
               </td>
               <td style="display: flex; flex-direction: column;">
                 <% cms.links.forEach(function(link) { %>
-                  <a href="<%= link %>" target="_blank"><%= link %></a>
+                  <a href="<%= link %>" target="_blank">
+                    <%= link %>
+                  </a>
                   <% }) %>
               </td>
               <td>
@@ -218,64 +282,65 @@
     <!-- End Binary Commissions Table -->
 
     <!-- Start Footer with Binary Commissions Table -->
-    <div class=" grid lg:grid-cols-4 max-sm:grid-cols-2 space-x-10 items-center text-gray-700 mb-8 mt-2">
-      <div class="lg:col-start-4 max-sm:col-start-2">
-        <p class="text-lg font-semibold">Total Payout: $ <%= totalCommission %>
-        </p>
-      </div>
+    <div class="flex flex-row-reverse text-gray-700 mt-2">
+      <p class="subtotal text-lg">Total Payout: $ <%= totalCommission %>
+      </p>
     </div>
     <!-- End Footer with Binary Commissions Table -->
 
-    <!-- Start Top 10 Earners Table -->
-    <div class="relative overflow-x-auto">
-      <table class="w-full text-left">
-        <caption class="caption-top text-left text-2xl font-semibold text-gray-700 mt-16 mb-2">Top 10 Earners</caption>
-        <thead>
-          <tr>
-            <th>Earners</th>
-            <th>Earnings</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% top10Earners.forEach(function(earner) { %>
-            <tr class="odd:dark:bg-gray-200 even:dark:bg-gray-5 border-b">
-              <td>
-                <%= earner.fullName %>
-              </td>
-              <td>$ <%= earner.earning %>
-              </td>
+    <div class="grid grid-cols-2 max-sm:grid-cols-1 space-x-16 max-sm:space-x-0">
+      <!-- Start Top 10 Earners Table -->
+      <div class="relative overflow-x-auto">
+        <table class="w-full text-left">
+          <caption class="caption-top text-left text-2xl text-gray-700 mt-16 mb-2">Top 10 Earners</caption>
+          <thead>
+            <tr class="border-b">
+              <th>Earners</th>
+              <th>Earnings</th>
             </tr>
-            <% }) %>
-        </tbody>
-      </table>
-    </div>
-    <!-- End Top 10 Earners Table -->
+          </thead>
+          <tbody>
+            <% top10Earners.forEach(function(earner) { %>
+              <tr class="border-b">
+                <td>
+                  <%= earner.fullName %>
+                </td>
+                <td>$ <%= earner.earning %>
+                </td>
+              </tr>
+              <% }) %>
+          </tbody>
+        </table>
+      </div>
+      <!-- End Top 10 Earners Table -->
 
-    <!-- Start Top 10 Sponsors Table -->
-    <div class="relative overflow-x-auto">
-      <table class="w-full text-left">
-        <caption class="caption-top text-left text-2xl font-semibold text-gray-700 mt-16 mb-2">Top 10 Sponsors</caption>
-        <thead>
-          <tr>
-            <th>Sponsors</th>
-            <th>#Sponsored</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% top10Sponsors.forEach(function(sponsor) { %>
-            <tr class="odd:dark:bg-gray-200 even:dark:bg-gray-5 border-b">
-              <td>
-                <%= sponsor.fullName %>
-              </td>
-              <td>
-                <%= sponsor.sponsor %>
-              </td>
+      <!-- Start Top 10 Sponsors Table -->
+      <div class="relative overflow-x-auto">
+        <table class="w-full text-left">
+          <caption class="caption-top text-left text-2xl text-gray-700 mt-16 mb-2">Top 10 Sponsors</caption>
+          <thead>
+            <tr class="border-b">
+              <th>Sponsors</th>
+              <th>#Sponsored</th>
             </tr>
-            <% }) %>
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            <% top10Sponsors.forEach(function(sponsor) { %>
+              <tr class="border-b">
+                <td>
+                  <%= sponsor.fullName %>
+                </td>
+                <td>
+                  <%= sponsor.sponsor %>
+                </td>
+              </tr>
+              <% }) %>
+          </tbody>
+        </table>
+      </div>
+      <!-- End Top 10 Sponsors Table -->
     </div>
-    <!-- End Top 10 Sponsors Table -->
+
   </div>
 </body>
 

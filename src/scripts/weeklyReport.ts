@@ -180,6 +180,7 @@ const generateWeeklyReport = async (all: boolean) => {
     `;
 
     const data = {
+      year: iStartDate.format('YYYY'),
       date,
       newExpenses,
       newRevenue: newRevenue.toLocaleString(),
