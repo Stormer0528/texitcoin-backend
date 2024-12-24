@@ -292,7 +292,18 @@ const generateWeeklyReport = async (all: boolean) => {
               },
             },
           },
-          update: {},
+          update: {
+            weekStartDate: cloneDate.toDate(),
+            file: {
+              update: {
+                url: `${process.env.PUBLIC_DOMAIN}/public/weeklyreports/${cloneDate.format('YYYY-MM-DD')}/report.html`,
+                originalName: 'report.html',
+                mimeType: 'text/html',
+                size: stats.size,
+                localPath: filePath,
+              },
+            },
+          },
         });
       }
     );
