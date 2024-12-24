@@ -583,4 +583,18 @@ export class MemberService {
       },
     });
   }
+
+  async updateBalanceByMemberIds(ids: string[]) {
+    await this.prisma.$queryRaw`
+      UPDATE members
+      SET "balanceInCents" = balances.balance
+      FROM (
+        SELECT "memberId", COALESCE(SUM("amountInCents"), 0)::Int as balance
+        FROM balances
+        WHERE "memberId" in (${Prisma.join(ids)})
+        GROUP BY "memberId"
+      ) as balances
+      WHERE members.id = balances."memberId"
+    `;
+  }
 }

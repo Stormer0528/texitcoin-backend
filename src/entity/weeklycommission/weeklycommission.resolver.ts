@@ -180,6 +180,23 @@ export class WeeklyCommissionResolver {
     });
 
     await this.service.updateWeeklyCommissionsStatus(data);
+
+    await this.balanceService.addBulkBalanceEntries(
+      prevCommissions
+        .filter(
+          (prevCommission) =>
+            prevCommission.status !== ConfirmationStatus.PAID &&
+            data.status === ConfirmationStatus.PAID
+        )
+        .map((commission) => ({
+          amountInCents: commission.commission,
+          date: dayjs(new Date(), { utc: true }).toDate(),
+          memberId: commission.memberId,
+          note: `Commission for ${dayjs(commission.weekStartDate, { utc: true }).format('MM/DD')} - ${dayjs(commission.weekStartDate, { utc: true }).add(1, 'week').format('MM/DD')}`,
+          type: 'Commission',
+        }))
+    );
+
     return {
       result: SuccessResult.success,
     };

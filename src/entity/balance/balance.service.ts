@@ -41,6 +41,14 @@ export class BalanceService {
     return balanceEntry;
   }
 
+  async addBulkBalanceEntries(data: AddBalanceInput[]) {
+    const balanceEntry = await this.prisma.balance.createMany({
+      data,
+    });
+    await this.memberService.updateBalanceByMemberIds(data.map((dt) => dt.memberId));
+    return balanceEntry;
+  }
+
   async updateBalance(data: UpdateBalanceInput) {
     const balanceEntry = await this.prisma.balance.update({
       where: {
