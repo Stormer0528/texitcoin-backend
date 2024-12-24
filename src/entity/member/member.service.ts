@@ -570,7 +570,7 @@ export class MemberService {
 
   async updateBalanceByMemberId(id: string) {
     const balance = await this.prisma.$queryRaw<{ balance: number }[]>`
-      SELECT COALESCE(SUM(amountInCents), 0)::Int as balance
+      SELECT COALESCE(SUM("amountInCents"), 0)::Int as balance
       FROM balances
       WHERE "memberId" = ${id}
     `.then((res) => res[0].balance);

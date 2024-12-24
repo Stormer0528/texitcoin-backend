@@ -127,7 +127,8 @@ export type PROOFTYPE =
   | 'DEVELOPERSWEB'
   | 'DEVELOPERSAPPS'
   | 'DEVELOPERSINTEGRATIONS'
-  | 'EXCHANGEFEE';
+  | 'EXCHANGEFEE'
+  | 'TRANSACTIONPROCESSING';
 
 @InputType()
 export class ReferenceInput {

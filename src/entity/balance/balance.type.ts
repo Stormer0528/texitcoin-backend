@@ -24,7 +24,7 @@ export class AddBalanceInput {
   date: Date;
 
   @Field()
-  type: string;
+  type: BALANCE_TYPE;
 
   @Field({ nullable: true })
   note: string;
@@ -46,7 +46,7 @@ export class UpdateBalanceInput {
   date?: Date;
 
   @Field({ nullable: true })
-  type?: string;
+  type?: BALANCE_TYPE;
 
   @Field({ nullable: true })
   note?: string;
@@ -57,3 +57,5 @@ export class UpdateBalanceInput {
   @Field({ nullable: true })
   memberId?: string;
 }
+
+export type BALANCE_TYPE = 'Commission' | 'Payment' | '3rd Party Payment';

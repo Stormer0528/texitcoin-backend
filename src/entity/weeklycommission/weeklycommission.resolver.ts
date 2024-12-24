@@ -44,6 +44,8 @@ import { Proof } from '../proof/proof.entity';
 import { convertNumToString } from '@/utils/convertNumToString';
 import { MemberService } from '../member/member.service';
 import Bluebird from 'bluebird';
+import { BalanceService } from '../balance/balance.service';
+import dayjs from 'dayjs';
 
 @Service()
 @Resolver(() => WeeklyCommission)
@@ -51,7 +53,9 @@ export class WeeklyCommissionResolver {
   constructor(
     private readonly proofService: ProofService,
     private readonly service: WeeklyCommissionService,
-    private readonly memberService: MemberService
+    private readonly memberService: MemberService,
+    private readonly referenceLinkService: ReferenceLinkService,
+    private readonly balanceService: BalanceService
   ) {}
 
   @Authorized()
@@ -126,6 +130,19 @@ export class WeeklyCommissionResolver {
       reflinks,
       amount: updatedCommission.commission,
     });
+
+    if (
+      prevCommission.status !== ConfirmationStatus.PAID &&
+      updatedCommission.status === ConfirmationStatus.PAID
+    ) {
+      await this.balanceService.addBalance({
+        amountInCents: updatedCommission.commission * 100,
+        date: dayjs(new Date(), { utc: true }).toDate(),
+        memberId: updatedCommission.memberId,
+        note: `Commission for ${dayjs(updatedCommission.weekStartDate, { utc: true }).format('MM/DD')} - ${dayjs(updatedCommission.weekStartDate, { utc: true }).add(1, 'week').format('MM/DD')}`,
+        type: 'Commission',
+      });
+    }
 
     return updatedCommission;
   }
