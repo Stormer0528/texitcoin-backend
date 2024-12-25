@@ -27,6 +27,15 @@ export class WeeklyCommissionResponse extends PaginatedResponse {
 }
 
 @InputType()
+export class WeeklyCommissionSplitWay {
+  @Field()
+  money: number;
+
+  @Field()
+  way: string;
+}
+
+@InputType()
 export class WeeklyCommissionUpdateInput {
   @Field(() => ID)
   id: string;
@@ -45,6 +54,9 @@ export class WeeklyCommissionUpdateInput {
 
   @Field(() => [LinkInput], { nullable: true })
   reflinks?: LinkInput[];
+
+  @Field(() => [WeeklyCommissionSplitWay], { nullable: true })
+  splitWays?: WeeklyCommissionSplitWay[];
 }
 
 @InputType()

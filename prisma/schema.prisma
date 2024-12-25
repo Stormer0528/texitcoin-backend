@@ -357,6 +357,7 @@ model WeeklyCommission {
   commission    Int                @default(0)
   memberId      String
   status        ConfirmationStatus @default(NONE)
+  splitWay      String             @default("")
 
   shortNote String?
 
