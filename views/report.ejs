@@ -55,7 +55,7 @@
 
 <body>
   <div class="mx-auto px-16 pt-4 max-sm:px-2">
-    <h2 class="text-2xl text-right font-semibold text-gray-700"><%= year %></h2>
+    <h2 class="text-2xl text-right font-semibold text-gray-700">#<%= week %></h2>
   </div>
   <div class="container mx-auto px-2 py-8">
     <!-- Start Header with Logo -->
@@ -83,7 +83,7 @@
           $<%= newRevenue %>
         </div>
         <div class="max-sm:col-start-3 max-sm:col-span-3">
-          <span class="italic">Total: </span> $<%= totalRevenue %>(<%= revenueGrowth %>%)
+          <span class="italic">Total: </span> $<%= totalRevenue %> (<%= revenueGrowth %>%)
         </div>
       </div>
 
@@ -95,7 +95,7 @@
         </div>
         <div class="max-sm:col-start-3 max-sm:col-span-3">
           <span class="italic">Total: </span>
-          <%= totalHash %>(<%= hashGrowth %>%)
+          <%= totalHash %> (<%= hashGrowth %>%)
         </div>
       </div>
 
@@ -106,7 +106,7 @@
           $<%= newCommission %>
         </div>
         <div class="max-sm:col-start-3 max-sm:col-span-3">
-          <span class="italic">Total: </span> $<%= totalCommission %>(<%= commissionGrowth %>%)
+          <span class="italic">Total: </span> $<%= totalCommission %> (<%= commissionGrowth %>%)
         </div>
       </div>
     </div>
@@ -163,6 +163,21 @@
               </td>
             </tr>
             <% }) %>
+            <tr class="border-b">
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td>Total</td>
+              <td>
+                $ <%= newSaleTotalAmount %>
+              </td>
+              <td>
+                <%= newSaleTotalHash %>
+              </td>
+              <td></td>
+            </tr>
         </tbody>
       </table>
     </div>
@@ -266,8 +281,8 @@
               </td>
               <td style="display: flex; flex-direction: column;">
                 <% cms.links.forEach(function(link) { %>
-                  <a href="<%= link %>" target="_blank">
-                    <%= link %>
+                  <a href="<%= link.link %>" target="_blank">
+                    <%= link.display %>
                   </a>
                   <% }) %>
               </td>
@@ -282,8 +297,8 @@
     <!-- End Binary Commissions Table -->
 
     <!-- Start Footer with Binary Commissions Table -->
-    <div class="flex flex-row-reverse text-gray-700 mt-2">
-      <p class="subtotal text-lg">Total Payout: $ <%= totalCommission %>
+    <div class="flex flex-row text-gray-700 mt-2">
+      <p class="subtotal text-lg ml-3">Total Payout: $ <%= totalCommission %>
       </p>
     </div>
     <!-- End Footer with Binary Commissions Table -->
@@ -295,6 +310,7 @@
           <caption class="caption-top text-left text-2xl text-gray-700 mt-16 mb-2">Top 10 Earners</caption>
           <thead>
             <tr class="border-b">
+              <th>Bevis</th>
               <th>Earners</th>
               <th>Earnings</th>
             </tr>
@@ -302,6 +318,9 @@
           <tbody>
             <% top10Earners.forEach(function(earner) { %>
               <tr class="border-b">
+                <td>
+                  <%= earner.assetId %>
+                </td>
                 <td>
                   <%= earner.fullName %>
                 </td>
@@ -320,6 +339,7 @@
           <caption class="caption-top text-left text-2xl text-gray-700 mt-16 mb-2">Top 10 Sponsors</caption>
           <thead>
             <tr class="border-b">
+              <th>Bevis</th>
               <th>Sponsors</th>
               <th>#Sponsored</th>
             </tr>
@@ -327,6 +347,9 @@
           <tbody>
             <% top10Sponsors.forEach(function(sponsor) { %>
               <tr class="border-b">
+                <td>
+                  <%= sponsor.assetId %>
+                </td>
                 <td>
                   <%= sponsor.fullName %>
                 </td>

@@ -87,15 +87,22 @@ const generateWeeklyReport = async (all: boolean) => {
         linkType: 'BOGO',
       },
     });
-    const referenceMap: Record<string, string[]> = {};
+    const referenceMap: Record<string, { display: string; link: string }[]> = {};
     referencelinks.forEach((reflink) => {
       if (!referenceMap[reflink.proofId]) {
         referenceMap[reflink.proofId] = [];
       }
       if (isURL(reflink.link)) {
-        referenceMap[reflink.proofId].push(reflink.link);
+        const paths = reflink.link.split('/');
+        referenceMap[reflink.proofId].push({
+          display: paths[paths.length - 1],
+          link: reflink.link,
+        });
       } else {
-        referenceMap[reflink.proofId].push(`${process.env.ADMIN_URL}/${reflink.link}`);
+        referenceMap[reflink.proofId].push({
+          display: reflink.link,
+          link: `${process.env.ADMIN_URL}/${reflink.link}`,
+        });
       }
     });
     const proofs = await prisma.proof.findMany({
@@ -127,6 +134,12 @@ const generateWeeklyReport = async (all: boolean) => {
 
     const newRevenue = sales.reduce((prev, sale) => prev + sale.package.amount, 0);
     const newHash = sales.reduce((prev, sale) => prev + sale.package.token, 0);
+    const saledRevenue = sales
+      .filter((sale) => sale.package.amount > 0)
+      .reduce((prev, sale) => prev + sale.package.amount, 0);
+    const saledHash = sales
+      .filter((sale) => sale.package.amount > 0)
+      .reduce((prev, sale) => prev + sale.package.token, 0);
     const newCommission = commissions.reduce((prev, cms) => prev + cms.commission, 0);
     const CENT_CONVERT = 1000;
     const newExpenses =
@@ -134,8 +147,10 @@ const generateWeeklyReport = async (all: boolean) => {
         .filter((proof) => proof.type !== 'SALE' && proof.type !== 'PREPAY')
         .reduce((prev, proof) => prev + proof.amount * CENT_CONVERT, 0) / CENT_CONVERT;
 
-    const date = `Week #${Math.ceil(iStartDate.diff(dayjs(WEEK_START, { utc: true }), 'day') / 7) + 1}, ${iStartDate.format('MM/DD')}-${iStartDate.add(1, 'week').subtract(1, 'day').format('MM/DD')}`;
-    const top10Earners = await prisma.$queryRaw<{ fullName: string; earning: number }[]>`
+    const date = `${iStartDate.format('MM/DD')} - ${iStartDate.add(1, 'week').subtract(1, 'day').format('MM/DD')}, ${iStartDate.format('YYYY')}`;
+    const top10Earners = await prisma.$queryRaw<
+      { fullName: string; earning: number; assetId: string }[]
+    >`
       WITH earnings AS (
         SELECT "memberId", SUM(weeklycommissions.commission) as earning
         FROM weeklycommissions
@@ -148,7 +163,7 @@ const generateWeeklyReport = async (all: boolean) => {
         WHERE members."createdAt" < ${iStartDate.add(1, 'week').format('YYYY-MM-DD')}::Date
         GROUP BY "sponsorId"
       )
-      SELECT "fullName", COALESCE("earning", 0) AS "earning"
+      SELECT "fullName", COALESCE("earning", 0) AS "earning", "assetId"
       FROM members
       LEFT JOIN earnings ON members.id = earnings."memberId"
       LEFT JOIN sponsors ON members.id = sponsors."sponsorId"
@@ -157,7 +172,9 @@ const generateWeeklyReport = async (all: boolean) => {
 	    LIMIT 10
     `;
 
-    const top10Sponsors = await prisma.$queryRaw<{ fullName: string; sponsor: number }[]>`
+    const top10Sponsors = await prisma.$queryRaw<
+      { fullName: string; sponsor: number; assetId: string }[]
+    >`
       WITH earnings AS (
         SELECT "memberId", SUM(weeklycommissions.commission) as earning
         FROM weeklycommissions
@@ -170,7 +187,7 @@ const generateWeeklyReport = async (all: boolean) => {
         WHERE members."createdAt" < ${iStartDate.add(1, 'week').format('YYYY-MM-DD')}::Date
         GROUP BY "sponsorId"
       )
-      SELECT "fullName", COALESCE("sponsor", 0) AS "sponsor"
+      SELECT "fullName", COALESCE("sponsor", 0) AS "sponsor", "assetId"
       FROM members
       LEFT JOIN earnings ON members.id = earnings."memberId"
       LEFT JOIN sponsors ON members.id = sponsors."sponsorId"
@@ -180,7 +197,7 @@ const generateWeeklyReport = async (all: boolean) => {
     `;
 
     const data = {
-      year: iStartDate.format('YYYY'),
+      week: Math.ceil(iStartDate.diff(dayjs(WEEK_START, { utc: true }), 'day') / 7) + 1,
       date,
       newExpenses,
       newRevenue: newRevenue.toLocaleString(),
@@ -191,7 +208,9 @@ const generateWeeklyReport = async (all: boolean) => {
       hashGrowth: ((newHash / (totalHash - newHash)) * 100).toFixed(2),
       newCommission: newCommission.toLocaleString(),
       totalCommission: totalCommission.toLocaleString(),
-      commissionGrowth: ((newCommission / (totalCommission - newCommission)) * 100).toFixed(2),
+      commissionGrowth: ((totalCommission / totalRevenue) * 100).toFixed(2),
+      newSaleTotalAmount: saledRevenue.toLocaleString(),
+      newSaleTotalHash: saledHash,
       sales: sales
         .filter((sale) => sale.package.amount > 0)
         .map((sale) => ({
@@ -248,10 +267,12 @@ const generateWeeklyReport = async (all: boolean) => {
         fullName: formatName(commission.fullName),
       })),
       top10Earners: top10Earners.map((miner) => ({
+        assetId: miner.assetId,
         fullName: formatName(miner.fullName),
         earning: miner.earning.toLocaleString(),
       })),
       top10Sponsors: top10Sponsors.map((miner) => ({
+        assetId: miner.assetId,
         fullName: formatName(miner.fullName),
         sponsor: miner.sponsor,
       })),
