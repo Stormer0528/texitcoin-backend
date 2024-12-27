@@ -54,6 +54,9 @@ export class CreateMemberInput {
   @Field()
   fullName: string;
 
+  @Field({ nullable: true })
+  country?: string;
+
   @Field()
   primaryAddress: string;
 
@@ -116,6 +119,9 @@ export class SignupFormInput {
 
   @Field()
   fullName: string;
+
+  @Field({ nullable: true })
+  country?: string;
 
   @Field()
   primaryAddress: string;
@@ -186,6 +192,9 @@ export class UpdateMemberInput {
 
   @Field(() => ID, { nullable: true })
   sponsorId?: string;
+
+  @Field({ nullable: true })
+  country?: string;
 
   @Field({ nullable: true })
   primaryAddress?: string;

@@ -42,6 +42,9 @@ export class Member extends BaseEntity {
   @Field({ nullable: true })
   assetId: string;
 
+  @Field({ nullable: true })
+  country?: string;
+
   @Field()
   primaryAddress: string;
 
