@@ -96,6 +96,7 @@ model Member {
   email                  String            @unique(map: "index_members_on_email") @db.Citext
   mobile                 String            @db.VarChar
   assetId                String?           @db.VarChar
+  country                String?           @db.VarChar
   primaryAddress         String            @db.VarChar
   secondaryAddress       String?           @db.VarChar
   city                   String?           @db.VarChar
