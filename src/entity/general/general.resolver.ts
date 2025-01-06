@@ -170,51 +170,71 @@ export class GeneralResolver {
     switch (data.type.toLowerCase()) {
       case 'day':
         const daydata = await this.prisma.$queryRaw<BlockStatsResponse[]>`
-          SELECT "issuedAt"::Date as "baseDate", TO_CHAR("issuedAt", 'MM/DD/YYYY') AS base, AVG("hashRate") as "hashRate", AVG("difficulty") as "difficulty"
-          FROM blocks
-          GROUP BY "baseDate", base
-          ORDER BY "baseDate" DESC
-          LIMIT ${DAILY_BLOCK_LIMIT};
+          WITH blockData AS (
+            SELECT "issuedAt"::Date as "baseDate", TO_CHAR("issuedAt", 'MM/DD/YYYY') AS base, AVG("hashRate") as "hashRate", AVG("difficulty") as "difficulty"
+            FROM blocks
+            GROUP BY "baseDate", base
+            ORDER BY "baseDate" DESC
+            LIMIT ${DAILY_BLOCK_LIMIT}
+          )
+          SELECT blockData.*, COALESCE(SUM(packages.amount), 0)::INTEGER AS "soldHashPower"
+          FROM blockData
+          LEFT JOIN sales ON blockData."baseDate" >= DATE_TRUNC('day', sales."orderedAt")
+          LEFT JOIN packages ON sales."packageId" = packages.id
+          GROUP BY blockData."baseDate", blockData.base, blockData."hashRate", blockData."difficulty"
+          ORDER BY blockData."baseDate" DESC;
         `;
         return daydata;
       case 'week':
         const weekdata = await this.prisma.$queryRaw<BlockStatsResponse[]>`
           WITH unique_bases AS (
-            SELECT DATE_TRUNC('week', "createdAt" + INTERVAL '1 day') - INTERVAL '1 day' as "baseDate", AVG("hashRate") as "hashRate", AVG("difficulty") as "difficulty"
+            SELECT DATE_TRUNC('week', "issuedAt" + INTERVAL '1 day') - INTERVAL '1 day' as "baseDate", TO_CHAR("issuedAt", 'MM') || '-' || TO_CHAR("issuedAt" + INTERVAL '1 day', 'IW') AS base, AVG("hashRate") as "hashRate", AVG("difficulty") as "difficulty"
             FROM blocks
-            GROUP BY "baseDate"
+            GROUP BY "baseDate", base
             ORDER BY "baseDate" DESC
             LIMIT ${WEEKLY_BLOCK_LIMIT}
           )
-          SELECT unique_bases.*, (TO_CHAR("baseDate", 'MM') || '-' || TO_CHAR("baseDate" + INTERVAL '1 day', 'IW')) AS base
+          SELECT unique_bases.*, COALESCE(SUM(packages.amount), 0)::INTEGER AS "soldHashPower"
           FROM unique_bases
+          LEFT JOIN sales ON unique_bases."baseDate" >= DATE_TRUNC('week', sales."orderedAt" + INTERVAL '1 day') - INTERVAL '1 day'
+          LEFT JOIN packages ON sales."packageId" = packages.id
+          GROUP BY unique_bases."baseDate", unique_bases.base, unique_bases."hashRate", unique_bases."difficulty"
+          ORDER BY unique_bases."baseDate" DESC;
         `;
         return weekdata;
       case 'month':
         const monthdata = await this.prisma.$queryRaw<BlockStatsResponse[]>`
-          SELECT DATE_TRUNC('month', "createdAt") as "baseDate", TO_CHAR("issuedAt", 'MM/YYYY') AS base, AVG("hashRate") as "hashRate", AVG("difficulty") as "difficulty"
-          FROM blocks
-          GROUP BY "baseDate", base
-          ORDER BY "baseDate" DESC
-          LIMIT ${MONTHLY_BLOCK_LIMIT};
+          WITH blockData AS (
+            SELECT DATE_TRUNC('month', "issuedAt") as "baseDate", TO_CHAR("issuedAt", 'MM/YYYY') AS base, AVG("hashRate") as "hashRate", AVG("difficulty") as "difficulty"
+            FROM blocks
+            GROUP BY "baseDate", base
+            ORDER BY "baseDate" DESC
+            LIMIT ${MONTHLY_BLOCK_LIMIT}
+          )
+          SELECT blockData.*, COALESCE(SUM(packages.amount), 0)::INTEGER AS "soldHashPower"
+          FROM blockData
+          LEFT JOIN sales ON blockData."baseDate" >= DATE_TRUNC('month', sales."orderedAt")
+          LEFT JOIN packages ON sales."packageId" = packages.id
+          GROUP BY blockData."baseDate", blockData.base, blockData."hashRate", blockData."difficulty"
+          ORDER BY blockData."baseDate" DESC;
         `;
         return monthdata;
       case 'block':
-        const blockdata = await this.blockService.getBlocks({
-          orderBy: {
-            blockNo: 'desc',
-          },
-          parsePage: {
-            skip: 0,
-            take: BLOCK_LIMIT,
-          },
-          where: {},
-        });
-        return blockdata.map((dt) => ({
-          hashRate: dt.hashRate,
-          difficulty: dt.difficulty,
-          base: dt.blockNo.toString(),
-        }));
+        const blocksData = await this.prisma.$queryRaw<BlockStatsResponse[]>`
+          WITH blockData AS (
+            SELECT "createdAt"::Date as "baseDate", "blockNo" AS base, "hashRate", "difficulty"
+            FROM blocks
+            ORDER BY "blockNo" DESC
+            LIMIT ${BLOCK_LIMIT}
+          )
+          SELECT blockData.*, COALESCE(SUM(packages.amount), 0)::INTEGER AS "soldHashPower"
+          FROM blockData
+          LEFT JOIN sales ON blockData."baseDate" >= sales."orderedAt"
+          LEFT JOIN packages ON sales."packageId" = packages.id
+          GROUP BY blockData."baseDate", blockData.base, blockData."hashRate", blockData."difficulty"
+          ORDER BY blockData."base" DESC;
+        `;
+        return blocksData;
       default:
         return [];
     }

@@ -33,6 +33,9 @@ export class BlockStatsResponse {
   @Field()
   base: string;
 
+  @Field()
+  soldHashPower: number;
+
   @Field({ nullable: true })
   baseDate?: Date;
 }
