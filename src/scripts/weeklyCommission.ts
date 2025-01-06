@@ -8,6 +8,7 @@ import Bluebird from 'bluebird';
 import { calculatePoint } from '@/utils/calculatePoint';
 import { addPoint } from '@/utils/addPoint';
 import { ConfirmationStatus } from '@/graphql/enum';
+import { convertNumToString } from '@/utils/convertNumToString';
 
 dayjs.extend(weekOfYear);
 dayjs.extend(utcPlugin);
@@ -210,6 +211,36 @@ async function weeklyCommission(tranPrisma: PrismaClient) {
           ID: nowWeek || commission == 0 ? -1 : ID++,
           weekStartDate: iStartDate.toDate(),
         };
+
+        if (data.status === ConfirmationStatus.PENDING) {
+          const prevCommission = await tranPrisma.weeklyCommission.findUnique({
+            where: {
+              memberId_weekStartDate: {
+                memberId: id,
+                weekStartDate: iStartDate.toDate(),
+              },
+            },
+          });
+          if (prevCommission && prevCommission.shortNote) {
+            await tranPrisma.proof.upsert({
+              where: {
+                refId_type: {
+                  refId: convertNumToString({ value: data.ID, length: 7, prefix: 'C' }),
+                  type: 'COMMISSION',
+                },
+              },
+              create: {
+                refId: convertNumToString({ value: data.ID, length: 7, prefix: 'C' }),
+                type: 'COMMISSION',
+                note: prevCommission.shortNote,
+              },
+              update: {
+                note: prevCommission.shortNote,
+              },
+            });
+          }
+        }
+
         return tranPrisma.weeklyCommission.upsert({
           where: {
             memberId_weekStartDate: {
