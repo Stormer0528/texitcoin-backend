@@ -188,17 +188,17 @@ export class GeneralResolver {
       case 'week':
         const weekdata = await this.prisma.$queryRaw<BlockStatsResponse[]>`
           WITH unique_bases AS (
-            SELECT DATE_TRUNC('week', "issuedAt" + INTERVAL '1 day') - INTERVAL '1 day' as "baseDate", TO_CHAR("issuedAt", 'MM') || '-' || TO_CHAR("issuedAt" + INTERVAL '1 day', 'IW') AS base, AVG("hashRate") as "hashRate", AVG("difficulty") as "difficulty"
+            SELECT DATE_TRUNC('week', "issuedAt" + INTERVAL '1 day') - INTERVAL '1 day' as "baseDate", AVG("hashRate") as "hashRate", AVG("difficulty") as "difficulty"
             FROM blocks
-            GROUP BY "baseDate", base
+            GROUP BY "baseDate"
             ORDER BY "baseDate" DESC
             LIMIT ${WEEKLY_BLOCK_LIMIT}
           )
-          SELECT unique_bases.*, COALESCE(SUM(packages.amount), 0)::INTEGER AS "soldHashPower"
+          SELECT unique_bases.*, TO_CHAR("baseDate", 'MM') || '-' || TO_CHAR("baseDate" + INTERVAL '1 day', 'IW') AS base, COALESCE(SUM(packages.amount), 0)::INTEGER AS "soldHashPower"
           FROM unique_bases
           LEFT JOIN sales ON unique_bases."baseDate" >= DATE_TRUNC('week', sales."orderedAt" + INTERVAL '1 day') - INTERVAL '1 day'
           LEFT JOIN packages ON sales."packageId" = packages.id
-          GROUP BY unique_bases."baseDate", unique_bases.base, unique_bases."hashRate", unique_bases."difficulty"
+          GROUP BY unique_bases."baseDate", unique_bases."hashRate", unique_bases."difficulty"
           ORDER BY unique_bases."baseDate" DESC;
         `;
         return weekdata;
