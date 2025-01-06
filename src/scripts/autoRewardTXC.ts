@@ -60,7 +60,7 @@ const createStatistic = async (tranPrisma: PrismaClient, date: Date, sales: Sale
   const memberIds: string[] = [];
   const membersWithHashPower: Record<string, number> = {};
   sales.map((sale) => {
-    if (!membersWithHashPower[sale.memberId]) {
+    if (!(sale.memberId in membersWithHashPower)) {
       membersWithHashPower[sale.memberId] = 0;
       memberIds.push(sale.memberId);
     }
