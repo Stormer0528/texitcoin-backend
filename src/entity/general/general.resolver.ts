@@ -653,7 +653,7 @@ export class GeneralResolver {
         },
         { createdAt: 'asc' },
       ],
-      take: 3,
+      take: 4,
     });
   }
 
@@ -666,7 +666,7 @@ export class GeneralResolver {
       WHERE c.status = 'PAID'
       GROUP BY members.id, members."fullName"
       ORDER BY earned DESC
-      LIMIT 3
+      LIMIT 4
     `;
   }
 
