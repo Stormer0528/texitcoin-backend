@@ -177,7 +177,7 @@ export class GeneralResolver {
             ORDER BY "baseDate" DESC
             LIMIT ${DAILY_BLOCK_LIMIT}
           )
-          SELECT blockData.*, COALESCE(SUM(packages.amount), 0)::INTEGER AS "soldHashPower"
+          SELECT blockData.*, COALESCE(SUM(packages.token), 0)::INTEGER AS "soldHashPower"
           FROM blockData
           LEFT JOIN sales ON blockData."baseDate" >= DATE_TRUNC('day', sales."orderedAt")
           LEFT JOIN packages ON sales."packageId" = packages.id
@@ -194,7 +194,7 @@ export class GeneralResolver {
             ORDER BY "baseDate" DESC
             LIMIT ${WEEKLY_BLOCK_LIMIT}
           )
-          SELECT unique_bases.*, TO_CHAR("baseDate", 'MM') || '-' || TO_CHAR("baseDate" + INTERVAL '1 day', 'IW') AS base, COALESCE(SUM(packages.amount), 0)::INTEGER AS "soldHashPower"
+          SELECT unique_bases.*, TO_CHAR("baseDate", 'MM') || '-' || TO_CHAR("baseDate" + INTERVAL '1 day', 'IW') AS base, COALESCE(SUM(packages.token), 0)::INTEGER AS "soldHashPower"
           FROM unique_bases
           LEFT JOIN sales ON unique_bases."baseDate" >= DATE_TRUNC('week', sales."orderedAt" + INTERVAL '1 day') - INTERVAL '1 day'
           LEFT JOIN packages ON sales."packageId" = packages.id
@@ -211,7 +211,7 @@ export class GeneralResolver {
             ORDER BY "baseDate" DESC
             LIMIT ${MONTHLY_BLOCK_LIMIT}
           )
-          SELECT blockData.*, COALESCE(SUM(packages.amount), 0)::INTEGER AS "soldHashPower"
+          SELECT blockData.*, COALESCE(SUM(packages.token), 0)::INTEGER AS "soldHashPower"
           FROM blockData
           LEFT JOIN sales ON blockData."baseDate" >= DATE_TRUNC('month', sales."orderedAt")
           LEFT JOIN packages ON sales."packageId" = packages.id
@@ -227,7 +227,7 @@ export class GeneralResolver {
             ORDER BY "blockNo" DESC
             LIMIT ${BLOCK_LIMIT}
           )
-          SELECT blockData.*, COALESCE(SUM(packages.amount), 0)::INTEGER AS "soldHashPower"
+          SELECT blockData.*, COALESCE(SUM(packages.token), 0)::INTEGER AS "soldHashPower"
           FROM blockData
           LEFT JOIN sales ON blockData."baseDate" >= sales."orderedAt"
           LEFT JOIN packages ON sales."packageId" = packages.id
