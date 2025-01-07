@@ -78,6 +78,14 @@ export class MemberService {
     });
   }
 
+  async getIntroducers(id: string) {
+    return this.prisma.member.findMany({
+      where: {
+        sponsorId: id,
+      },
+    });
+  }
+
   async getAllPlacementAncestorsById(id: string) {
     const res: Member[] = [await this.prisma.member.findUnique({ where: { id } })];
     let previousIDs: string[] = [id];

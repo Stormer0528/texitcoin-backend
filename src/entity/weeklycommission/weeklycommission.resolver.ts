@@ -41,6 +41,7 @@ import { RefLink } from '../referenceLink/referenceLink.entity';
 import { ProofService } from '../proof/proof.service';
 import { Proof } from '../proof/proof.entity';
 import { convertNumToString } from '@/utils/convertNumToString';
+import { MemberService } from '../member/member.service';
 
 @Service()
 @Resolver(() => WeeklyCommission)
@@ -48,7 +49,7 @@ export class WeeklyCommissionResolver {
   constructor(
     private readonly proofService: ProofService,
     private readonly service: WeeklyCommissionService,
-    private readonly referenceLinkService: ReferenceLinkService
+    private readonly memberService: MemberService
   ) {}
 
   @Authorized()
@@ -185,6 +186,47 @@ export class WeeklyCommissionResolver {
             .slice(7) ?? 'Error occurred in commission calculation'
         : '',
     };
+  }
+
+  @Authorized([UserRole.MEMBER])
+  @Query(() => WeeklyCommissionResponse)
+  async teamCommissions(
+    @Ctx() context: Context,
+    @Args() query: WeeklyCommissionQueryArgs,
+    @Info() info: GraphQLResolveInfo
+  ): Promise<WeeklyCommissionResponse> {
+    const { where, ...rest } = query;
+    const fields = graphqlFields(info);
+
+    const introducers = await this.memberService.getIntroducers(context.user.id);
+
+    query.filter = {
+      ...query.filter,
+      memberId: {
+        in: [...introducers.map(({ id }) => id), context.user.id],
+      },
+      status: ConfirmationStatus.PREVIEW,
+    };
+
+    let promises: { total?: Promise<number>; weeklyCommissions?: any } = {};
+
+    if ('total' in fields) {
+      promises.total = this.service.getWeeklyCommissionsCount(query);
+    }
+
+    if ('weeklyCommissions' in fields) {
+      promises.weeklyCommissions = this.service.getWeeklyCommissions(query);
+    }
+
+    const result = await Promise.all(Object.entries(promises));
+
+    let response: { total?: number; weeklyCommissions?: WeeklyCommission[] } = {};
+
+    for (let [key, value] of result) {
+      response[key] = value;
+    }
+
+    return response;
   }
 
   @Authorized([UserRole.ADMIN])
