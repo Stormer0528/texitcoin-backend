@@ -1,6 +1,14 @@
 import type { Prisma } from '@prisma/client';
 import GraphQLJSON from 'graphql-type-json';
-import { IsAlphanumeric, IsEmail, IsEmpty, IsNotEmpty, Length, ValidateIf } from 'class-validator';
+import {
+  IsAlphanumeric,
+  IsEmail,
+  IsEmpty,
+  IsNotEmpty,
+  IsOptional,
+  Length,
+  ValidateIf,
+} from 'class-validator';
 import { ObjectType, InputType, Field, ArgsType, ID, Int } from 'type-graphql';
 
 import { QueryArgsBase } from '@/graphql/queryArgs';
@@ -80,8 +88,9 @@ export class CreateMemberInput {
   @IsNotEmpty()
   mobile: string;
 
-  @Field({ nullable: true })
-  assetId?: string;
+  @Field()
+  @IsNotEmpty()
+  assetId: string;
 
   @Field(() => ID)
   sponsorId: string;
@@ -176,6 +185,7 @@ export class UpdateMemberInput {
   id: string;
 
   @Field({ nullable: true })
+  @IsOptional()
   @IsAlphanumeric()
   username?: string;
 
@@ -183,13 +193,18 @@ export class UpdateMemberInput {
   fullName?: string;
 
   @Field({ nullable: true })
+  @IsOptional()
   @IsEmail()
   email?: string;
 
   @Field({ nullable: true })
+  @IsOptional()
+  @IsNotEmpty()
   mobile?: string;
 
   @Field({ nullable: true })
+  @IsOptional()
+  @IsNotEmpty()
   assetId?: string;
 
   @Field(() => ID, { nullable: true })
