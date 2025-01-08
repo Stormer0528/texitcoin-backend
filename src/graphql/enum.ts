@@ -50,6 +50,19 @@ export enum TeamStrategy {
   MANUAL = 'MANUAL',
 }
 
+export enum TeamReport {
+  NONE = 'NONE',
+  LEFT = 'LEFT',
+  RIGHT = 'RIGHT',
+  ALL = 'ALL',
+}
+
+export enum TeamReportSection {
+  LEFT = 'LEFT',
+  RIGHT = 'RIGHT',
+  REFERRAL = 'REFERRAL',
+}
+
 export enum NotificationLevel {
   ALL = 'ALL',
   INDIVIDUAL = 'INDIVIDUAL',
@@ -82,4 +95,12 @@ registerEnumType(NotificationLevel, {
 
 registerEnumType(UserRole, {
   name: 'UserRole',
+});
+
+registerEnumType(TeamReport, {
+  name: 'TeamReport',
+});
+
+registerEnumType(TeamReportSection, {
+  name: 'TeamReportSection',
 });

@@ -14,7 +14,7 @@ import { ObjectType, InputType, Field, ArgsType, ID, Int } from 'type-graphql';
 import { QueryArgsBase } from '@/graphql/queryArgs';
 import { PaginatedResponse } from '@/graphql/paginatedResponse';
 import { EmailInput } from '@/graphql/common.type';
-import { PlacementPosition, SuccessResult, TeamStrategy } from '@/graphql/enum';
+import { PlacementPosition, SuccessResult, TeamReport, TeamStrategy } from '@/graphql/enum';
 
 import { Member } from '@/entity/member/member.entity';
 import { MemberWalletDataInput } from '../memberWallet/memberWallet.type';
@@ -115,6 +115,9 @@ export class CreateMemberInput {
 
   @Field(() => TeamStrategy, { nullable: true })
   teamStrategy?: TEAM_STRATEGY;
+
+  @Field(() => TeamReport, { nullable: true })
+  teamReport?: TEAM_REPORT;
 
   @Field(() => [MemberWalletDataInput])
   wallets: MemberWalletDataInput[];
@@ -249,6 +252,9 @@ export class UpdateMemberInput {
   @Field(() => TeamStrategy, { nullable: true })
   teamStrategy?: TEAM_STRATEGY;
 
+  @Field(() => TeamReport, { nullable: true })
+  teamReport?: TEAM_REPORT;
+
   @Field(() => [MemberWalletDataInput], { nullable: true })
   wallets?: MemberWalletDataInput[];
 }
@@ -325,6 +331,8 @@ export class MemberOverview {
 export type PLACEMENT_POSITION = 'LEFT' | 'RIGHT' | 'NONE';
 
 export type TEAM_STRATEGY = 'LEFT' | 'RIGHT' | 'BALANCE' | 'MANUAL';
+
+export type TEAM_REPORT = 'LEFT' | 'RIGHT' | 'NONE' | 'ALL';
 
 @ObjectType()
 export class PlacementPositionCountResponse {

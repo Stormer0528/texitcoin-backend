@@ -14,7 +14,7 @@ import {
 } from 'type-graphql';
 import shelljs from 'shelljs';
 import graphqlFields from 'graphql-fields';
-import { GraphQLResolveInfo } from 'graphql';
+import { GraphQLError, GraphQLResolveInfo } from 'graphql';
 
 import { Context } from '@/context';
 
@@ -25,6 +25,7 @@ import {
   WeeklyCommissionResponse,
   WeeklyCommissionsStatusUpdateInput,
   WeeklyCommissionUpdateInput,
+  WeeklyCommissionWithTeamReportQueryArgs,
 } from './weeklycommission.type';
 import { WeeklyCommissionService } from './weeklycommission.service';
 import { WeeklyCommission } from './weeklycommission.entity';
@@ -42,6 +43,7 @@ import { ProofService } from '../proof/proof.service';
 import { Proof } from '../proof/proof.entity';
 import { convertNumToString } from '@/utils/convertNumToString';
 import { MemberService } from '../member/member.service';
+import Bluebird from 'bluebird';
 
 @Service()
 @Resolver(() => WeeklyCommission)
@@ -192,18 +194,58 @@ export class WeeklyCommissionResolver {
   @Query(() => WeeklyCommissionResponse)
   async teamCommissions(
     @Ctx() context: Context,
-    @Args() query: WeeklyCommissionQueryArgs,
+    @Args() query: WeeklyCommissionWithTeamReportQueryArgs,
     @Info() info: GraphQLResolveInfo
   ): Promise<WeeklyCommissionResponse> {
-    const { where, ...rest } = query;
+    const { where, teamReport, ...rest } = query;
     const fields = graphqlFields(info);
 
-    const introducers = await this.memberService.getIntroducers(context.user.id);
+    const member = await this.memberService.getMemberById(context.user.id);
+
+    if (
+      (teamReport === 'LEFT' || teamReport === 'RIGHT') &&
+      !(member.teamReport === 'ALL' || member.teamReport === teamReport)
+    ) {
+      throw new GraphQLError('You do not have permission to view this team report', {
+        extensions: {
+          path: ['teamReport'],
+        },
+      });
+    }
+
+    const targetTeamDirection = teamReport === 'REFERRAL' ? member.teamReport : teamReport;
+    const placementChildren = await this.memberService.getPlacementChildren(member.id);
+
+    const getTeamMembers = async (position: string) => {
+      return Bluebird.map(
+        placementChildren.filter((mb) => mb.placementPosition === position),
+        async ({ id }) => {
+          return await this.memberService.getAllPlacementAncestorsById(id);
+        },
+        { concurrency: 5 }
+      ).then((result) => result.flat());
+    };
+
+    let teamReportMembers = [];
+    if (targetTeamDirection === 'LEFT' || targetTeamDirection === 'ALL') {
+      teamReportMembers.push(...(await getTeamMembers('LEFT')));
+    }
+
+    if (targetTeamDirection === 'RIGHT' || targetTeamDirection === 'ALL') {
+      teamReportMembers.push(...(await getTeamMembers('RIGHT')));
+    }
+
+    if (teamReport === 'REFERRAL') {
+      const introducers = await this.memberService.getIntroducers(context.user.id);
+      teamReportMembers = teamReportMembers.filter((mb) =>
+        introducers.some(({ id }) => id === mb.id)
+      );
+    }
 
     query.filter = {
       ...query.filter,
       memberId: {
-        in: [...introducers.map(({ id }) => id), context.user.id],
+        in: [...teamReportMembers.map(({ id }) => id)],
       },
       status: ConfirmationStatus.PREVIEW,
     };
