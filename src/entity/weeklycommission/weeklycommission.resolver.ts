@@ -203,8 +203,9 @@ export class WeeklyCommissionResolver {
     const member = await this.memberService.getMemberById(context.user.id);
 
     if (
-      (teamReport === 'LEFT' || teamReport === 'RIGHT') &&
-      !(member.teamReport === 'ALL' || member.teamReport === teamReport)
+      member.teamReport === 'NONE' ||
+      ((teamReport === 'LEFT' || teamReport === 'RIGHT') &&
+        !(member.teamReport === 'ALL' || member.teamReport === teamReport))
     ) {
       throw new GraphQLError('You do not have permission to view this team report', {
         extensions: {
