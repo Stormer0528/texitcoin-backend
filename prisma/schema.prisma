@@ -143,6 +143,8 @@ model Member {
   WeeklyCommission  WeeklyCommission[]
   adminNotes        AdminNotes[]
   balances          Balance[]
+  recipients        Recipient[]
+  sendEmails        Email[]
 
   @@map("members")
 }
@@ -393,8 +395,9 @@ model File {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  fileRelation FileRelation?
-  weeklyReport WeeklyReport?
+  fileRelation    FileRelation?
+  weeklyReport    WeeklyReport?
+  EmailAttachment EmailAttachment[]
 
   @@map("files")
 }
@@ -595,4 +598,57 @@ model Balance {
   deletedAt DateTime?
 
   @@map("balances")
+}
+
+model Email {
+  id       String  @id @default(uuid())
+  senderId String
+  subject  String
+  body     String
+  isDraft  Boolean @default(true)
+
+  sender Member @relation(fields: [senderId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  recipient       Recipient[]
+  emailAttachment EmailAttachment[]
+
+  @@map("emails")
+}
+
+model Recipient {
+  id          String @id @default(uuid())
+  emailId     String
+  recipientId String
+
+  isImportant Boolean @default(false)
+  isRead      Boolean @default(false)
+  isStarred   Boolean @default(false)
+
+  email     Email  @relation(fields: [emailId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  recipient Member @relation(fields: [recipientId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@map("recipients")
+}
+
+model EmailAttachment {
+  id      String @id @default(uuid())
+  emailId String
+  fileId  String
+
+  email Email @relation(fields: [emailId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  file  File  @relation(fields: [fileId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@map("emailattachments")
 }
