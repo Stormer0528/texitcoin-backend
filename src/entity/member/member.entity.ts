@@ -1,4 +1,4 @@
-import { ObjectType, Field, ID, Args, Authorized, Int } from 'type-graphql';
+import { ObjectType, Field, ID, Args, Authorized, Int, UseMiddleware } from 'type-graphql';
 import { IsAlphanumeric, IsEmail } from 'class-validator';
 
 import { BaseEntity } from '@/graphql/baseEntity';
@@ -13,6 +13,7 @@ import { WeeklyCommission } from '../weeklycommission/weeklycommission.entity';
 import { AdminNotes } from '../adminNotes/adminNotes.entity';
 import { CommissionStatus } from '../weeklycommission/weeklycommission.type';
 import { Balance } from '../balance/balance.entity';
+import { canAccess } from '@/graphql/middlewares';
 
 @ObjectType()
 export class Member extends BaseEntity {
@@ -30,6 +31,7 @@ export class Member extends BaseEntity {
   sponsorId: string;
 
   @Field()
+  @UseMiddleware(canAccess())
   @IsEmail()
   email: string;
 
