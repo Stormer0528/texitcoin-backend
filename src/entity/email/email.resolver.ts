@@ -170,17 +170,17 @@ export class EmailResolver {
     });
   }
 
-  @FieldResolver(() => Member)
+  @FieldResolver(() => Member, { nullable: true })
   async sender(@Root() email: Email, @Ctx() ctx: Context): Promise<Member> {
     return ctx.dataLoader.get('senderForEmailLoader').load(email.senderId);
   }
 
-  @FieldResolver(() => [Recipient])
+  @FieldResolver(() => [Recipient], { nullable: true })
   async recipients(@Root() email: Email, @Ctx() ctx: Context): Promise<Recipient[]> {
     return ctx.dataLoader.get('recipientsForEmailLoader').load(email.id);
   }
 
-  @FieldResolver(() => [PFile])
+  @FieldResolver(() => [PFile], { nullable: true })
   async files(@Root() email: Email, @Ctx() ctx: Context): Promise<PFile[]> {
     return ctx.dataLoader.get('filesForEmailLoader').load(email.id);
   }

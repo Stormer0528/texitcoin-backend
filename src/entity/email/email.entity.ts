@@ -26,12 +26,12 @@ export class Email extends BaseEntity {
   @Field()
   isDeleted: boolean;
 
-  @Field(() => Member)
+  @Field(() => Member, { nullable: true })
   sender?: Member;
 
-  @Field(() => [Recipient])
+  @Field(() => [Recipient], { nullable: true })
   recipients?: Recipient[];
 
-  @Field(() => [PFile])
+  @Field(() => [PFile], { nullable: true })
   files?: PFile[];
 }

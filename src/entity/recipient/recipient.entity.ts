@@ -25,9 +25,9 @@ export class Recipient extends BaseEntity {
   @Field()
   isStarred: boolean;
 
-  @Field(() => Email)
+  @Field(() => Email, { nullable: true })
   email?: Email;
 
-  @Field(() => Member)
+  @Field(() => Member, { nullable: true })
   recipient?: Member;
 }
