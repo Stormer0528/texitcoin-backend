@@ -17,7 +17,6 @@ import {
   ResetPasswordTokenInput,
   VerifyTokenResponse,
   EmailVerificationInput,
-  PLACEMENT_POSITION,
   TEAM_STRATEGY,
 } from './member.type';
 import { Member } from './member.entity';

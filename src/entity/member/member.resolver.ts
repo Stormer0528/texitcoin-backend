@@ -701,6 +701,12 @@ export class MemberResolver {
     };
   }
 
+  @Authorized([UserRole.MEMBER])
+  @Query(() => [Member])
+  async teamMembers(@Ctx() ctx: Context): Promise<Member[]> {
+    return this.service.getAllPlacementAncestorsById(ctx.user.id);
+  }
+
   @FieldResolver(() => [MemberLog])
   async logs(@Root() member: Member, @Arg('logsize', { defaultValue: 10 }) logsize: number) {
     const logRes = await this.elasticService.getLogByMinerId(member.id, logsize);
