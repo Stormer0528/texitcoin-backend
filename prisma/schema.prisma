@@ -624,9 +624,8 @@ model Recipient {
   emailId     String
   recipientId String
 
-  isImportant Boolean @default(false)
-  isRead      Boolean @default(false)
-  isStarred   Boolean @default(false)
+  isRead    Boolean @default(false)
+  isStarred Boolean @default(false)
 
   email     Email  @relation(fields: [emailId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   recipient Member @relation(fields: [recipientId], references: [id], onDelete: NoAction, onUpdate: NoAction)
