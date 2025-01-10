@@ -603,6 +603,7 @@ model Balance {
 model Email {
   id        String  @id @default(uuid())
   senderId  String
+  to        String
   subject   String
   body      String
   isDraft   Boolean @default(true)

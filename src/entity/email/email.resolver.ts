@@ -21,13 +21,7 @@ import { Context } from '@/context';
 import { Transaction } from '@/graphql/decorator';
 import { IDInput, SuccessResponse } from '@/graphql/common.type';
 import { pubSub } from '@/pubsub';
-import {
-  CreateEmailInput,
-  EmailQueryArgs,
-  EmailResponse,
-  SendEmailInput,
-  UpdateEmailInput,
-} from './email.type';
+import { CreateEmailInput, EmailQueryArgs, EmailResponse, UpdateEmailInput } from './email.type';
 import { Email } from './email.entity';
 import { EmailService } from './email.service';
 import { SuccessResult } from '@/graphql/enum';
@@ -123,14 +117,13 @@ export class EmailResolver {
   @UseMiddleware(emailAccess())
   @Transaction()
   @Mutation(() => Email)
-  async sendEmail(@Arg('data') data: SendEmailInput): Promise<SuccessResponse> {
-    const { id, recipientUsernames } = data;
+  async sendEmail(@Arg('data') { id }: IDInput): Promise<SuccessResponse> {
     const email = await this.service.updateEmail(id, {
       isDraft: false,
     });
 
     const [recipientIds, nonExistUsernames] =
-      await this.recipientService.getRecipientIdsByUsernames(email.senderId, recipientUsernames);
+      await this.recipientService.getRecipientIdsByUsernames(email.senderId, email.to.split(','));
 
     await this.recipientService.createRecipients(
       recipientIds.map((recipientId) => ({ emailId: id, recipientId }))

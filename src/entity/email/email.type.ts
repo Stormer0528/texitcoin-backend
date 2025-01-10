@@ -5,6 +5,7 @@ import { QueryArgsBase } from '@/graphql/queryArgs';
 import { PaginatedResponse } from '@/graphql/paginatedResponse';
 
 import { Email } from './email.entity';
+import { IsAlphanumeric, IsOptional } from 'class-validator';
 
 // Email Query Args
 @ArgsType()
@@ -21,6 +22,9 @@ export class EmailResponse extends PaginatedResponse {
 @InputType()
 export class CreateEmailInput {
   @Field()
+  to: string;
+
+  @Field()
   subject: string;
 
   @Field()
@@ -36,6 +40,9 @@ export class UpdateEmailInput {
   id: string;
 
   @Field({ nullable: true })
+  to: string;
+
+  @Field({ nullable: true })
   subject?: string;
 
   @Field({ nullable: true })
@@ -43,13 +50,4 @@ export class UpdateEmailInput {
 
   @Field(() => [ID], { nullable: true })
   fileIds?: string[];
-}
-
-@InputType()
-export class SendEmailInput {
-  @Field(() => ID)
-  id: string;
-
-  @Field(() => [String])
-  recipientUsernames: string[];
 }

@@ -15,6 +15,9 @@ export class Email extends BaseEntity {
   senderId: string;
 
   @Field()
+  to: string;
+
+  @Field()
   subject: string;
 
   @Field()
