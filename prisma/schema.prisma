@@ -601,11 +601,12 @@ model Balance {
 }
 
 model Email {
-  id       String  @id @default(uuid())
-  senderId String
-  subject  String
-  body     String
-  isDraft  Boolean @default(true)
+  id        String  @id @default(uuid())
+  senderId  String
+  subject   String
+  body      String
+  isDraft   Boolean @default(true)
+  isDeleted Boolean @default(false)
 
   sender Member @relation(fields: [senderId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
@@ -613,7 +614,7 @@ model Email {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  recipient       Recipient[]
+  recipients      Recipient[]
   emailAttachment EmailAttachment[]
 
   @@map("emails")
@@ -626,6 +627,7 @@ model Recipient {
 
   isRead    Boolean @default(false)
   isStarred Boolean @default(false)
+  isDeleted Boolean @default(false)
 
   email     Email  @relation(fields: [emailId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   recipient Member @relation(fields: [recipientId], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -634,6 +636,7 @@ model Recipient {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
+  @@unique([emailId, recipientId], map: "unique_index_on_recipients")
   @@map("recipients")
 }
 

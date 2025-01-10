@@ -23,6 +23,8 @@ import * as notificationLoader from './notificationLoader';
 import * as weeklyReportLoader from './weeklyReportLoader';
 import * as groupSettingLoader from './groupSettingLoader';
 import * as balanceLoader from './balanceLoader';
+import * as emailLoader from './emailLoader';
+import * as recipientLoader from './recipientLoader';
 import { Member } from '@/entity/member/member.entity';
 import { Admin } from '@/entity/admin/admin.entity';
 
@@ -52,6 +54,8 @@ const loaderMakers = {
   ...weeklyReportLoader,
   ...groupSettingLoader,
   ...balanceLoader,
+  ...emailLoader,
+  ...recipientLoader,
 } as const;
 
 type LoaderMakers = typeof loaderMakers;
