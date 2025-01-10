@@ -130,7 +130,7 @@ export class EmailResolver {
     });
 
     const [recipientIds, nonExistUsernames] =
-      await this.recipientService.getRecipientIdsByUsernames(recipientUsernames);
+      await this.recipientService.getRecipientIdsByUsernames(email.senderId, recipientUsernames);
 
     await this.recipientService.createRecipients(
       recipientIds.map((recipientId) => ({ emailId: id, recipientId }))
@@ -144,7 +144,7 @@ export class EmailResolver {
     return {
       result: SuccessResult.success,
       message: nonExistUsernames.length
-        ? `Non exist usernames: ${nonExistUsernames.join(', ')}`
+        ? `Non exist usernames in your team: ${nonExistUsernames.join(', ')}`
         : '',
     };
   }

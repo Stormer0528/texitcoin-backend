@@ -4,12 +4,14 @@ import { PrismaService } from '@/service/prisma';
 
 import { RecipientQueryArgs } from './recipient.type';
 import { Prisma } from '@prisma/client';
+import { MemberService } from '../member/member.service';
 
 @Service()
 export class RecipientService {
   constructor(
     @Inject(() => PrismaService)
-    private readonly prisma: PrismaService
+    private readonly prisma: PrismaService,
+    private readonly memberService: MemberService
   ) {}
   async getRecipients(params: RecipientQueryArgs) {
     return await this.prisma.recipient.findMany({
@@ -57,11 +59,15 @@ export class RecipientService {
     });
   }
 
-  async getRecipientIdsByUsernames(usernames: string[]) {
+  async getRecipientIdsByUsernames(senderId: string, usernames: string[]) {
+    const teamMembers = await this.memberService.getAllPlacementAncestorsById(senderId);
     const recipients = await this.prisma.member.findMany({
       where: {
         username: {
           in: usernames,
+        },
+        id: {
+          in: teamMembers.map((teamMember) => teamMember.id),
         },
       },
       select: {
