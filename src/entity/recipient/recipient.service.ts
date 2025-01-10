@@ -56,4 +56,24 @@ export class RecipientService {
       data,
     });
   }
+
+  async getRecipientIdsByUsernames(usernames: string[]) {
+    const recipients = await this.prisma.member.findMany({
+      where: {
+        username: {
+          in: usernames,
+        },
+      },
+      select: {
+        id: true,
+        username: true,
+      },
+    });
+    // non exist usernames
+    const nonExistUsernames = usernames.filter(
+      (username) => !recipients.some((recipient) => recipient.username === username)
+    );
+
+    return [recipients.map((recipient) => recipient.id), nonExistUsernames];
+  }
 }

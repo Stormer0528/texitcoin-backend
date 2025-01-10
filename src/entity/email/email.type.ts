@@ -50,6 +50,6 @@ export class SendEmailInput {
   @Field(() => ID)
   id: string;
 
-  @Field(() => [ID])
-  recipientIds: string[];
+  @Field(() => [String])
+  recipientUsernames: string[];
 }

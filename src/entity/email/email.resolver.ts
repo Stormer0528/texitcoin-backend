@@ -124,10 +124,13 @@ export class EmailResolver {
   @Transaction()
   @Mutation(() => Email)
   async sendEmail(@Arg('data') data: SendEmailInput): Promise<SuccessResponse> {
-    const { id, recipientIds } = data;
+    const { id, recipientUsernames } = data;
     const email = await this.service.updateEmail(id, {
       isDraft: false,
     });
+
+    const [recipientIds, nonExistUsernames] =
+      await this.recipientService.getRecipientIdsByUsernames(recipientUsernames);
 
     await this.recipientService.createRecipients(
       recipientIds.map((recipientId) => ({ emailId: id, recipientId }))
@@ -140,6 +143,9 @@ export class EmailResolver {
 
     return {
       result: SuccessResult.success,
+      message: nonExistUsernames.length
+        ? `Non exist usernames: ${nonExistUsernames.join(', ')}`
+        : '',
     };
   }
 
