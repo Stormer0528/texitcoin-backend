@@ -9,6 +9,8 @@ import {
   Authorized,
   Ctx,
   UseMiddleware,
+  FieldResolver,
+  Root,
 } from 'type-graphql';
 import graphqlFields from 'graphql-fields';
 import { GraphQLResolveInfo } from 'graphql';
@@ -34,6 +36,9 @@ import { RecipientService } from '../recipient/recipient.service';
 import { EmailAttachmentService } from '../emailAttachment/emailAttachment.service';
 import { ROUTING_NEW_EMAIL } from '@/consts/subscription';
 import { NewEmailInterface } from '../recipient/recipient.type';
+import { Member } from '../member/member.entity';
+import { Recipient } from '../recipient/recipient.entity';
+import { PFile } from '../file/file.entity';
 
 @Service()
 @Resolver(() => Email)
@@ -163,5 +168,20 @@ export class EmailResolver {
     return this.service.updateEmail(data.id, {
       isDeleted: false,
     });
+  }
+
+  @FieldResolver(() => Member)
+  async sender(@Root() email: Email, @Ctx() ctx: Context): Promise<Member> {
+    return ctx.dataLoader.get('senderForEmailLoader').load(email.senderId);
+  }
+
+  @FieldResolver(() => [Recipient])
+  async recipients(@Root() email: Email, @Ctx() ctx: Context): Promise<Recipient[]> {
+    return ctx.dataLoader.get('recipientsForEmailLoader').load(email.id);
+  }
+
+  @FieldResolver(() => [PFile])
+  async files(@Root() email: Email, @Ctx() ctx: Context): Promise<PFile[]> {
+    return ctx.dataLoader.get('filesForEmailLoader').load(email.id);
   }
 }

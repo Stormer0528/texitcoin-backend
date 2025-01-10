@@ -31,6 +31,8 @@ import { RecipientService } from './recipient.service';
 import { recipientAccess } from '@/graphql/middlewares';
 import { Email } from '../email/email.entity';
 import { ROUTING_NEW_EMAIL } from '@/consts/subscription';
+import { MemberLog } from '../member/member.type';
+import { Member } from '../member/member.entity';
 
 @Service()
 @Resolver(() => Recipient)
@@ -100,5 +102,15 @@ export class RecipientResolver {
     return this.service.updateRecipient(data.id, {
       deletedAt: new Date(),
     });
+  }
+
+  @FieldResolver(() => Email)
+  async email(@Root() recipient: Recipient, @Ctx() ctx: Context): Promise<Email> {
+    return ctx.dataLoader.get('emailForRecipientLoader').load(recipient.emailId);
+  }
+
+  @FieldResolver(() => MemberLog)
+  async recipient(@Root() recpt: Recipient, @Ctx() ctx: Context): Promise<Member> {
+    return ctx.dataLoader.get('recipientForRecipientLoader').load(recpt.recipientId);
   }
 }
