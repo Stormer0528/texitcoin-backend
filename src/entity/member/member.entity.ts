@@ -31,7 +31,7 @@ export class Member extends BaseEntity {
   sponsorId: string;
 
   @Field()
-  @UseMiddleware(canAccess())
+  // @UseMiddleware(canAccess())
   @IsEmail()
   email: string;
 
