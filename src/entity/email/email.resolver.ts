@@ -55,7 +55,7 @@ export class EmailResolver {
 
     if (!context.isAdmin) {
       query.filter = {
-        AND: [query.filter, { senderId: context.user.id }],
+        AND: [query.filter, { senderId: context.user.id }].filter(Boolean),
       };
     }
 
