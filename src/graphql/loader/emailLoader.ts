@@ -4,6 +4,7 @@ import RootDataLoader from '.';
 import { Member } from '@/entity/member/member.entity';
 import { Recipient } from '@prisma/client';
 import { PFile } from '@/entity/file/file.entity';
+import { Email } from '@/entity/email/email.entity';
 
 export const senderForEmailLoader = (parent: RootDataLoader) => {
   return new DataLoader<string, Member>(
@@ -71,6 +72,49 @@ export const filesForEmailLoader = (parent: RootDataLoader) => {
       });
 
       return emailIds.map((id) => filesMap[id] ?? []);
+    },
+    {
+      ...parent.dataLoaderOptions,
+    }
+  );
+};
+
+export const replyFromForEmailLoader = (parent: RootDataLoader) => {
+  return new DataLoader<string, Email>(
+    async (emailIds: string[]) => {
+      const emails = await parent.prisma.email.findMany({
+        where: { id: { in: emailIds } },
+      });
+
+      const emailsMap: Record<string, Email> = {};
+      emails.forEach((email) => {
+        emailsMap[email.id] = email;
+      });
+
+      return emailIds.map((id) => emailsMap[id]);
+    },
+    {
+      ...parent.dataLoaderOptions,
+    }
+  );
+};
+
+export const repliedEmailsForEmailLoader = (parent: RootDataLoader) => {
+  return new DataLoader<string, Email[]>(
+    async (emailIds: string[]) => {
+      const emails = await parent.prisma.email.findMany({
+        where: { replyFromId: { in: emailIds } },
+      });
+
+      const emailsMap: Record<string, Email[]> = {};
+      emails.forEach((email) => {
+        if (!emailsMap[email.replyFromId]) {
+          emailsMap[email.replyFromId] = [];
+        }
+        emailsMap[email.replyFromId].push(email);
+      });
+
+      return emailIds.map((id) => emailsMap[id] ?? []);
     },
     {
       ...parent.dataLoaderOptions,

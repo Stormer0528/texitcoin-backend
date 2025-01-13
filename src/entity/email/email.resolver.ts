@@ -190,4 +190,16 @@ export class EmailResolver {
   async files(@Root() email: Email, @Ctx() ctx: Context): Promise<PFile[]> {
     return ctx.dataLoader.get('filesForEmailLoader').load(email.id);
   }
+
+  @FieldResolver(() => Email, { nullable: true })
+  async replyFrom(@Root() email: Email, @Ctx() ctx: Context): Promise<Email> {
+    return email.replyFromId
+      ? ctx.dataLoader.get('replyFromForEmailLoader').load(email.replyFromId)
+      : null;
+  }
+
+  @FieldResolver(() => [Email], { nullable: true })
+  async repliedEmails(@Root() email: Email, @Ctx() ctx: Context): Promise<Email[]> {
+    return ctx.dataLoader.get('repliedEmailsForEmailLoader').load(email.id);
+  }
 }

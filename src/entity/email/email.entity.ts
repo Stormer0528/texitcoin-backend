@@ -30,12 +30,21 @@ export class Email extends BaseEntity {
   @Field()
   isDeleted: boolean;
 
+  @Field({ nullable: true })
+  replyFromId?: string;
+
   @Field(() => Member, { nullable: true })
   sender?: Member;
 
   @UseMiddleware(emailAccess())
   @Field(() => [Recipient], { nullable: true })
   recipients?: Recipient[];
+
+  @Field(() => Email, { nullable: true })
+  replyFrom?: Email;
+
+  @Field(() => [Email], { nullable: true })
+  repliedEmails?: Email[];
 
   @Field(() => [PFile], { nullable: true })
   files?: PFile[];

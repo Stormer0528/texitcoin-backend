@@ -609,7 +609,10 @@ model Email {
   isDraft   Boolean @default(true)
   isDeleted Boolean @default(false)
 
-  sender Member @relation(fields: [senderId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  replyFromId String?
+
+  sender    Member @relation(fields: [senderId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  replyFrom Email? @relation("replyRelations", fields: [replyFromId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -617,6 +620,7 @@ model Email {
 
   recipients      Recipient[]
   emailAttachment EmailAttachment[]
+  repliedEmails   Email[]           @relation("replyRelations")
 
   @@map("emails")
 }
