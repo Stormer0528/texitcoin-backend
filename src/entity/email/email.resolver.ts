@@ -82,8 +82,7 @@ export class EmailResolver {
 
   @Authorized([UserRole.MEMBER])
   @UseMiddleware(emailAccess(true))
-  @Transaction()
-  @Mutation(() => Email)
+  @Query(() => Email)
   async emailById(@Arg('data') data: IDInput): Promise<Email> {
     return this.service.getEmailById(data.id);
   }
