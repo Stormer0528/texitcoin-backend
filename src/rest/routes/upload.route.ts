@@ -4,7 +4,7 @@ import multer from 'multer';
 import path from 'path';
 import { randomUUID } from 'crypto';
 import Container from 'typedi';
-import { PAYMENT_UPLOAD_DIR } from '@/consts';
+import { EMAIL_ATTACHMENT_UPLOAD_DIR, PAYMENT_UPLOAD_DIR } from '@/consts';
 import { PrismaService } from '@/service/prisma';
 
 const router = Router();
@@ -13,7 +13,7 @@ type DestinationCallback = (error: Error | null, destination: string) => void;
 type FileNameCallback = (error: Error | null, filename: string) => void;
 type FileFilterCallback = (error: Error | null, filter: boolean) => void;
 
-const storage = multer.diskStorage({
+const storagePayment = multer.diskStorage({
   destination: function (req: Request, file: Express.Multer.File, callback: DestinationCallback) {
     if (!existsSync(PAYMENT_UPLOAD_DIR)) {
       mkdirSync(PAYMENT_UPLOAD_DIR, { recursive: true });
@@ -22,7 +22,20 @@ const storage = multer.diskStorage({
   },
   filename: function (req: Request, file: Express.Multer.File, callback: FileNameCallback) {
     const uuid = randomUUID();
-    callback(null, `${file.fieldname}-${uuid}${path.extname(file.originalname)}`);
+    callback(null, `payment-${uuid}${path.extname(file.originalname)}`);
+  },
+});
+
+const storageEmailAttachments = multer.diskStorage({
+  destination: function (req: Request, file: Express.Multer.File, callback: DestinationCallback) {
+    if (!existsSync(path.join(EMAIL_ATTACHMENT_UPLOAD_DIR, req.params.id))) {
+      mkdirSync(path.join(EMAIL_ATTACHMENT_UPLOAD_DIR, req.params.id), { recursive: true });
+    }
+    callback(null, EMAIL_ATTACHMENT_UPLOAD_DIR);
+  },
+  filename: function (req: Request, file: Express.Multer.File, callback: FileNameCallback) {
+    const uuid = randomUUID();
+    callback(null, `attachment-${uuid}${path.extname(file.originalname)}`);
   },
 });
 
@@ -43,10 +56,11 @@ const fileFilter = (
   }
 };
 
-const upload = multer({ storage, fileFilter });
+const uploadPayment = multer({ storage: storagePayment, fileFilter });
+const uploadEmailAttachments = multer({ storage: storageEmailAttachments });
 
 router.post('/payment', async (req: Request, res: Response, next: NextFunction) => {
-  upload.array('payment')(req, res, async (err?: any) => {
+  uploadPayment.array('payment')(req, res, async (err?: any) => {
     if (err) {
       res.json({ message: err.message });
     } else {
@@ -59,6 +73,36 @@ router.post('/payment', async (req: Request, res: Response, next: NextFunction) 
             originalName: file.originalname,
             size: file.size,
             url: `${process.env.PUBLIC_DOMAIN}/public/payment/${file.filename}`,
+          })),
+        }),
+      ]);
+      res.json({
+        files: files.map((file) => ({
+          id: file.id,
+          url: file.url,
+          originalName: file.originalName,
+          mimeType: file.mimeType,
+          size: file.size,
+        })),
+      });
+    }
+  });
+});
+
+router.post('/email/:id/attachments', async (req: Request, res: Response, next: NextFunction) => {
+  uploadEmailAttachments.array('attachments')(req, res, async (err?: any) => {
+    if (err) {
+      res.json({ message: err.message });
+    } else {
+      const prisma = Container.get(PrismaService);
+      const [files] = await prisma.$transaction([
+        prisma.file.createManyAndReturn({
+          data: (req.files as Express.Multer.File[]).map((file) => ({
+            localPath: file.path,
+            mimeType: file.mimetype,
+            originalName: file.originalname,
+            size: file.size,
+            url: `${process.env.PUBLIC_DOMAIN}/public/email/${req.params.id}/attachments/${file.filename}`,
           })),
         }),
       ]);

@@ -9,7 +9,11 @@ import * as tq from 'type-graphql';
 import { Container } from 'typedi';
 import cors from 'cors';
 
-import { PAYMENT_UPLOAD_DIR, WEEKLY_REPORT_UPLOAD_DIR } from './consts';
+import {
+  EMAIL_ATTACHMENT_UPLOAD_DIR,
+  PAYMENT_UPLOAD_DIR,
+  WEEKLY_REPORT_UPLOAD_DIR,
+} from './consts';
 import { authChecker } from './authChecker';
 import { Context, context } from './context';
 import { formatError } from './formatError';
@@ -48,6 +52,9 @@ import { GroupSettingResolver } from './entity/groupSetting/groupSetting.resolve
 import { BalanceResolver } from './entity/balance/balance.resolver';
 import { EmailResolver } from './entity/email/email.resolver';
 import { RecipientResolver } from './entity/recipient/recipient.resolver';
+import { authorized } from './rest/middlewares/authorized.middleware';
+import { emailAccess } from './rest/middlewares/emailAccess.middleware';
+import path from 'path';
 
 const app = async () => {
   const schema = await tq.buildSchema({
@@ -151,6 +158,19 @@ const app = async () => {
   );
   mainServer.use('/api', router);
   mainServer.use('/public/payment', adminAuthorized, express.static(PAYMENT_UPLOAD_DIR));
+  mainServer.use(
+    '/public/email/:id/attachments/:attachmentName',
+    authorized,
+    emailAccess,
+    (req, res, next) => {
+      const filePath = path.join(
+        EMAIL_ATTACHMENT_UPLOAD_DIR,
+        req.params.id,
+        req.params.attachmentName
+      );
+      return res.sendFile(filePath);
+    }
+  );
   mainServer.use('/public/weeklyreports', express.static(WEEKLY_REPORT_UPLOAD_DIR));
 
   const APP_HOST = process.env.APP_HOST ?? '0.0.0.0';
