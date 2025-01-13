@@ -8,7 +8,7 @@ import { EMAIL_ATTACHMENT_UPLOAD_DIR, PAYMENT_UPLOAD_DIR } from '@/consts';
 import { PrismaService } from '@/service/prisma';
 import { adminAuthorized } from '../middlewares/adminAuthorized.middleware';
 import { authorized } from '../middlewares/authorized.middleware';
-import { emailAccess } from '@/graphql/middlewares';
+import { emailAccess } from '../middlewares/emailAccess.middleware';
 
 const router = Router();
 
@@ -99,7 +99,7 @@ router.post(
 router.post(
   '/email/:id/attachments',
   authorized,
-  emailAccess,
+  emailAccess(false),
   async (req: Request, res: Response, next: NextFunction) => {
     uploadEmailAttachments.array('attachments')(req, res, async (err?: any) => {
       if (err) {

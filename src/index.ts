@@ -161,7 +161,7 @@ const app = async () => {
   mainServer.use(
     '/public/email/:id/attachments/:attachmentName',
     authorized,
-    emailAccess,
+    emailAccess(true),
     (req, res, next) => {
       const filePath = path.join(
         EMAIL_ATTACHMENT_UPLOAD_DIR,
