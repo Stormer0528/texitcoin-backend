@@ -6,6 +6,9 @@ import { randomUUID } from 'crypto';
 import Container from 'typedi';
 import { EMAIL_ATTACHMENT_UPLOAD_DIR, PAYMENT_UPLOAD_DIR } from '@/consts';
 import { PrismaService } from '@/service/prisma';
+import { adminAuthorized } from '../middlewares/adminAuthorized.middleware';
+import { authorized } from '../middlewares/authorized.middleware';
+import { emailAccess } from '@/graphql/middlewares';
 
 const router = Router();
 
@@ -59,64 +62,73 @@ const fileFilter = (
 const uploadPayment = multer({ storage: storagePayment, fileFilter });
 const uploadEmailAttachments = multer({ storage: storageEmailAttachments });
 
-router.post('/payment', async (req: Request, res: Response, next: NextFunction) => {
-  uploadPayment.array('payment')(req, res, async (err?: any) => {
-    if (err) {
-      res.json({ message: err.message });
-    } else {
-      const prisma = Container.get(PrismaService);
-      const [files] = await prisma.$transaction([
-        prisma.file.createManyAndReturn({
-          data: (req.files as Express.Multer.File[]).map((file) => ({
-            localPath: file.path,
-            mimeType: file.mimetype,
-            originalName: file.originalname,
+router.post(
+  '/payment',
+  adminAuthorized,
+  async (req: Request, res: Response, next: NextFunction) => {
+    uploadPayment.array('payment')(req, res, async (err?: any) => {
+      if (err) {
+        res.json({ message: err.message });
+      } else {
+        const prisma = Container.get(PrismaService);
+        const [files] = await prisma.$transaction([
+          prisma.file.createManyAndReturn({
+            data: (req.files as Express.Multer.File[]).map((file) => ({
+              localPath: file.path,
+              mimeType: file.mimetype,
+              originalName: file.originalname,
+              size: file.size,
+              url: `${process.env.PUBLIC_DOMAIN}/public/payment/${file.filename}`,
+            })),
+          }),
+        ]);
+        res.json({
+          files: files.map((file) => ({
+            id: file.id,
+            url: file.url,
+            originalName: file.originalName,
+            mimeType: file.mimeType,
             size: file.size,
-            url: `${process.env.PUBLIC_DOMAIN}/public/payment/${file.filename}`,
           })),
-        }),
-      ]);
-      res.json({
-        files: files.map((file) => ({
-          id: file.id,
-          url: file.url,
-          originalName: file.originalName,
-          mimeType: file.mimeType,
-          size: file.size,
-        })),
-      });
-    }
-  });
-});
+        });
+      }
+    });
+  }
+);
 
-router.post('/email/:id/attachments', async (req: Request, res: Response, next: NextFunction) => {
-  uploadEmailAttachments.array('attachments')(req, res, async (err?: any) => {
-    if (err) {
-      res.json({ message: err.message });
-    } else {
-      const prisma = Container.get(PrismaService);
-      const [files] = await prisma.$transaction([
-        prisma.file.createManyAndReturn({
-          data: (req.files as Express.Multer.File[]).map((file) => ({
-            localPath: file.path,
-            mimeType: file.mimetype,
-            originalName: file.originalname,
+router.post(
+  '/email/:id/attachments',
+  authorized,
+  emailAccess,
+  async (req: Request, res: Response, next: NextFunction) => {
+    uploadEmailAttachments.array('attachments')(req, res, async (err?: any) => {
+      if (err) {
+        res.json({ message: err.message });
+      } else {
+        const prisma = Container.get(PrismaService);
+        const [files] = await prisma.$transaction([
+          prisma.file.createManyAndReturn({
+            data: (req.files as Express.Multer.File[]).map((file) => ({
+              localPath: file.path,
+              mimeType: file.mimetype,
+              originalName: file.originalname,
+              size: file.size,
+              url: `${process.env.PUBLIC_DOMAIN}/public/email/${req.params.id}/attachments/${file.filename}`,
+            })),
+          }),
+        ]);
+        res.json({
+          files: files.map((file) => ({
+            id: file.id,
+            url: file.url,
+            originalName: file.originalName,
+            mimeType: file.mimeType,
             size: file.size,
-            url: `${process.env.PUBLIC_DOMAIN}/public/email/${req.params.id}/attachments/${file.filename}`,
           })),
-        }),
-      ]);
-      res.json({
-        files: files.map((file) => ({
-          id: file.id,
-          url: file.url,
-          originalName: file.originalName,
-          mimeType: file.mimeType,
-          size: file.size,
-        })),
-      });
-    }
-  });
-});
+        });
+      }
+    });
+  }
+);
 
 export default router;

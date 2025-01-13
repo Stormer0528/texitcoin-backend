@@ -49,7 +49,6 @@ router.get(
   }
 );
 
-router.use('/upload', uploadRoute);
 router.get(
   '/export-rewards/bymember',
   authorized,
@@ -64,6 +63,6 @@ router.get(
   }
 );
 
-router.use('/upload', adminAuthorized, uploadRoute);
+router.use('/upload', uploadRoute);
 
 export default router;

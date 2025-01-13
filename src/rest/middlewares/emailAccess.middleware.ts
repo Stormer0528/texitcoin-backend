@@ -2,8 +2,6 @@ import { Request, Response, NextFunction } from 'express';
 
 import Container from 'typedi';
 
-import { JWT_TOKENEXPIRED } from '@/consts/errors';
-import { verifyToken } from '@/utils/auth';
 import { PrismaService } from '@/service/prisma';
 
 export const emailAccess = async (req: Request, res: Response, next: NextFunction) => {
