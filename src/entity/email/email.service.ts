@@ -12,7 +12,7 @@ export class EmailService {
     private readonly prisma: PrismaService
   ) {}
   async getEmails(params: EmailQueryArgs) {
-    return await this.prisma.email.findMany({
+    return this.prisma.email.findMany({
       where: {
         AND: [params.where, { deletedAt: null }],
       },
