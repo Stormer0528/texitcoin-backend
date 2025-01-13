@@ -30,6 +30,9 @@ export class CreateEmailInput {
   @Field()
   body: string;
 
+  @Field({ nullable: true })
+  replyFromId?: string;
+
   @Field(() => [ID], { nullable: true })
   fileIds?: string[];
 }
