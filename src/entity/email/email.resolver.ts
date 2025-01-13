@@ -123,7 +123,7 @@ export class EmailResolver {
   @Authorized([UserRole.MEMBER])
   @UseMiddleware(emailAccess())
   @Transaction()
-  @Mutation(() => Email)
+  @Mutation(() => SuccessResponse)
   async sendEmail(@Arg('data') { id }: IDInput): Promise<SuccessResponse> {
     const email = await this.service.updateEmail(id, {
       isDraft: false,
