@@ -74,6 +74,13 @@ export class RecipientResolver {
     return response;
   }
 
+  @Authorized([UserRole.MEMBER])
+  @UseMiddleware(recipientAccess())
+  @Query(() => Recipient)
+  async recipientById(@Arg('data') data: IDInput): Promise<Recipient> {
+    return this.service.getRecipientById(data.id);
+  }
+
   @Subscription(() => Email, {
     topics: ROUTING_NEW_EMAIL,
     filter: ({ payload, context }: { payload: NewEmailInterface; context: Context }) => {
