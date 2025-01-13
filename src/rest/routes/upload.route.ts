@@ -34,7 +34,7 @@ const storageEmailAttachments = multer.diskStorage({
     if (!existsSync(path.join(EMAIL_ATTACHMENT_UPLOAD_DIR, req.params.id))) {
       mkdirSync(path.join(EMAIL_ATTACHMENT_UPLOAD_DIR, req.params.id), { recursive: true });
     }
-    callback(null, EMAIL_ATTACHMENT_UPLOAD_DIR);
+    callback(null, path.join(EMAIL_ATTACHMENT_UPLOAD_DIR, req.params.id));
   },
   filename: function (req: Request, file: Express.Multer.File, callback: FileNameCallback) {
     const uuid = randomUUID();
