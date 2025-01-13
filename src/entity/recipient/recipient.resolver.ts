@@ -49,7 +49,7 @@ export class RecipientResolver {
 
     if (!context.isAdmin) {
       query.filter = {
-        AND: [query.filter, { senderId: context.user.id }].filter(Boolean),
+        AND: [query.filter, { recipientId: context.user.id }].filter(Boolean),
       };
     }
 
