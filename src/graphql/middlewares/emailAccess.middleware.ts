@@ -13,7 +13,7 @@ export function emailAccess(recipient: boolean = false) {
       },
     });
 
-    if (context.user.id === email.senderId) {
+    if (email && context.user.id === email.senderId) {
       return next();
     }
 
