@@ -13,7 +13,7 @@ export function recipientAccess() {
       },
     });
 
-    if (context.user.id === email.recipientId) {
+    if (email && context.user.id === email.recipientId) {
       return next();
     }
 
