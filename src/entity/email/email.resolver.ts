@@ -97,7 +97,7 @@ export class EmailResolver {
     if (preEmail) {
       if (!preEmail.isDraft) {
         throw new Error('You can not update sent email');
-      } else if (preEmail.senderId === ctx.user.id) {
+      } else if (preEmail.senderId !== ctx.user.id) {
         throw new Error('You can not access the email');
       }
     }
