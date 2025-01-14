@@ -1,4 +1,4 @@
-import { Prisma, PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import dayjs from 'dayjs';
 import weekOfYear from 'dayjs/plugin/weekOfYear';
 import utcPlugin from 'dayjs/plugin/utc';
@@ -190,6 +190,16 @@ async function weeklyCommission(tranPrisma: PrismaClient) {
           groupSetting,
           points
         );
+
+        const prevCommission = await tranPrisma.weeklyCommission.findUnique({
+          where: {
+            memberId_weekStartDate: {
+              memberId: id,
+              weekStartDate: iStartDate.toDate(),
+            },
+          },
+        });
+
         const data = {
           memberId: id,
           begL: points.left - (combinedMap[id]?.left ?? 0),
@@ -208,79 +218,60 @@ async function weeklyCommission(tranPrisma: PrismaClient) {
             : commission > 0
               ? ConfirmationStatus.PENDING
               : ConfirmationStatus.NONE,
-          ID: nowWeek || commission == 0 ? -1 : ID++,
+          ID:
+            nowWeek || commission == 0
+              ? -1
+              : prevCommission && prevCommission.ID > 0
+                ? prevCommission.ID
+                : ID++,
           weekStartDate: iStartDate.toDate(),
         };
-        // return tranPrisma.weeklyCommission.upsert({
-        //   where: {
-        //     memberId_weekStartDate: {
-        //       memberId: id,
-        //       weekStartDate: iStartDate.toDate(),
-        //     },
-        //   },
-        //   create: data,
-        //   update: data,
-        // });
 
-        return tranPrisma.$queryRaw`
-              UPDATE "weeklycommissions"
-              SET
-                  "memberId" = ${data.memberId},
-                  "begL" = ${data.begL},
-                  "begR" = ${data.begR},
-                  "newL" = ${data.newL},
-                  "newR" = ${data.newR},
-                  "maxL" = ${data.maxL},
-                  "maxR" = ${data.maxR},
-                  "endL" = ${data.endL},
-                  "endR" = ${data.endR},
-                  "pkgL" = ${data.pkgL},
-                  "pkgR" = ${data.pkgR},
-                  "commission" = ${data.commission},
-                  "status" = ${data.status}::"ConfirmationStatus",
-                  "ID" = CASE 
-                      WHEN "ID" = -1 THEN ${data.ID} 
-                      ELSE "ID"
-                  END,
-                  "weekStartDate" = ${data.weekStartDate}
-              WHERE "memberId" = ${data.memberId} AND "weekStartDate" = ${data.weekStartDate};
-        `;
+        if (data.status === ConfirmationStatus.PENDING) {
+          if (prevCommission && prevCommission.shortNote) {
+            const prevProof = await tranPrisma.proof.findUnique({
+              where: {
+                refId_type: {
+                  refId: convertNumToString({ value: data.ID, length: 7, prefix: 'C' }),
+                  type: 'COMMISSION',
+                },
+              },
+            });
+
+            await tranPrisma.proof.upsert({
+              where: {
+                refId_type: {
+                  refId: convertNumToString({ value: data.ID, length: 7, prefix: 'C' }),
+                  type: 'COMMISSION',
+                },
+              },
+              create: {
+                refId: convertNumToString({ value: data.ID, length: 7, prefix: 'C' }),
+                type: 'COMMISSION',
+                note: prevCommission.shortNote,
+              },
+              update: {
+                note: prevProof.note || prevCommission.shortNote,
+              },
+            });
+          }
+        }
+
+        return tranPrisma.weeklyCommission.upsert({
+          where: {
+            memberId_weekStartDate: {
+              memberId: id,
+              weekStartDate: iStartDate.toDate(),
+            },
+          },
+          create: data,
+          update: data,
+        });
       },
-      { concurrency: 1 }
+      { concurrency: 10 }
     );
   }
 
-  const oldCommissions = await prisma.weeklyCommission.findMany({
-    where: {
-      ID: {
-        gte: 0,
-      },
-      commission: 0,
-    },
-    select: {
-      ID: true,
-    },
-  });
-
-  await tranPrisma.proof.deleteMany({
-    where: {
-      refId: {
-        in: oldCommissions.map((commission) =>
-          convertNumToString({ value: commission.ID, length: 7, prefix: 'C' })
-        ),
-      },
-      type: 'COMMISSION',
-    },
-  });
-
-  await tranPrisma.weeklyCommission.updateMany({
-    where: {
-      commission: 0,
-    },
-    data: {
-      ID: -1,
-    },
-  });
   console.log('Finished weekly commission operation');
 }
 
