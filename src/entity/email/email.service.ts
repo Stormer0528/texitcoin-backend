@@ -2,7 +2,7 @@ import { Service, Inject } from 'typedi';
 
 import { PrismaService } from '@/service/prisma';
 
-import { EmailQueryArgs } from './email.type';
+import { EmailQueryArgs, UpsertEmailInput } from './email.type';
 import { Prisma } from '@prisma/client';
 
 @Service()
@@ -45,6 +45,21 @@ export class EmailService {
         id,
       },
       data,
+    });
+  }
+
+  async upsertEmail(id: string, data: Omit<UpsertEmailInput, 'fileIds'> & { senderId: string }) {
+    return this.prisma.email.upsert({
+      where: {
+        id,
+      },
+      create: {
+        to: '',
+        subject: '',
+        body: '',
+        ...data,
+      },
+      update: data,
     });
   }
 }

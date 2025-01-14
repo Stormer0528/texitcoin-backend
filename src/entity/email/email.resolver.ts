@@ -21,7 +21,7 @@ import { Context } from '@/context';
 import { Transaction } from '@/graphql/decorator';
 import { IDInput, SuccessResponse } from '@/graphql/common.type';
 import { pubSub } from '@/pubsub';
-import { CreateEmailInput, EmailQueryArgs, EmailResponse, UpdateEmailInput } from './email.type';
+import { EmailQueryArgs, EmailResponse, UpsertEmailInput } from './email.type';
 import { Email } from './email.entity';
 import { EmailService } from './email.service';
 import { SuccessResult } from '@/graphql/enum';
@@ -90,30 +90,24 @@ export class EmailResolver {
   @Authorized([UserRole.MEMBER])
   @Transaction()
   @Mutation(() => Email)
-  async createEmail(@Arg('data') data: CreateEmailInput, @Ctx() context: Context): Promise<Email> {
-    const { fileIds, ...restData } = data;
-
-    return this.service.createEmail({
-      ...restData,
-      senderId: context.user.id,
-      emailAttachment: {
-        createMany: {
-          data: fileIds ? fileIds.map((fileId) => ({ fileId })) : [],
-        },
-      },
-    });
-  }
-
-  @Authorized([UserRole.MEMBER])
-  @UseMiddleware(emailAccess())
-  @Transaction()
-  @Mutation(() => Email)
-  async updateEmail(@Arg('data') data: UpdateEmailInput): Promise<Email> {
+  async upsertEmail(@Arg('data') data: UpsertEmailInput, @Ctx() ctx: Context): Promise<Email> {
     const { id, fileIds, ...rest } = data;
-    const email = await this.service.getEmailById(id);
-    if (!email.isDraft) {
-      throw new Error('You can not update sent email');
+    const preEmail = await this.service.getEmailById(id);
+
+    if (preEmail) {
+      if (!preEmail.isDraft) {
+        throw new Error('You can not update sent email');
+      } else if (preEmail.senderId === ctx.user.id) {
+        throw new Error('You can not access the email');
+      }
     }
+
+    const newEmail = await this.service.upsertEmail(id, {
+      id,
+      senderId: ctx.user.id,
+      ...rest,
+    });
+
     if (fileIds) {
       await this.emailAttachmentService.setEmailAttachments({
         emailId: id,
@@ -121,7 +115,7 @@ export class EmailResolver {
       });
     }
 
-    return this.service.updateEmail(id, rest);
+    return newEmail;
   }
 
   @Authorized([UserRole.MEMBER])

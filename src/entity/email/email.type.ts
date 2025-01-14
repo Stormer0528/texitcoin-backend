@@ -19,31 +19,14 @@ export class EmailResponse extends PaginatedResponse {
 }
 
 // Create Email Input and Response
-@InputType()
-export class CreateEmailInput {
-  @Field()
-  to: string;
-
-  @Field()
-  subject: string;
-
-  @Field()
-  body: string;
-
-  @Field({ nullable: true })
-  replyFromId?: string;
-
-  @Field(() => [ID], { nullable: true })
-  fileIds?: string[];
-}
 
 @InputType()
-export class UpdateEmailInput {
+export class UpsertEmailInput {
   @Field(() => ID)
   id: string;
 
   @Field({ nullable: true })
-  to: string;
+  to?: string;
 
   @Field({ nullable: true })
   subject?: string;
