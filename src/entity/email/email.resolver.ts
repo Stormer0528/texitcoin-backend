@@ -110,6 +110,10 @@ export class EmailResolver {
   @Mutation(() => Email)
   async updateEmail(@Arg('data') data: UpdateEmailInput): Promise<Email> {
     const { id, fileIds, ...rest } = data;
+    const email = await this.service.getEmailById(id);
+    if (!email.isDraft) {
+      throw new Error('You can not update sent email');
+    }
     if (fileIds) {
       await this.emailAttachmentService.setEmailAttachments({
         emailId: id,
@@ -125,6 +129,11 @@ export class EmailResolver {
   @Transaction()
   @Mutation(() => SuccessResponse)
   async sendEmail(@Arg('data') { id }: IDInput): Promise<SuccessResponse> {
+    const preEmail = await this.service.getEmailById(id);
+    if (!preEmail.isDraft) {
+      throw new Error('You can not resend email');
+    }
+
     const email = await this.service.updateEmail(id, {
       isDraft: false,
     });

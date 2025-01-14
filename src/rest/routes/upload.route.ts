@@ -9,6 +9,7 @@ import { PrismaService } from '@/service/prisma';
 import { adminAuthorized } from '../middlewares/adminAuthorized.middleware';
 import { authorized } from '../middlewares/authorized.middleware';
 import { emailAccess } from '../middlewares/emailAccess.middleware';
+import { emailDraft } from '../middlewares/emailDraft.middleware';
 
 const router = Router();
 
@@ -100,6 +101,7 @@ router.post(
   '/email/:id/attachments',
   authorized,
   emailAccess(false),
+  emailDraft,
   async (req: Request, res: Response, next: NextFunction) => {
     uploadEmailAttachments.array('attachments')(req, res, async (err?: any) => {
       if (err) {
