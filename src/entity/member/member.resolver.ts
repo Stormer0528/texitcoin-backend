@@ -778,4 +778,9 @@ export class MemberResolver {
   async balances(@Root() member: Member, @Ctx() ctx: Context): Promise<Balance[]> {
     return ctx.dataLoader.get('balancesForMemberLoader').load(member.id);
   }
+
+  @FieldResolver()
+  async balance(@Root() member: Member, @Ctx() ctx: Context): Promise<number> {
+    return ctx.dataLoader.get('balanceForMemberLoader').load(member.id);
+  }
 }

@@ -136,6 +136,9 @@ export class Member extends BaseEntity {
   @Field()
   groupName?: string;
 
+  @Field()
+  balance?: number;
+
   @Field(() => [Balance], { nullable: true })
   balances?: Balance[];
 }

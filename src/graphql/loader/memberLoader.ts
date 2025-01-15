@@ -355,3 +355,30 @@ export const balancesForMemberLoader = (parent: RootDataLoader) => {
     }
   );
 };
+
+export const balanceForMemberLoader = (parent: RootDataLoader) => {
+  return new DataLoader<string, number>(
+    async (memberIds: string[]) => {
+      const balances = await parent.prisma.balance.groupBy({
+        by: ['memberId'],
+        where: {
+          memberId: {
+            in: memberIds,
+          },
+        },
+        _sum: {
+          amountInCents: true,
+        },
+      });
+      const balanceMap: Record<string, number> = {};
+      balances.forEach((balance) => {
+        balanceMap[balance.memberId] = balance._sum.amountInCents;
+      });
+
+      return memberIds.map((id) => balanceMap[id] ?? 0);
+    },
+    {
+      ...parent.dataLoaderOptions,
+    }
+  );
+};
