@@ -47,3 +47,12 @@ export class CountResponse {
   @Field()
   count: number;
 }
+
+@InputType()
+export class ResetPasswordTokenInput {
+  @Field()
+  token: string;
+
+  @Field()
+  password: string;
+}

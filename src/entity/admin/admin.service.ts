@@ -3,6 +3,8 @@ import { Service, Inject } from 'typedi';
 import { PrismaService } from '@/service/prisma';
 
 import { AdminQueryArgs, CreateAdminInput, UpdateAdminInput } from './admin.type';
+import { EmailInput, ResetPasswordTokenInput } from '@/graphql/common.type';
+import { createVerificationToken, generateRandomString, hashPassword } from '@/utils/auth';
 
 @Service()
 export class AdminService {
@@ -71,6 +73,42 @@ export class AdminService {
     return this.prisma.admin.deleteMany({
       where: {
         id: { in: ids },
+      },
+    });
+  }
+
+  async generateResetTokenByEmail(data: EmailInput) {
+    const randomLength = Math.floor(Math.random() * 60) + 40;
+    const token = createVerificationToken(generateRandomString(randomLength));
+    const admin = await this.prisma.admin.findUnique({
+      where: {
+        email: data.email,
+      },
+    });
+
+    if (!admin) {
+      throw new Error('Can not find email');
+    }
+
+    return this.prisma.admin.update({
+      where: {
+        email: data.email,
+      },
+      data: {
+        token,
+      },
+    });
+  }
+
+  async resetPasswordByToken(data: ResetPasswordTokenInput) {
+    const hashedPassword = await hashPassword(data.password);
+    return this.prisma.admin.update({
+      where: {
+        token: data.token,
+      },
+      data: {
+        password: hashedPassword,
+        token: null,
       },
     });
   }

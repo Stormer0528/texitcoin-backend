@@ -84,6 +84,7 @@ model Admin {
   email    String  @unique(map: "index_admins_on_email") @db.Citext
   password String  @db.VarChar
   avatar   String? @default("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRcrrCHjN9kChJVJtWxXCHoUcgEhxWwTclnURuK20T8EDX_rVt0NMik5tYpLhKzqPBnvP0&usqp=CAU")
+  token    String? @unique(map: "index_admins_on_token") @db.VarChar
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt

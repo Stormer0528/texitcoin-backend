@@ -29,6 +29,7 @@ import {
   CountResponse,
   EmailInput,
   IDInput,
+  ResetPasswordTokenInput,
   SuccessResponse,
   TokenInput,
 } from '../../graphql/common.type';
@@ -41,7 +42,6 @@ import {
   MemberLoginInput,
   UpdateMemberPasswordInput,
   UpdateMemberPasswordInputById,
-  ResetPasswordTokenInput,
   VerifyTokenResponse,
   MemberOverview,
   PlacementPositionCountResponse,

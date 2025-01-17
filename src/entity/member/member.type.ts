@@ -294,15 +294,6 @@ export class MemberLoginResponse {
   accessToken: string;
 }
 
-@InputType()
-export class ResetPasswordTokenInput {
-  @Field()
-  token: string;
-
-  @Field()
-  password: string;
-}
-
 @ObjectType()
 export class VerifyTokenResponse {
   @Field()

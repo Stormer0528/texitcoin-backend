@@ -1,4 +1,4 @@
-import { Service } from 'typedi';
+import { Inject, Service } from 'typedi';
 import {
   Arg,
   Args,
@@ -12,14 +12,20 @@ import {
   Root,
 } from 'type-graphql';
 import graphqlFields from 'graphql-fields';
-import { GraphQLResolveInfo } from 'graphql';
+import { GraphQLResolveInfo, print } from 'graphql';
 
 import { DEFAULT_PASSWORD } from '@/consts';
 import { type Context } from '@/context';
 import { UserRole } from '@/type';
 import { createAccessToken, verifyPassword, hashPassword } from '@/utils/auth';
 
-import { IDsInput, ManySuccessResponse, SuccessResponse } from '@/graphql/common.type';
+import {
+  EmailInput,
+  IDsInput,
+  ManySuccessResponse,
+  ResetPasswordTokenInput,
+  SuccessResponse,
+} from '@/graphql/common.type';
 import {
   AdminLoginInput,
   AdminLoginResponse,
@@ -34,11 +40,16 @@ import { Admin } from './admin.entity';
 import { AdminService } from './admin.service';
 import { AdminNotes } from '../adminNotes/adminNotes.entity';
 import { SuccessResult } from '@/graphql/enum';
+import { MailerService } from '@/service/mailer';
 
 @Service()
 @Resolver(() => Admin)
 export class AdminResolver {
-  constructor(private readonly service: AdminService) {}
+  constructor(
+    private readonly service: AdminService,
+    @Inject(() => MailerService)
+    private readonly mailService: MailerService
+  ) {}
 
   @Authorized([UserRole.ADMIN])
   @Query(() => AdminsResponse)
@@ -148,6 +159,36 @@ export class AdminResolver {
 
     return {
       accessToken: createAccessToken({ id: user.id, isAdmin: true }),
+    };
+  }
+
+  @Mutation(() => SuccessResponse)
+  async adminResetPasswordRequest(@Arg('data') data: EmailInput): Promise<SuccessResponse> {
+    const { token, email, username } = await this.service.generateResetTokenByEmail(data);
+    if (token) {
+      this.mailService.sendForgetPasswordLink(
+        email,
+        username,
+        `${process.env.ADMIN_URL}/reset-password?token=${token}`
+      );
+      return {
+        result: SuccessResult.success,
+      };
+    } else {
+      return {
+        result: SuccessResult.failed,
+        message: 'Creating token failed',
+      };
+    }
+  }
+
+  @Mutation(() => SuccessResponse)
+  async adminResetPasswordByToken(
+    @Arg('data') data: ResetPasswordTokenInput
+  ): Promise<SuccessResponse> {
+    await this.service.resetPasswordByToken(data);
+    return {
+      result: SuccessResult.success,
     };
   }
 
