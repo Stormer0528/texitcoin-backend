@@ -295,16 +295,6 @@ export class MemberLoginResponse {
 }
 
 @ObjectType()
-export class VerifyTokenResponse {
-  @Field()
-  @IsEmail()
-  email: string;
-
-  @Field()
-  token: string;
-}
-
-@ObjectType()
 export class MemberOverview {
   @Field()
   currentHashPower: number;

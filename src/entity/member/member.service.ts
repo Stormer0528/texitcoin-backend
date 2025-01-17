@@ -1,7 +1,12 @@
 import { PlacementPosition, Prisma } from '@prisma/client';
 import { Service, Inject } from 'typedi';
 
-import { EmailInput, ResetPasswordTokenInput, TokenInput } from '@/graphql/common.type';
+import {
+  EmailInput,
+  ResetPasswordTokenInput,
+  TokenInput,
+  VerifyTokenResponse,
+} from '@/graphql/common.type';
 import {
   createVerificationToken,
   generateRandomString,
@@ -14,7 +19,6 @@ import {
   CreateMemberInput,
   UpdateMemberInput,
   MemberQueryArgs,
-  VerifyTokenResponse,
   EmailVerificationInput,
   TEAM_STRATEGY,
 } from './member.type';

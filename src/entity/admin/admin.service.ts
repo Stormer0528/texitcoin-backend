@@ -3,8 +3,18 @@ import { Service, Inject } from 'typedi';
 import { PrismaService } from '@/service/prisma';
 
 import { AdminQueryArgs, CreateAdminInput, UpdateAdminInput } from './admin.type';
-import { EmailInput, ResetPasswordTokenInput } from '@/graphql/common.type';
-import { createVerificationToken, generateRandomString, hashPassword } from '@/utils/auth';
+import {
+  EmailInput,
+  ResetPasswordTokenInput,
+  TokenInput,
+  VerifyTokenResponse,
+} from '@/graphql/common.type';
+import {
+  createVerificationToken,
+  generateRandomString,
+  hashPassword,
+  verifyToken,
+} from '@/utils/auth';
 
 @Service()
 export class AdminService {
@@ -111,5 +121,45 @@ export class AdminService {
         token: null,
       },
     });
+  }
+
+  async verifyAndUpdateToken(data: TokenInput): Promise<VerifyTokenResponse> {
+    try {
+      const { verification } = verifyToken(data.token) as any;
+      if (!verification) {
+        throw new Error('Invalid Token');
+      }
+
+      const randomLength = Math.floor(Math.random() * 60) + 40;
+
+      const admin = await this.prisma.admin.findUnique({
+        where: {
+          token: data.token,
+        },
+      });
+
+      if (!admin) {
+        throw new Error('Invalid Token');
+      }
+
+      return this.prisma.admin.update({
+        where: {
+          token: data.token,
+        },
+        data: {
+          token: generateRandomString(randomLength),
+        },
+        select: {
+          email: true,
+          token: true,
+        },
+      });
+    } catch (err) {
+      if (err.name === 'TokenExpiredError') {
+        throw new Error('Token is expired');
+      } else {
+        throw err;
+      }
+    }
   }
 }

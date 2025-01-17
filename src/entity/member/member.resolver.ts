@@ -32,6 +32,7 @@ import {
   ResetPasswordTokenInput,
   SuccessResponse,
   TokenInput,
+  VerifyTokenResponse,
 } from '../../graphql/common.type';
 import {
   MembersResponse,
@@ -42,7 +43,6 @@ import {
   MemberLoginInput,
   UpdateMemberPasswordInput,
   UpdateMemberPasswordInputById,
-  VerifyTokenResponse,
   MemberOverview,
   PlacementPositionCountResponse,
   MemberLog,

@@ -25,6 +25,8 @@ import {
   ManySuccessResponse,
   ResetPasswordTokenInput,
   SuccessResponse,
+  TokenInput,
+  VerifyTokenResponse,
 } from '@/graphql/common.type';
 import {
   AdminLoginInput,
@@ -190,6 +192,11 @@ export class AdminResolver {
     return {
       result: SuccessResult.success,
     };
+  }
+
+  @Mutation(() => VerifyTokenResponse)
+  async adminResetTokenVerify(@Arg('data') data: TokenInput): Promise<VerifyTokenResponse> {
+    return this.service.verifyAndUpdateToken(data);
   }
 
   @Authorized([UserRole.ADMIN])
