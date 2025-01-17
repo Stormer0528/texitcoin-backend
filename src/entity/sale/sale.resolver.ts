@@ -94,14 +94,14 @@ export class SaleResolver {
   @Transaction()
   @Mutation(() => Sale)
   async createSale(@Arg('data') data: CreateSaleInput): Promise<Sale> {
-    const { emailVerified } = await this.memberService.getMemberById(data.memberId);
-    if (!emailVerified) {
-      throw new GraphQLError('This member did not verify the email', {
-        extensions: {
-          path: ['memberId'],
-        },
-      });
-    }
+    // const { emailVerified } = await this.memberService.getMemberById(data.memberId);
+    // if (!emailVerified) {
+    //   throw new GraphQLError('This member did not verify the email', {
+    //     extensions: {
+    //       path: ['memberId'],
+    //     },
+    //   });
+    // }
 
     const memberWallets = await this.memberWalletService.getMemberWalletsByMemberid(data.memberId);
     const txcWallets = memberWallets.filter(
