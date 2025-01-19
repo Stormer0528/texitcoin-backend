@@ -115,6 +115,7 @@ model Member {
   token                  String?           @unique(map: "index_members_on_token") @db.VarChar
   placementParentId      String?           @db.VarChar
   placementPosition      PlacementPosition @default(NONE)
+  placementPath          String?           @default("") @db.VarChar
   point                  Int               @default(0)
   status                 Boolean           @default(true) @db.Boolean
   signupFormRequest      Json?             @db.Json
