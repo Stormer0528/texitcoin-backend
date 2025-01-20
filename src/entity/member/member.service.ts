@@ -89,21 +89,14 @@ export class MemberService {
   }
 
   async getAllPlacementAncestorsById(id: string) {
-    const res: Member[] = [await this.prisma.member.findUnique({ where: { id } })];
-    let previousIDs: string[] = [id];
-    while (true) {
-      const children = await this.prisma.member.findMany({
-        where: {
-          placementParentId: {
-            in: previousIDs,
-          },
+    const parent = await this.prisma.member.findUnique({ where: { id } });
+    return this.prisma.member.findMany({
+      where: {
+        placementPath: {
+          startsWith: parent.placementPath,
         },
-      });
-      if (!children.length) break;
-      res.push(...children);
-      previousIDs = children.map((child) => child.id);
-    }
-    return res;
+      },
+    });
   }
 
   async getMemberByUsername(username: string) {
@@ -156,7 +149,7 @@ export class MemberService {
 
   async updateManyMember(
     where: Prisma.MemberWhereInput,
-    data: Omit<UpdateMemberInput, 'id'> & { id?: string }
+    data: Omit<UpdateMemberInput, 'id'> & { id?: string; placementPath?: string }
   ) {
     return this.prisma.member.updateMany({
       where,
@@ -522,22 +515,26 @@ export class MemberService {
     return maxID;
   }
 
-  async getBottomOfTree(id: string, direction: Omit<PlacementPosition, 'NONE'>): Promise<string> {
+  async getBottomOfTree(
+    id: string,
+    direction: Omit<PlacementPosition, 'NONE'>
+  ): Promise<[string, string | null]> {
     const members = await this.prisma.member.findMany({
       select: {
         id: true,
         placementParentId: true,
         placementPosition: true,
+        placementPath: true,
       },
     });
 
-    let res = id;
+    let res: [string, string | null] = [id, members.find((mb) => mb.id === id).placementPath];
     while (true) {
       const children = members.find(
-        (mb) => mb.placementParentId === res && mb.placementPosition === direction
+        (mb) => mb.placementParentId === res[0] && mb.placementPosition === direction
       );
       if (children) {
-        res = children.id;
+        res = [children.id, children.placementPath];
       } else {
         break;
       }
@@ -552,13 +549,19 @@ export class MemberService {
         id: parentID,
       },
     });
+    const targetMember = await this.prisma.member.findUnique({
+      where: {
+        id: targetID,
+      },
+    });
+
     if (parentMember.placementParentId && parentMember.placementPosition != 'NONE') {
       let targetDirection: TEAM_STRATEGY = parentMember.teamStrategy;
       if (!(targetDirection === 'LEFT' || targetDirection === 'RIGHT')) {
         return;
       }
 
-      const bottomID = await this.getBottomOfTree(parentID, targetDirection);
+      const [bottomID, bottomPath] = await this.getBottomOfTree(parentID, targetDirection);
       await this.prisma.member.update({
         where: {
           id: targetID,
@@ -566,6 +569,7 @@ export class MemberService {
         data: {
           placementParentId: bottomID,
           placementPosition: targetDirection,
+          placementPath: `${bottomPath}/${targetMember.ID}`,
         },
       });
     }

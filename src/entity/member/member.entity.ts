@@ -68,6 +68,8 @@ export class Member extends BaseEntity {
   @Field(() => PlacementPosition)
   placementPosition: PLACEMENT_POSITION;
 
+  placementPath?: string;
+
   @Field()
   point: number;
 

@@ -346,6 +346,7 @@ export class MemberResolver {
       sponsorId: prevSponsorID,
       email: oldEmail,
       syncWithSendy: oldSyncWithSendy,
+      placementPath: oldPlacementPath,
     } = await this.service.getMemberById(newData.id);
     const member = await this.service.updateMember(newData);
     if (data.wallets) {
@@ -367,6 +368,31 @@ export class MemberResolver {
             path: ['placementParentId', 'placementPosition'],
           },
         });
+      }
+
+      const { placementPath: parentPlacementPath } = await this.service.getMemberById(
+        member.placementParentId
+      );
+
+      const newPath = `${parentPlacementPath}/${member.ID}`;
+
+      if (oldPlacementPath !== newPath) {
+        if (oldPlacementPath) {
+          await this.prisma.$queryRaw`
+        UPDATE members
+        SET "placementPath" = REPLACE("placementPath", ${oldPlacementPath}, ${newPath})
+        WHERE "placementPath" LIKE ${oldPlacementPath + '%'}
+      `;
+        } else {
+          await this.prisma.member.update({
+            where: {
+              id: member.id,
+            },
+            data: {
+              placementPath: newPath,
+            },
+          });
+        }
       }
     }
 
@@ -487,7 +513,7 @@ export class MemberResolver {
     const placements = await this.service.getAllPlacementAncestorsById(data.id);
     await this.service.updateManyMember(
       { id: { in: placements.map((pmnt) => pmnt.id) } },
-      { placementParentId: null, placementPosition: PlacementPosition.NONE }
+      { placementParentId: null, placementPosition: PlacementPosition.NONE, placementPath: '' }
     );
     return {
       result: SuccessResult.success,
