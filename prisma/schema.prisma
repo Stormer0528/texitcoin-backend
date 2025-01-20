@@ -128,6 +128,7 @@ model Member {
   teamStrategy           TeamStrategy      @default(MANUAL)
   balanceInCents         Int               @default(0)
   teamReport             TeamReport        @default(NONE)
+  promoCode              String?
 
   sponsor         Member? @relation("MemberSponsor", fields: [sponsorId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   placementParent Member? @relation("MemberPlacementParent", fields: [placementParentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
