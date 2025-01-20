@@ -120,10 +120,10 @@ export class MailerService {
   public async notifyMiner3rdIntroducersToAdmin(
     minerUsername: string,
     minerFullname: string,
-    totalIntroducers: number
-    // saleID: string,
-    // saleLink: string,
-    // bonusGroup: string
+    totalIntroducers: number,
+    saleID: string,
+    saleLink: string,
+    bonusGroup: string
   ) {
     if (isEmail(ADMIN_EMAIL) && isEmail(SMTP_SENDER_EMAIL)) {
       const mailOption = {
@@ -135,9 +135,9 @@ export class MailerService {
           minerName: minerFullname,
           minerUsername: minerUsername,
           totalIntroducers,
-          // saleID,
-          // saleLink,
-          // bonusGroup,
+          saleID,
+          saleLink,
+          bonusGroup,
         },
       };
       const sentMailInfo = await this.sendMail(mailOption);

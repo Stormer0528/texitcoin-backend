@@ -126,7 +126,6 @@ model Member {
   signupFormRequest      Json?             @db.Json
   emailVerified          Boolean           @default(true) @db.Boolean
   totalIntroducers       Int               @default(0) @db.Integer
-  freeShareSaleCount     Int               @default(0) @db.Integer
   syncWithSendy          Boolean           @default(true)
   preferredContact       String?
   preferredContactDetail String?
@@ -134,6 +133,7 @@ model Member {
   balanceInCents         Int               @default(0)
   teamReport             TeamReport        @default(NONE)
   promoCode              String?
+  lastRolledSponsor      DateTime          @default(now())
 
   sponsor         Member? @relation("MemberSponsor", fields: [sponsorId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   placementParent Member? @relation("MemberPlacementParent", fields: [placementParentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -543,10 +543,11 @@ model WeeklyReport {
 }
 
 model GroupSetting {
-  id                    String   @id @default(uuid())
-  name                  String
-  limitDate             DateTime @unique
-  sponsorBonusPackageId String?
+  id                        String   @id @default(uuid())
+  name                      String
+  limitDate                 DateTime @unique
+  sponsorBonusPackageId     String?
+  rollSponsorBonusPackageId String?
 
   sponsorBonusPackage Package? @relation(fields: [sponsorBonusPackageId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 

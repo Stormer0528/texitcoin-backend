@@ -137,4 +137,17 @@ export class GroupSettingService {
     }
     return { result: 0, message: '' };
   }
+
+  async getGroup(date: Date) {
+    return await this.prisma.groupSetting.findFirst({
+      where: {
+        limitDate: {
+          gte: date,
+        },
+      },
+      orderBy: {
+        limitDate: 'asc',
+      },
+    });
+  }
 }

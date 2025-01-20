@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "members" ADD COLUMN     "lastRolledSponsor" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;

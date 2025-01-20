@@ -31,6 +31,7 @@ import { SPONSOR_BONOUS_CNT } from '@/consts';
 import { MailerService } from '@/service/mailer';
 import { NotificationService } from '../notification/notification.service';
 import { MemberState, NotificationLevel } from '@/graphql/enum';
+import { GroupSettingService } from '../groupSetting/groupSetting.service';
 
 dayjs.extend(utcPlugin);
 
@@ -38,6 +39,7 @@ dayjs.extend(utcPlugin);
 export class MemberService {
   constructor(
     private readonly notificationService: NotificationService,
+    private readonly groupSettingService: GroupSettingService,
     @Inject(() => PrismaService)
     private readonly prisma: PrismaService,
     @Inject(() => SendyService)
@@ -367,102 +369,140 @@ export class MemberService {
     }
   }
 
+  private async handle12FreeBonus(member: Member) {
+    const group = await this.groupSettingService.getGroup(member.createdAt);
+
+    if (!group) {
+      this.mailerService.notifyMiner3rdIntroducersToAdmin(
+        member.username,
+        member.fullName,
+        member.totalIntroducers,
+        null,
+        null,
+        null
+      );
+      return;
+    }
+
+    let packageId = null;
+    const nowDate = dayjs(new Date(), { utc: true });
+    const lastRolledSponsor = dayjs(member.lastRolledSponsor, { utc: true });
+    const isWithinSponsorRollDuration =
+      nowDate.diff(lastRolledSponsor, 'day') <= SPONSOR_ROLL_DURATION;
+
+    if (isWithinSponsorRollDuration) {
+      packageId = group.rollSponsorBonusPackageId || group.sponsorBonusPackageId;
+
+      if (group.rollSponsorBonusPackageId) {
+        await this.prisma.member.update({
+          where: {
+            id: member.id,
+          },
+          data: {
+            lastRolledSponsor: dayjs(new Date(), { utc: true }).toDate(),
+          },
+        });
+      }
+    } else {
+      packageId = group.sponsorBonusPackageId;
+    }
+
+    if (packageId) {
+      const { ID: maxID } = await this.prisma.sale.findFirst({ orderBy: { ID: 'desc' } });
+      const sale = await this.prisma.sale.create({
+        data: {
+          paymentMethod: 'BONUS',
+          memberId: member.id,
+          packageId,
+          freeShareSponsor: member.totalIntroducers,
+          ID: maxID + 1,
+        },
+      });
+      const saleID = convertNumToString({ value: sale.ID, length: 7, prefix: 'S' });
+
+      this.mailerService.notifyMiner3rdIntroducersToAdmin(
+        member.username,
+        member.fullName,
+        member.totalIntroducers,
+        saleID,
+        `${process.env.ADMIN_URL}/sales/${saleID}`,
+        group.name
+      );
+    } else {
+      this.mailerService.notifyMiner3rdIntroducersToAdmin(
+        member.username,
+        member.fullName,
+        member.totalIntroducers,
+        null,
+        null,
+        group.name
+      );
+    }
+  }
   async checkSponsorBonous(id: string, isNew: boolean = true): Promise<void> {
     if (!id) return;
-    const { totalIntroducers, username, fullName, sponsorId, createdAt } =
-      await this.prisma.member.findUnique({
-        where: { id },
-      });
-    if (totalIntroducers && totalIntroducers % SPONSOR_BONOUS_CNT === 0) {
-      if (isNew) {
-        // const group =
-        //   dayjs(createdAt).isBefore(FREE_SHARE_DIVIDER1, 'day') ||
-        //   dayjs(createdAt).isSame(FREE_SHARE_DIVIDER1, 'day')
-        //     ? BonusGroup.FOUNDER
-        //     : BonusGroup.EARLYADOPTER;
 
-        // const sale = await this.prisma.sale.create({
-        //   data: {
-        //     paymentMethod: 'BONUS',
-        //     freeShareSale: true,
-        //     memberId: id,
-        //     packageId: group === BonusGroup.EARLYADOPTER ? FREE_SHARE_ID_2 : FREE_SHARE_ID_1,
-        //   },
-        // });
-        // const saleID = convertNumToString({
-        //   value: sale.ID,
-        //   length: 7,
-        //   prefix: 'S',
-        // });
+    const member = await this.prisma.member.findUnique({ where: { id } });
+    if (!member) return;
 
-        this.mailerService.notifyMiner3rdIntroducersToAdmin(
-          username,
-          fullName,
-          totalIntroducers
-          // saleID,
-          // `${process.env.ADMIN_URL}/sales/${saleID}`,
-          // group
-        );
-      }
+    const is12FreeBonus =
+      member.totalIntroducers && member.totalIntroducers % SPONSOR_BONOUS_CNT === 0;
+    const isFirstSponsor = member.totalIntroducers % SPONSOR_BONOUS_CNT === 1;
+    const is1PointAway = member.totalIntroducers % SPONSOR_BONOUS_CNT === SPONSOR_BONOUS_CNT - 1;
 
-      // mail service
-      this.mailerService.notifyMiner3rdIntroducersToAdmin(
-        username,
-        fullName,
-        totalIntroducers
-        // saleID,
-        // `${process.env.ADMIN_URL}/sales/${saleID}`,
-        // group
-      );
-    } else if (totalIntroducers % SPONSOR_BONOUS_CNT === 1 && isNew) {
+    if (is12FreeBonus && isNew) {
+      await this.handle12FreeBonus(member);
+    } else if (isFirstSponsor && isNew) {
       // notification system
       await this.notificationService.addNotification(
-        `${fullName}(${username}) achieved first sponsor`,
+        `${member.fullName}(${member.username}) achieved first sponsor`,
         NotificationLevel.TEAMLEADER,
-        sponsorId ? [sponsorId] : []
+        member.sponsorId ? [member.sponsorId] : []
       );
-    } else if (totalIntroducers % SPONSOR_BONOUS_CNT === SPONSOR_BONOUS_CNT - 1 && !isNew) {
-      // const freeSales = await this.prisma.sale.findMany({
-      //   where: {
-      //     memberId: id,
-      //     freeShareSale: true,
-      //   },
-      //   orderBy: {
-      //     createdAt: 'desc',
-      //   },
-      //   include: {
-      //     statisticsSales: {
-      //       select: {
-      //         id: true,
-      //       },
-      //     },
-      //   },
-      //   take: 1,
-      // });
-      // if (freeSales.length) {
-      //   if (freeSales[0].statisticsSales.length) {
-      //     await this.prisma.sale.update({
-      //       where: {
-      //         id: freeSales[0].id,
-      //       },
-      //       data: {
-      //         packageId: NO_PRODUCT,
-      //         status: false,
-      //       },
-      //     });
-      //   } else {
-      //     await this.prisma.sale.delete({
-      //       where: {
-      //         id: freeSales[0].id,
-      //       },
-      //     });
-      //   }
-      // }
-    } else if (totalIntroducers % SPONSOR_BONOUS_CNT === SPONSOR_BONOUS_CNT - 1 && isNew) {
+    } else if (is1PointAway && !isNew) {
+      const freeSales = await this.prisma.sale.findFirst({
+        where: {
+          memberId: id,
+          freeShareSponsor: {
+            gt: 0,
+          },
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+        include: {
+          statisticsSales: {
+            select: {
+              id: true,
+            },
+          },
+        },
+      });
+      if (freeSales) {
+        if (freeSales.statisticsSales.length) {
+          await this.prisma.sale.update({
+            where: {
+              id: freeSales[0].id,
+            },
+            data: {
+              packageId: NO_PRODUCT,
+              status: false,
+            },
+          });
+        } else {
+          await this.prisma.sale.delete({
+            where: {
+              id: freeSales.id,
+            },
+          });
+        }
+        await this.updateMemberPointByMemberId(member.id);
+      }
+    } else if (is1PointAway && isNew) {
       await this.notificationService.addNotification(
-        `${fullName}(${username}) is 1 point away from a 1-2-free bonus`,
+        `${member.fullName}(${member.username}) is 1 point away from a 1-2-free bonus`,
         NotificationLevel.TEAMLEADER,
-        sponsorId ? [sponsorId] : []
+        member.sponsorId ? [member.sponsorId] : []
       );
     }
   }

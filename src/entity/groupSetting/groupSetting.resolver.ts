@@ -108,4 +108,17 @@ export class GroupSettingResolver {
           .load(groupSetting.sponsorBonusPackageId)
       : null;
   }
+
+  @Authorized([UserRole.ADMIN])
+  @FieldResolver(() => Package, { nullable: true })
+  async rollSponsorBonusPackage(
+    @Root() groupSetting: GroupSetting,
+    @Ctx() ctx: Context
+  ): Promise<Package> {
+    return groupSetting.rollSponsorBonusPackageId
+      ? ctx.dataLoader
+          .get('sponsorBonusPackageForGroupSettingLoader')
+          .load(groupSetting.rollSponsorBonusPackageId)
+      : null;
+  }
 }

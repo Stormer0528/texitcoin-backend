@@ -110,6 +110,8 @@ export class Member extends BaseEntity {
   @Field(() => TeamReport)
   teamReport: TEAM_REPORT;
 
+  lastRolledSponsor: Date;
+
   @Field(() => CommissionStatus, { nullable: true })
   commission?: CommissionStatus;
 

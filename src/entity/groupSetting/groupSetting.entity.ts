@@ -17,11 +17,17 @@ export class GroupSetting extends BaseEntity {
   @Field({ nullable: true })
   sponsorBonusPackageId: string;
 
+  @Field({ nullable: true })
+  rollSponsorBonusPackageId?: string;
+
   @Field(() => [GroupSettingCommissionBonus])
   groupSettingCommissionBonuses?: GroupSettingCommissionBonus[];
 
   @Field(() => Package, { nullable: true })
   sponsorBonusPackage?: Package;
+
+  @Field(() => Package, { nullable: true })
+  rollSponsorBonusPackage?: Package;
 }
 
 @ObjectType()
