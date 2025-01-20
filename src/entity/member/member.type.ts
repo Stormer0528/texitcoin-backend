@@ -113,6 +113,9 @@ export class CreateMemberInput {
   @Field({ nullable: true })
   preferredContactDetail?: string;
 
+  @Field({ nullable: true })
+  promoCode?: string;
+
   @Field(() => TeamStrategy, { nullable: true })
   teamStrategy?: TEAM_STRATEGY;
 
@@ -180,6 +183,9 @@ export class SignupFormInput {
 
   @Field({ nullable: true })
   preferredContactDetail?: string;
+
+  @Field({ nullable: true })
+  promoCode?: string;
 }
 
 @InputType()
@@ -248,6 +254,9 @@ export class UpdateMemberInput {
 
   @Field({ nullable: true })
   preferredContactDetail?: string;
+
+  @Field({ nullable: true })
+  promoCode?: string;
 
   @Field(() => TeamStrategy, { nullable: true })
   teamStrategy?: TEAM_STRATEGY;

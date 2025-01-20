@@ -91,6 +91,9 @@ export class Member extends BaseEntity {
   @Field({ nullable: true })
   preferredContactDetail?: string;
 
+  @Field({ nullable: true })
+  promoCode?: string;
+
   @Field(() => TeamStrategy)
   teamStrategy: TEAM_STRATEGY;
 
