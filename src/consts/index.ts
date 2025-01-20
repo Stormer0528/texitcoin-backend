@@ -135,4 +135,8 @@ export const WEEK_START = '2024-03-31';
 export const P2P_PAYMENT_METHOD = 'PEER';
 export const P2P_TRANSACTION_FEE = 0.05; // 5%
 
+export const BOGO_COMMISSION_PRODUCT_1 = 'e298ddb2-7984-4b48-971d-b42b746b1b25';
+export const BOGO_COMMISSION_PRODUCT_2 = '053fddd3-d390-4943-8e25-523623b72150';
+export const BOGO_COMMISSION_PRODUCT_3 = 'fa29870f-a2c5-432f-bc89-0d69aa0623ae';
+
 export const INFINITE = Number(1e20);

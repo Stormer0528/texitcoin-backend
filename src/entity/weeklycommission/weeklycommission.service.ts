@@ -85,7 +85,10 @@ export class WeeklyCommissionService {
   }
 
   async updateWeeklyCommission(
-    data: Omit<WeeklyCommissionUpdateInput, 'fileIds' | 'reflinks' | 'note'> & { ID?: number }
+    data: Omit<WeeklyCommissionUpdateInput, 'fileIds' | 'reflinks' | 'note' | 'splitWays'> & {
+      ID?: number;
+      splitWay?: string;
+    }
   ): Promise<WeeklyCommission> {
     return this.prisma.weeklyCommission.update({
       where: {

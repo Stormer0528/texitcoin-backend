@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { Service } from 'typedi';
+import Container, { Service } from 'typedi';
 import {
   Arg,
   Args,
@@ -36,7 +36,12 @@ import { PFile } from '../file/file.entity';
 import { Transaction } from '@/graphql/decorator';
 import { FileRelationService } from '../fileRelation/fileRelation.service';
 import { SuccessResponse } from '@/graphql/common.type';
-import { COMMISSION_PREVIEW_COMMAND } from '@/consts';
+import {
+  BOGO_COMMISSION_PRODUCT_1,
+  BOGO_COMMISSION_PRODUCT_2,
+  BOGO_COMMISSION_PRODUCT_3,
+  COMMISSION_PREVIEW_COMMAND,
+} from '@/consts';
 import { ReferenceLinkService } from '../referenceLink/referenceLink.service';
 import { RefLink } from '../referenceLink/referenceLink.entity';
 import { ProofService } from '../proof/proof.service';
@@ -46,6 +51,7 @@ import { MemberService } from '../member/member.service';
 import Bluebird from 'bluebird';
 import { BalanceService } from '../balance/balance.service';
 import dayjs from 'dayjs';
+import { SaleResolver } from '../sale/sale.resolver';
 
 @Service()
 @Resolver(() => WeeklyCommission)
@@ -103,7 +109,7 @@ export class WeeklyCommissionResolver {
   @Transaction()
   @Mutation(() => WeeklyCommission)
   async updateCommission(@Arg('data') data: WeeklyCommissionUpdateInput) {
-    const { fileIds, note, reflinks, ...restData } = data;
+    const { fileIds, note, reflinks, splitWays, ...restData } = data;
     const prevCommission = await this.service.getWeeklyCommissionById({ id: data.id });
     if (
       data.status &&
@@ -135,19 +141,50 @@ export class WeeklyCommissionResolver {
       prevCommission.status !== ConfirmationStatus.PAID &&
       updatedCommission.status === ConfirmationStatus.PAID
     ) {
-      await this.balanceService.addBalance({
-        amountInCents: updatedCommission.commission * 100,
-        date: dayjs(new Date(), { utc: true }).toDate(),
-        memberId: updatedCommission.memberId,
-        note: `Commission for ${dayjs(updatedCommission.weekStartDate, { utc: true }).format('MM/DD')} - ${dayjs(updatedCommission.weekStartDate, { utc: true }).add(1, 'week').format('MM/DD')}`,
-        type: 'Commission',
-        extra1: 'Commission',
-        extra2: convertNumToString({
-          value: updatedCommission.ID,
-          length: 7,
-          prefix: 'C',
-        }),
-      });
+      if (splitWays) {
+        const splitWay = splitWays.map((way) => `${way.money}|${way.way}|${way.note}`).join('||');
+        await this.service.updateWeeklyCommission({
+          id: data.id,
+          splitWay,
+        });
+        const bogos = splitWays.filter((way) => way.way === 'BOGO');
+        if (data.autoCreate) {
+          const saleResolver = Container.get(SaleResolver);
+          const bogo_products = [
+            '',
+            BOGO_COMMISSION_PRODUCT_1,
+            BOGO_COMMISSION_PRODUCT_2,
+            BOGO_COMMISSION_PRODUCT_3,
+          ];
+          await Bluebird.map(bogos, async (bogo) => {
+            await saleResolver.createSale({
+              memberId: updatedCommission.memberId,
+              orderedAt: dayjs(new Date(), { utc: true }).toDate(),
+              status: true,
+              paymentMethod: 'Commission',
+              packageId: bogo_products[Math.floor(bogo.money / 1000) + 1],
+            });
+          });
+        } else {
+          await this.balanceService.addBulkBalanceEntries(
+            bogos.map((bogo) => ({
+              amountInCents: bogo.money,
+              date: dayjs(new Date(), { utc: true }).toDate(),
+              memberId: updatedCommission.memberId,
+              type: 'Commission',
+              note: `Commission for ${dayjs(updatedCommission.weekStartDate, { utc: true }).format('MM/DD')} - ${dayjs(updatedCommission.weekStartDate, { utc: true }).add(1, 'week').format('MM/DD')}`,
+            }))
+          );
+        }
+      } else {
+        await this.balanceService.addBalance({
+          amountInCents: updatedCommission.commission * 100,
+          date: dayjs(new Date(), { utc: true }).toDate(),
+          memberId: updatedCommission.memberId,
+          note: `Commission for ${dayjs(updatedCommission.weekStartDate, { utc: true }).format('MM/DD')} - ${dayjs(updatedCommission.weekStartDate, { utc: true }).add(1, 'week').format('MM/DD')}`,
+          type: 'Commission',
+        });
+      }
     }
 
     return updatedCommission;

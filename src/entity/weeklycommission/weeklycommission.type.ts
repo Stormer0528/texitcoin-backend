@@ -33,6 +33,9 @@ export class WeeklyCommissionSplitWay {
 
   @Field()
   way: string;
+
+  @Field({ nullable: true })
+  note?: string;
 }
 
 @InputType()
@@ -57,6 +60,9 @@ export class WeeklyCommissionUpdateInput {
 
   @Field(() => [WeeklyCommissionSplitWay], { nullable: true })
   splitWays?: WeeklyCommissionSplitWay[];
+
+  @Field({ nullable: true })
+  autoCreate?: boolean;
 }
 
 @InputType()
