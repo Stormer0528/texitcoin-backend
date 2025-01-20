@@ -1,5 +1,5 @@
 import { Inject, Service } from 'typedi';
-import { Arg, Resolver, Query, Args, Info, Authorized } from 'type-graphql';
+import { Arg, Resolver, Query, Args, Info, Authorized, Mutation } from 'type-graphql';
 import dayjs from 'dayjs';
 import weekOfYear from 'dayjs/plugin/weekOfYear';
 
@@ -53,6 +53,7 @@ import {
   CommissionOverviewQueryArgs,
   LiveStatsArgs,
   ProfitabilityCalculationInput,
+  ContactToAdmin,
 } from './general.type';
 import { BlockService } from '@/entity/block/block.service';
 import { StatisticsService } from '@/entity/statistics/statistics.service';
@@ -66,6 +67,9 @@ import Bluebird from 'bluebird';
 
 import shelljs from 'shelljs';
 import { proofTypeData } from 'prisma/seed/proof';
+import { SuccessResponse } from '@/graphql/common.type';
+import { SuccessResult } from '@/graphql/enum';
+import { MailerService } from '@/service/mailer';
 
 @Service()
 @Resolver()
@@ -74,6 +78,7 @@ export class GeneralResolver {
     private readonly blockService: BlockService,
     private readonly statisticsService: StatisticsService,
     private readonly memberService: MemberService,
+    private readonly mailerService: MailerService,
     @Inject(() => PrismaService)
     private readonly prisma: PrismaService
   ) {}
@@ -793,5 +798,19 @@ export class GeneralResolver {
       endDate: dayjs(PROFITABILITY_CALCULATION_DAY, { utc: true }).toDate(),
       txcPrice: EXPECTED_TXC_COST,
     };
+  }
+
+  @Mutation(() => SuccessResponse)
+  async contactToAdmin(@Arg('data') data: ContactToAdmin): Promise<SuccessResponse> {
+    try {
+      await this.mailerService.contactToAdmin(data.name, data.email, data.message);
+      return {
+        result: SuccessResult.success,
+      };
+    } catch (_err) {
+      return {
+        result: SuccessResult.failed,
+      };
+    }
   }
 }

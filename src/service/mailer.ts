@@ -192,4 +192,24 @@ export class MailerService {
       );
     }
   }
+
+  public async contactToAdmin(fullName: string, email: string, message: string | null) {
+    if (isEmail(ADMIN_EMAIL) && isEmail(SMTP_SENDER_EMAIL)) {
+      const mailOption = {
+        from: `"${SMTP_SENDER_NAME}" <${SMTP_SENDER_EMAIL}>`,
+        to: ADMIN_EMAIL,
+        subject: 'New Contact Request',
+        template: 'contacted',
+        context: {
+          fullName,
+          email,
+          message,
+        },
+      };
+      const sentMailInfo = await this.sendMail(mailOption);
+      console.log(
+        `Email was sent to ${ADMIN_EMAIL}, Type => New Contact Request, Message ID => ${sentMailInfo.messageId}`
+      );
+    }
+  }
 }

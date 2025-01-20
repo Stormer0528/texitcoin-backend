@@ -1,6 +1,7 @@
 import { QueryOrderPagination } from '@/graphql/queryArgs';
 import { InputType, Field, ArgsType, Int } from 'type-graphql';
 import dayjs from 'dayjs';
+import { IsEmail } from 'class-validator';
 
 @InputType()
 export class LiveStatsArgs {
@@ -32,4 +33,17 @@ export class ProfitabilityCalculationInput {
 
   @Field(() => Int)
   init: number;
+}
+
+@InputType()
+export class ContactToAdmin {
+  @Field()
+  @IsEmail()
+  email: string;
+
+  @Field()
+  name: string;
+
+  @Field()
+  message: string;
 }
