@@ -233,9 +233,11 @@ async function weeklyCommission(tranPrisma: PrismaClient) {
                 refId: convertNumToString({ value: data.ID, length: 7, prefix: 'C' }),
                 type: 'COMMISSION',
                 note: prevCommission.shortNote,
+                amount: data.commission,
               },
               update: {
                 note: prevCommission.shortNote,
+                amount: data.commission,
               },
             });
           }
