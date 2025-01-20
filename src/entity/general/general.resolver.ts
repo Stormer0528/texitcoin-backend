@@ -47,6 +47,8 @@ import {
   LatestStatistics,
   TXCSharedResponse,
   ProfitabilityCalculationResponse,
+  MemberInOutRevenueResponse,
+  MemberInOutRevenue,
 } from './general.entity';
 import {
   PeriodStatsArgs,
@@ -54,6 +56,7 @@ import {
   LiveStatsArgs,
   ProfitabilityCalculationInput,
   ContactToAdmin,
+  MemberInOutRevenueQueryArgs,
 } from './general.type';
 import { BlockService } from '@/entity/block/block.service';
 import { StatisticsService } from '@/entity/statistics/statistics.service';
@@ -70,6 +73,7 @@ import { proofTypeData } from 'prisma/seed/proof';
 import { SuccessResponse } from '@/graphql/common.type';
 import { SuccessResult } from '@/graphql/enum';
 import { MailerService } from '@/service/mailer';
+import { GeneralService } from './general.service';
 
 @Service()
 @Resolver()
@@ -79,6 +83,7 @@ export class GeneralResolver {
     private readonly statisticsService: StatisticsService,
     private readonly memberService: MemberService,
     private readonly mailerService: MailerService,
+    private readonly service: GeneralService,
     @Inject(() => PrismaService)
     private readonly prisma: PrismaService
   ) {}
@@ -812,5 +817,34 @@ export class GeneralResolver {
         result: SuccessResult.failed,
       };
     }
+  }
+
+  @Authorized([UserRole.ADMIN])
+  @Query(() => MemberInOutRevenueResponse)
+  async memberInOutRevenues(
+    @Args() query: MemberInOutRevenueQueryArgs,
+    @Info() info: GraphQLResolveInfo
+  ): Promise<MemberInOutRevenueResponse> {
+    const fields = graphqlFields(info);
+
+    let promises: { total?: Promise<number>; inOuts?: Promise<MemberInOutRevenue[]> } = {};
+
+    if ('total' in fields) {
+      promises.total = this.service.getMemberInOutRevenusCount(query);
+    }
+
+    if ('inOuts' in fields) {
+      promises.inOuts = this.service.getMemberInOutRevenus(query);
+    }
+
+    const result = await Promise.all(Object.entries(promises));
+
+    let response: { total?: number; inOuts?: MemberInOutRevenue[] } = {};
+
+    for (let [key, value] of result) {
+      response[key] = value;
+    }
+
+    return response;
   }
 }

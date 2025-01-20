@@ -1,5 +1,6 @@
 import { ObjectType, Field, Int, ID } from 'type-graphql';
 import { PaginatedResponse } from '@/graphql/paginatedResponse';
+import { GraphQLInt } from 'graphql';
 
 @ObjectType()
 export class DailyStats {
@@ -206,4 +207,30 @@ export class ProfitabilityCalculationResponse {
 
   @Field()
   txcPrice: number;
+}
+
+@ObjectType()
+export class MemberInOutRevenue {
+  @Field()
+  id: string;
+
+  @Field()
+  username: string;
+
+  @Field()
+  fullName: string;
+
+  @Field(() => GraphQLInt)
+  amount: number;
+
+  @Field(() => GraphQLInt)
+  commission: number;
+
+  @Field()
+  percent: number;
+}
+@ObjectType()
+export class MemberInOutRevenueResponse extends PaginatedResponse {
+  @Field(() => [MemberInOutRevenue], { nullable: true })
+  inOuts?: MemberInOutRevenue[];
 }

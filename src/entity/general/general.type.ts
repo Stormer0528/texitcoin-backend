@@ -1,7 +1,8 @@
-import { QueryOrderPagination } from '@/graphql/queryArgs';
+import { QueryArgsBase, QueryOrderPagination } from '@/graphql/queryArgs';
 import { InputType, Field, ArgsType, Int } from 'type-graphql';
 import dayjs from 'dayjs';
 import { IsEmail } from 'class-validator';
+import { Prisma } from '@prisma/client';
 
 @InputType()
 export class LiveStatsArgs {
@@ -47,3 +48,14 @@ export class ContactToAdmin {
   @Field()
   message: string;
 }
+export type MemberInOutRevenueWhereInput = {
+  AND?: MemberInOutRevenueWhereInput | MemberInOutRevenueWhereInput[];
+  OR?: MemberInOutRevenueWhereInput[];
+  NOT?: MemberInOutRevenueWhereInput | MemberInOutRevenueWhereInput[];
+  id?: Prisma.StringFilter | string;
+  amount?: Prisma.IntFilter | number | null;
+  commission?: Prisma.IntFilter | number | null;
+  percent?: Prisma.FloatFilter | number | null;
+};
+@ArgsType()
+export class MemberInOutRevenueQueryArgs extends QueryArgsBase<Prisma.MemberWhereInput> {}
