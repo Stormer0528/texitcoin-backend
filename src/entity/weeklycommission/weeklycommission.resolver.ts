@@ -248,33 +248,28 @@ export class WeeklyCommissionResolver {
       });
     }
 
-    const targetTeamDirection = teamReport === 'REFERRAL' ? member.teamReport : teamReport;
-    const placementChildren = await this.memberService.getPlacementChildren(member.id);
-
-    const getTeamMembers = async (position: string) => {
-      return Bluebird.map(
-        placementChildren.filter((mb) => mb.placementPosition === position),
-        async ({ id }) => {
-          return await this.memberService.getAllPlacementAncestorsById(id);
-        },
-        { concurrency: 5 }
-      ).then((result) => result.flat());
-    };
-
     let teamReportMembers = [];
-    if (targetTeamDirection === 'LEFT' || targetTeamDirection === 'ALL') {
-      teamReportMembers.push(...(await getTeamMembers('LEFT')));
-    }
-
-    if (targetTeamDirection === 'RIGHT' || targetTeamDirection === 'ALL') {
-      teamReportMembers.push(...(await getTeamMembers('RIGHT')));
-    }
 
     if (teamReport === 'REFERRAL') {
-      const introducers = await this.memberService.getIntroducers(context.user.id);
-      teamReportMembers = teamReportMembers.filter((mb) =>
-        introducers.some(({ id }) => id === mb.id)
-      );
+      teamReportMembers = await this.memberService.getIntroducers(member.id);
+    } else {
+      const placementChildren = await this.memberService.getPlacementChildren(member.id);
+
+      const getTeamMembers = async (position: string) => {
+        return Bluebird.map(
+          placementChildren.filter((mb) => mb.placementPosition === position),
+          async ({ id }) => {
+            return await this.memberService.getAllPlacementAncestorsById(id);
+          },
+          { concurrency: 5 }
+        ).then((result) => result.flat());
+      };
+
+      if (teamReport === 'LEFT') {
+        teamReportMembers.push(...(await getTeamMembers('LEFT')));
+      } else if (teamReport === 'RIGHT') {
+        teamReportMembers.push(...(await getTeamMembers('RIGHT')));
+      }
     }
 
     query.filter = {
