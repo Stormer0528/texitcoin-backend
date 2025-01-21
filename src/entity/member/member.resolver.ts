@@ -322,7 +322,11 @@ export class MemberResolver {
   async updateMember(@Ctx() ctx: Context, @Arg('data') data: UpdateMemberInput): Promise<Member> {
     this.memberWalletService.validateMemberWallets(data.wallets, true);
 
-    if (data.id === PLACEMENT_ROOT && data.placementParentId !== PLACEMENT_ROOT) {
+    if (
+      data.id === PLACEMENT_ROOT &&
+      'placementParentId' in data &&
+      data.placementParentId !== PLACEMENT_ROOT
+    ) {
       throw new Error('You can not change parent of root node');
     }
 
