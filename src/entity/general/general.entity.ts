@@ -226,7 +226,7 @@ export class MemberInOutRevenue {
   @Field(() => GraphQLInt)
   commission: number;
 
-  @Field()
+  @Field({ nullable: true })
   percent: number;
 }
 @ObjectType()
