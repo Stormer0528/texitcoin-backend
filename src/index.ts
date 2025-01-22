@@ -145,7 +145,7 @@ const app = async () => {
   mainServer.use(
     process.env.SERVER_TYPE === 'production'
       ? cors<cors.CorsRequest>({
-          origin: [process.env.ADMIN_URL, process.env.MEMBER_URL],
+          origin: [process.env.ADMIN_URL, process.env.MEMBER_URL, process.env.OLD_MEMBER_URL],
         })
       : cors()
   );
