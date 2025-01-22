@@ -50,6 +50,14 @@ router.get(
 );
 
 router.get(
+  '/export-member-in-out-revenues',
+  adminAuthorized,
+  async (req: Request, res: Response, next: NextFunction) => {
+    exportController.exportMemberInOutRevenue(req, res, next);
+  }
+);
+
+router.get(
   '/export-rewards/bymember',
   authorized,
   async (req: Request, res: Response, next: NextFunction) => {

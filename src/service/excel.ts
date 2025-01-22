@@ -4,11 +4,12 @@ import _ from 'lodash';
 
 import { PERCENT, TXC } from '@/consts/db';
 import { PrismaService } from './prisma';
-import { PLACEMENT_ROOT, SPONSOR_BONOUS_CNT } from '@/consts';
+import { INFINITE, PLACEMENT_ROOT, SPONSOR_BONOUS_CNT } from '@/consts';
 import { convertNumToString } from '@/utils/convertNumToString';
 import Bluebird from 'bluebird';
 import dayjs from 'dayjs';
 import { formatDate, formatDate2 } from '@/utils/common';
+import { fCurrency } from '@/utils/fCurrency';
 
 const styles = {
   headerNormal: {
@@ -35,6 +36,9 @@ const styles = {
     dateFormat: {
       numFmt: 'mm/dd/yyyy',
     },
+  },
+  highlighted: {
+    font: { color: { rgb: 'FF0000' }, bold: true },
   },
 };
 interface ExportDataInterface {
@@ -850,5 +854,139 @@ export class ExcelService {
     );
 
     return this.exportMultiSheetExport(excelData);
+  }
+
+  public async exportMemberInOutRevenue() {
+    const memberInOutRevenues = await this.prisma.$queryRaw<
+      {
+        ID: number;
+        username: string;
+        fullName: string;
+        sponsored: number;
+        commission: number;
+        percent: number | null;
+      }[]
+    >`
+      WITH
+        "salesByMember" AS (
+          SELECT
+            "memberId",
+            SUM(PACKAGES.AMOUNT) AS AMOUNT
+          FROM
+            SALES
+            LEFT JOIN PACKAGES ON SALES."packageId" = PACKAGES.ID
+          WHERE
+            "amount" > 0
+          GROUP BY
+            "memberId"
+        ),
+        "commissionsByMember" AS (
+          SELECT
+            "memberId",
+            SUM(COMMISSION) AS COMMISSION
+          FROM
+            WEEKLYCOMMISSIONS
+          WHERE
+            "commission" > 0
+            AND "status"::TEXT != 'NONE'
+            AND "status"::TEXT != 'PREVIEW'
+          GROUP BY
+            "memberId"
+        ),
+        "sponsorSalesByMember" AS (
+          SELECT
+            M1.ID,
+            SUM("salesByMember"."amount") AS AMOUNT
+          FROM
+            MEMBERS AS M1
+            LEFT JOIN MEMBERS AS M2 ON M1.ID = M2."sponsorId"
+            LEFT JOIN "salesByMember" ON "salesByMember"."memberId" = M2.ID
+          GROUP BY
+            M1.ID
+        ),
+        PRERESULT AS (
+          SELECT
+            MEMBERS."ID",
+            MEMBERS.username,
+            MEMBERS."fullName",
+            MEMBERS."status",
+            COALESCE("sponsorSalesByMember"."amount", 0)::Int AS sponsored,
+            COALESCE("commissionsByMember".COMMISSION, 0)::Int AS commission
+          FROM
+            MEMBERS
+            LEFT JOIN "sponsorSalesByMember" ON MEMBERS.ID = "sponsorSalesByMember"."id"
+            LEFT JOIN "commissionsByMember" ON MEMBERS.ID = "commissionsByMember"."memberId"  
+          WHERE
+            MEMBERS.status = true
+      ),
+      FINALRESULT AS (
+        SELECT
+          *,
+          ROUND(
+            CASE
+              WHEN commission > 0 AND sponsored = 0 THEN ${INFINITE}
+              WHEN sponsored = 0 THEN NULL
+              ELSE commission * 1.0 / sponsored * 100
+            END,
+            2
+          ) AS percent
+        FROM
+          PRERESULT
+      )
+      SELECT *
+      FROM FINALRESULT
+      ORDER BY "ID" ASC
+    `;
+    const specificationMemberInOutRevenue = {
+      no: {
+        displayName: 'No',
+        headerStyle: styles.headerNormal,
+        width: 30,
+      },
+      ID: {
+        displayName: 'ID',
+        headerStyle: styles.headerNormal,
+        width: 70,
+      },
+      member: {
+        displayName: 'Miner',
+        headerStyle: styles.headerNormal,
+        width: 150,
+      },
+      commission: {
+        displayName: 'Commission ($)',
+        headerStyle: styles.headerNormal,
+        width: 150,
+      },
+      sponsored: {
+        displayName: 'Sponsored ($)',
+        headerStyle: styles.headerNormal,
+        width: 90,
+      },
+      percent: {
+        displayName: '%',
+        headerStyle: styles.headerNormal,
+        width: 100,
+        cellStyle: (value) => (value === '###' || Number(value) > 100 ? styles.highlighted : {}),
+      },
+    };
+
+    const data = memberInOutRevenues.map((revenue, index) => {
+      return {
+        ...revenue,
+        member: `${revenue.fullName} (${revenue.username})`,
+        percent: Number(revenue.percent) === INFINITE ? '###' : revenue.percent,
+        no: index + 1,
+        ID: convertNumToString({
+          value: revenue.ID,
+          length: 7,
+          prefix: 'M',
+        }),
+        commission: fCurrency(revenue.commission),
+        sponsored: fCurrency(revenue.sponsored),
+      };
+    });
+
+    return this.exportData('member-inout-revenue', specificationMemberInOutRevenue, data);
   }
 }

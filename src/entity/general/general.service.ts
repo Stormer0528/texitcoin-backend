@@ -94,12 +94,15 @@ export class GeneralService {
               MEMBERS.ID,
               MEMBERS.USERNAME,
               MEMBERS."fullName",
+              MEMBERS."status",
               COALESCE("sponsorSalesByMember"."amount", 0)::Int AS AMOUNT,
               COALESCE("commissionsByMember".COMMISSION, 0)::Int AS COMMISSION
             FROM
               MEMBERS
               LEFT JOIN "sponsorSalesByMember" ON MEMBERS.ID = "sponsorSalesByMember"."id"
               LEFT JOIN "commissionsByMember" ON MEMBERS.ID = "commissionsByMember"."memberId"  
+            WHERE
+              MEMBERS.status = true
         ),
         FINALRESULT AS (
           SELECT

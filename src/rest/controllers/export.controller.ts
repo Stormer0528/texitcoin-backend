@@ -34,4 +34,8 @@ export class ExportController {
     res.attachment(`commissions-${dayjs().format('MMDDYYYY')}.xlsx`);
     res.send(await this.excelService.exportCommissions());
   }
+  async exportMemberInOutRevenue(_req: Request, res: Response, _next: NextFunction) {
+    res.attachment(`miner-inout-revenue-${dayjs().format('MMDDYYYY')}.xlsx`);
+    res.send(await this.excelService.exportMemberInOutRevenue());
+  }
 }
