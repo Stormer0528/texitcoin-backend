@@ -7,6 +7,7 @@ import { MemberInOutRevenueQueryArgs } from './general.type';
 import { getColumnQuery } from '@/utils/getColumnQuery';
 import { ORDER } from '@/consts/db';
 import { parseFilterManually } from '@/utils/parseFilterManually';
+import { INFINITE } from '@/consts';
 
 export const MEMBER_INOUT_REVENUE_COLUMNS: ColumnInterface[] = [
   {
@@ -105,6 +106,7 @@ export class GeneralService {
             *,
             ROUND(
               CASE
+                WHEN COMMISSION > 0 AND AMOUNT = 0 THEN ${INFINITE}
                 WHEN AMOUNT = 0 THEN NULL
                 ELSE COMMISSION * 1.0 / AMOUNT * 100
               END,
@@ -182,6 +184,7 @@ export class GeneralService {
             *,
             ROUND(
               CASE
+                WHEN COMMISSION > 0 AND AMOUNT = 0 THEN ${INFINITE}
                 WHEN AMOUNT = 0 THEN NULL
                 ELSE COMMISSION * 1.0 / AMOUNT * 100
               END,

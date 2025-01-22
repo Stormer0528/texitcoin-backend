@@ -134,3 +134,5 @@ export const WEEK_START = '2024-03-31';
 
 export const P2P_PAYMENT_METHOD = 'PEER';
 export const P2P_TRANSACTION_FEE = 0.05; // 5%
+
+export const INFINITE = Number(1e20);
