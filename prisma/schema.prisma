@@ -594,6 +594,8 @@ model Balance {
   note          String?
   amountInCents Int      @default(0)
   memberId      String
+  extra1        String? //Normally used to set model name
+  extra2        String? //Normally used to set entity id
 
   member Member @relation(fields: [memberId], references: [id], onUpdate: NoAction, onDelete: NoAction)
 
