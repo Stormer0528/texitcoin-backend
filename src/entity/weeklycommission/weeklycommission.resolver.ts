@@ -202,7 +202,7 @@ export class WeeklyCommissionResolver {
             type: 'COMMISSION',
             reflinks: [
               ...(proof?.referenceLinks || []),
-              ...splitWays.map((sptWay) => ({
+              ...bogos.map((sptWay) => ({
                 linkType: sptWay.way,
                 link: sptWay.note,
               })),
