@@ -25,6 +25,12 @@ export class Balance extends BaseEntity {
   @Field()
   memberId: string;
 
+  @Field({ nullable: true })
+  extra1: string;
+
+  @Field({ nullable: true })
+  extra2: string;
+
   @Field(() => Member, { nullable: true })
   member?: Member;
 }

@@ -154,6 +154,12 @@ export class SaleResolver {
         memberId: sale.toMemberId,
         type: 'Payment',
         note: 'P2P payment',
+        extra1: 'Sale',
+        extra2: convertNumToString({
+          value: sale.ID,
+          length: 7,
+          prefix: 'S',
+        }),
       });
       await this.proofService.createProof({
         amount: feeInCents / 100,
@@ -217,6 +223,12 @@ export class SaleResolver {
         memberId: oldsale.toMemberId,
         type: 'Payment',
         note: 'P2P payment restoration',
+        extra1: 'Sale',
+        extra2: convertNumToString({
+          value: oldsale.ID,
+          length: 7,
+          prefix: 'S',
+        }),
       });
 
       await this.proofService.removeProof({
@@ -235,6 +247,12 @@ export class SaleResolver {
         memberId: newsale.toMemberId,
         type: 'Payment',
         note: 'P2P payment',
+        extra1: 'Sale',
+        extra2: convertNumToString({
+          value: newsale.ID,
+          length: 7,
+          prefix: 'S',
+        }),
       });
       await this.proofService.createProof({
         amount: feeInCents / 100,
@@ -272,6 +290,12 @@ export class SaleResolver {
         memberId: sale.toMemberId,
         type: 'Payment',
         note: 'P2P payment restoration',
+        extra1: 'Sale',
+        extra2: convertNumToString({
+          value: sale.ID,
+          length: 7,
+          prefix: 'S',
+        }),
       });
 
       await this.proofService.removeProof({
