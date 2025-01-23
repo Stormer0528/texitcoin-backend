@@ -109,7 +109,7 @@ export class WeeklyCommissionResolver {
   @Transaction()
   @Mutation(() => WeeklyCommission)
   async updateCommission(@Arg('data') data: WeeklyCommissionUpdateInput) {
-    const { fileIds, note, reflinks, splitWays, ...restData } = data;
+    const { fileIds, note, reflinks, splitWays, autoCreate, ...restData } = data;
     const prevCommission = await this.service.getWeeklyCommissionById({ id: data.id });
     if (
       data.status &&
@@ -153,7 +153,7 @@ export class WeeklyCommissionResolver {
           cash: updatedCommission.commission - bogoMoney,
         });
 
-        if (data.autoCreate) {
+        if (autoCreate) {
           const saleResolver = Container.get(SaleResolver);
           const bogo_products = [
             BOGO_COMMISSION_PRODUCT_1,
