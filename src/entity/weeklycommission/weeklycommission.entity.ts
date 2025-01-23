@@ -56,6 +56,9 @@ export class WeeklyCommission extends BaseEntity {
   commission: number;
 
   @Field({ nullable: true })
+  splitWay?: string;
+
+  @Field({ nullable: true })
   shortNote?: string;
 
   @Field(() => ConfirmationStatus)
