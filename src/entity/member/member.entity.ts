@@ -6,9 +6,15 @@ import { BaseEntity } from '@/graphql/baseEntity';
 import { Sale } from '@/entity/sale/sale.entity';
 import { MemberStatistics } from '../memberStatistics/memberStatistics.entity';
 import { MemberWallet } from '../memberWallet/memberWallet.entity';
-import { MemberLog, PLACEMENT_POSITION, TEAM_REPORT, TEAM_STRATEGY } from './member.type';
+import {
+  MEMBER_STATE,
+  MemberLog,
+  PLACEMENT_POSITION,
+  TEAM_REPORT,
+  TEAM_STRATEGY,
+} from './member.type';
 import { UserRole } from '@/type';
-import { PlacementPosition, TeamReport, TeamStrategy } from '@/graphql/enum';
+import { MemberState, PlacementPosition, TeamReport, TeamStrategy } from '@/graphql/enum';
 import { WeeklyCommission } from '../weeklycommission/weeklycommission.entity';
 import { AdminNotes } from '../adminNotes/adminNotes.entity';
 import { CommissionStatus } from '../weeklycommission/weeklycommission.type';
@@ -96,6 +102,9 @@ export class Member extends BaseEntity {
 
   @Field(() => TeamStrategy)
   teamStrategy: TEAM_STRATEGY;
+
+  @Field(() => MemberState)
+  allowState: MEMBER_STATE;
 
   @Field(() => TeamReport)
   teamReport: TEAM_REPORT;

@@ -78,6 +78,13 @@ enum UserRole {
   MEMBER
 }
 
+enum MemberState {
+  NONE
+  PENDING
+  GRAVEYARD
+  APPROVED
+}
+
 model Admin {
   id       String  @id @default(uuid())
   username String  @unique(map: "index_admins_on_username") @db.Citext
@@ -118,6 +125,7 @@ model Member {
   placementPath          String?           @default("") @db.VarChar
   point                  Int               @default(0)
   status                 Boolean           @default(true) @db.Boolean
+  allowState             MemberState?      @default(NONE)
   signupFormRequest      Json?             @db.Json
   emailVerified          Boolean           @default(true) @db.Boolean
   totalIntroducers       Int               @default(0) @db.Integer

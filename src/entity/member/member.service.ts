@@ -29,7 +29,7 @@ import utcPlugin from 'dayjs/plugin/utc';
 import { SPONSOR_BONOUS_CNT } from '@/consts';
 import { MailerService } from '@/service/mailer';
 import { NotificationService } from '../notification/notification.service';
-import { NotificationLevel } from '@/graphql/enum';
+import { MemberState, NotificationLevel } from '@/graphql/enum';
 
 dayjs.extend(utcPlugin);
 
@@ -484,6 +484,7 @@ export class MemberService {
       data: {
         status: true,
         ...(prevMember.ID ? {} : { ID: (await this.getMaxID()) + 1 }),
+        allowState: MemberState.APPROVED,
       },
     });
 

@@ -68,7 +68,7 @@ import { PERCENT } from '@/consts/db';
 import { ElasticSearchService } from '@/service/elasticsearch';
 import { SendyService } from '@/service/sendy';
 import { AdminNotes } from '../adminNotes/adminNotes.entity';
-import { PlacementPosition, SuccessResult } from '@/graphql/enum';
+import { MemberState, PlacementPosition, SuccessResult } from '@/graphql/enum';
 import { PackageService } from '../package/package.service';
 import { QueryOrderPagination } from '@/graphql/queryArgs';
 import { PrismaService } from '@/service/prisma';
@@ -212,6 +212,7 @@ export class MemberResolver {
       ..._.omit(data, 'wallets'),
       password: hashedPassword,
       sponsorId: data.sponsorId || null,
+      allowState: MemberState.APPROVED,
     });
 
     if (data.wallets) {
@@ -269,6 +270,7 @@ export class MemberResolver {
       emailVerified: false,
       sponsorId,
       ID: null,
+      allowState: MemberState.PENDING,
     });
 
     this.mailerService.notifyMinerSignupToAdmin(newMember.email, newMember.fullName, sponsorName);

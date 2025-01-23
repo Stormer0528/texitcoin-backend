@@ -70,6 +70,13 @@ export enum NotificationLevel {
   TEAMLEADER = 'TEAMLEADER',
 }
 
+export enum MemberState {
+  NONE = 'NONE',
+  PENDING = 'PENDING',
+  GRAVEYARD = 'GRAVEYARD',
+  APPROVED = 'APPROVED',
+}
+
 registerEnumType(PlacementPosition, {
   name: 'PlacementPosition',
 });
@@ -104,4 +111,8 @@ registerEnumType(TeamReport, {
 
 registerEnumType(TeamReportSection, {
   name: 'TeamReportSection',
+});
+
+registerEnumType(MemberState, {
+  name: 'MemberState',
 });
