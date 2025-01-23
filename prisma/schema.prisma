@@ -358,6 +358,9 @@ model WeeklyCommission {
   memberId      String
   status        ConfirmationStatus @default(NONE)
   splitWay      String             @default("")
+  bogo          Int                @default(0)
+  cash          Int                @default(0)
+  other         Int                @default(0)
 
   shortNote String?
 

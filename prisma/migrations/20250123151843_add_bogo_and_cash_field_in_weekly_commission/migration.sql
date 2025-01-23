@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "weeklycommissions" ADD COLUMN     "bogo" INTEGER NOT NULL DEFAULT 0,
+ADD COLUMN     "cash" INTEGER NOT NULL DEFAULT 0;

@@ -143,15 +143,19 @@ export class WeeklyCommissionResolver {
     ) {
       if (splitWays) {
         const splitWay = splitWays.map((way) => `${way.money}|${way.way}|${way.note}`).join('||');
+        const bogos = splitWays.filter((way) => way.way === 'BOGO');
+        const bogoMoney = bogos.reduce((cur, bg) => cur + bg.money, 0);
+
         await this.service.updateWeeklyCommission({
           id: data.id,
           splitWay,
+          bogo: bogoMoney,
+          cash: updatedCommission.commission - bogoMoney,
         });
-        const bogos = splitWays.filter((way) => way.way === 'BOGO');
+
         if (data.autoCreate) {
           const saleResolver = Container.get(SaleResolver);
           const bogo_products = [
-            '',
             BOGO_COMMISSION_PRODUCT_1,
             BOGO_COMMISSION_PRODUCT_2,
             BOGO_COMMISSION_PRODUCT_3,
@@ -162,29 +166,18 @@ export class WeeklyCommissionResolver {
               orderedAt: dayjs(new Date(), { utc: true }).toDate(),
               status: true,
               paymentMethod: 'Commission',
-              packageId: bogo_products[Math.floor(bogo.money / 1000) + 1],
+              packageId: bogo_products[Math.floor(bogo.money / 1000) - 1],
             });
           });
-        } else {
-          await this.balanceService.addBulkBalanceEntries(
-            bogos.map((bogo) => ({
-              amountInCents: bogo.money,
-              date: dayjs(new Date(), { utc: true }).toDate(),
-              memberId: updatedCommission.memberId,
-              type: 'Commission',
-              note: `Commission for ${dayjs(updatedCommission.weekStartDate, { utc: true }).format('MM/DD')} - ${dayjs(updatedCommission.weekStartDate, { utc: true }).add(1, 'week').format('MM/DD')}`,
-            }))
-          );
         }
-      } else {
-        await this.balanceService.addBalance({
-          amountInCents: updatedCommission.commission * 100,
-          date: dayjs(new Date(), { utc: true }).toDate(),
-          memberId: updatedCommission.memberId,
-          note: `Commission for ${dayjs(updatedCommission.weekStartDate, { utc: true }).format('MM/DD')} - ${dayjs(updatedCommission.weekStartDate, { utc: true }).add(1, 'week').format('MM/DD')}`,
-          type: 'Commission',
-        });
       }
+      await this.balanceService.addBalance({
+        amountInCents: updatedCommission.commission * 100,
+        date: dayjs(new Date(), { utc: true }).toDate(),
+        memberId: updatedCommission.memberId,
+        note: `Commission for ${dayjs(updatedCommission.weekStartDate, { utc: true }).format('MM/DD')} - ${dayjs(updatedCommission.weekStartDate, { utc: true }).add(1, 'week').format('MM/DD')}`,
+        type: 'Commission',
+      });
     }
 
     return updatedCommission;

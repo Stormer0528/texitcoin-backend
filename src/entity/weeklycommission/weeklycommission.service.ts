@@ -88,6 +88,8 @@ export class WeeklyCommissionService {
     data: Omit<WeeklyCommissionUpdateInput, 'fileIds' | 'reflinks' | 'note' | 'splitWays'> & {
       ID?: number;
       splitWay?: string;
+      bogo?: number;
+      cash?: number;
     }
   ): Promise<WeeklyCommission> {
     return this.prisma.weeklyCommission.update({
