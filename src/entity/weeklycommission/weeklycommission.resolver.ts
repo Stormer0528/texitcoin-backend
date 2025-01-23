@@ -177,6 +177,12 @@ export class WeeklyCommissionResolver {
         memberId: updatedCommission.memberId,
         note: `Commission for ${dayjs(updatedCommission.weekStartDate, { utc: true }).format('MM/DD')} - ${dayjs(updatedCommission.weekStartDate, { utc: true }).add(1, 'week').format('MM/DD')}`,
         type: 'Commission',
+        extra1: 'Commission',
+        extra2: convertNumToString({
+          value: updatedCommission.ID,
+          length: 7,
+          prefix: 'C',
+        }),
       });
     }
 
