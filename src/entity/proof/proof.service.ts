@@ -6,6 +6,7 @@ import { IDInput } from '@/graphql/common.type';
 import {
   CreateProofInput,
   ProofQueryArgs,
+  PROOFTYPE,
   ReferenceInput,
   UpdateProofByIDInput,
   UpdateProofByReferenceInput,
@@ -43,6 +44,25 @@ export class ProofService {
     return this.prisma.proof.findUnique({
       where: {
         id,
+      },
+    });
+  }
+
+  async getProofByReferenceWithRefLink(refId: string, type: PROOFTYPE) {
+    return this.prisma.proof.findUnique({
+      where: {
+        refId_type: {
+          refId,
+          type,
+        },
+      },
+      select: {
+        referenceLinks: {
+          select: {
+            link: true,
+            linkType: true,
+          },
+        },
       },
     });
   }

@@ -153,6 +153,17 @@ export class WeeklyCommissionResolver {
           cash: updatedCommission.commission - bogoMoney,
         });
 
+        const commissionID = convertNumToString({
+          value: updatedCommission.ID,
+          length: 7,
+          prefix: 'C',
+        });
+
+        const proof = await this.proofService.getProofByReferenceWithRefLink(
+          commissionID,
+          'COMMISSION'
+        );
+
         if (autoCreate) {
           const saleResolver = Container.get(SaleResolver);
           const bogo_products = [
@@ -160,14 +171,42 @@ export class WeeklyCommissionResolver {
             BOGO_COMMISSION_PRODUCT_2,
             BOGO_COMMISSION_PRODUCT_3,
           ];
-          await Bluebird.map(bogos, async (bogo) => {
-            await saleResolver.createSale({
+          const sales = await Bluebird.map(bogos, (bogo) => {
+            return saleResolver.createSale({
               memberId: updatedCommission.memberId,
               orderedAt: dayjs(new Date(), { utc: true }).toDate(),
               status: true,
               paymentMethod: 'Commission',
               packageId: bogo_products[Math.floor(bogo.money / 1000) - 1],
             });
+          });
+
+          await this.proofService.updateProofByReference({
+            refId: commissionID,
+            type: 'COMMISSION',
+            reflinks: [
+              ...(proof?.referenceLinks || []),
+              ...sales.map((sale) => ({
+                linkType: 'BOGO',
+                link: convertNumToString({
+                  value: sale.ID,
+                  length: 7,
+                  prefix: 'S',
+                }),
+              })),
+            ],
+          });
+        } else {
+          await this.proofService.updateProofByReference({
+            refId: commissionID,
+            type: 'COMMISSION',
+            reflinks: [
+              ...(proof?.referenceLinks || []),
+              ...splitWays.map((sptWay) => ({
+                linkType: sptWay.way,
+                link: sptWay.note,
+              })),
+            ],
           });
         }
       }
