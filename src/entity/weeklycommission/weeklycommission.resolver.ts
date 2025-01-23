@@ -143,7 +143,7 @@ export class WeeklyCommissionResolver {
     ) {
       if (splitWays) {
         const splitWay = splitWays.map((way) => `${way.money}|${way.way}|${way.note}`).join('||');
-        const bogos = splitWays.filter((way) => way.way === 'BOGO');
+        const bogos = splitWays.filter((way) => way.way.toLowerCase() === 'bogo');
         const bogoMoney = bogos.reduce((cur, bg) => cur + bg.money, 0);
 
         await this.service.updateWeeklyCommission({
