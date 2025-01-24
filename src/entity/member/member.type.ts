@@ -130,7 +130,6 @@ export class CreateMemberInput {
 export class SignupFormInput {
   @Field()
   @IsNotEmpty()
-  @IsAlphanumeric()
   username: string;
 
   @Field()
