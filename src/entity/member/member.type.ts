@@ -108,9 +108,6 @@ export class CreateMemberInput {
   placementPosition?: PlacementPosition;
 
   @Field({ nullable: true, defaultValue: true })
-  status?: boolean;
-
-  @Field({ nullable: true, defaultValue: true })
   syncWithSendy?: boolean;
 
   @Field({ nullable: true })
@@ -124,9 +121,6 @@ export class CreateMemberInput {
 
   @Field(() => TeamStrategy, { nullable: true })
   teamStrategy?: TEAM_STRATEGY;
-
-  @Field(() => MemberState, { nullable: true })
-  allowState?: MemberState;
 
   @Field(() => TeamReport, { nullable: true })
   teamReport?: TEAM_REPORT;

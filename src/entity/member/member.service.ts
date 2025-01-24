@@ -21,6 +21,7 @@ import {
   MemberQueryArgs,
   EmailVerificationInput,
   TEAM_STRATEGY,
+  MEMBER_STATE,
 } from './member.type';
 import { Member } from './member.entity';
 import { SendyService } from '@/service/sendy';
@@ -129,6 +130,8 @@ export class MemberService {
       signupFormRequest: any;
       sponsorId?: string;
       ID?: number | null;
+      status?: boolean;
+      allowState?: MEMBER_STATE;
     }
   ) {
     const maxID = await this.getMaxID();

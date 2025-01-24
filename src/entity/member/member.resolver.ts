@@ -213,6 +213,7 @@ export class MemberResolver {
       password: hashedPassword,
       sponsorId: data.sponsorId || null,
       allowState: MemberState.APPROVED,
+      status: true,
     });
 
     if (data.wallets) {

@@ -10,6 +10,7 @@ import Bluebird from 'bluebird';
 import dayjs from 'dayjs';
 import { formatDate, formatDate2 } from '@/utils/common';
 import { fCurrency } from '@/utils/fCurrency';
+import { MemberState } from '@prisma/client';
 
 const styles = {
   headerNormal: {
@@ -207,69 +208,69 @@ export class ExcelService {
         width: 100,
       },
     };
+
+    const allowStateRender = (allowState: MemberState) => {
+      switch (allowState) {
+        case 'NONE':
+          return 'None';
+        case 'PENDING':
+          return 'Pending';
+        case 'GRAVEYARD':
+          return 'Graveyard';
+        case 'APPROVED':
+          return 'Approved';
+      }
+      return '';
+    };
+
+    const generateMemberData = (allowStateFilter: MemberState) => {
+      return members
+        .filter((member) => member.allowState === allowStateFilter)
+        .map((member, index) => ({
+          ...member,
+          no: index + 1,
+          ID: member.status
+            ? convertNumToString({ value: member.ID, prefix: 'M', length: 7 })
+            : undefined,
+          sponsor: member.sponsorId ? `${member.sponsor.fullName}(${member.sponsor.username})` : '',
+          placementParent:
+            member.placementParentId && member.id !== PLACEMENT_ROOT
+              ? `${member.placementParent.assetId}`
+              : '',
+          placementPosition:
+            member.placementParentId && member.id !== PLACEMENT_ROOT
+              ? member.placementPosition
+              : '',
+          placementLeft: member.placementChildren
+            .filter((child) => child.placementPosition === 'LEFT' && child.id !== PLACEMENT_ROOT)
+            .map((child) => `${child.assetId}`),
+          placementRight: member.placementChildren
+            .filter((child) => child.placementPosition === 'RIGHT' && child.id !== PLACEMENT_ROOT)
+            .map((child) => `${child.assetId}`),
+          status: allowStateRender(allowStateFilter),
+          joinedAt: member.createdAt,
+        }));
+    };
+
+    const approvedMembers = generateMemberData('APPROVED');
+    const pendingMembers = generateMemberData('PENDING');
+    const graveyardMembers = generateMemberData('GRAVEYARD');
+
     return this.exportMultiSheetExport([
       {
         name: 'Approved',
         specification,
-        data: members
-          .filter((mb) => mb.status)
-          .map((member, idx) => ({
-            ...member,
-            no: idx + 1,
-            ID: convertNumToString({
-              value: member.ID,
-              prefix: 'M',
-              length: 7,
-            }),
-            sponsor: member.sponsorId
-              ? `${member.sponsor.fullName}(${member.sponsor.username})`
-              : '',
-            placementParent:
-              member.placementParentId && member.id !== PLACEMENT_ROOT
-                ? `${member.placementParent.assetId}`
-                : '',
-            placementPosition:
-              member.placementParentId && member.id !== PLACEMENT_ROOT
-                ? member.placementPosition
-                : '',
-            placementLeft: member.placementChildren
-              .filter((mb) => mb.placementPosition === 'LEFT' && mb.id !== PLACEMENT_ROOT)
-              .map((mb) => `${mb.assetId}`),
-            placementRight: member.placementChildren
-              .filter((mb) => mb.placementPosition === 'RIGHT' && mb.id !== PLACEMENT_ROOT)
-              .map((mb) => `${mb.assetId}`),
-            status: member.status ? 'Approved' : 'Pending',
-            joinedAt: member.createdAt,
-          })),
+        data: approvedMembers,
       },
       {
         name: 'Pending',
         specification: _.omit(specification, 'ID'),
-        data: members
-          .filter((mb) => !mb.status)
-          .map((member, idx) => ({
-            ...member,
-            no: idx + 1,
-            sponsor: member.sponsorId
-              ? `${member.sponsor.fullName}(${member.sponsor.username})`
-              : '',
-            placementParent:
-              member.placementParentId && member.id !== PLACEMENT_ROOT
-                ? `${member.placementParent.assetId}`
-                : '',
-            placementPosition:
-              member.placementParentId && member.id !== PLACEMENT_ROOT
-                ? member.placementPosition
-                : '',
-            placementLeft: member.placementChildren
-              .filter((mb) => mb.placementPosition === 'LEFT' && mb.id !== PLACEMENT_ROOT)
-              .map((mb) => `${mb.assetId}`),
-            placementRight: member.placementChildren
-              .filter((mb) => mb.placementPosition === 'RIGHT' && mb.id !== PLACEMENT_ROOT)
-              .map((mb) => `${mb.assetId}`),
-            status: member.status ? 'Approved' : 'Pending',
-            joinedAt: member.createdAt,
-          })),
+        data: pendingMembers,
+      },
+      {
+        name: 'Graveyard',
+        specification: _.omit(specification, 'ID'),
+        data: graveyardMembers,
       },
     ]);
   }
