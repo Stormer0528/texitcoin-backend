@@ -71,7 +71,6 @@ export enum NotificationLevel {
 }
 
 export enum MemberState {
-  NONE = 'NONE',
   PENDING = 'PENDING',
   GRAVEYARD = 'GRAVEYARD',
   APPROVED = 'APPROVED',

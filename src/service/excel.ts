@@ -211,8 +211,6 @@ export class ExcelService {
 
     const allowStateRender = (allowState: MemberState) => {
       switch (allowState) {
-        case 'NONE':
-          return 'None';
         case 'PENDING':
           return 'Pending';
         case 'GRAVEYARD':

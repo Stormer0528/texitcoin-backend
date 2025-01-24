@@ -79,7 +79,6 @@ enum UserRole {
 }
 
 enum MemberState {
-  NONE
   PENDING
   GRAVEYARD
   APPROVED
@@ -125,7 +124,7 @@ model Member {
   placementPath          String?           @default("") @db.VarChar
   point                  Int               @default(0)
   status                 Boolean           @default(true) @db.Boolean
-  allowState             MemberState?      @default(NONE)
+  allowState             MemberState?      @default(PENDING)
   signupFormRequest      Json?             @db.Json
   emailVerified          Boolean           @default(true) @db.Boolean
   totalIntroducers       Int               @default(0) @db.Integer
