@@ -19,7 +19,7 @@ export class PromoResolver {
 
   @Authorized()
   @Query(() => PromoResponse)
-  async balances(
+  async promos(
     @Args() query: PromoQueryArgs,
     @Info() info: GraphQLResolveInfo
   ): Promise<PromoResponse> {
