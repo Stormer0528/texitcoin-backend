@@ -9,7 +9,13 @@ import { ColumnInterface } from '@/type';
 import { getColumnQuery } from '@/utils/getColumnQuery';
 import { parseFilterManually } from '@/utils/parseFilterManually';
 import { ORDER } from '@/consts/db';
-import { COMMISSION_PAYMENT_METHOD, P2P_PAYMENT_METHOD, P2P_TRANSACTION_FEE } from '@/consts';
+import {
+  COMMISSION_PAYMENT_METHOD,
+  P2P_PAYMENT_METHOD,
+  P2P_TRANSACTION_FEE,
+  SPONSOR_BONOUS_CNT,
+} from '@/consts';
+import { GraphQLError } from 'graphql';
 
 const SALE_COLUMNS: ColumnInterface[] = [
   {
@@ -109,12 +115,20 @@ export class SaleService {
   }
 
   async createSale(data: Omit<CreateSaleInput, 'fileIds' | 'reflinks' | 'note'>) {
+    if (data.sponsorCnt && data.sponsorCnt % SPONSOR_BONOUS_CNT !== 0) {
+      throw new GraphQLError(`Number of sponsor must be multiple of ${SPONSOR_BONOUS_CNT}`);
+    }
+
     return this.prisma.sale.create({
       data,
     });
   }
 
   async updateSale(data: Omit<UpdateSaleInput, 'fileIds' | 'reflinks' | 'note'>) {
+    if (data.sponsorCnt && data.sponsorCnt % SPONSOR_BONOUS_CNT !== 0) {
+      throw new GraphQLError(`Number of sponsor must be multiple of ${SPONSOR_BONOUS_CNT}`);
+    }
+
     return this.prisma.sale.update({
       data,
       where: {

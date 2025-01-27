@@ -166,7 +166,7 @@ model Sale {
   paymentMethod String
   orderedAt     DateTime @default(now())
   status        Boolean  @default(true)
-  freeShareSale Boolean  @default(false) @db.Boolean
+  sponsorCnt    Int      @default(0)
   toMemberId    String? // P2P to miner
   isMetal       Boolean  @default(false) @db.Boolean
 

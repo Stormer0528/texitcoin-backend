@@ -415,7 +415,7 @@ export class MemberService {
           paymentMethod: 'BONUS',
           memberId: member.id,
           packageId,
-          freeShareSponsor: member.totalIntroducers,
+          sponsorCnt: member.totalIntroducers,
           ID: maxID + 1,
         },
       });
@@ -464,7 +464,7 @@ export class MemberService {
       const freeSales = await this.prisma.sale.findFirst({
         where: {
           memberId: id,
-          freeShareSponsor: {
+          sponsorCnt: {
             gt: 0,
           },
         },

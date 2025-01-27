@@ -39,6 +39,9 @@ export class CreateSaleInput {
   @Field({ nullable: true })
   isMetal?: boolean;
 
+  @Field({ nullable: true })
+  sponsorCnt?: number;
+
   @Field(() => ID, { nullable: true })
   toMemberId?: string;
 
@@ -78,6 +81,9 @@ export class UpdateSaleInput {
 
   @Field({ nullable: true })
   isMetal?: boolean;
+
+  @Field({ nullable: true })
+  sponsorCnt?: number;
 
   @Field(() => [ID], { nullable: true })
   fileIds?: string[];

@@ -38,7 +38,7 @@ export class Sale extends BaseEntity {
   orderedAt: Date;
 
   @Field()
-  freeShareSale: boolean;
+  sponsorCnt: number;
 
   @Field(() => ID, { nullable: true })
   toMemberId?: string;
