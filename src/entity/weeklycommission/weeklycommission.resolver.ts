@@ -32,9 +32,7 @@ import { WeeklyCommission } from './weeklycommission.entity';
 import { Member } from '../member/member.entity';
 import { UserRole } from '@/type';
 import { ConfirmationStatus, SuccessResult } from '@/graphql/enum';
-import { PFile } from '../file/file.entity';
 import { Transaction } from '@/graphql/decorator';
-import { FileRelationService } from '../fileRelation/fileRelation.service';
 import { SuccessResponse } from '@/graphql/common.type';
 import {
   BOGO_COMMISSION_PRODUCT_1,
@@ -51,7 +49,10 @@ import { MemberService } from '../member/member.service';
 import Bluebird from 'bluebird';
 import { BalanceService } from '../balance/balance.service';
 import dayjs from 'dayjs';
+import utcPlugin from 'dayjs/plugin/utc';
 import { SaleResolver } from '../sale/sale.resolver';
+
+dayjs.extend(utcPlugin);
 
 @Service()
 @Resolver(() => WeeklyCommission)
@@ -174,7 +175,7 @@ export class WeeklyCommissionResolver {
           const sales = await Bluebird.map(bogos, (bogo) => {
             return saleResolver.createSale({
               memberId: updatedCommission.memberId,
-              orderedAt: dayjs(new Date(), { utc: true }).toDate(),
+              orderedAt: dayjs().utc().toDate(),
               status: true,
               paymentMethod: 'Commission',
               packageId: bogo_products[Math.floor(bogo.money / 1000) - 1],
@@ -212,7 +213,7 @@ export class WeeklyCommissionResolver {
       }
       await this.balanceService.addBalance({
         amountInCents: updatedCommission.commission * 100,
-        date: dayjs(new Date(), { utc: true }).toDate(),
+        date: dayjs().utc().toDate(),
         memberId: updatedCommission.memberId,
         note: `Commission for ${dayjs(updatedCommission.weekStartDate, { utc: true }).format('MM/DD')} - ${dayjs(updatedCommission.weekStartDate, { utc: true }).add(1, 'week').format('MM/DD')}`,
         type: 'Commission',
@@ -271,7 +272,7 @@ export class WeeklyCommissionResolver {
         )
         .map((commission) => ({
           amountInCents: commission.commission,
-          date: dayjs(new Date(), { utc: true }).toDate(),
+          date: dayjs().utc().toDate(),
           memberId: commission.memberId,
           note: `Commission for ${dayjs(commission.weekStartDate, { utc: true }).format('MM/DD')} - ${dayjs(commission.weekStartDate, { utc: true }).add(1, 'week').format('MM/DD')}`,
           type: 'Commission',

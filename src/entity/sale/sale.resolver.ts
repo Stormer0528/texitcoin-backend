@@ -150,7 +150,7 @@ export class SaleResolver {
       const feeInCents = amountInCents * P2P_TRANSACTION_FEE;
       await this.balanceService.addBalance({
         amountInCents: -balanceInCents,
-        date: dayjs(new Date(), { utc: true }).toDate(),
+        date: dayjs().utc().toDate(),
         memberId: sale.toMemberId,
         type: 'Payment',
         note: 'P2P payment',
@@ -219,7 +219,7 @@ export class SaleResolver {
       const balanceInCents = amountInCents * (1 - P2P_TRANSACTION_FEE);
       await this.balanceService.addBalance({
         amountInCents: balanceInCents,
-        date: dayjs(new Date(), { utc: true }).toDate(),
+        date: dayjs().utc().toDate(),
         memberId: oldsale.toMemberId,
         type: 'Payment',
         note: 'P2P payment restoration',
@@ -243,7 +243,7 @@ export class SaleResolver {
       const feeInCents = amountInCents * P2P_TRANSACTION_FEE;
       await this.balanceService.addBalance({
         amountInCents: -balanceInCents,
-        date: dayjs(new Date(), { utc: true }).toDate(),
+        date: dayjs().utc().toDate(),
         memberId: newsale.toMemberId,
         type: 'Payment',
         note: 'P2P payment',
@@ -286,7 +286,7 @@ export class SaleResolver {
       const balanceInCents = amountInCents * (1 - P2P_TRANSACTION_FEE);
       await this.balanceService.addBalance({
         amountInCents: balanceInCents,
-        date: dayjs(new Date(), { utc: true }).toDate(),
+        date: dayjs().utc().toDate(),
         memberId: sale.toMemberId,
         type: 'Payment',
         note: 'P2P payment restoration',
