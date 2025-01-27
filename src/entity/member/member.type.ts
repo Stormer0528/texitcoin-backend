@@ -245,9 +245,6 @@ export class UpdateMemberInput {
   @Field(() => PlacementPosition, { nullable: true })
   placementPosition?: PlacementPosition;
 
-  @Field({ nullable: true })
-  status?: boolean;
-
   @Field({ nullable: true, defaultValue: true })
   syncWithSendy?: boolean;
 
@@ -265,9 +262,6 @@ export class UpdateMemberInput {
 
   @Field(() => TeamReport, { nullable: true })
   teamReport?: TEAM_REPORT;
-
-  @Field(() => MemberState, { nullable: true })
-  allowState?: MemberState;
 
   @Field(() => [MemberWalletDataInput], { nullable: true })
   wallets?: MemberWalletDataInput[];
