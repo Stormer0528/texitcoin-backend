@@ -55,6 +55,7 @@ import { RecipientResolver } from './entity/recipient/recipient.resolver';
 import { authorized } from './rest/middlewares/authorized.middleware';
 import { emailAccess } from './rest/middlewares/emailAccess.middleware';
 import path from 'path';
+import { PromoResolver } from './entity/promo/promo.resolver';
 
 const app = async () => {
   const schema = await tq.buildSchema({
@@ -85,6 +86,7 @@ const app = async () => {
       BalanceResolver,
       EmailResolver,
       RecipientResolver,
+      PromoResolver,
     ],
     authChecker,
     scalarsMap: [
