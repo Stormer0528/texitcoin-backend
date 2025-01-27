@@ -388,7 +388,7 @@ export class MemberResolver {
           await this.prisma.$queryRaw`
         UPDATE members
         SET "placementPath" = REPLACE("placementPath", ${oldPlacementPath}, ${newPath})
-        WHERE "placementPath" LIKE ${oldPlacementPath + '%'}
+        WHERE "placementPath" = ${oldPlacementPath} OR "placementPath" LIKE ${oldPlacementPath + '/%'}
       `;
         } else {
           await this.prisma.member.update({

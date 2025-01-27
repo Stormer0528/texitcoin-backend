@@ -93,9 +93,16 @@ export class MemberService {
     const parent = await this.prisma.member.findUnique({ where: { id } });
     return this.prisma.member.findMany({
       where: {
-        placementPath: {
-          startsWith: parent.placementPath,
-        },
+        OR: [
+          {
+            placementPath: parent.placementPath,
+          },
+          {
+            placementPath: {
+              startsWith: parent.placementPath + '/',
+            },
+          },
+        ],
       },
     });
   }
