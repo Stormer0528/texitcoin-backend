@@ -5,16 +5,8 @@ const prisma = new PrismaClient();
 async function checkAndUpdatePromos() {
   console.log('Started promo operation');
 
-  await prisma.promo.updateMany({
-    where: {
-      endDate: {
-        lt: new Date(),
-      },
-    },
-    data: {
-      status: false,
-    },
-  });
+  await prisma.$queryRaw`UPDATE "promos" SET status = false WHERE "endDate" < CURRENT_DATE`;
+
   console.log('Finished promo operation');
 }
 
