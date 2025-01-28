@@ -17,7 +17,6 @@ import { SuccessResult } from '@/graphql/enum';
 export class PromoResolver {
   constructor(private readonly service: PromoService) {}
 
-  @Authorized()
   @Query(() => PromoResponse)
   async promos(
     @Args() query: PromoQueryArgs,
