@@ -1,6 +1,7 @@
 import { Service, Inject } from 'typedi';
 
 import { PrismaService } from '@/service/prisma';
+import dayjs from 'dayjs';
 
 import { IDInput } from '@/graphql/common.type';
 import { CreatePromoInput, PromoQueryArgs, UpdatePromoInput } from './promo.type';
@@ -61,13 +62,13 @@ export class PromoService {
     endDate,
     status,
   }: Pick<Promo, 'startDate' | 'endDate' | 'status'>) {
-    if (startDate > endDate) {
+    if (dayjs(startDate, { utc: true }).isAfter(dayjs(endDate, { utc: true }), 'day')) {
       throw new GraphQLError('Start date must be before end date', {
         extensions: {
           path: ['startDate', 'endDate'],
         },
       });
-    } else if (status && endDate < new Date()) {
+    } else if (status && dayjs(endDate, { utc: true }).isBefore(dayjs(), 'day')) {
       throw new GraphQLError('End date must be in the future', {
         extensions: {
           path: ['endDate'],
