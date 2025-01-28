@@ -213,54 +213,59 @@ export class SaleResolver {
     await this.memberService.updateMemberPointByMemberId(oldsale.memberId);
     await this.memberService.updateMemberPointByMemberId(newsale.memberId);
 
-    // Balance
-    if (oldsale.paymentMethod.toLowerCase() === P2P_PAYMENT_METHOD.toLowerCase() && oldPkg.amount) {
-      const amountInCents = oldPkg.amount * 100; // $ => cents
-      const balanceInCents = amountInCents * (1 - P2P_TRANSACTION_FEE);
-      await this.balanceService.addBalance({
-        amountInCents: balanceInCents,
-        date: dayjs().utc().toDate(),
-        memberId: oldsale.toMemberId,
-        type: 'Payment',
-        note: 'P2P payment restoration',
-        extra1: 'Sale',
-        extra2: convertNumToString({
-          value: oldsale.ID,
-          length: 7,
-          prefix: 'S',
-        }),
-      });
+    if (oldsale.toMemberId !== newsale.toMemberId) {
+      // Balance
+      if (
+        oldsale.paymentMethod.toLowerCase() === P2P_PAYMENT_METHOD.toLowerCase() &&
+        oldPkg.amount
+      ) {
+        const amountInCents = oldPkg.amount * 100; // $ => cents
+        const balanceInCents = amountInCents * (1 - P2P_TRANSACTION_FEE);
+        await this.balanceService.addBalance({
+          amountInCents: balanceInCents,
+          date: dayjs().utc().toDate(),
+          memberId: oldsale.toMemberId,
+          type: 'Payment',
+          note: 'P2P payment restoration',
+          extra1: 'Sale',
+          extra2: convertNumToString({
+            value: oldsale.ID,
+            length: 7,
+            prefix: 'S',
+          }),
+        });
 
-      await this.proofService.removeProof({
-        refId: convertNumToString({ value: oldsale.ID, length: 7, prefix: 'S' }),
-        type: 'TRANSACTIONPROCESSING',
-      });
-    }
+        await this.proofService.removeProof({
+          refId: convertNumToString({ value: oldsale.ID, length: 7, prefix: 'S' }),
+          type: 'TRANSACTIONPROCESSING',
+        });
+      }
 
-    if (newsale.paymentMethod.toLowerCase() === P2P_PAYMENT_METHOD.toLowerCase() && pkg.amount) {
-      const amountInCents = pkg.amount * 100; // $ => cents
-      const balanceInCents = amountInCents * (1 - P2P_TRANSACTION_FEE);
-      const feeInCents = amountInCents * P2P_TRANSACTION_FEE;
-      await this.balanceService.addBalance({
-        amountInCents: -balanceInCents,
-        date: dayjs().utc().toDate(),
-        memberId: newsale.toMemberId,
-        type: 'Payment',
-        note: 'P2P payment',
-        extra1: 'Sale',
-        extra2: convertNumToString({
-          value: newsale.ID,
-          length: 7,
-          prefix: 'S',
-        }),
-      });
-      await this.proofService.createProof({
-        amount: feeInCents / 100,
-        refId: convertNumToString({ value: newsale.ID, length: 7, prefix: 'S' }),
-        type: 'TRANSACTIONPROCESSING',
-        note: 'P2P payment',
-        orderedAt: newsale.orderedAt,
-      });
+      if (newsale.paymentMethod.toLowerCase() === P2P_PAYMENT_METHOD.toLowerCase() && pkg.amount) {
+        const amountInCents = pkg.amount * 100; // $ => cents
+        const balanceInCents = amountInCents * (1 - P2P_TRANSACTION_FEE);
+        const feeInCents = amountInCents * P2P_TRANSACTION_FEE;
+        await this.balanceService.addBalance({
+          amountInCents: -balanceInCents,
+          date: dayjs().utc().toDate(),
+          memberId: newsale.toMemberId,
+          type: 'Payment',
+          note: 'P2P payment',
+          extra1: 'Sale',
+          extra2: convertNumToString({
+            value: newsale.ID,
+            length: 7,
+            prefix: 'S',
+          }),
+        });
+        await this.proofService.createProof({
+          amount: feeInCents / 100,
+          refId: convertNumToString({ value: newsale.ID, length: 7, prefix: 'S' }),
+          type: 'TRANSACTIONPROCESSING',
+          note: 'P2P payment',
+          orderedAt: newsale.orderedAt,
+        });
+      }
     }
 
     return newsale;
