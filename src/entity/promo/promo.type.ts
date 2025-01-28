@@ -4,6 +4,7 @@ import { ObjectType, InputType, Field, ArgsType, ID } from 'type-graphql';
 import { QueryArgsBase } from '@/graphql/queryArgs';
 import { PaginatedResponse } from '@/graphql/paginatedResponse';
 import { Promo } from './promo.entity';
+import { GraphQLDate } from 'graphql-scalars';
 
 // Promo Query Args
 @ArgsType()
@@ -28,10 +29,10 @@ export class CreatePromoInput {
   @Field({ nullable: true })
   status: boolean;
 
-  @Field()
+  @Field(() => GraphQLDate)
   startDate: Date;
 
-  @Field()
+  @Field(() => GraphQLDate)
   endDate: Date;
 }
 
@@ -49,9 +50,9 @@ export class UpdatePromoInput {
   @Field({ nullable: true })
   status: boolean;
 
-  @Field({ nullable: true })
+  @Field(() => GraphQLDate, { nullable: true })
   startDate: Date;
 
-  @Field({ nullable: true })
+  @Field(() => GraphQLDate, { nullable: true })
   endDate: Date;
 }

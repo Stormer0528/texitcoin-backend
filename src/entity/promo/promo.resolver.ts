@@ -1,7 +1,7 @@
 import { Service } from 'typedi';
 import { Arg, Args, Resolver, Query, Mutation, Info, Authorized } from 'type-graphql';
 import graphqlFields from 'graphql-fields';
-import { GraphQLResolveInfo } from 'graphql';
+import { GraphQLError, GraphQLResolveInfo } from 'graphql';
 
 import { UserRole } from '@/type';
 
@@ -51,6 +51,7 @@ export class PromoResolver {
   @Transaction()
   @Mutation(() => Promo)
   async createPromo(@Arg('data') data: CreatePromoInput): Promise<Promo> {
+    this.service.validatePromoDates(data);
     return this.service.createPromo(data);
   }
 
@@ -58,7 +59,9 @@ export class PromoResolver {
   @Transaction()
   @Mutation(() => Promo)
   async updatePromo(@Arg('data') data: UpdatePromoInput): Promise<Promo> {
-    return this.service.updatePromo(data);
+    const promo = await this.service.updatePromo(data);
+    this.service.validatePromoDates(promo);
+    return promo;
   }
 
   @Authorized([UserRole.ADMIN])

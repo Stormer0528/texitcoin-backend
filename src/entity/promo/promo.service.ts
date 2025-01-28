@@ -4,6 +4,8 @@ import { PrismaService } from '@/service/prisma';
 
 import { IDInput } from '@/graphql/common.type';
 import { CreatePromoInput, PromoQueryArgs, UpdatePromoInput } from './promo.type';
+import { GraphQLError } from 'graphql';
+import { Promo } from './promo.entity';
 
 @Service()
 export class PromoService {
@@ -52,5 +54,25 @@ export class PromoService {
         id: data.id,
       },
     });
+  }
+
+  public validatePromoDates({
+    startDate,
+    endDate,
+    status,
+  }: Pick<Promo, 'startDate' | 'endDate' | 'status'>) {
+    if (startDate > endDate) {
+      throw new GraphQLError('Start date must be before end date', {
+        extensions: {
+          path: ['startDate', 'endDate'],
+        },
+      });
+    } else if (status && endDate < new Date()) {
+      throw new GraphQLError('End date must be in the future', {
+        extensions: {
+          path: ['endDate'],
+        },
+      });
+    }
   }
 }
