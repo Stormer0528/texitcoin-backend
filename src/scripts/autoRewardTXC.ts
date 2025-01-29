@@ -269,22 +269,24 @@ const createStatisticsAndMemberStatistics = async (tranPrisma: PrismaClient) => 
 
         const shellCommand = `texitcoin-cli sendmany "" "${JSON.stringify(paramJSON).replaceAll('"', '\\"')}"`;
         const { stdout: transactionID, stderr: error } = shelljs.exec(shellCommand);
-        elastic.index({
-          index: ELASTIC_LOG_INDEX,
-          document: {
-            when: new Date().toISOString(),
-            command: 'texitcoin-cli',
-            subcommand: 'sendmany',
-            fullCommand: shellCommand,
-            extra: {
-              issuedAt: statistic.issuedAt,
-              type: 'reward',
+        elastic
+          .index({
+            index: ELASTIC_LOG_INDEX,
+            document: {
+              when: new Date().toISOString(),
+              command: 'texitcoin-cli',
+              subcommand: 'sendmany',
+              fullCommand: shellCommand,
+              extra: {
+                issuedAt: statistic.issuedAt,
+                type: 'reward',
+              },
+              result: transactionID.trim(),
+              error,
+              status: error ? 'failed' : 'success',
             },
-            result: transactionID.trim(),
-            error,
-            status: error ? 'failed' : 'success',
-          },
-        });
+          })
+          .catch(() => {});
         return transactionID.trim();
       })
       .filter(Boolean);
