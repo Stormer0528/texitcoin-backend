@@ -149,17 +149,18 @@ export class SaleResolver {
 
     await this.memberService.updateMemberPointByMemberId(sale.memberId);
 
-    // Balance
-    if (sale.paymentMethod.toLowerCase() === P2P_PAYMENT_METHOD.toLowerCase() && pkg.amount) {
-      const amountInCents = pkg.amount * 100; // $ => cents
-      const balanceInCents = amountInCents * (1 - P2P_TRANSACTION_FEE);
-      const feeInCents = amountInCents * P2P_TRANSACTION_FEE;
+    const saleBalance = this.service.calculateBalance({
+      ...sale,
+      package: pkg,
+    });
+
+    if (saleBalance.memberId) {
       await this.balanceService.addBalance({
-        amountInCents: -balanceInCents,
+        amountInCents: saleBalance.amount,
         date: dayjs().utc().startOf('day').toDate(),
-        memberId: sale.toMemberId,
+        memberId: saleBalance.memberId,
         type: 'Payment',
-        note: 'P2P payment',
+        note: saleBalance.note,
         extra1: 'Sale',
         extra2: convertNumToString({
           value: sale.ID,
@@ -167,30 +168,16 @@ export class SaleResolver {
           prefix: 'S',
         }),
       });
-      await this.proofService.createProof({
-        amount: feeInCents / 100,
-        refId: convertNumToString({ value: sale.ID, length: 7, prefix: 'S' }),
-        type: 'TRANSACTIONPROCESSING',
-        note: 'P2P payment',
-        orderedAt: sale.orderedAt,
-      });
-    } else if (
-      sale.paymentMethod.toLowerCase() === COMMISSION_PAYMENT_METHOD.toLowerCase() &&
-      pkg.amount
-    ) {
-      await this.balanceService.addBalance({
-        amountInCents: -pkg.amount * 100,
-        date: dayjs().utc().startOf('day').toDate(),
-        memberId: sale.memberId,
-        type: 'Payment',
-        note: 'Commission payment',
-        extra1: 'Sale',
-        extra2: convertNumToString({
-          value: sale.ID,
-          length: 7,
-          prefix: 'S',
-        }),
-      });
+
+      if (saleBalance.fee) {
+        await this.proofService.createProof({
+          amount: saleBalance.fee / 100,
+          refId: convertNumToString({ value: sale.ID, length: 7, prefix: 'S' }),
+          type: 'TRANSACTIONPROCESSING',
+          note: saleBalance.note,
+          orderedAt: sale.orderedAt,
+        });
+      }
     }
 
     if (sale.packageId !== NO_PRODUCT) {
