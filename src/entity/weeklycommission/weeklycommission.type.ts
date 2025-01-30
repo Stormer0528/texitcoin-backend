@@ -40,12 +40,6 @@ export class WeeklyCommissionUpdateInput {
   @Field({ nullable: true })
   shortNote?: string;
 
-  @Field(() => Int, { nullable: true })
-  bogo?: number;
-
-  @Field(() => Int, { nullable: true })
-  cash?: number;
-
   @Field(() => [ID], { nullable: true })
   fileIds?: string[];
 

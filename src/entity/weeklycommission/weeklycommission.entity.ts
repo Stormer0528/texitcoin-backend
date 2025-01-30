@@ -55,12 +55,6 @@ export class WeeklyCommission extends BaseEntity {
   @Field()
   commission: number;
 
-  @Field(() => Int)
-  cash: number;
-
-  @Field(() => Int)
-  bogo: number;
-
   @Field({ nullable: true })
   shortNote?: string;
 

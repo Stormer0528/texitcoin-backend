@@ -128,13 +128,6 @@ export class WeeklyCommissionResolver {
     }
 
     const updatedCommission = await this.service.updateWeeklyCommission(restData);
-    if (updatedCommission.cash + updatedCommission.bogo !== updatedCommission.commission) {
-      throw new GraphQLError('Commission amount is not equal to cash + bogo', {
-        extensions: {
-          path: ['bogo', 'cash'],
-        },
-      });
-    }
 
     await this.proofService.updateProofByReference({
       refId: convertNumToString({ value: updatedCommission.ID, length: 7, prefix: 'C' }),

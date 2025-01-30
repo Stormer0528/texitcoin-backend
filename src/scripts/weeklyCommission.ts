@@ -250,11 +250,7 @@ async function weeklyCommission(tranPrisma: PrismaClient) {
               weekStartDate: iStartDate.toDate(),
             },
           },
-          create: {
-            ...data,
-            cash: data.commission,
-            bogo: 0,
-          },
+          create: data,
           update: data,
         });
       },

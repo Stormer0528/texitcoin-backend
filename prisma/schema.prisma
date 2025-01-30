@@ -364,8 +364,6 @@ model WeeklyCommission {
   commission    Int                @default(0)
   memberId      String
   status        ConfirmationStatus @default(NONE)
-  bogo          Int                @default(0)
-  cash          Int                @default(0)
 
   shortNote String?
 
