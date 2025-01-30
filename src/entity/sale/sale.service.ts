@@ -4,11 +4,12 @@ import { PrismaService } from '@/service/prisma';
 
 import { IDInput } from '@/graphql/common.type';
 import { CreateSaleInput, SaleQueryArgs, UpdateSaleInput } from './sale.type';
-import { Prisma } from '@prisma/client';
+import { Prisma, Sale } from '@prisma/client';
 import { ColumnInterface } from '@/type';
 import { getColumnQuery } from '@/utils/getColumnQuery';
 import { parseFilterManually } from '@/utils/parseFilterManually';
 import { ORDER } from '@/consts/db';
+import { COMMISSION_PAYMENT_METHOD, P2P_PAYMENT_METHOD, P2P_TRANSACTION_FEE } from '@/consts';
 
 const SALE_COLUMNS: ColumnInterface[] = [
   {
@@ -142,5 +143,29 @@ export class SaleService {
     return members.reduce((prev, current) => {
       return prev + current.package.token;
     }, 0);
+  }
+
+  calculateBalance(sale: Sale & { package: { amount: number } }) {
+    if (!sale.package.amount) return {};
+
+    if (sale.paymentMethod.toLowerCase() === P2P_PAYMENT_METHOD.toLowerCase()) {
+      const amountInCents = sale.package.amount * 100;
+      const balanceInCents = amountInCents * (1 - P2P_TRANSACTION_FEE);
+      return {
+        memberId: sale.toMemberId,
+        amount: -balanceInCents,
+        fee: amountInCents - balanceInCents,
+        note: 'P2P',
+      };
+    } else if (sale.paymentMethod.toLowerCase() === COMMISSION_PAYMENT_METHOD.toLowerCase()) {
+      const amountInCents = sale.package.amount * 100;
+      return {
+        memberId: sale.memberId,
+        amount: amountInCents,
+        fee: 0,
+        note: 'COMMISSION',
+      };
+    }
+    return {};
   }
 }

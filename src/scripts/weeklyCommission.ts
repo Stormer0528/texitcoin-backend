@@ -252,7 +252,8 @@ async function weeklyCommission(tranPrisma: PrismaClient) {
           },
           create: {
             ...data,
-            other: data.commission,
+            cash: data.commission,
+            bogo: 0,
           },
           update: data,
         });

@@ -87,7 +87,6 @@ export class WeeklyCommissionService {
   async updateWeeklyCommission(
     data: Omit<WeeklyCommissionUpdateInput, 'fileIds' | 'reflinks' | 'note' | 'splitWays'> & {
       ID?: number;
-      splitWay?: string;
       bogo?: number;
       cash?: number;
     }

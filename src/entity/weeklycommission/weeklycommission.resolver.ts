@@ -61,7 +61,6 @@ export class WeeklyCommissionResolver {
     private readonly proofService: ProofService,
     private readonly service: WeeklyCommissionService,
     private readonly memberService: MemberService,
-    private readonly referenceLinkService: ReferenceLinkService,
     private readonly balanceService: BalanceService
   ) {}
 
@@ -110,7 +109,7 @@ export class WeeklyCommissionResolver {
   @Transaction()
   @Mutation(() => WeeklyCommission)
   async updateCommission(@Arg('data') data: WeeklyCommissionUpdateInput) {
-    const { fileIds, note, reflinks, splitWays, autoCreate, ...restData } = data;
+    const { fileIds, note, reflinks, autoCreate, ...restData } = data;
     const prevCommission = await this.service.getWeeklyCommissionById({ id: data.id });
     if (
       data.status &&
@@ -142,75 +141,6 @@ export class WeeklyCommissionResolver {
       prevCommission.status !== ConfirmationStatus.PAID &&
       updatedCommission.status === ConfirmationStatus.PAID
     ) {
-      if (splitWays) {
-        const splitWay = splitWays.map((way) => `${way.money}|${way.way}|${way.note}`).join('||');
-        const bogos = splitWays.filter((way) => way.way.toLowerCase() === 'bogo');
-        const bogoMoney = bogos.reduce((cur, bg) => cur + bg.money, 0);
-
-        await this.service.updateWeeklyCommission({
-          id: data.id,
-          splitWay,
-          bogo: bogoMoney,
-          cash: updatedCommission.commission - bogoMoney,
-        });
-
-        const commissionID = convertNumToString({
-          value: updatedCommission.ID,
-          length: 7,
-          prefix: 'C',
-        });
-
-        const proof = await this.proofService.getProofByReferenceWithRefLink(
-          commissionID,
-          'COMMISSION'
-        );
-
-        if (autoCreate) {
-          const saleResolver = Container.get(SaleResolver);
-          const bogo_products = [
-            BOGO_COMMISSION_PRODUCT_1,
-            BOGO_COMMISSION_PRODUCT_2,
-            BOGO_COMMISSION_PRODUCT_3,
-          ];
-          const sales = await Bluebird.map(bogos, (bogo) => {
-            return saleResolver.createSale({
-              memberId: updatedCommission.memberId,
-              orderedAt: dayjs().utc().toDate(),
-              status: true,
-              paymentMethod: 'Commission',
-              packageId: bogo_products[Math.floor(bogo.money / 1000) - 1],
-            });
-          });
-
-          await this.proofService.updateProofByReference({
-            refId: commissionID,
-            type: 'COMMISSION',
-            reflinks: [
-              ...(proof?.referenceLinks || []),
-              ...sales.map((sale) => ({
-                linkType: 'BOGO',
-                link: convertNumToString({
-                  value: sale.ID,
-                  length: 7,
-                  prefix: 'S',
-                }),
-              })),
-            ],
-          });
-        } else {
-          await this.proofService.updateProofByReference({
-            refId: commissionID,
-            type: 'COMMISSION',
-            reflinks: [
-              ...(proof?.referenceLinks || []),
-              ...bogos.map((sptWay) => ({
-                linkType: sptWay.way,
-                link: sptWay.note,
-              })),
-            ],
-          });
-        }
-      }
       await this.balanceService.addBalance({
         amountInCents: updatedCommission.commission * 100,
         date: dayjs().utc().toDate(),
