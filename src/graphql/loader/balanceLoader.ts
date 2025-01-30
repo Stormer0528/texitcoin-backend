@@ -15,7 +15,7 @@ export const memberForBalanceLoader = (parent: RootDataLoader) => {
       });
       const memberMap: Record<string, Member> = {};
       members.forEach((member) => {
-        member[member.id] = member;
+        memberMap[member.id] = member;
       });
 
       return memberIds.map((id) => memberMap[id]);

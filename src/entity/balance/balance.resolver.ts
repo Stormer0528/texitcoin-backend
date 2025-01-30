@@ -35,7 +35,7 @@ import { Context } from '@/context';
 export class BalanceResolver {
   constructor(private readonly service: BalanceService) {}
 
-  @Authorized()
+  // @Authorized()
   @Query(() => BalanceResponse)
   async balances(
     @Args() query: BalanceQueryArgs,
