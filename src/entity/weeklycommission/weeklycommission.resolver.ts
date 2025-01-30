@@ -151,7 +151,7 @@ export class WeeklyCommissionResolver {
     ) {
       await this.balanceService.addBalance({
         amountInCents: updatedCommission.commission * 100,
-        date: dayjs().utc().toDate(),
+        date: dayjs().utc().startOf('day').toDate(),
         memberId: updatedCommission.memberId,
         note: `Commission for ${dayjs(updatedCommission.weekStartDate, { utc: true }).format('MM/DD')} - ${dayjs(updatedCommission.weekStartDate, { utc: true }).add(1, 'week').format('MM/DD')}`,
         type: 'Commission',

@@ -156,7 +156,7 @@ export class SaleResolver {
       const feeInCents = amountInCents * P2P_TRANSACTION_FEE;
       await this.balanceService.addBalance({
         amountInCents: -balanceInCents,
-        date: dayjs().utc().toDate(),
+        date: dayjs().utc().startOf('day').toDate(),
         memberId: sale.toMemberId,
         type: 'Payment',
         note: 'P2P payment',
@@ -180,7 +180,7 @@ export class SaleResolver {
     ) {
       await this.balanceService.addBalance({
         amountInCents: -pkg.amount * 100,
-        date: dayjs().utc().toDate(),
+        date: dayjs().utc().startOf('day').toDate(),
         memberId: sale.memberId,
         type: 'Payment',
         note: 'Commission payment',
@@ -250,7 +250,7 @@ export class SaleResolver {
       if (oldSaleBalance.memberId) {
         await this.balanceService.addBalance({
           amountInCents: -oldSaleBalance.amount,
-          date: dayjs().utc().toDate(),
+          date: dayjs().utc().startOf('day').toDate(),
           memberId: oldSaleBalance.memberId,
           type: 'Payment',
           note: `${oldSaleBalance.note} restoration`,
@@ -272,7 +272,7 @@ export class SaleResolver {
       if (newSaleBalance.memberId) {
         await this.balanceService.addBalance({
           amountInCents: newSaleBalance.amount,
-          date: dayjs().utc().toDate(),
+          date: dayjs().utc().startOf('day').toDate(),
           memberId: newSaleBalance.memberId,
           type: 'Payment',
           note: `${newSaleBalance.note}`,
@@ -298,7 +298,7 @@ export class SaleResolver {
       if (newSaleBalance.memberId) {
         await this.balanceService.addBalance({
           amountInCents: newSaleBalance.amount - oldSaleBalance.amount,
-          date: dayjs().utc().toDate(),
+          date: dayjs().utc().startOf('day').toDate(),
           memberId: newSaleBalance.memberId,
           type: 'Payment',
           note: newSaleBalance.note,
@@ -344,7 +344,7 @@ export class SaleResolver {
       const balanceInCents = amountInCents * (1 - P2P_TRANSACTION_FEE);
       await this.balanceService.addBalance({
         amountInCents: balanceInCents,
-        date: dayjs().utc().toDate(),
+        date: dayjs().utc().startOf('day').toDate(),
         memberId: sale.toMemberId,
         type: 'Payment',
         note: 'P2P payment restoration',
