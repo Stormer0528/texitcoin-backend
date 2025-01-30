@@ -161,7 +161,7 @@ export class SaleService {
       const amountInCents = sale.package.amount * 100;
       return {
         memberId: sale.memberId,
-        amount: amountInCents,
+        amount: -amountInCents,
         fee: 0,
         note: 'COMMISSION',
       };
