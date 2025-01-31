@@ -3,7 +3,7 @@ import { Inject, Service } from 'typedi';
 import { ColumnInterface } from '@/type';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '@/service/prisma';
-import { MemberInOutRevenueQueryArgs } from './general.type';
+import { BalancesByMemberQueryArgs, MemberInOutRevenueQueryArgs } from './general.type';
 import { getColumnQuery } from '@/utils/getColumnQuery';
 import { ORDER } from '@/consts/db';
 import { parseFilterManually } from '@/utils/parseFilterManually';
@@ -22,6 +22,16 @@ export const MEMBER_INOUT_REVENUE_COLUMNS: ColumnInterface[] = [
     column: 'percent',
     sql: Prisma.sql`"percent"`,
   },
+];
+
+export const BALANCES_BY_MEMBER_COLUMNS: ColumnInterface[] = [
+  {
+    column: 'id',
+    sql: Prisma.sql`"id"`,
+  },
+  { column: 'username', sql: Prisma.sql`"username"` },
+  { column: 'fullName', sql: Prisma.sql`"fullName"` },
+  { column: 'balance', sql: Prisma.sql`"balance"` },
 ];
 
 @Service()
@@ -195,6 +205,89 @@ export class GeneralService {
             ) AS PERCENT
           FROM
             PRERESULT
+        )
+        SELECT count(*)
+        FROM FINALRESULT
+        ${whereQuery}
+      `.then((res) => Number(res[0].count));
+  }
+
+  async getBalancesByMember(params: BalancesByMemberQueryArgs) {
+    const { orderBy = { balance: 'desc' }, parsePage, filter } = params;
+
+    const orderQueryItems = (orderBy ? (Array.isArray(orderBy) ? orderBy : [orderBy]) : []).flatMap(
+      (order) => Object.entries(order).map(([column, order]) => ({ column, order }))
+    );
+
+    const fullOrderQuery = orderQueryItems.length
+      ? Prisma.sql`
+          ORDER BY ${Prisma.join(
+            orderQueryItems.map(
+              (orderQueryItem) =>
+                Prisma.sql`${getColumnQuery(orderQueryItem.column, BALANCES_BY_MEMBER_COLUMNS).sql} ${ORDER[orderQueryItem.order.toUpperCase()]} NULLS LAST`
+            ),
+            ', '
+          )}
+        `
+      : Prisma.empty;
+
+    const whereQuery = parseFilterManually(BALANCES_BY_MEMBER_COLUMNS, filter);
+
+    const res = await this.prisma.$queryRaw<any>`
+        WITH
+          "balancesByMemberId" AS (
+            SELECT
+              "memberId",
+              SUM("amountInCents")::Int AS balance
+            FROM
+              balances
+            GROUP BY
+              "memberId"
+          ),
+        FINALRESULT AS (
+          SELECT
+            id,
+            username,
+            "fullName",
+            COALESCE(balance, 0) AS balance
+          FROM
+            members
+            LEFT JOIN "balancesByMemberId" ON members.id = "balancesByMemberId"."memberId"
+        )
+        SELECT *
+        FROM FINALRESULT
+        ${whereQuery}
+        ${fullOrderQuery}
+        LIMIT ${parsePage.take ?? 50}
+        OFFSET ${parsePage.skip ?? 0}
+      `;
+
+    return res;
+  }
+
+  async getBalancesByMemberCount({ filter }: BalancesByMemberQueryArgs): Promise<number> {
+    const whereQuery = parseFilterManually(BALANCES_BY_MEMBER_COLUMNS, filter);
+
+    return this.prisma.$queryRaw<{ count: bigint }[]>`
+        WITH
+          "balancesByMemberId" AS (
+            SELECT
+              "memberId",
+              SUM("amountInCents") AS balance
+            FROM
+              balances
+            GROUP BY
+              "memberId"
+          ),
+        FINALRESULT AS (
+          SELECT
+            id,
+            username,
+            "fullName",
+            COALESCE(balance, 0) AS balance
+          FROM
+            members
+            LEFT JOIN "balancesByMemberId" ON members.id = "balancesByMemberId"."memberId"
         )
         SELECT count(*)
         FROM FINALRESULT

@@ -234,3 +234,24 @@ export class MemberInOutRevenueResponse extends PaginatedResponse {
   @Field(() => [MemberInOutRevenue], { nullable: true })
   inOuts?: MemberInOutRevenue[];
 }
+
+@ObjectType()
+export class BalancesByMember {
+  @Field()
+  id: string;
+
+  @Field()
+  username: string;
+
+  @Field()
+  fullName: string;
+
+  @Field(() => Int)
+  balance: number;
+}
+
+@ObjectType()
+export class BalancesByMemberResponse extends PaginatedResponse {
+  @Field(() => [BalancesByMember], { nullable: true })
+  balances?: BalancesByMember[];
+}

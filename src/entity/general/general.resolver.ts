@@ -49,6 +49,8 @@ import {
   ProfitabilityCalculationResponse,
   MemberInOutRevenueResponse,
   MemberInOutRevenue,
+  BalancesByMemberResponse,
+  BalancesByMember,
 } from './general.entity';
 import {
   PeriodStatsArgs,
@@ -57,6 +59,7 @@ import {
   ProfitabilityCalculationInput,
   ContactToAdmin,
   MemberInOutRevenueQueryArgs,
+  BalancesByMemberQueryArgs,
 } from './general.type';
 import { BlockService } from '@/entity/block/block.service';
 import { StatisticsService } from '@/entity/statistics/statistics.service';
@@ -840,6 +843,35 @@ export class GeneralResolver {
     const result = await Promise.all(Object.entries(promises));
 
     let response: { total?: number; inOuts?: MemberInOutRevenue[] } = {};
+
+    for (let [key, value] of result) {
+      response[key] = value;
+    }
+
+    return response;
+  }
+
+  @Authorized([UserRole.ADMIN])
+  @Query(() => BalancesByMemberResponse)
+  async balancesByMember(
+    @Args() query: BalancesByMemberQueryArgs,
+    @Info() info: GraphQLResolveInfo
+  ): Promise<BalancesByMemberResponse> {
+    const fields = graphqlFields(info);
+
+    let promises: { total?: Promise<number>; balances?: Promise<BalancesByMember[]> } = {};
+
+    if ('total' in fields) {
+      promises.total = this.service.getBalancesByMemberCount(query);
+    }
+
+    if ('balances' in fields) {
+      promises.balances = this.service.getBalancesByMember(query);
+    }
+
+    const result = await Promise.all(Object.entries(promises));
+
+    let response: { total?: number; balances?: BalancesByMember[] } = {};
 
     for (let [key, value] of result) {
       response[key] = value;

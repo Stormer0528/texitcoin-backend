@@ -53,9 +53,24 @@ export type MemberInOutRevenueWhereInput = {
   OR?: MemberInOutRevenueWhereInput[];
   NOT?: MemberInOutRevenueWhereInput | MemberInOutRevenueWhereInput[];
   id?: Prisma.StringFilter | string;
+  username?: Prisma.StringFilter | string;
+  fullname?: Prisma.StringFilter | string;
   amount?: Prisma.IntFilter | number | null;
   commission?: Prisma.IntFilter | number | null;
   percent?: Prisma.FloatFilter | number | null;
 };
 @ArgsType()
-export class MemberInOutRevenueQueryArgs extends QueryArgsBase<Prisma.MemberWhereInput> {}
+export class MemberInOutRevenueQueryArgs extends QueryArgsBase<MemberInOutRevenueWhereInput> {}
+
+export type BalancesByMemberWhereInput = {
+  AND?: BalancesByMemberWhereInput | BalancesByMemberWhereInput[];
+  OR?: BalancesByMemberWhereInput[];
+  NOT?: BalancesByMemberWhereInput | BalancesByMemberWhereInput[];
+  id?: Prisma.StringFilter | string;
+  username?: Prisma.StringFilter | string;
+  fullname?: Prisma.StringFilter | string;
+  balance?: Prisma.IntFilter | number | null;
+};
+
+@ArgsType()
+export class BalancesByMemberQueryArgs extends QueryArgsBase<BalancesByMemberWhereInput> {}
