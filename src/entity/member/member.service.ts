@@ -153,7 +153,12 @@ export class MemberService {
   async updateMember({
     id,
     ...data
-  }: UpdateMemberInput & { password?: string; status?: boolean; allowState?: MemberState }) {
+  }: UpdateMemberInput & {
+    password?: string;
+    status?: boolean;
+    allowState?: MemberState;
+    emailVerified?: boolean;
+  }) {
     return this.prisma.member.update({
       where: { id },
       data,

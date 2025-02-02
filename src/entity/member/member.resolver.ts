@@ -434,6 +434,20 @@ export class MemberResolver {
   @Authorized([UserRole.ADMIN])
   @Transaction()
   @Mutation(() => SuccessResponse)
+  async verifyMemberEmail(@Arg('data') data: IDInput): Promise<SuccessResponse> {
+    await this.service.updateMember({
+      id: data.id,
+      emailVerified: true,
+    });
+
+    return {
+      result: SuccessResult.success,
+    };
+  }
+
+  @Authorized([UserRole.ADMIN])
+  @Transaction()
+  @Mutation(() => SuccessResponse)
   async approveMember(@Arg('data') data: IDInput): Promise<SuccessResponse> {
     const member = await this.service.approveMember(data.id);
 
