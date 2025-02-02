@@ -8,7 +8,7 @@ router.get('/getblockcount', async (req: Request, res: Response, next: NextFunct
   try {
     const block = await rpcCommand({ method: GET_BLOCK_COUNT });
 
-    res.json({ block });
+    res.json(block);
   } catch (err) {
     next(err);
   }
