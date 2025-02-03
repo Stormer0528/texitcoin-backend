@@ -76,6 +76,7 @@ import { getDynamicOrderBy } from '@/utils/getDynamicOrderBy';
 import { CommissionStatus } from '../weeklycommission/weeklycommission.type';
 import { WeeklyCommissionService } from '../weeklycommission/weeklycommission.service';
 import { Balance } from '../balance/balance.entity';
+import { TelegramBotService } from '@/service/tgbot';
 
 @Service()
 @Resolver(() => Member)
@@ -93,6 +94,8 @@ export class MemberResolver {
     private readonly mailerService: MailerService,
     @Inject(() => SendyService)
     private readonly sendyService: SendyService,
+    @Inject(() => TelegramBotService)
+    private readonly telegramBotService: TelegramBotService,
     @Inject(() => PrismaService)
     private readonly prisma: PrismaService
   ) {}
@@ -275,6 +278,18 @@ export class MemberResolver {
     });
 
     this.mailerService.notifyMinerSignupToAdmin(newMember.email, newMember.fullName, sponsorName);
+    this.telegramBotService.sendNewMinerSignUpNotification(
+      newMember.username,
+      newMember.fullName,
+      newMember.email,
+      newMember.mobile,
+      requestPkg?.productName ?? 'No package',
+      data.paymentMethod,
+      sponsorName ?? 'No sponsor',
+      data.promoCode ?? 'No promo',
+      newMember.assetId
+    );
+
     return newMember;
   }
 
