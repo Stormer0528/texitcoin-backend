@@ -82,4 +82,8 @@ export const proofTypeData: ProofTypeDataInterface[] = [
     proofType: ProofType.EXCHANGEFEE,
     display: 'Exchange Fee',
   },
+  {
+    proofType: ProofType.TRANSACTIONPROCESSING,
+    display: 'Transaction Processing',
+  },
 ];
