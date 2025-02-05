@@ -21,7 +21,7 @@ export const parseFilterManually = (columns: ColumnInterface[], filter) => {
   ) => {
     if (operation === null) return Prisma.sql`IS NULL`;
     if (!_.isPlainObject(operation)) {
-      return Prisma.sql` = ${operation}`;
+      return Prisma.sql` = ${operation}${getPrismaParsingType(column)}`;
     }
 
     const [key, value] = Object.entries(operation)[0];
