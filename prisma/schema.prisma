@@ -170,6 +170,7 @@ model Sale {
   status        Boolean  @default(true)
   freeShareSale Boolean  @default(false) @db.Boolean
   toMemberId    String? // P2P to miner
+  isMetal       Boolean  @default(false) @db.Boolean
 
   member   Member?  @relation("member_sales", fields: [memberId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   toMember Member?  @relation("p2p_member_sales", fields: [toMemberId], references: [id], onDelete: NoAction, onUpdate: NoAction)

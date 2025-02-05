@@ -148,7 +148,7 @@ export class SaleService {
   calculateBalance(sale: Sale & { package: { amount: number } }) {
     if (!sale.package.amount) return {};
 
-    if (sale.paymentMethod.toLowerCase() === P2P_PAYMENT_METHOD.toLowerCase()) {
+    if (sale.paymentMethod.toLowerCase() === P2P_PAYMENT_METHOD.toLowerCase() && !sale.isMetal) {
       const amountInCents = sale.package.amount * 100;
       const balanceInCents = amountInCents * (1 - P2P_TRANSACTION_FEE);
       return {

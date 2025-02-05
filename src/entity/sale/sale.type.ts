@@ -36,6 +36,9 @@ export class CreateSaleInput {
   @Field()
   orderedAt: Date;
 
+  @Field({ nullable: true })
+  isMetal?: boolean;
+
   @Field(() => ID, { nullable: true })
   toMemberId?: string;
 
@@ -72,6 +75,9 @@ export class UpdateSaleInput {
 
   @Field(() => ID, { nullable: true })
   toMemberId?: string;
+
+  @Field({ nullable: true })
+  isMetal?: boolean;
 
   @Field(() => [ID], { nullable: true })
   fileIds?: string[];

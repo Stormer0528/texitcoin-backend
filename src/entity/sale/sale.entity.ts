@@ -43,6 +43,9 @@ export class Sale extends BaseEntity {
   @Field(() => ID, { nullable: true })
   toMemberId?: string;
 
+  @Field()
+  isMetal: boolean;
+
   @Field(() => Member, { nullable: true })
   toMember?: Member;
 
