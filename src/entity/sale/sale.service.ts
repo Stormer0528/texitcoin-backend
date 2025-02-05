@@ -32,7 +32,7 @@ const SALE_COLUMNS: ColumnInterface[] = [
   { column: 'package.token', sql: Prisma.sql`"packages"."token"` },
   { column: 'package.point', sql: Prisma.sql`"packages"."point"` },
   { column: 'orderedAt', sql: Prisma.sql`"orderedAt"` },
-  { column: 'isMetal', sql: Prisma.sql`"isMetal"` },
+  { column: 'isMetal', sql: Prisma.sql`"isMetal"`, parsing: Prisma.sql`::BOOLEAN` },
   { column: 'status', sql: Prisma.sql`"status"` },
   { column: 'createdAt', sql: Prisma.sql`"createdAt"` },
 ];
