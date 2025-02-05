@@ -176,7 +176,7 @@ export class MailerService {
       };
       const sentMailInfo0 = await this.sendMail(mailOption0);
       console.log(
-        `Email was sent to ${ADMIN_EMAIL}, Type => Welcome to Texitcoin - Your Account is Approved and Ready!, Message ID => ${sentMailInfo0.messageId}`
+        `Email was sent to ${to}, Type => Welcome to Texitcoin - Your Account is Approved and Ready!, Message ID => ${sentMailInfo0.messageId}`
       );
 
       const mailOption1 = {
@@ -188,7 +188,7 @@ export class MailerService {
       };
       const sentMailInfo1 = await this.sendMail(mailOption1);
       console.log(
-        `Email was sent to ${ADMIN_EMAIL}, Type => Welcome to Texitcoin - Your Texitcoin Adventure Begins, Message ID => ${sentMailInfo1.messageId}`
+        `Email was sent to ${to}, Type => Welcome to Texitcoin - Your Texitcoin Adventure Begins, Message ID => ${sentMailInfo1.messageId}`
       );
     }
   }
