@@ -22,6 +22,7 @@ export const MEMBER_INOUT_REVENUE_COLUMNS: ColumnInterface[] = [
     column: 'percent',
     sql: Prisma.sql`"percent"`,
   },
+  { column: 'cashCommissionPotential', sql: Prisma.sql`"cashCommissionPotential"` },
 ];
 
 export const BALANCES_BY_MEMBER_COLUMNS: ColumnInterface[] = [
@@ -88,16 +89,28 @@ export class GeneralService {
             GROUP BY
               "memberId"
           ),
-          "sponsorSalesByMember" AS (
+          "sponsorSalesPointsByMember" AS (
             SELECT
               M1.ID,
-              SUM("salesByMember"."amount") AS AMOUNT
+              SUM("salesByMember"."amount") AS AMOUNT,
+              SUM(M2."point") AS POINT
             FROM
               MEMBERS AS M1
-              LEFT JOIN MEMBERS AS M2 ON M1.ID = M2."sponsorId"
+              LEFT JOIN MEMBERS AS M2 ON M1.ID = M2."sponsorId" AND M1.ID != M2.ID
               LEFT JOIN "salesByMember" ON "salesByMember"."memberId" = M2.ID
             GROUP BY
               M1.ID
+          ),
+          "cashBalancesByMember" AS (
+            SELECT
+              "memberId",
+              SUM("amountInCents")::Int AS balance
+            FROM
+              balances
+            WHERE
+              type = 'CASH'
+            GROUP BY
+              "memberId"
           ),
           PRERESULT AS (
             SELECT
@@ -105,12 +118,14 @@ export class GeneralService {
               MEMBERS.USERNAME,
               MEMBERS."fullName",
               MEMBERS."status",
-              COALESCE("sponsorSalesByMember"."amount", 0)::Int AS AMOUNT,
-              COALESCE("commissionsByMember".COMMISSION, 0)::Int AS COMMISSION
+              COALESCE("sponsorSalesPointsByMember"."amount", 0)::Int AS AMOUNT,
+              COALESCE("commissionsByMember".COMMISSION, 0)::Int AS COMMISSION,
+              ((MEMBERS."point" + COALESCE("sponsorSalesPointsByMember".POINT, 0)) * 1000 * 100 - COALESCE("cashBalancesByMember".balance, 0))::Int AS "cashCommissionPotential"
             FROM
               MEMBERS
-              LEFT JOIN "sponsorSalesByMember" ON MEMBERS.ID = "sponsorSalesByMember"."id"
-              LEFT JOIN "commissionsByMember" ON MEMBERS.ID = "commissionsByMember"."memberId"  
+              LEFT JOIN "sponsorSalesPointsByMember" ON MEMBERS.ID = "sponsorSalesPointsByMember"."id"
+              LEFT JOIN "commissionsByMember" ON MEMBERS.ID = "commissionsByMember"."memberId"
+              LEFT JOIN "cashBalancesByMember" ON MEMBERS.ID = "cashBalancesByMember"."memberId"
             WHERE
               MEMBERS.status = true
         ),
@@ -169,28 +184,45 @@ export class GeneralService {
             GROUP BY
               "memberId"
           ),
-          "sponsorSalesByMember" AS (
+          "sponsorSalesPointsByMember" AS (
             SELECT
               M1.ID,
-              SUM("salesByMember"."amount") AS AMOUNT
+              SUM("salesByMember"."amount") AS AMOUNT,
+              SUM(M2."point") AS POINT
             FROM
               MEMBERS AS M1
-              LEFT JOIN MEMBERS AS M2 ON M1.ID = M2."sponsorId"
+              LEFT JOIN MEMBERS AS M2 ON M1.ID = M2."sponsorId" AND M1.ID != M2.ID
               LEFT JOIN "salesByMember" ON "salesByMember"."memberId" = M2.ID
             GROUP BY
               M1.ID
+          ),
+          "cashBalancesByMember" AS (
+            SELECT
+              "memberId",
+              SUM("amountInCents")::Int AS balance
+            FROM
+              balances
+            WHERE
+              type = 'CASH'
+            GROUP BY
+              "memberId"
           ),
           PRERESULT AS (
             SELECT
               MEMBERS.ID,
               MEMBERS.USERNAME,
               MEMBERS."fullName",
-              COALESCE("sponsorSalesByMember"."amount", 0)::Int AS AMOUNT,
-              COALESCE("commissionsByMember".COMMISSION, 0)::Int AS COMMISSION
+              MEMBERS."status",
+              COALESCE("sponsorSalesPointsByMember"."amount", 0)::Int AS AMOUNT,
+              COALESCE("commissionsByMember".COMMISSION, 0)::Int AS COMMISSION,
+              ((MEMBERS."point" + COALESCE("sponsorSalesPointsByMember".POINT, 0)) * 1000 * 100 - COALESCE("cashBalancesByMember".balance, 0))::Int AS "cashCommissionPotential"
             FROM
               MEMBERS
-              LEFT JOIN "sponsorSalesByMember" ON MEMBERS.ID = "sponsorSalesByMember"."id"
-              LEFT JOIN "commissionsByMember" ON MEMBERS.ID = "commissionsByMember"."memberId"  
+              LEFT JOIN "sponsorSalesPointsByMember" ON MEMBERS.ID = "sponsorSalesPointsByMember"."id"
+              LEFT JOIN "commissionsByMember" ON MEMBERS.ID = "commissionsByMember"."memberId"
+              LEFT JOIN "cashBalancesByMember" ON MEMBERS.ID = "cashBalancesByMember"."memberId"
+            WHERE
+              MEMBERS.status = true
         ),
         FINALRESULT AS (
           SELECT

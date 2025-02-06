@@ -27,7 +27,6 @@ export class CreateProofInput {
   refId: string;
 
   @Field(() => ProofType)
-  @IsNotIn(['PREPAY'])
   type: PROOFTYPE;
 
   @Field()
@@ -58,7 +57,6 @@ export class UpdateProofByIDInput {
   refId?: string;
 
   @Field(() => ProofType, { nullable: true })
-  @IsNotIn(['PREPAY'])
   type?: PROOFTYPE;
 
   @Field({ nullable: true })
@@ -86,7 +84,6 @@ export class UpdateProofByReferenceInput {
   refId: string;
 
   @Field(() => ProofType)
-  @IsNotIn(['PREPAY'])
   type: PROOFTYPE;
 
   @Field({ nullable: true })
@@ -122,7 +119,6 @@ export type PROOFTYPE =
   | 'PROMOTION'
   | 'PROFIT'
   | 'SALE'
-  | 'PREPAY'
   | 'DEVELOPERSPROTOCOL'
   | 'DEVELOPERSWEB'
   | 'DEVELOPERSAPPS'

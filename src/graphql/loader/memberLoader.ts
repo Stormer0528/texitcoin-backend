@@ -382,3 +382,60 @@ export const balanceForMemberLoader = (parent: RootDataLoader) => {
     }
   );
 };
+
+export const cashCommissionPotentialForMemberLoader = (parent: RootDataLoader) => {
+  return new DataLoader<string, number>(
+    async (memberIds: string[]) => {
+      const pointsByMember = await parent.prisma.member.groupBy({
+        by: ['id'],
+        where: {
+          OR: [
+            {
+              sponsorId: {
+                in: memberIds,
+              },
+            },
+            {
+              id: {
+                in: memberIds,
+              },
+            },
+          ],
+        },
+        _sum: {
+          point: true,
+        },
+      });
+      const balanceByMember = await parent.prisma.balance.groupBy({
+        by: ['memberId'],
+        where: {
+          memberId: {
+            in: memberIds,
+          },
+          type: 'CASH',
+        },
+        _sum: {
+          amountInCents: true,
+        },
+      });
+
+      // calculate points * $1000 * 100 - balance
+      const cashCommissionPotentialMap: Record<string, number> = {};
+      pointsByMember.forEach((point) => {
+        const memberId = point.id;
+        const pointSum = point._sum.point;
+        cashCommissionPotentialMap[memberId] = pointSum * 1000 * 100;
+      });
+      balanceByMember.forEach((balance) => {
+        const memberId = balance.memberId;
+        const balanceSum = balance._sum.amountInCents;
+        cashCommissionPotentialMap[memberId] -= balanceSum;
+      });
+
+      return memberIds.map((id) => cashCommissionPotentialMap[id] ?? 0);
+    },
+    {
+      ...parent.dataLoaderOptions,
+    }
+  );
+};

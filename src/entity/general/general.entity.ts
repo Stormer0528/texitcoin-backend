@@ -228,6 +228,9 @@ export class MemberInOutRevenue {
 
   @Field({ nullable: true })
   percent: number;
+
+  @Field()
+  cashCommissionPotential: number;
 }
 @ObjectType()
 export class MemberInOutRevenueResponse extends PaginatedResponse {

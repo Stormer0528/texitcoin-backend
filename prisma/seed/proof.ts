@@ -59,10 +59,6 @@ export const proofTypeData: ProofTypeDataInterface[] = [
     display: 'Sale',
   },
   {
-    proofType: ProofType.PREPAY,
-    display: 'Prepay',
-  },
-  {
     proofType: ProofType.DEVELOPERSPROTOCOL,
     display: 'Protocol',
   },

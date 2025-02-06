@@ -315,6 +315,9 @@ export class MemberOverview {
 
   @Field()
   point: number;
+
+  @Field(() => Int)
+  cashCommissionPotential: number;
 }
 
 export type PLACEMENT_POSITION = 'LEFT' | 'RIGHT' | 'NONE';

@@ -15,7 +15,6 @@ import * as memberWalletLoader from './memberWalletLoader';
 import * as weeklyCommissionLoader from './weeklyCommissionLoader';
 import * as adminNotesLoader from './adminNotesLoader';
 import * as adminLoader from './adminLoader';
-import * as prepaidCommissionLoader from './prepaidCommissionLoader';
 import * as proofLoader from './proofLoader';
 import * as paymentMethodLoader from './paymentMethodLoader';
 import * as paymentMethodLinkLoader from './paymentMethodLinkLoader';
@@ -46,7 +45,6 @@ const loaderMakers = {
   ...weeklyCommissionLoader,
   ...adminLoader,
   ...adminNotesLoader,
-  ...prepaidCommissionLoader,
   ...proofLoader,
   ...paymentMethodLoader,
   ...paymentMethodLinkLoader,

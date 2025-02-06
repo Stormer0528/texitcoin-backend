@@ -24,9 +24,7 @@ export class ProofService {
   ) {}
   async getProofs(params: ProofQueryArgs) {
     return await this.prisma.proof.findMany({
-      where: {
-        AND: [params.where, { type: { not: 'PREPAY' } }],
-      },
+      where: params.where,
       orderBy: params.orderBy,
       ...params.parsePage,
     });
@@ -34,9 +32,7 @@ export class ProofService {
 
   async getProofsCount(params: ProofQueryArgs): Promise<number> {
     return this.prisma.proof.count({
-      where: {
-        AND: [params.where, { type: { not: 'PREPAY' } }],
-      },
+      where: params.where,
     });
   }
 

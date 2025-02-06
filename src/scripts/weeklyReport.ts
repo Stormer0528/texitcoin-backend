@@ -144,7 +144,7 @@ const generateWeeklyReport = async (all: boolean) => {
     const CENT_CONVERT = 1000;
     const newExpenses =
       proofs
-        .filter((proof) => proof.type !== 'SALE' && proof.type !== 'PREPAY')
+        .filter((proof) => proof.type !== 'SALE')
         .reduce((prev, proof) => prev + proof.amount * CENT_CONVERT, 0) / CENT_CONVERT;
 
     const date = `${iStartDate.format('MM/DD')} - ${iStartDate.add(1, 'week').subtract(1, 'day').format('MM/DD')}, ${iStartDate.format('YYYY')}`;

@@ -43,7 +43,6 @@ enum ProofType {
   PROMOTION
   PROFIT
   SALE
-  PREPAY
   DEVELOPERSPROTOCOL
   DEVELOPERSWEB
   DEVELOPERSAPPS
@@ -368,8 +367,7 @@ model WeeklyCommission {
 
   shortNote String?
 
-  member            Member?            @relation(fields: [memberId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  prepaidCommission PrepaidCommission?
+  member Member? @relation(fields: [memberId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -448,22 +446,6 @@ model Proof {
 
   @@unique([refId, type], map: "unique_index_on_proof")
   @@map("proofs")
-}
-
-model PrepaidCommission {
-  id           String   @id @default(uuid())
-  commissionId String?  @unique
-  txType       String?
-  txId         String?
-  orderedAt    DateTime @default(now())
-
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  deletedAt DateTime?
-
-  commission WeeklyCommission? @relation(fields: [commissionId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@map("prepaidcommissions")
 }
 
 model ReferenceLink {

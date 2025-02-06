@@ -725,6 +725,9 @@ export class MemberResolver {
       totalTXCShared: totalTXCShared ?? BigInt(0),
       joinDate,
       point,
+      cashCommissionPotential: await ctx.dataLoader
+        .get('cashCommissionPotentialForMemberLoader')
+        .load(rID),
     };
   }
 
