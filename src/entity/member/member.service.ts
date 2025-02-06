@@ -30,9 +30,9 @@ import utcPlugin from 'dayjs/plugin/utc';
 import { NO_PRODUCT, SPONSOR_BONOUS_CNT, SPONSOR_ROLL_DURATION } from '@/consts';
 import { MailerService } from '@/service/mailer';
 import { NotificationService } from '../notification/notification.service';
-import { MemberState, NotificationLevel } from '@/graphql/enum';
+import { FrontActionEnum, MemberState, NotificationLevel } from '@/graphql/enum';
 import { GroupSettingService } from '../groupSetting/groupSetting.service';
-import { convertNumToString } from '@/utils/convertNumToString';
+import { FrontActionService } from '@/service/frontaction';
 
 dayjs.extend(utcPlugin);
 
@@ -46,7 +46,9 @@ export class MemberService {
     @Inject(() => SendyService)
     private readonly sendyService: SendyService,
     @Inject(() => MailerService)
-    private readonly mailerService: MailerService
+    private readonly mailerService: MailerService,
+    @Inject(() => FrontActionService)
+    private readonly frontActionService: FrontActionService
   ) {}
 
   async getMembers(params: MemberQueryArgs) {
@@ -373,18 +375,6 @@ export class MemberService {
   private async handle12FreeBonus(member: Member) {
     const group = await this.groupSettingService.getGroup(member.createdAt);
 
-    if (!group) {
-      this.mailerService.notifyMiner3rdIntroducersToAdmin(
-        member.username,
-        member.fullName,
-        member.totalIntroducers,
-        null,
-        null,
-        null
-      );
-      return;
-    }
-
     let packageId = null;
     const nowDate = dayjs(new Date(), { utc: true });
     const lastRolledSponsor = dayjs(member.lastRolledSponsor, { utc: true });
@@ -392,9 +382,9 @@ export class MemberService {
       nowDate.diff(lastRolledSponsor, 'day') <= SPONSOR_ROLL_DURATION;
 
     if (isWithinSponsorRollDuration) {
-      packageId = group.rollSponsorBonusPackageId || group.sponsorBonusPackageId;
+      packageId = group?.rollSponsorBonusPackageId || group?.sponsorBonusPackageId;
 
-      if (group.rollSponsorBonusPackageId) {
+      if (group?.rollSponsorBonusPackageId) {
         await this.prisma.member.update({
           where: {
             id: member.id,
@@ -405,38 +395,36 @@ export class MemberService {
         });
       }
     } else {
-      packageId = group.sponsorBonusPackageId;
+      packageId = group?.sponsorBonusPackageId;
     }
 
     if (packageId) {
-      const { ID: maxID } = await this.prisma.sale.findFirst({ orderBy: { ID: 'desc' } });
-      const sale = await this.prisma.sale.create({
-        data: {
-          paymentMethod: 'BONUS',
+      this.frontActionService.addAction({
+        action: FrontActionEnum.CREATE12FREEBONUSSALE,
+        message: `Do you want to create a 1-2-free bonus(${isWithinSponsorRollDuration ? 'Normal' : 'Fast'}) sale?`,
+        extra: {
           memberId: member.id,
           packageId,
+          paymentMethod: 'BONUS',
           sponsorCnt: member.totalIntroducers,
-          ID: maxID + 1,
+          isWithinSponsorRollDuration,
         },
       });
-      const saleID = convertNumToString({ value: sale.ID, length: 7, prefix: 'S' });
 
       this.mailerService.notifyMiner3rdIntroducersToAdmin(
         member.username,
         member.fullName,
         member.totalIntroducers,
-        saleID,
-        `${process.env.ADMIN_URL}/sales/${saleID}`,
-        group.name
+        isWithinSponsorRollDuration ? 'Normal' : 'Fast',
+        group?.name
       );
     } else {
       this.mailerService.notifyMiner3rdIntroducersToAdmin(
         member.username,
         member.fullName,
         member.totalIntroducers,
-        null,
-        null,
-        group.name
+        isWithinSponsorRollDuration ? 'Normal' : 'Fast',
+        group?.name
       );
     }
   }
@@ -477,27 +465,39 @@ export class MemberService {
               id: true,
             },
           },
+          package: {
+            select: {
+              productName: true,
+            },
+          },
         },
       });
+
       if (freeSales) {
         if (freeSales.statisticsSales.length) {
-          await this.prisma.sale.update({
-            where: {
-              id: freeSales[0].id,
-            },
-            data: {
-              packageId: NO_PRODUCT,
+          this.frontActionService.addAction({
+            action: FrontActionEnum.UPDATE12FREEBONUSSALE,
+            message: `Do you want to update a 1-2-free bonus sale?`,
+            extra: {
+              id: freeSales.id,
+              ID: freeSales.ID,
+              oldPackageId: freeSales.packageId,
+              oldProductName: freeSales.package.productName,
+              newPackageId: NO_PRODUCT,
+              newProductName: 'No Product',
               status: false,
             },
           });
         } else {
-          await this.prisma.sale.delete({
-            where: {
+          this.frontActionService.addAction({
+            action: FrontActionEnum.REMOVE12FREEBONUSSALE,
+            message: `Do you want to remove a 1-2-free bonus sale?`,
+            extra: {
               id: freeSales.id,
+              ID: freeSales.ID,
             },
           });
         }
-        await this.updateMemberPointByMemberId(member.id);
       }
     } else if (is1PointAway && isNew) {
       await this.notificationService.addNotification(

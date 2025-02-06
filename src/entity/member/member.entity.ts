@@ -20,7 +20,7 @@ import { AdminNotes } from '../adminNotes/adminNotes.entity';
 import { CommissionStatus } from '../weeklycommission/weeklycommission.type';
 import { Balance } from '../balance/balance.entity';
 import { canAccess } from '@/graphql/middlewares';
-import GraphQLJSON, { GraphQLJSONObject } from 'graphql-type-json';
+import { GraphQLJSONObject } from 'graphql-type-json';
 
 @ObjectType()
 export class Member extends BaseEntity {

@@ -74,6 +74,12 @@ export enum MemberState {
   APPROVED = 'APPROVED',
 }
 
+export enum FrontActionEnum {
+  CREATE12FREEBONUSSALE = 'CREATE12FREEBONUSSALE',
+  UPDATE12FREEBONUSSALE = 'UPDATE12FREEBONUSSALE',
+  REMOVE12FREEBONUSSALE = 'REMOVE12FREEBONUSSALE',
+}
+
 registerEnumType(PlacementPosition, {
   name: 'PlacementPosition',
 });
@@ -112,4 +118,8 @@ registerEnumType(TeamReportSection, {
 
 registerEnumType(MemberState, {
   name: 'MemberState',
+});
+
+registerEnumType(FrontActionEnum, {
+  name: 'FrontActionEnum',
 });

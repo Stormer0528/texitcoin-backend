@@ -1,6 +1,7 @@
 import { IsEmail } from 'class-validator';
 import { Field, ID, InputType, ObjectType } from 'type-graphql';
-import { SuccessResult } from './enum';
+import { FrontActionEnum, SuccessResult } from './enum';
+import { GraphQLJSONObject } from 'graphql-type-json';
 
 @InputType()
 export class IDInput {
@@ -25,15 +26,6 @@ export class EmailInput {
 export class TokenInput {
   @Field()
   token: string;
-}
-
-@ObjectType()
-export class SuccessResponse {
-  @Field(() => SuccessResult)
-  result: SuccessResult;
-
-  @Field({ nullable: true })
-  message?: string;
 }
 
 @ObjectType()
@@ -65,4 +57,31 @@ export class VerifyTokenResponse {
 
   @Field()
   token: string;
+}
+
+@ObjectType()
+export class FrontAction {
+  @Field(() => FrontActionEnum)
+  action: FrontActionEnum;
+
+  @Field()
+  message: string;
+
+  @Field(() => GraphQLJSONObject, { nullable: true })
+  extra?: any;
+}
+
+@ObjectType()
+export class FrontActionBasic {
+  @Field(() => [FrontAction], { nullable: null })
+  frontActions?: FrontAction[];
+}
+
+@ObjectType()
+export class SuccessResponse extends FrontActionBasic {
+  @Field(() => SuccessResult)
+  result: SuccessResult;
+
+  @Field({ nullable: true })
+  message?: string;
 }

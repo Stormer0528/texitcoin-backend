@@ -45,17 +45,6 @@
     .note {
       font-size: 16px;
       margin-top: 20px;
-      font-weight: bold;
-    }
-
-    .note a {
-      color: #000;
-      font-weight: normal;
-      text-decoration: none;
-    }
-
-    .note a:hover {
-      text-decoration: underline;
     }
 
     footer {
@@ -81,8 +70,8 @@
       {{#if bonusGroup}}
         <p><strong>Group:</strong> {{bonusGroup}}</p>
       {{/if}}
-      {{#if saleID}}
-        <p class="note"><strong>Bonus Sale:</strong> <a ses:no-track href="{{saleLink}}" target="_blank">{{saleID}}</a></p>
+      {{#if bonusType}}
+        <p class="note"><strong>Bonus Type:</strong> {{bonusType}}</p>
       {{/if}}
       <p>You can log in to the admin panel to review the miner's activity and take any necessary actions.</p>
 

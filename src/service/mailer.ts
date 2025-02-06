@@ -121,8 +121,7 @@ export class MailerService {
     minerUsername: string,
     minerFullname: string,
     totalIntroducers: number,
-    saleID: string,
-    saleLink: string,
+    bonusType: string,
     bonusGroup: string
   ) {
     if (isEmail(ADMIN_EMAIL) && isEmail(SMTP_SENDER_EMAIL)) {
@@ -135,8 +134,7 @@ export class MailerService {
           minerName: minerFullname,
           minerUsername: minerUsername,
           totalIntroducers,
-          saleID,
-          saleLink,
+          saleType: bonusType,
           bonusGroup,
         },
       };

@@ -55,6 +55,7 @@ import { authorized } from './rest/middlewares/authorized.middleware';
 import { emailAccess } from './rest/middlewares/emailAccess.middleware';
 import path from 'path';
 import { PromoResolver } from './entity/promo/promo.resolver';
+import frontActionMiddleware from './graphql/middlewares/frontAction.middleware';
 
 const app = async () => {
   const schema = await tq.buildSchema({
@@ -95,6 +96,7 @@ const app = async () => {
     // Registry 3rd party IOC container
     container: Container,
     pubSub,
+    globalMiddlewares: [frontActionMiddleware],
   });
 
   const mainServer = express();
