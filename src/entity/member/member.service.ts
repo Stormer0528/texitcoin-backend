@@ -399,7 +399,7 @@ export class MemberService {
     }
 
     if (packageId) {
-      this.frontActionService.addAction({
+      this.frontActionService.setAction({
         action: FrontActionEnum.CREATE12FREEBONUSSALE,
         message: `Do you want to create a 1-2-free bonus(${isWithinSponsorRollDuration ? 'Normal' : 'Fast'}) sale?`,
         extra: {
@@ -475,7 +475,7 @@ export class MemberService {
 
       if (freeSales) {
         if (freeSales.statisticsSales.length) {
-          this.frontActionService.addAction({
+          this.frontActionService.setAction({
             action: FrontActionEnum.UPDATE12FREEBONUSSALE,
             message: `Do you want to update a 1-2-free bonus sale?`,
             extra: {
@@ -489,7 +489,7 @@ export class MemberService {
             },
           });
         } else {
-          this.frontActionService.addAction({
+          this.frontActionService.setAction({
             action: FrontActionEnum.REMOVE12FREEBONUSSALE,
             message: `Do you want to remove a 1-2-free bonus sale?`,
             extra: {

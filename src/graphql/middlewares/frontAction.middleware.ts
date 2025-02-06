@@ -10,13 +10,13 @@ export const frontActionMiddleware: MiddlewareFn<any> = async (
 ) => {
   if (info.parentType.name === 'Mutation') {
     const asyncLocalStorage = Container.get(FrontActionService).asyncLocalStorage;
-    return asyncLocalStorage.run([], async () => {
+    return asyncLocalStorage.run({}, async () => {
       const res = await next();
-      const actions = asyncLocalStorage.getStore();
+      const store = asyncLocalStorage.getStore();
       const fields = graphqlFields(info);
 
-      if (actions?.length && 'frontActions' in fields) {
-        res.frontActions = actions;
+      if (store?.action && 'frontActions' in fields) {
+        res.frontActions = store;
       }
 
       return res;

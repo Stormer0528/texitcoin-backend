@@ -3,20 +3,21 @@ import { AsyncLocalStorage } from 'async_hooks';
 import { Service } from 'typedi';
 
 export interface FrontActionInterface {
-  action: FrontActionEnum;
-  message: string;
+  action?: FrontActionEnum;
+  message?: string;
   extra?: any;
 }
 
 @Service()
 export class FrontActionService {
-  asyncLocalStorage = new AsyncLocalStorage<FrontActionInterface[]>();
+  asyncLocalStorage = new AsyncLocalStorage<FrontActionInterface>();
 
-  addAction(action: FrontActionInterface) {
-    const actions = this.asyncLocalStorage.getStore();
-    if (!actions) {
-      return;
-    }
-    actions.push(action);
+  setAction(action: FrontActionInterface & { action: FrontActionEnum; message: string }) {
+    const store = this.asyncLocalStorage.getStore();
+    if (!store) return;
+
+    store.action = action.action;
+    store.message = action.message;
+    store.extra = action.extra;
   }
 }
