@@ -529,11 +529,6 @@ export class GeneralResolver {
     FROM weeklycommissions
     WHERE status='APPROVED'
     `.then((res) => res[0].coalesce);
-    const commissionPaidQuery = this.prisma.$queryRaw`
-    SELECT COALESCE(SUM(weeklycommissions.commission), 0)::INTEGER
-    FROM weeklycommissions
-    WHERE status='PAID'
-  `.then((res) => res[0].coalesce);
 
     const proofQuery = this.prisma.$queryRaw<RevenueSpentItem[]>`
       SELECT proofs.type as label, COALESCE(SUM(proofs.amount), 0)::INTEGER as value
@@ -542,14 +537,12 @@ export class GeneralResolver {
       GROUP BY proofs.type
     `;
 
-    const [revenue, commissionPending, commissionApproved, commissionPaid, proofs] =
-      await Bluebird.all([
-        revenueQuery,
-        commissionPendingQuery,
-        commissionApprovedQuery,
-        commissionPaidQuery,
-        proofQuery,
-      ]);
+    const [revenue, commissionPending, commissionApproved, proofs] = await Bluebird.all([
+      revenueQuery,
+      commissionPendingQuery,
+      commissionApprovedQuery,
+      proofQuery,
+    ]);
     return {
       revenue,
       spent: [
@@ -560,10 +553,6 @@ export class GeneralResolver {
         {
           label: 'Approved Commission',
           value: commissionApproved,
-        },
-        {
-          label: 'Paid Commission',
-          value: commissionPaid,
         },
         ...proofs
           .map((proof) => {
@@ -696,7 +685,7 @@ export class GeneralResolver {
       SELECT members.id, members."fullName", SUM(c.commission)::Integer as earned
       FROM members
       LEFT JOIN weeklycommissions c ON c."memberId" = members.id
-      WHERE c.status = 'PAID'
+      WHERE c.status = 'APPROVED'
       GROUP BY members.id, members."fullName"
       ORDER BY earned DESC
       LIMIT 4

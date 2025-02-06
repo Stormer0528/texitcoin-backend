@@ -59,7 +59,7 @@ export class WeeklyCommissionsStatusUpdateInput {
   status: ConfirmationStatus;
 }
 
-export type CONFIRMATIONSTATUS = 'NONE' | 'PENDING' | 'APPROVED' | 'PAID' | 'DECLINED' | 'PREVIEW';
+export type CONFIRMATIONSTATUS = 'NONE' | 'PENDING' | 'APPROVED' | 'DECLINED' | 'PREVIEW';
 
 export type TEAM_REPORT_SECTION = 'LEFT' | 'RIGHT' | 'REFERRAL';
 

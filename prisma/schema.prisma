@@ -24,7 +24,6 @@ enum ConfirmationStatus {
   NONE
   PENDING
   APPROVED
-  PAID
   DECLINED
   PREVIEW
 }

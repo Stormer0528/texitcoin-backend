@@ -79,7 +79,7 @@ export class WeeklyCommissionResolver {
         ...query.filter,
         memberId: context.user.id,
         status: {
-          in: [ConfirmationStatus.PAID, ConfirmationStatus.APPROVED, ConfirmationStatus.DECLINED],
+          in: [ConfirmationStatus.APPROVED, ConfirmationStatus.DECLINED],
         },
       };
     }
@@ -118,8 +118,7 @@ export class WeeklyCommissionResolver {
         !(
           prevCommission.status === ConfirmationStatus.PENDING ||
           (prevCommission.status === ConfirmationStatus.APPROVED &&
-            (data.status === ConfirmationStatus.DECLINED ||
-              data.status === ConfirmationStatus.PAID)) ||
+            data.status === ConfirmationStatus.DECLINED) ||
           (prevCommission.status === ConfirmationStatus.DECLINED &&
             data.status === ConfirmationStatus.APPROVED)
         ))
@@ -139,8 +138,8 @@ export class WeeklyCommissionResolver {
     });
 
     if (
-      prevCommission.status !== ConfirmationStatus.PAID &&
-      updatedCommission.status === ConfirmationStatus.PAID
+      prevCommission.status !== ConfirmationStatus.APPROVED &&
+      updatedCommission.status === ConfirmationStatus.APPROVED
     ) {
       await this.balanceService.addBalance({
         amountInCents: updatedCommission.commission * 100,
@@ -182,8 +181,7 @@ export class WeeklyCommissionResolver {
           !(
             prevCommission.status === ConfirmationStatus.PENDING ||
             (prevCommission.status === ConfirmationStatus.APPROVED &&
-              (data.status === ConfirmationStatus.DECLINED ||
-                data.status === ConfirmationStatus.PAID)) ||
+              data.status === ConfirmationStatus.DECLINED) ||
             (prevCommission.status === ConfirmationStatus.DECLINED &&
               data.status === ConfirmationStatus.APPROVED)
           ))
@@ -198,8 +196,8 @@ export class WeeklyCommissionResolver {
       prevCommissions
         .filter(
           (prevCommission) =>
-            prevCommission.status !== ConfirmationStatus.PAID &&
-            data.status === ConfirmationStatus.PAID
+            prevCommission.status !== ConfirmationStatus.APPROVED &&
+            data.status === ConfirmationStatus.APPROVED
         )
         .map((commission) => ({
           amountInCents: commission.commission,

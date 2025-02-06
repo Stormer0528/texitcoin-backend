@@ -178,13 +178,12 @@ export const weeklyCommissionsForMemberLoader = (parent: RootDataLoader) => {
             in: parent.isAdmin
               ? [
                   ConfirmationStatus.DECLINED,
-                  ConfirmationStatus.PAID,
                   ConfirmationStatus.APPROVED,
                   ConfirmationStatus.PENDING,
                   ConfirmationStatus.NONE,
                   ConfirmationStatus.PREVIEW,
                 ]
-              : [ConfirmationStatus.DECLINED, ConfirmationStatus.APPROVED, ConfirmationStatus.PAID],
+              : [ConfirmationStatus.DECLINED, ConfirmationStatus.APPROVED],
           },
         },
       });

@@ -11,7 +11,6 @@ export enum ConfirmationStatus {
   NONE = 'NONE',
   PENDING = 'PENDING',
   APPROVED = 'APPROVED',
-  PAID = 'PAID',
   DECLINED = 'DECLINED',
   PREVIEW = 'PREVIEW',
 }
