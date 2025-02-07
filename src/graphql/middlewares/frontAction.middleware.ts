@@ -15,7 +15,7 @@ export const frontActionMiddleware: MiddlewareFn<any> = async (
       const store = asyncLocalStorage.getStore();
       const fields = graphqlFields(info);
 
-      if (store?.action && 'frontActions' in fields) {
+      if (store?.action && 'frontAction' in fields) {
         res.frontActions = store;
       }
 
