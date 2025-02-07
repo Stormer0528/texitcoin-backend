@@ -16,7 +16,7 @@ export const frontActionMiddleware: MiddlewareFn<any> = async (
       const fields = graphqlFields(info);
 
       if (store?.action && 'frontAction' in fields) {
-        res.frontActions = store;
+        res.frontAction = store;
       }
 
       return res;
