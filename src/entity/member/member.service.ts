@@ -403,6 +403,7 @@ export class MemberService {
         action: FrontActionEnum.CREATE12FREEBONUSSALE,
         message: `Do you want to create a 1-2-free bonus(${isWithinSponsorRollDuration ? 'Normal' : 'Fast'}) sale?`,
         extra: {
+          type: FrontActionEnum.CREATE12FREEBONUSSALE,
           memberId: member.id,
           packageId,
           paymentMethod: 'BONUS',
@@ -479,12 +480,10 @@ export class MemberService {
             action: FrontActionEnum.UPDATE12FREEBONUSSALE,
             message: `Do you want to update a 1-2-free bonus sale?`,
             extra: {
+              type: FrontActionEnum.UPDATE12FREEBONUSSALE,
               id: freeSales.id,
-              ID: freeSales.ID,
               oldPackageId: freeSales.packageId,
-              oldProductName: freeSales.package.productName,
               newPackageId: NO_PRODUCT,
-              newProductName: 'No Product',
               status: false,
             },
           });
@@ -493,8 +492,8 @@ export class MemberService {
             action: FrontActionEnum.REMOVE12FREEBONUSSALE,
             message: `Do you want to remove a 1-2-free bonus sale?`,
             extra: {
+              type: FrontActionEnum.REMOVE12FREEBONUSSALE,
               id: freeSales.id,
-              ID: freeSales.ID,
             },
           });
         }

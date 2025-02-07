@@ -1,3 +1,4 @@
+import { FrontActionExtraTypes } from '@/graphql/common.type';
 import { FrontActionEnum } from '@/graphql/enum';
 import { AsyncLocalStorage } from 'async_hooks';
 import { Service } from 'typedi';
@@ -5,7 +6,7 @@ import { Service } from 'typedi';
 export interface FrontActionInterface {
   action?: FrontActionEnum;
   message?: string;
-  extra?: any;
+  extra?: typeof FrontActionExtraTypes;
 }
 
 @Service()

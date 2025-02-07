@@ -61,8 +61,12 @@ export class VerifyTokenResponse {
 
 @ObjectType()
 export class FrontActionCreate12FreeBonusSale {
+  @Field(() => FrontActionEnum)
+  type: FrontActionEnum;
+
   @Field(() => ID)
   memberId: string;
+
   @Field(() => ID)
   packageId: string;
 
@@ -78,6 +82,9 @@ export class FrontActionCreate12FreeBonusSale {
 
 @ObjectType()
 export class FrontActionUpdate12FreeBonusSale {
+  @Field(() => FrontActionEnum)
+  type: FrontActionEnum;
+
   @Field(() => ID)
   id: string;
 
@@ -93,17 +100,32 @@ export class FrontActionUpdate12FreeBonusSale {
 
 @ObjectType()
 export class FrontActionRemove12FreeBonusSale {
+  @Field(() => FrontActionEnum)
+  type: FrontActionEnum;
+
   @Field(() => ID)
   id: string;
 }
 
 export const FrontActionExtraTypes = createUnionType({
   name: 'FrontActionExtra',
-  types: () => [
-    FrontActionCreate12FreeBonusSale,
-    FrontActionUpdate12FreeBonusSale,
-    FrontActionRemove12FreeBonusSale,
-  ],
+  types: () =>
+    [
+      FrontActionCreate12FreeBonusSale,
+      FrontActionUpdate12FreeBonusSale,
+      FrontActionRemove12FreeBonusSale,
+    ] as const,
+  resolveType: ({ type }) => {
+    switch (type) {
+      case FrontActionEnum.CREATE12FREEBONUSSALE:
+        return FrontActionCreate12FreeBonusSale;
+      case FrontActionEnum.UPDATE12FREEBONUSSALE:
+        return FrontActionUpdate12FreeBonusSale;
+      case FrontActionEnum.REMOVE12FREEBONUSSALE:
+        return FrontActionRemove12FreeBonusSale;
+    }
+    return undefined;
+  },
 });
 
 @ObjectType()
@@ -115,7 +137,7 @@ export class FrontAction {
   message: string;
 
   @Field(() => FrontActionExtraTypes, { nullable: true })
-  extra?: any;
+  extra?: typeof FrontActionExtraTypes;
 }
 
 @ObjectType()
