@@ -1,5 +1,5 @@
 import { IsEmail } from 'class-validator';
-import { Field, ID, InputType, ObjectType } from 'type-graphql';
+import { createUnionType, Field, ID, InputType, Int, ObjectType } from 'type-graphql';
 import { FrontActionEnum, SuccessResult } from './enum';
 import { GraphQLJSONObject } from 'graphql-type-json';
 
@@ -60,6 +60,53 @@ export class VerifyTokenResponse {
 }
 
 @ObjectType()
+export class FrontActionCreate12FreeBonusSale {
+  @Field(() => ID)
+  memberId: string;
+  @Field(() => ID)
+  packageId: string;
+
+  @Field()
+  paymentMethod: string;
+
+  @Field(() => Int)
+  sponsorCnt: number;
+
+  @Field(() => Boolean)
+  isWithinSponsorRollDuration: boolean;
+}
+
+@ObjectType()
+export class FrontActionUpdate12FreeBonusSale {
+  @Field(() => ID)
+  id: string;
+
+  @Field(() => ID)
+  oldPackageId: string;
+
+  @Field(() => ID)
+  newPackageId: string;
+
+  @Field(() => Boolean)
+  status: boolean;
+}
+
+@ObjectType()
+export class FrontActionRemove12FreeBonusSale {
+  @Field(() => ID)
+  id: string;
+}
+
+export const FrontActionExtraTypes = createUnionType({
+  name: 'FrontActionExtra',
+  types: () => [
+    FrontActionCreate12FreeBonusSale,
+    FrontActionUpdate12FreeBonusSale,
+    FrontActionRemove12FreeBonusSale,
+  ],
+});
+
+@ObjectType()
 export class FrontAction {
   @Field(() => FrontActionEnum)
   action: FrontActionEnum;
@@ -67,7 +114,7 @@ export class FrontAction {
   @Field()
   message: string;
 
-  @Field(() => GraphQLJSONObject, { nullable: true })
+  @Field(() => FrontActionExtraTypes, { nullable: true })
   extra?: any;
 }
 
