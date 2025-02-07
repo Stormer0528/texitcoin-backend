@@ -62,13 +62,22 @@ export class VerifyTokenResponse {
 @ObjectType()
 export class FrontActionCreate12FreeBonusSale {
   @Field(() => FrontActionEnum)
-  type: FrontActionEnum;
+  type: FrontActionEnum.CREATE12FREEBONUSSALE;
 
   @Field(() => ID)
   memberId: string;
 
+  @Field()
+  username: string;
+
+  @Field()
+  fullName: string;
+
   @Field(() => ID)
   packageId: string;
+
+  @Field()
+  packageName: string;
 
   @Field()
   paymentMethod: string;
@@ -83,16 +92,25 @@ export class FrontActionCreate12FreeBonusSale {
 @ObjectType()
 export class FrontActionUpdate12FreeBonusSale {
   @Field(() => FrontActionEnum)
-  type: FrontActionEnum;
+  type: FrontActionEnum.UPDATE12FREEBONUSSALE;
 
   @Field(() => ID)
   id: string;
 
+  @Field()
+  ID: number;
+
   @Field(() => ID)
   oldPackageId: string;
 
+  @Field()
+  oldPackageName: string;
+
   @Field(() => ID)
   newPackageId: string;
+
+  @Field()
+  newPackageName: string;
 
   @Field(() => Boolean)
   status: boolean;
@@ -101,10 +119,13 @@ export class FrontActionUpdate12FreeBonusSale {
 @ObjectType()
 export class FrontActionRemove12FreeBonusSale {
   @Field(() => FrontActionEnum)
-  type: FrontActionEnum;
+  type: FrontActionEnum.REMOVE12FREEBONUSSALE;
 
   @Field(() => ID)
   id: string;
+
+  @Field()
+  ID: number;
 }
 
 export const FrontActionExtraTypes = createUnionType({

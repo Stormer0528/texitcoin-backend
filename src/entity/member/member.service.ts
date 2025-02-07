@@ -399,13 +399,22 @@ export class MemberService {
     }
 
     if (packageId) {
+      const pkg = await this.prisma.package.findUnique({
+        where: {
+          id: packageId,
+        },
+      });
+
       this.frontActionService.setAction({
         action: FrontActionEnum.CREATE12FREEBONUSSALE,
         message: `Do you want to create a 1-2-free bonus(${isWithinSponsorRollDuration ? 'Normal' : 'Fast'}) sale?`,
         extra: {
           type: FrontActionEnum.CREATE12FREEBONUSSALE,
           memberId: member.id,
+          fullName: member.fullName,
+          username: member.username,
           packageId,
+          packageName: pkg.productName,
           paymentMethod: 'BONUS',
           sponsorCnt: member.totalIntroducers,
           isWithinSponsorRollDuration,
@@ -482,8 +491,11 @@ export class MemberService {
             extra: {
               type: FrontActionEnum.UPDATE12FREEBONUSSALE,
               id: freeSales.id,
+              ID: freeSales.ID,
               oldPackageId: freeSales.packageId,
+              oldPackageName: freeSales.package.productName,
               newPackageId: NO_PRODUCT,
+              newPackageName: 'No Product',
               status: false,
             },
           });
@@ -494,6 +506,7 @@ export class MemberService {
             extra: {
               type: FrontActionEnum.REMOVE12FREEBONUSSALE,
               id: freeSales.id,
+              ID: freeSales.ID,
             },
           });
         }
