@@ -163,8 +163,8 @@ export class FrontAction {
 
 @ObjectType()
 export class FrontActionBasic {
-  @Field(() => FrontAction, { nullable: null })
-  frontAction?: FrontAction;
+  @Field(() => [FrontAction], { nullable: null })
+  frontActions?: FrontAction[];
 }
 
 @ObjectType()

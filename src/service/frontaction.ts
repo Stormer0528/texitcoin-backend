@@ -11,14 +11,12 @@ export interface FrontActionInterface {
 
 @Service()
 export class FrontActionService {
-  asyncLocalStorage = new AsyncLocalStorage<FrontActionInterface>();
+  asyncLocalStorage = new AsyncLocalStorage<FrontActionInterface[]>();
 
   setAction(action: FrontActionInterface & { action: FrontActionEnum; message: string }) {
     const store = this.asyncLocalStorage.getStore();
     if (!store) return;
 
-    store.action = action.action;
-    store.message = action.message;
-    store.extra = action.extra;
+    store.push(action);
   }
 }
