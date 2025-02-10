@@ -52,12 +52,18 @@ export const freeShareForPackageLoader = (parent: RootDataLoader) => {
       const groupSettings = await parent.prisma.groupSetting.findMany({
         select: {
           sponsorBonusPackageId: true,
+          rollSponsorBonusPackageId: true,
         },
       });
       const groupSettingMap: Record<string, boolean> = {};
-      groupSettings.forEach(
-        (groupSetting) => (groupSettingMap[groupSetting.sponsorBonusPackageId] = true)
-      );
+      groupSettings.forEach((groupSetting) => {
+        if (groupSetting.sponsorBonusPackageId) {
+          groupSettingMap[groupSetting.sponsorBonusPackageId] = true;
+        }
+        if (groupSetting.rollSponsorBonusPackageId) {
+          groupSettingMap[groupSetting.rollSponsorBonusPackageId] = true;
+        }
+      });
 
       return packageIds.map((id) => Boolean(groupSettingMap[id]));
     },
