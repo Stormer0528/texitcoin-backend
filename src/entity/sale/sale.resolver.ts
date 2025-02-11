@@ -282,7 +282,7 @@ export class SaleResolver {
         }
       }
     } else {
-      if (newSaleBalance.memberId) {
+      if (newSaleBalance.memberId && newSaleBalance.amount !== oldSaleBalance.amount) {
         await this.balanceService.addBalance({
           amountInCents: newSaleBalance.amount - oldSaleBalance.amount,
           date: dayjs().utc().startOf('day').toDate(),
