@@ -447,6 +447,7 @@ export class MemberService {
     const newIntroducers = await this.calculateTotalIntroducerCount(id);
 
     const isNew = newIntroducers > member.totalIntroducers;
+    member.totalIntroducers = newIntroducers;
 
     const is12FreeBonus =
       member.totalIntroducers && member.totalIntroducers % SPONSOR_BONOUS_CNT === 0;
