@@ -438,11 +438,15 @@ export class MemberService {
       );
     }
   }
-  async checkSponsorBonous(id: string, isNew: boolean = true): Promise<void> {
+  async checkSponsorBonous(id: string): Promise<void> {
     if (!id) return;
 
     const member = await this.prisma.member.findUnique({ where: { id } });
     if (!member) return;
+
+    const newIntroducers = await this.calculateTotalIntroducerCount(id);
+
+    const isNew = newIntroducers > member.totalIntroducers;
 
     const is12FreeBonus =
       member.totalIntroducers && member.totalIntroducers % SPONSOR_BONOUS_CNT === 0;
@@ -520,7 +524,7 @@ export class MemberService {
     }
   }
 
-  async calculateTotalIntroducerCount(id: string): Promise<void> {
+  async calculateTotalIntroducerCount(id: string): Promise<number> {
     const introducers = await this.prisma.member.count({
       where: {
         sponsorId: id,
@@ -535,6 +539,8 @@ export class MemberService {
         totalIntroducers: introducers,
       },
     });
+
+    return introducers;
   }
 
   async approveMember(id: string) {
@@ -560,7 +566,6 @@ export class MemberService {
     });
 
     if (member.sponsorId) {
-      await this.calculateTotalIntroducerCount(member.sponsorId);
       await this.checkSponsorBonous(member.sponsorId);
     }
 
