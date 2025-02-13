@@ -489,6 +489,21 @@ export class MemberResolver {
   }
 
   @Authorized([UserRole.ADMIN])
+  @Transaction()
+  @Mutation(() => SuccessResponse)
+  async moveToPending(@Arg('data') data: IDInput): Promise<SuccessResponse> {
+    await this.service.updateMember({
+      id: data.id,
+      allowState: MemberState.PENDING,
+      status: false,
+    });
+
+    return {
+      result: SuccessResult.success,
+    };
+  }
+
+  @Authorized([UserRole.ADMIN])
   @UseMiddleware(minerLog('remove'))
   @Transaction()
   @Mutation(() => SuccessResponse)
