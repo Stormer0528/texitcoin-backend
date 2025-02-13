@@ -217,8 +217,11 @@ export class ExcelService {
           return 'Graveyard';
         case 'APPROVED':
           return 'Approved';
+        case 'PAID':
+          return 'Paid';
+        default:
+          return allowState;
       }
-      return '';
     };
 
     const generateMemberData = (allowStateFilter: MemberState) => {
@@ -253,6 +256,7 @@ export class ExcelService {
     const approvedMembers = generateMemberData('APPROVED');
     const pendingMembers = generateMemberData('PENDING');
     const graveyardMembers = generateMemberData('GRAVEYARD');
+    const paidMembers = generateMemberData('PAID');
 
     return this.exportMultiSheetExport([
       {
@@ -269,6 +273,11 @@ export class ExcelService {
         name: 'Graveyard',
         specification: _.omit(specification, 'ID'),
         data: graveyardMembers,
+      },
+      {
+        name: 'Paid',
+        specification: _.omit(specification, 'ID'),
+        data: paidMembers,
       },
     ]);
   }
