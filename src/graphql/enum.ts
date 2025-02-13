@@ -72,6 +72,7 @@ export enum MemberState {
   PENDING = 'PENDING',
   GRAVEYARD = 'GRAVEYARD',
   APPROVED = 'APPROVED',
+  PAID = 'PAID',
 }
 
 export enum FrontActionEnum {

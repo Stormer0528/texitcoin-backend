@@ -80,6 +80,7 @@ enum MemberState {
   PENDING
   GRAVEYARD
   APPROVED
+  PAID
 }
 
 model Admin {

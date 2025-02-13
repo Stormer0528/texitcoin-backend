@@ -326,7 +326,7 @@ export type TEAM_STRATEGY = 'LEFT' | 'RIGHT' | 'BALANCE' | 'MANUAL';
 
 export type TEAM_REPORT = 'LEFT' | 'RIGHT' | 'NONE' | 'ALL';
 
-export type MEMBER_STATE = 'PENDING' | 'GRAVEYARD' | 'APPROVED';
+export type MEMBER_STATE = 'PENDING' | 'GRAVEYARD' | 'APPROVED' | 'PAID';
 
 @ObjectType()
 export class PlacementPositionCountResponse {

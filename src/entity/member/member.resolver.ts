@@ -566,6 +566,21 @@ export class MemberResolver {
   @Authorized([UserRole.ADMIN])
   @Transaction()
   @Mutation(() => SuccessResponse)
+  async moveToPaid(@Arg('data') data: IDInput): Promise<SuccessResponse> {
+    await this.service.updateMember({
+      id: data.id,
+      allowState: MemberState.PAID,
+      status: false,
+    });
+
+    return {
+      result: SuccessResult.success,
+    };
+  }
+
+  @Authorized([UserRole.ADMIN])
+  @Transaction()
+  @Mutation(() => SuccessResponse)
   async moveToPending(@Arg('data') data: IDInput): Promise<SuccessResponse> {
     await this.service.updateMember({
       id: data.id,
