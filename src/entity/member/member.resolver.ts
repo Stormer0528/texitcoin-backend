@@ -253,17 +253,42 @@ export class MemberResolver {
   @Mutation(() => Member)
   async duplicateMember(@Arg('data') data: IDInput): Promise<SuccessResponse> {
     const member = await this.service.getMemberById(data.id);
+    const emails = await this.prisma.member
+      .findMany({
+        where: {
+          email: {
+            startsWith: member.email,
+          },
+        },
+        select: {
+          email: true,
+        },
+      })
+      .then((members) => members.map((mbr) => mbr.email));
+    const usernames = await this.prisma.member
+      .findMany({
+        where: {
+          username: {
+            startsWith: member.username,
+          },
+        },
+        select: {
+          username: true,
+        },
+      })
+      .then((members) => members.map((mbr) => mbr.username));
+
     let i = 1;
     while (true) {
-      const tMember = await this.service.getMemberByUsername(`${member.username}+${i}`);
-      if (!tMember) break;
+      const idx = emails.findIndex((mail) => mail === `${member.username}+${i}`);
+      if (idx === -1) break;
     }
     const username = `${member.username}+${i}`;
 
     i = 1;
     while (true) {
-      const tMember = await this.service.getMemberByEmail(getExtendEmail(member.email, i));
-      if (!tMember) break;
+      const idx = usernames.findIndex((usn) => usn === getExtendEmail(member.email, i));
+      if (!idx) break;
     }
     const email = getExtendEmail(member.email, i);
 
