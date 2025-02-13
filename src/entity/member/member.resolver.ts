@@ -77,7 +77,6 @@ import { CommissionStatus } from '../weeklycommission/weeklycommission.type';
 import { WeeklyCommissionService } from '../weeklycommission/weeklycommission.service';
 import { Balance } from '../balance/balance.entity';
 import { TelegramBotService } from '@/service/tgbot';
-import { getExtendEmail } from '@/utils/getExtendEmail';
 
 @Service()
 @Resolver(() => Member)
@@ -251,13 +250,14 @@ export class MemberResolver {
   @UseMiddleware(minerLog('create'))
   @Transaction()
   @Mutation(() => Member)
-  async duplicateMember(@Arg('data') data: IDInput): Promise<SuccessResponse> {
+  async duplicateMember(@Arg('data') data: IDInput): Promise<Member> {
     const member = await this.service.getMemberById(data.id);
+    const splitEmails = member.email.split('@');
     const emails = await this.prisma.member
       .findMany({
         where: {
           email: {
-            startsWith: member.email,
+            startsWith: splitEmails[0],
           },
         },
         select: {
@@ -288,13 +288,13 @@ export class MemberResolver {
 
     i = 1;
     while (true) {
-      const idx = emails.findIndex((email) => email === getExtendEmail(member.email, i));
+      const idx = emails.findIndex((email) => email === `${splitEmails[0]}+${i}@${splitEmails[1]}`);
       if (idx === -1) break;
       i++;
     }
-    const email = getExtendEmail(member.email, i);
+    const email = `${splitEmails[0]}+${i}@${splitEmails[1]}`;
 
-    await this.service.createMember({
+    return this.service.createMember({
       assetId: '',
       email,
       fullName: member.fullName,
@@ -319,10 +319,6 @@ export class MemberResolver {
       zipCode: member.zipCode,
       signupFormRequest: null,
     });
-
-    return {
-      result: SuccessResult.success,
-    };
   }
 
   @UseMiddleware(minerLog('signup'))

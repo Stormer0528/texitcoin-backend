@@ -42,7 +42,7 @@ async function func() {
     }
   }
   await Bluebird.map(members, async (member) => {
-    prisma.member.update({
+    await prisma.member.update({
       where: {
         id: member.id,
       },
@@ -54,5 +54,5 @@ async function func() {
 
   console.log('Finished last rolled operations');
 }
-console.log(dayjs('2024-01-01').diff('2024-02-01', 'day'));
+
 func();
