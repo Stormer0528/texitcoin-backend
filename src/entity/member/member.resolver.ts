@@ -280,7 +280,7 @@ export class MemberResolver {
 
     let i = 1;
     while (true) {
-      const idx = emails.findIndex((mail) => mail === `${member.username}+${i}`);
+      const idx = usernames.findIndex((usn) => usn === `${member.username}+${i}`);
       if (idx === -1) break;
       i++;
     }
@@ -288,7 +288,7 @@ export class MemberResolver {
 
     i = 1;
     while (true) {
-      const idx = usernames.findIndex((usn) => usn === getExtendEmail(member.email, i));
+      const idx = emails.findIndex((email) => email === getExtendEmail(member.email, i));
       if (idx === -1) break;
       i++;
     }

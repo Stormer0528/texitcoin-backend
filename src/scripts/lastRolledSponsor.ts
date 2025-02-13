@@ -35,7 +35,7 @@ async function func() {
 
       if (
         sponsorCnt % 3 === 0 &&
-        lastRollSponsorMap[members[i].sponsorId].diff(dayjsCreatedAt, 'day') < 30
+        Math.abs(lastRollSponsorMap[members[i].sponsorId].diff(dayjsCreatedAt, 'day')) < 30
       ) {
         lastRollSponsorMap[members[i].sponsorId] = dayjsCreatedAt;
       }
@@ -54,5 +54,5 @@ async function func() {
 
   console.log('Finished last rolled operations');
 }
-
+console.log(dayjs('2024-01-01').diff('2024-02-01', 'day'));
 func();
