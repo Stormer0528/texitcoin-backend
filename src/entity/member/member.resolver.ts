@@ -276,7 +276,6 @@ export class MemberResolver {
       primaryAddress: member.primaryAddress,
       sponsorId: member.sponsorId,
       username,
-      wallets: [],
       allowState: 'PENDING',
       city: member.city,
       country: member.country,

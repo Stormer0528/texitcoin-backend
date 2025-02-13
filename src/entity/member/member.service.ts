@@ -137,7 +137,7 @@ export class MemberService {
   }
 
   async createMember(
-    data: CreateMemberInput & {
+    data: Omit<CreateMemberInput, 'wallets'> & {
       password: string;
       signupFormRequest: any;
       sponsorId?: string;
