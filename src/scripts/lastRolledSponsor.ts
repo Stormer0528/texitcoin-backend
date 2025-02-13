@@ -23,9 +23,12 @@ async function func() {
   });
   const sponsorMap: Record<string, number> = {};
   const lastRollSponsorMap: Record<string, Dayjs> = {};
+  members.forEach(
+    (member) => (lastRollSponsorMap[member.id] = dayjs(member.createdAt, { utc: true }))
+  );
+
   for (let i = 0; i < members.length; i++) {
     const dayjsCreatedAt = dayjs(members[i].createdAt, { utc: true });
-    lastRollSponsorMap[members[i].id] = dayjsCreatedAt;
     if (members[i].sponsorId !== members[i].id) {
       const sponsorCnt = (sponsorMap[members[i].sponsorId] ?? 0) + 1;
       sponsorMap[members[i].sponsorId] = sponsorCnt;

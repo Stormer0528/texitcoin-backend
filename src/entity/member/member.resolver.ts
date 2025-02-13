@@ -282,13 +282,15 @@ export class MemberResolver {
     while (true) {
       const idx = emails.findIndex((mail) => mail === `${member.username}+${i}`);
       if (idx === -1) break;
+      i++;
     }
     const username = `${member.username}+${i}`;
 
     i = 1;
     while (true) {
       const idx = usernames.findIndex((usn) => usn === getExtendEmail(member.email, i));
-      if (!idx) break;
+      if (idx === -1) break;
+      i++;
     }
     const email = getExtendEmail(member.email, i);
 
