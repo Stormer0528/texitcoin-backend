@@ -77,6 +77,7 @@ import { CommissionStatus } from '../weeklycommission/weeklycommission.type';
 import { WeeklyCommissionService } from '../weeklycommission/weeklycommission.service';
 import { Balance } from '../balance/balance.entity';
 import { TelegramBotService } from '@/service/tgbot';
+import { getExtendEmail } from '@/utils/getExtendEmail';
 
 @Service()
 @Resolver(() => Member)
@@ -244,6 +245,58 @@ export class MemberResolver {
     }
 
     return member;
+  }
+
+  @Authorized([UserRole.ADMIN])
+  @UseMiddleware(minerLog('create'))
+  @Transaction()
+  @Mutation(() => Member)
+  async duplicateMember(@Arg('data') data: IDInput): Promise<SuccessResponse> {
+    const member = await this.service.getMemberById(data.id);
+    let i = 1;
+    while (true) {
+      const tMember = await this.service.getMemberByUsername(`${member.username}+${i}`);
+      if (!tMember) break;
+    }
+    const username = `${member.username}+${i}`;
+
+    i = 1;
+    while (true) {
+      const tMember = await this.service.getMemberByEmail(getExtendEmail(member.email, i));
+      if (!tMember) break;
+    }
+    const email = getExtendEmail(member.email, i);
+
+    await this.service.createMember({
+      assetId: '',
+      email,
+      fullName: member.fullName,
+      mobile: member.mobile,
+      password: member.password,
+      primaryAddress: member.primaryAddress,
+      sponsorId: member.sponsorId,
+      username,
+      wallets: [],
+      allowState: 'PENDING',
+      city: member.city,
+      country: member.country,
+      ID: null,
+      preferredContact: member.preferredContact,
+      preferredContactDetail: member.preferredContactDetail,
+      promoCode: member.promoCode,
+      secondaryAddress: member.secondaryAddress,
+      state: member.state,
+      status: false,
+      syncWithSendy: false,
+      teamReport: member.teamReport,
+      teamStrategy: member.teamStrategy,
+      zipCode: member.zipCode,
+      signupFormRequest: null,
+    });
+
+    return {
+      result: SuccessResult.success,
+    };
   }
 
   @UseMiddleware(minerLog('signup'))

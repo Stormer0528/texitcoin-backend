@@ -181,7 +181,7 @@ export class MemberService {
   }
 
   async getMemberByEmail(email: string) {
-    return this.prisma.member.findFirst({
+    return this.prisma.member.findUnique({
       where: {
         email,
       },
