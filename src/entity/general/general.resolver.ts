@@ -754,7 +754,7 @@ export class GeneralResolver {
   ): Promise<ProfitabilityCalculationResponse> {
     const initHashPower = data.init;
     const totalHashPower = await this.prisma.$queryRaw<{ sum: number }[]>`
-      SELECT SUM(packages.token)
+      SELECT SUM(packages.token)::Int
       FROM sales
       LEFT JOIN packages ON sales."packageId" = packages.id
     `.then((res) => res[0].sum);
