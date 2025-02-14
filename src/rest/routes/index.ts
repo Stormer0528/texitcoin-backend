@@ -4,6 +4,7 @@ import Container from 'typedi';
 import { ExportController } from '../controllers';
 import uploadRoute from './upload.route';
 import rpcRoute from './rpc.route';
+import explorerRoute from './explorer.route';
 import { adminAuthorized } from '../middlewares/adminAuthorized.middleware';
 import { authorized } from '../middlewares/authorized.middleware';
 
@@ -74,5 +75,6 @@ router.get(
 
 router.use('/upload', uploadRoute);
 router.use('/rpc', rpcRoute);
+router.use('/explorer', explorerRoute);
 
 export default router;
