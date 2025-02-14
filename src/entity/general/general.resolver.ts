@@ -11,7 +11,6 @@ import {
   DAILY_MINER_LIMIT,
   DAILY_MINER_REWARD_LIMIT,
   DAILY_STATISTICS_LIMIT,
-  EXPECTED_HASH_POWER_TREND,
   EXPECTED_TXC_COST,
   GET_MINING_INFO,
   MONTHLY_BLOCK_LIMIT,
@@ -753,35 +752,23 @@ export class GeneralResolver {
   async calculateProfitability(
     @Arg('data') data: ProfitabilityCalculationInput
   ): Promise<ProfitabilityCalculationResponse> {
-    const joinDate = dayjs(data.joinDate).utc();
-    if (joinDate.isBefore(dayjs('2024-11-01', { utc: true }), 'month')) {
-      throw new GraphQLError('Joined Date must be at least Nov, 2024', {
-        extensions: {
-          path: ['joinDate'],
-        },
-      });
-    }
-
+    const initHashPower = data.init;
+    const totalHashPower = await this.prisma.$queryRaw<{ sum: number }[]>`
+      SELECT SUM(packages.token)
+      FROM sales
+      LEFT JOIN packages ON sales."packageId" = packages.id
+    `.then((res) => res[0].sum);
     const avgDailyBlock = await this.prisma.$queryRaw<{ avg: number }[]>`
       SELECT AVG("newBlocks")::Float
       FROM statistics
     `.then((res) => res[0].avg);
     const avgDailyTXC = avgDailyBlock * REWARD_PER_BLOCK;
 
+    const joinDate = dayjs(data.joinDate).utc();
     const endDate = dayjs(PROFITABILITY_CALCULATION_DAY, { utc: true });
-
     const period = endDate.diff(joinDate, 'day');
-    let sumTXC = 0;
-    for (
-      let i = joinDate;
-      i.isBefore(endDate, 'month') || i.isSame(endDate, 'month');
-      i = i.add(1, 'month')
-    ) {
-      const remainDays = i.isSame(joinDate) ? i.daysInMonth() - i.date() + 1 : i.daysInMonth();
-      const monthIdx = i.diff(dayjs('2024-11-01', { utc: true }), 'month');
-      const txcPerDay = (avgDailyTXC * data.init) / EXPECTED_HASH_POWER_TREND[monthIdx];
-      sumTXC += txcPerDay * remainDays;
-    }
+
+    const sumTXC = ((initHashPower / totalHashPower) * avgDailyTXC * period) / 2;
     const txcCost = sumTXC * EXPECTED_TXC_COST;
 
     return {
