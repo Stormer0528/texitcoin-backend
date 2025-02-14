@@ -1,6 +1,7 @@
 import { Service, Inject } from 'typedi';
 
 import { PrismaService } from '@/service/prisma';
+
 import { CreatePayoutInput, PayoutQueryArgs } from './payout.type';
 
 @Service()

@@ -1,14 +1,8 @@
-import { Package } from '@prisma/client';
+import { Package, Prisma } from '@prisma/client';
 
 export enum UserRole {
-  Admin = 'Admin',
-}
-
-enum UserGroupRole {
-  None = 'None',
-  Viewer = 'Viewer',
-  Editor = 'Editor',
-  Owner = 'Owner',
+  ADMIN = 'ADMIN',
+  MEMBER = 'MEMBER', // when this value is used in authchecker, this means only member.
 }
 
 export interface SaleReport {
@@ -17,9 +11,8 @@ export interface SaleReport {
 }
 
 export interface SaleReportInput {
-  invoiceNo: number;
   memberId: string;
-  userId: string;
+  ID: string;
   packageName: string;
   orderedAt: Date;
   paymentMethod: string;
@@ -40,27 +33,9 @@ export interface MineStatInput {
   difficulty?: number;
 }
 
-export interface UserGroupPermission {
-  Report: UserGroupRole;
-  Vendor: UserGroupRole;
-  Account: UserGroupRole;
-  Customer: UserGroupRole;
-  CreditCard: UserGroupRole;
-  BankAccount: UserGroupRole;
-  BatchUpload: UserGroupRole;
-  ApprovalAmount: number;
-}
-
 export interface RPCCOMMAND {
   method: string;
   params?: any[];
-}
-
-declare global {
-  namespace PrismaJson {
-    // you can use classes, interfaces, types, etc.
-    type UserGroupPermissionJSON = UserGroupPermission;
-  }
 }
 
 export interface SaleSearchResult {
@@ -68,3 +43,11 @@ export interface SaleSearchResult {
   memberId: string;
   package: Package;
 }
+
+export interface ColumnInterface {
+  column: string;
+  parsing?: Prisma.Sql;
+  sql?: Prisma.Sql;
+}
+
+export type USER_ROLE = 'ADMIN' | 'MEMBER';

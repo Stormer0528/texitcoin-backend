@@ -1,5 +1,7 @@
+import { Prisma } from '@prisma/client';
 import { Service, Inject } from 'typedi';
 
+import { IDInput, IDsInput } from '../../graphql/common.type';
 import { PrismaService } from '@/service/prisma';
 
 import {
@@ -7,8 +9,6 @@ import {
   CreateMemberStatisticsInput,
   MemberStatisticsQueryArgs,
 } from './memberStatistics.type';
-import { Prisma } from '@prisma/client';
-import { IDInput, IDsInput } from '../../graphql/common.type';
 
 @Service()
 export class MemberStatisticsService {

@@ -1,6 +1,7 @@
 import { ObjectType, Field, ID } from 'type-graphql';
 
 import { BaseEntity } from '@/graphql/baseEntity';
+
 import { Member } from '../member/member.entity';
 import { Payout } from '../payout/payout.entity';
 import { MemberStatisticsWallet } from '../memberStatisticsWallet/memberStatisticsWallet.entity';
@@ -22,12 +23,15 @@ export class MemberWallet extends BaseEntity {
   @Field()
   percent: number;
 
+  @Field({ nullable: true })
+  note?: string;
+
   @Field(() => Member, { nullable: true })
   member?: Member;
 
   @Field(() => Payout, { nullable: true })
   payout?: Payout;
 
-  @Field(() => [MemberStatisticsWallet], { nullable: 'itemsAndList' })
+  @Field(() => [MemberStatisticsWallet], { nullable: true })
   memberStatisticsWallets?: MemberStatisticsWallet[];
 }

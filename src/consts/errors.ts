@@ -16,23 +16,38 @@ export const uniqueErrors = [
   },
   {
     modelName: 'Member',
-    path: ['userId'],
-    message: 'UserId already exists',
+    path: ['email'],
+    message: 'Email already exists',
   },
   {
-    modelName: 'Sale',
-    path: ['invoiceNo'],
-    message: 'InvoiceNo already exists',
-  },
-  {
-    modelName: 'MemberWallet',
-    path: ['memberId', 'payoutId', 'address', 'deletedAt'],
-    message: 'Wallet already exists',
+    modelName: 'Member',
+    path: ['ID'],
+    message: 'ID already exists',
   },
   {
     modelName: 'Member',
     path: ['assetId'],
-    message: 'AssetId already exists',
+    message: 'AssetID already exists',
+  },
+  {
+    modelName: 'MemberWallet',
+    path: ['memberId', 'payoutId', 'address'],
+    message: 'Wallet already exists',
+  },
+  {
+    modelName: 'MemberWallet',
+    path: ['address'],
+    message: 'Wallet address already exists',
+  },
+  {
+    modelName: 'Statistics',
+    path: ['transactionId'],
+    message: 'TransactionId already exists',
+  },
+  {
+    modelName: 'Proof',
+    path: ['refId', 'type'],
+    message: 'Proof already exists for the specified reference ID and type',
   },
 ];
 
@@ -115,3 +130,5 @@ export const foreignKeyErrors = [
     path: ['memberWalletId'],
   },
 ];
+
+export const JWT_TOKENEXPIRED = 'TokenExpiredError';

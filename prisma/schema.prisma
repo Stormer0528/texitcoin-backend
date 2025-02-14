@@ -1,6 +1,6 @@
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["driverAdapters", "relationJoins"]
+  previewFeatures = ["driverAdapters", "relationJoins", "postgresqlExtensions"]
 }
 
 /// Always after the prisma-client-js generator
@@ -9,67 +9,171 @@ generator json {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [citext, pgcrypto]
+}
+
+enum PlacementPosition {
+  LEFT
+  RIGHT
+  NONE
+}
+
+enum ConfirmationStatus {
+  NONE
+  PENDING
+  APPROVED
+  DECLINED
+  PREVIEW
+}
+
+enum ProofType {
+  COMMISSION
+  MINENEWEQUIPMENT
+  MINEELECTRICITY
+  MINEMAINTAINANCE
+  MINEFACILITYRENTMORTAGE
+  MARKETINGTXCPROMOTION
+  MARKETINGMINETXCPROMOTION
+  INFRASTRUCTURE
+  OVERHEAD
+  ADMINISTRATIONSALARY
+  PROMOTION
+  PROFIT
+  SALE
+  DEVELOPERSPROTOCOL
+  DEVELOPERSWEB
+  DEVELOPERSAPPS
+  DEVELOPERSINTEGRATIONS
+  EXCHANGEFEE
+  TRANSACTIONPROCESSING
+}
+
+enum TeamStrategy {
+  LEFT
+  RIGHT
+  BALANCE
+  MANUAL
+}
+
+enum TeamReport {
+  NONE
+  LEFT
+  RIGHT
+  ALL
+}
+
+enum NotificationLevel {
+  ALL
+  INDIVIDUAL
+  TEAMLEADER
+  ADMIN
+}
+
+enum UserRole {
+  ADMIN
+  MEMBER
+}
+
+enum MemberState {
+  PENDING
+  GRAVEYARD
+  APPROVED
+  PAID
 }
 
 model Admin {
   id       String  @id @default(uuid())
-  username String  @unique(map: "index_admins_on_username") @db.VarChar
-  email    String  @unique(map: "index_admins_on_email") @db.VarChar
+  username String  @unique(map: "index_admins_on_username") @db.Citext
+  email    String  @unique(map: "index_admins_on_email") @db.Citext
   password String  @db.VarChar
   avatar   String? @default("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRcrrCHjN9kChJVJtWxXCHoUcgEhxWwTclnURuK20T8EDX_rVt0NMik5tYpLhKzqPBnvP0&usqp=CAU")
-
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  deletedAt DateTime?
-
-  @@map("admins")
-}
-
-model Member {
-  id               String  @id @default(uuid())
-  username         String  @unique(map: "index_members_on_username") @db.VarChar
-  fullName         String  @db.VarChar
-  sponsorId        String? @db.VarChar
-  userId           Int     @unique(map: "index_members_on_userId") @db.Integer
-  email            String  @db.VarChar
-  mobile           String  @db.VarChar
-  assetId          String  @unique(map: "index_members_on_assetId") @db.VarChar
-  primaryAddress   String  @db.VarChar
-  secondaryAddress String? @db.VarChar
-  city             String? @db.VarChar
-  state            String? @db.VarChar
-  zipCode          String? @db.VarChar
-  password         String  @default("$2a$12$iJYYra5MuxOQ9AwyG5CQauqCoE0NnSWHb7PzicO2C3L2/0J2VkQaO") @db.VarChar
-  token            String? @unique(map: "index_members_on_token") @db.VarChar
-
-  sponsor Member? @relation("MemberSponsor", fields: [sponsorId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  token    String? @unique(map: "index_admins_on_token") @db.VarChar
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
   // Relations
-  sales            Sale[]
-  statistics       MemberStatistics[]
-  introduceMembers Member[]           @relation("MemberSponsor")
-  memberWallets    MemberWallet[]
+  adminNotes AdminNotes[]
+
+  @@map("admins")
+}
+
+model Member {
+  id                     String            @id @default(uuid())
+  ID                     Int?              @unique(map: "index_members_on_ID") @default(autoincrement()) @db.Integer
+  username               String            @unique(map: "index_members_on_username") @db.Citext
+  fullName               String            @db.VarChar
+  sponsorId              String?           @db.VarChar
+  email                  String            @unique(map: "index_members_on_email") @db.Citext
+  mobile                 String            @db.VarChar
+  assetId                String?           @db.VarChar
+  country                String?           @db.VarChar
+  primaryAddress         String            @db.VarChar
+  secondaryAddress       String?           @db.VarChar
+  city                   String?           @db.VarChar
+  state                  String?           @db.VarChar
+  zipCode                String?           @db.VarChar
+  password               String            @default("$2a$12$iJYYra5MuxOQ9AwyG5CQauqCoE0NnSWHb7PzicO2C3L2/0J2VkQaO") @db.VarChar
+  token                  String?           @unique(map: "index_members_on_token") @db.VarChar
+  placementParentId      String?           @db.VarChar
+  placementPosition      PlacementPosition @default(NONE)
+  placementPath          String?           @default("") @db.VarChar
+  point                  Int               @default(0)
+  status                 Boolean           @default(true) @db.Boolean
+  allowState             MemberState?      @default(PENDING)
+  signupFormRequest      Json?             @db.Json
+  emailVerified          Boolean           @default(true) @db.Boolean
+  totalIntroducers       Int               @default(0) @db.Integer
+  syncWithSendy          Boolean           @default(true)
+  preferredContact       String?
+  preferredContactDetail String?
+  teamStrategy           TeamStrategy      @default(MANUAL)
+  balanceInCents         Int               @default(0)
+  teamReport             TeamReport        @default(NONE)
+  promoCode              String?
+  lastRolledSponsor      DateTime          @default(now())
+
+  sponsor         Member? @relation("MemberSponsor", fields: [sponsorId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  placementParent Member? @relation("MemberPlacementParent", fields: [placementParentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  // Relations
+  sales             Sale[]             @relation("member_sales")
+  p2pSales          Sale[]             @relation("p2p_member_sales")
+  statistics        MemberStatistics[]
+  introduceMembers  Member[]           @relation("MemberSponsor")
+  memberWallets     MemberWallet[]
+  placementChildren Member[]           @relation("MemberPlacementParent")
+  WeeklyCommission  WeeklyCommission[]
+  adminNotes        AdminNotes[]
+  balances          Balance[]
+  recipients        Recipient[]
+  sendEmails        Email[]
 
   @@map("members")
 }
 
 model Sale {
   id            String   @id @default(uuid())
+  ID            Int      @unique(map: "index_sales_on_ID") @default(autoincrement()) @db.Integer
   memberId      String
-  invoiceNo     Int      @unique(map: "index_sales_on_invoiceNo") @default(0)
   packageId     String
   paymentMethod String
-  orderedAt     DateTime @default(now()) @db.Timestamptz(6)
+  orderedAt     DateTime @default(now())
   status        Boolean  @default(true)
+  sponsorCnt    Int      @default(0)
+  toMemberId    String? // P2P to miner
+  isMetal       Boolean  @default(false) @db.Boolean
 
-  member  Member?  @relation(fields: [memberId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  package Package? @relation(fields: [packageId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  member   Member?  @relation("member_sales", fields: [memberId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  toMember Member?  @relation("p2p_member_sales", fields: [toMemberId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  package  Package? @relation(fields: [packageId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   statisticsSales StatisticsSale[]
 
@@ -90,6 +194,7 @@ model Statistics {
   totalMembers   Int?
   status         Boolean @default(true)
   txcShared      BigInt  @default(0)
+  transactionId  String? @unique(map: "index_statistics_on_transactionId")
 
   issuedAt DateTime @default(now())
   from     DateTime
@@ -166,19 +271,23 @@ model Block {
 }
 
 model Package {
-  id          String   @id @default(uuid())
-  productName String
-  amount      Int
-  status      Boolean  @default(true)
-  date        DateTime @default(now())
-  token       Int
+  id               String   @id @default(uuid())
+  productName      String
+  amount           Int
+  status           Boolean  @default(true)
+  date             DateTime @default(now())
+  token            Int
+  point            Int      @default(0)
+  enrollVisibility Boolean  @default(false)
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
   // relation
-  sales Sale[]
+  sales              Sale[]
+  paymentMethodLinks PaymentMethodLink[]
+  groupSettings      GroupSetting[]
 
   @@map("packages")
 }
@@ -201,14 +310,15 @@ model Payout {
 }
 
 model MemberWallet {
-  id       String @id @default(uuid())
+  id       String  @id @default(uuid())
   memberId String
   payoutId String
   address  String
-  percent  Int    @default(0)
+  percent  Int     @default(0)
+  note     String?
 
-  member Member? @relation(fields: [memberId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  payout Payout? @relation(fields: [payoutId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  member Member? @relation(fields: [memberId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  payout Payout? @relation(fields: [payoutId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -227,12 +337,337 @@ model MemberStatisticsWallet {
   issuedAt          DateTime @default(now())
   txc               BigInt   @default(0)
 
-  memberStatistic MemberStatistics? @relation(fields: [memberStatisticId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  memberWallet    MemberWallet?     @relation(fields: [memberWalletId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  memberStatistic MemberStatistics? @relation(fields: [memberStatisticId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  memberWallet    MemberWallet?     @relation(fields: [memberWalletId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
   @@map("memberstatisticswallets")
+}
+
+model WeeklyCommission {
+  id            String             @id @default(uuid())
+  ID            Int                @default(autoincrement()) @db.Integer
+  weekStartDate DateTime
+  begL          Int                @default(0)
+  begR          Int                @default(0)
+  newL          Int                @default(0)
+  newR          Int                @default(0)
+  maxL          Int                @default(0)
+  maxR          Int                @default(0)
+  endL          Int                @default(0)
+  endR          Int                @default(0)
+  pkgL          Int                @default(0)
+  pkgR          Int                @default(0)
+  commission    Int                @default(0)
+  memberId      String
+  status        ConfirmationStatus @default(NONE)
+
+  shortNote String?
+
+  member Member? @relation(fields: [memberId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@unique([memberId, weekStartDate], map: "unique_index_on_weeklycommissions")
+  @@map("weeklycommissions")
+}
+
+model AdminNotes {
+  id          String @id @default(uuid())
+  memberId    String
+  adminId     String
+  description String
+
+  member Member? @relation(fields: [memberId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  admin  Admin?  @relation(fields: [adminId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@map("adminnotes")
+}
+
+model File {
+  id           String  @id @default(uuid())
+  url          String
+  originalName String
+  mimeType     String
+  size         Int
+  localPath    String?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  fileRelation    FileRelation?
+  weeklyReport    WeeklyReport?
+  EmailAttachment EmailAttachment[]
+
+  @@map("files")
+}
+
+model FileRelation {
+  id      String @id @default(uuid())
+  proofId String
+  fileId  String
+
+  proof Proof? @relation(fields: [proofId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  file  File?  @relation(fields: [fileId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@unique([fileId], map: "unique_index_on_filerelation")
+  @@map("filerelations")
+}
+
+model Proof {
+  id           String    @id @default(uuid())
+  refId        String?
+  type         ProofType
+  mineLocation String?
+  amount       Float     @default(0.0)
+  note         String?   @default("")
+  orderedAt    DateTime  @default(now())
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  fileRelations  FileRelation[]
+  referenceLinks ReferenceLink[]
+
+  @@unique([refId, type], map: "unique_index_on_proof")
+  @@map("proofs")
+}
+
+model ReferenceLink {
+  id      String @id @default(uuid())
+  proofId String
+
+  linkType String
+  link     String
+
+  proof Proof? @relation(fields: [proofId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@map("referencelinks")
+}
+
+model PaymentMethod {
+  id          String  @id @default(uuid())
+  name        String
+  visible     Boolean @default(true)
+  defaultLink String?
+
+  paymentMethodLinks PaymentMethodLink[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@map("paymentmethods")
+}
+
+model PaymentMethodLink {
+  id              String @id @default(uuid())
+  paymentMethodId String
+  packageId       String
+  link            String
+
+  paymentMethod PaymentMethod? @relation(fields: [paymentMethodId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  package       Package?       @relation(fields: [packageId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@map("paymentmethodlinks")
+}
+
+model NotificationClient {
+  id             String   @id @default(uuid())
+  clientId       String
+  clientType     UserRole
+  notificationId String
+  read           Boolean  @default(false)
+
+  notification Notification @relation(fields: [notificationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@unique([clientId, clientType, notificationId], map: "unique_index_on_notification_clients")
+  @@map("notificationclients")
+}
+
+model Notification {
+  id String @id @default(uuid())
+
+  message String
+  level   NotificationLevel @default(ALL)
+
+  notificationClients NotificationClient[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@map("notifications")
+}
+
+model WeeklyReport {
+  id            String   @id @default(uuid())
+  weekStartDate DateTime
+  fileId        String
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  file File? @relation(fields: [fileId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([fileId], map: "unique_file_index_on_weeklyreport")
+  @@unique([weekStartDate], map: "unique_week_index_on_weeklyreport")
+  @@map("weeklyreports")
+}
+
+model GroupSetting {
+  id                        String   @id @default(uuid())
+  name                      String
+  limitDate                 DateTime @unique
+  sponsorBonusPackageId     String?
+  rollSponsorBonusPackageId String?
+
+  sponsorBonusPackage Package? @relation(fields: [sponsorBonusPackageId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  groupSettingCommissionBonuses GroupSettingCommissionBonus[]
+
+  @@map("groupsettings")
+}
+
+model GroupSettingCommissionBonus {
+  id             String @id @default(uuid())
+  groupSettingId String
+  lPoint         Int
+  rPoint         Int
+  commission     Int
+
+  groupSetting GroupSetting? @relation(fields: [groupSettingId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@unique([groupSettingId, lPoint, rPoint], map: "unique_index_on_group_setting_commission_bonus")
+  @@map("groupsettingcommissionbonuses")
+}
+
+model Balance {
+  id            String   @id @default(uuid())
+  date          DateTime @default(now())
+  type          String
+  note          String?
+  amountInCents Int      @default(0)
+  memberId      String
+  extra1        String? //Normally used to set model name
+  extra2        String? //Normally used to set entity id
+
+  member Member @relation(fields: [memberId], references: [id], onUpdate: NoAction, onDelete: NoAction)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@map("balances")
+}
+
+model Email {
+  id        String  @id @default(uuid())
+  senderId  String
+  to        String
+  subject   String
+  body      String
+  isDraft   Boolean @default(true)
+  isDeleted Boolean @default(false)
+
+  replyFromId String?
+
+  sender    Member @relation(fields: [senderId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  replyFrom Email? @relation("replyRelations", fields: [replyFromId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  recipients      Recipient[]
+  emailAttachment EmailAttachment[]
+  repliedEmails   Email[]           @relation("replyRelations")
+
+  @@map("emails")
+}
+
+model Recipient {
+  id          String @id @default(uuid())
+  emailId     String
+  recipientId String
+
+  isRead    Boolean @default(false)
+  isStarred Boolean @default(false)
+  isDeleted Boolean @default(false)
+
+  email     Email  @relation(fields: [emailId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  recipient Member @relation(fields: [recipientId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@unique([emailId, recipientId], map: "unique_index_on_recipients")
+  @@map("recipients")
+}
+
+model EmailAttachment {
+  id      String @id @default(uuid())
+  emailId String
+  fileId  String
+
+  email Email @relation(fields: [emailId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  file  File  @relation(fields: [fileId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@map("emailattachments")
+}
+
+model Promo {
+  id          String   @id @default(uuid())
+  code        String   @unique
+  description String
+  status      Boolean  @default(true)
+  startDate   DateTime @default(now())
+  endDate     DateTime @default(now())
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@map("promos")
 }

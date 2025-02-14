@@ -1,70 +1,56 @@
-import { Member, Prisma, PrismaClient, Sale, Statistics } from '@prisma/client';
-
-import { processStatistics } from '../utils/processData';
-import dayjs from 'dayjs';
-import { getMembers, getSales } from '@/utils/connectMlm';
+import { Prisma, PrismaClient } from '@prisma/client';
 import Bluebird from 'bluebird';
-import { SaleSearchResult } from '@/type';
-import { formatDate } from '@/utils/common';
-import { hashPassword } from '@/utils/auth';
-import { payoutData } from 'prisma/seed/payout';
-import crypto from 'crypto';
-import { PERCENT, TXC } from '@/consts/db';
 
 const prisma = new PrismaClient();
 
-const createStatisticsWallets = async (statistic: Statistics) => {
-  const memberStatistics = await prisma.memberStatistics.findMany({
-    where: {
-      statisticsId: statistic.id,
+const createPoint = async () => {
+  console.log('updating point is started');
+  await prisma.member.updateMany({
+    data: {
+      point: 0,
     },
   });
+  console.log('reseting all member point finished');
 
-  await Bluebird.map(
-    memberStatistics,
-    async (memberStatistic) => {
-      const memberWallets = await prisma.memberWallet.findMany({
-        where: {
-          memberId: memberStatistic.memberId,
-        },
-      });
-
-      const memberStatisticsWalletData: Prisma.MemberStatisticsWalletUncheckedCreateInput[] =
-        memberWallets.map((wallet) => {
-          return {
-            memberStatisticId: memberStatistic.id,
-            memberWalletId: wallet.id,
-            txc: Math.floor((wallet.percent / PERCENT / 100) * Number(memberStatistic.txcShared)),
-            issuedAt: memberStatistic.issuedAt,
-          };
-        });
-
-      await prisma.memberStatisticsWallet.createMany({
-        data: memberStatisticsWalletData,
-      });
-    },
-    { concurrency: 10 }
-  );
-};
-
-const createMemberStatisticsWallets = async () => {
-  const statistics = await prisma.statistics.findMany({
+  const sales = await prisma.sale.findMany({
     where: {
       status: true,
     },
+    include: {
+      package: true,
+    },
   });
-  await Bluebird.map(statistics, async (statistic) => {
-    await createStatisticsWallets(statistic);
+  const membersMap: Record<string, number> = {};
+  sales.forEach((sale) => {
+    if (!membersMap[sale.memberId]) membersMap[sale.memberId] = 0;
+    membersMap[sale.memberId] += sale.package.point;
   });
 
-  console.log('Finished memberStatisticswallets');
+  await Bluebird.map(
+    Object.entries(membersMap),
+    async (memberMap) => {
+      await prisma.member.update({
+        where: {
+          id: memberMap[0],
+        },
+        data: {
+          point: memberMap[1],
+        },
+      });
+    },
+    {
+      concurrency: 10,
+    }
+  );
+
+  console.log('updating point is finished');
 };
 
 async function sync() {
   console.log('sync is started');
-  await createMemberStatisticsWallets();
+  await createPoint();
 
-  console.log('Finished rewarding operation');
+  console.log('Finished sync operation');
 }
 
 sync();

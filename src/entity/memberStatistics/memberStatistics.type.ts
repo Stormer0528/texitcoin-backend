@@ -1,8 +1,8 @@
 import type { Prisma } from '@prisma/client';
 import { ObjectType, InputType, Field, ArgsType, ID } from 'type-graphql';
 
-import { PaginatedResponse } from '@/graphql/paginatedResponse';
 import { QueryArgsBase } from '@/graphql/queryArgs';
+import { PaginatedResponse } from '@/graphql/paginatedResponse';
 
 import { MemberStatistics } from '@/entity/memberStatistics/memberStatistics.entity';
 
@@ -13,7 +13,7 @@ export class MemberStatisticsQueryArgs extends QueryArgsBase<Prisma.MemberStatis
 // MemberStatistics list response with pagination ( total )
 @ObjectType()
 export class MemberStatisticsResponse extends PaginatedResponse {
-  @Field(() => [MemberStatistics], { nullable: 'itemsAndList' })
+  @Field(() => [MemberStatistics], { nullable: true })
   memberStatistics?: MemberStatistics[];
 }
 
@@ -37,24 +37,6 @@ export class CreateMemberStatisticsInput {
 
   @Field()
   issuedAt: Date;
-}
-
-@InputType()
-export class MemberOverviewInput {
-  @Field(() => ID)
-  id: string;
-}
-
-@ObjectType()
-export class MemberOverview {
-  @Field()
-  lastHashPower: number;
-
-  @Field()
-  totalTXCShared: bigint;
-
-  @Field()
-  joinDate: Date;
 }
 
 // Create Multil UserStatistics Input and Response

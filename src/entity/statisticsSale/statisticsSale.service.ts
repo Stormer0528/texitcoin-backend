@@ -1,14 +1,14 @@
+import { Prisma } from '@prisma/client';
 import { Service, Inject } from 'typedi';
 
 import { PrismaService } from '@/service/prisma';
 
+import { IDInput, IDsInput } from '../../graphql/common.type';
 import {
   CreateManyStatisticsSaleInput,
   CreateStatisticsSaleInput,
   StatisticsSaleQueryArgs,
 } from './statisticsSale.type';
-import { Prisma } from '@prisma/client';
-import { IDInput, IDsInput } from '../../graphql/common.type';
 
 @Service()
 export class StatisticsSaleService {

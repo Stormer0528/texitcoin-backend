@@ -1,14 +1,33 @@
-import { Service } from 'typedi';
-import { Arg, Args, Resolver, Query, Mutation, Authorized, Ctx, Info } from 'type-graphql';
+import { Inject, Service } from 'typedi';
+import {
+  Arg,
+  Args,
+  Resolver,
+  Query,
+  Mutation,
+  Authorized,
+  Ctx,
+  Info,
+  FieldResolver,
+  Root,
+} from 'type-graphql';
 import graphqlFields from 'graphql-fields';
-import { GraphQLResolveInfo } from 'graphql';
+import { GraphQLResolveInfo, print } from 'graphql';
 
+import { DEFAULT_PASSWORD } from '@/consts';
 import { type Context } from '@/context';
 import { UserRole } from '@/type';
 import { createAccessToken, verifyPassword, hashPassword } from '@/utils/auth';
 
-import { Admin } from './admin.entity';
-import { AdminService } from './admin.service';
+import {
+  EmailInput,
+  IDsInput,
+  ManySuccessResponse,
+  ResetPasswordTokenInput,
+  SuccessResponse,
+  TokenInput,
+  VerifyTokenResponse,
+} from '@/graphql/common.type';
 import {
   AdminLoginInput,
   AdminLoginResponse,
@@ -19,20 +38,22 @@ import {
   UpdateAdminPasswordByIdInput,
   UpdateAdminPasswordInput,
 } from './admin.type';
-import {
-  IDsInput,
-  ManySuccessResponse,
-  SuccessResponse,
-  SuccessResult,
-} from '@/graphql/common.type';
-import { DEFAULT_PASSWORD } from '@/consts';
+import { Admin } from './admin.entity';
+import { AdminService } from './admin.service';
+import { AdminNotes } from '../adminNotes/adminNotes.entity';
+import { SuccessResult } from '@/graphql/enum';
+import { MailerService } from '@/service/mailer';
 
 @Service()
 @Resolver(() => Admin)
 export class AdminResolver {
-  constructor(private readonly service: AdminService) {}
+  constructor(
+    private readonly service: AdminService,
+    @Inject(() => MailerService)
+    private readonly mailService: MailerService
+  ) {}
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Query(() => AdminsResponse)
   async admins(
     @Args() query: AdminQueryArgs,
@@ -61,13 +82,13 @@ export class AdminResolver {
     return response;
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Query(() => Admin)
   async adminMe(@Ctx() ctx: Context): Promise<Admin> {
     return ctx.user! as Admin;
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Mutation(() => Admin)
   async createAdmin(@Arg('data') data: CreateAdminInput): Promise<Admin> {
     // Hash the password
@@ -75,7 +96,7 @@ export class AdminResolver {
     return this.service.createAdmin({ ...data, password: hashedPassword });
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Mutation(() => Admin)
   async updateAdmin(@Ctx() ctx: Context, @Arg('data') data: UpdateAdminInput): Promise<Admin> {
     return this.service.updateAdmin({
@@ -84,7 +105,7 @@ export class AdminResolver {
     });
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Mutation(() => SuccessResponse)
   async updatePasswordAdmin(
     @Ctx() ctx: Context,
@@ -109,14 +130,14 @@ export class AdminResolver {
     };
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Mutation(() => Admin)
   async updatePasswordAdminById(@Arg('data') data: UpdateAdminPasswordByIdInput): Promise<Admin> {
     const hashedPassword = await hashPassword(data.newPassword);
     return this.service.updatePassword({ id: data.id, password: hashedPassword });
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Mutation(() => ManySuccessResponse)
   async removeAdmins(@Arg('data') data: IDsInput): Promise<ManySuccessResponse> {
     const { count } = await this.service.removeAdmins(data);
@@ -141,5 +162,46 @@ export class AdminResolver {
     return {
       accessToken: createAccessToken({ id: user.id, isAdmin: true }),
     };
+  }
+
+  @Mutation(() => SuccessResponse)
+  async adminResetPasswordRequest(@Arg('data') data: EmailInput): Promise<SuccessResponse> {
+    const { token, email, username } = await this.service.generateResetTokenByEmail(data);
+    if (token) {
+      this.mailService.sendForgetPasswordLink(
+        email,
+        username,
+        `${process.env.ADMIN_URL}/reset-password?token=${token}`
+      );
+      return {
+        result: SuccessResult.success,
+      };
+    } else {
+      return {
+        result: SuccessResult.failed,
+        message: 'Creating token failed',
+      };
+    }
+  }
+
+  @Mutation(() => SuccessResponse)
+  async adminResetPasswordByToken(
+    @Arg('data') data: ResetPasswordTokenInput
+  ): Promise<SuccessResponse> {
+    await this.service.resetPasswordByToken(data);
+    return {
+      result: SuccessResult.success,
+    };
+  }
+
+  @Mutation(() => VerifyTokenResponse)
+  async adminResetTokenVerify(@Arg('data') data: TokenInput): Promise<VerifyTokenResponse> {
+    return this.service.verifyAndUpdateToken(data);
+  }
+
+  @Authorized([UserRole.ADMIN])
+  @FieldResolver(() => [AdminNotes])
+  async adminNotes(@Root() admin: Admin, @Ctx() ctx: Context) {
+    return ctx.dataLoader.get('adminNotesForAdminLoader').load(admin.id);
   }
 }

@@ -1,8 +1,9 @@
 import type { Prisma } from '@prisma/client';
 import { ObjectType, InputType, Field, ArgsType, ID } from 'type-graphql';
 
-import { PaginatedResponse } from '@/graphql/paginatedResponse';
 import { QueryArgsBase } from '@/graphql/queryArgs';
+import { PaginatedResponse } from '@/graphql/paginatedResponse';
+
 import { Package } from './package.entity';
 
 // Package Query Args
@@ -12,7 +13,7 @@ export class PackageQueryArgs extends QueryArgsBase<Prisma.PackageWhereInput> {}
 // Package list response with pagination ( total )
 @ObjectType()
 export class PackageResponse extends PaginatedResponse {
-  @Field(() => [Package], { nullable: 'itemsAndList' })
+  @Field(() => [Package], { nullable: true })
   packages?: Package[];
 }
 
@@ -33,6 +34,12 @@ export class CreatePackageInput {
 
   @Field()
   token: number;
+
+  @Field({ nullable: true })
+  point?: number;
+
+  @Field({ nullable: true, defaultValue: false })
+  enrollVisibility?: boolean;
 }
 
 @InputType()
@@ -54,4 +61,10 @@ export class UpdatePackageInput {
 
   @Field({ nullable: true })
   token?: number;
+
+  @Field({ nullable: true })
+  point?: number;
+
+  @Field({ nullable: true })
+  enrollVisibility?: boolean;
 }

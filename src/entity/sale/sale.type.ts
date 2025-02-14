@@ -1,9 +1,11 @@
 import type { Prisma } from '@prisma/client';
 import { ObjectType, InputType, Field, ArgsType, ID } from 'type-graphql';
 
-import { PaginatedResponse } from '@/graphql/paginatedResponse';
 import { QueryArgsBase } from '@/graphql/queryArgs';
+import { PaginatedResponse } from '@/graphql/paginatedResponse';
+
 import { Sale } from '@/entity/sale/sale.entity';
+import { LinkInput } from '../referenceLink/referenceLink.type';
 
 // Sale Query Args
 @ArgsType()
@@ -12,7 +14,7 @@ export class SaleQueryArgs extends QueryArgsBase<Prisma.SaleWhereInput> {}
 // Sale list response with pagination ( total )
 @ObjectType()
 export class SalesResponse extends PaginatedResponse {
-  @Field(() => [Sale], { nullable: 'itemsAndList' })
+  @Field(() => [Sale], { nullable: true })
   sales?: Sale[];
 }
 
@@ -22,13 +24,10 @@ export class CreateSaleInput {
   @Field(() => ID)
   memberId: string;
 
-  @Field()
-  invoiceNo: number;
-
   @Field(() => ID)
   packageId: string;
 
-  @Field(() => ID)
+  @Field()
   paymentMethod: string;
 
   @Field()
@@ -36,6 +35,24 @@ export class CreateSaleInput {
 
   @Field()
   orderedAt: Date;
+
+  @Field({ nullable: true })
+  isMetal?: boolean;
+
+  @Field({ nullable: true })
+  sponsorCnt?: number;
+
+  @Field(() => ID, { nullable: true })
+  toMemberId?: string;
+
+  @Field(() => [ID], { nullable: true })
+  fileIds?: string[];
+
+  @Field(() => [LinkInput], { nullable: true })
+  reflinks?: LinkInput[];
+
+  @Field({ nullable: true })
+  note?: string;
 }
 
 // Update Sale Input and Response
@@ -46,9 +63,6 @@ export class UpdateSaleInput {
 
   @Field(() => ID, { nullable: true })
   packageId?: string;
-
-  @Field({ nullable: true })
-  invoiceNo?: number;
 
   @Field(() => ID, { nullable: true })
   memberId?: string;
@@ -61,4 +75,22 @@ export class UpdateSaleInput {
 
   @Field({ nullable: true })
   status?: boolean;
+
+  @Field(() => ID, { nullable: true })
+  toMemberId?: string;
+
+  @Field({ nullable: true })
+  isMetal?: boolean;
+
+  @Field({ nullable: true })
+  sponsorCnt?: number;
+
+  @Field(() => [ID], { nullable: true })
+  fileIds?: string[];
+
+  @Field({ nullable: true })
+  note?: string;
+
+  @Field(() => [LinkInput], { nullable: true })
+  reflinks?: LinkInput[];
 }

@@ -1,14 +1,14 @@
-import { Member, Prisma, PrismaClient, Sale, Statistics } from '@prisma/client';
-
-import { processStatistics } from '../utils/processData';
+import { Member, Prisma, PrismaClient, Statistics } from '@prisma/client';
 import dayjs from 'dayjs';
-import { getMembers, getSales } from '@/utils/connectMlm';
 import Bluebird from 'bluebird';
+
+import { PERCENT, TXC } from '@/consts/db';
 import { SaleSearchResult } from '@/type';
+import { payoutData } from 'prisma/seed/payout';
+
+import { getMembers, getSales } from '@/utils/connectMlm';
 import { formatDate } from '@/utils/common';
 import { generateRandomString, hashPassword } from '@/utils/auth';
-import { payoutData } from 'prisma/seed/payout';
-import { PERCENT, TXC } from '@/consts/db';
 
 const prisma = new PrismaClient();
 
@@ -147,12 +147,13 @@ const createStatisticsAndMemberStatistics = async () => {
   const now = dayjs();
   for (let iDate = dayjs('2024-04-01'); iDate.isBefore(now); iDate = iDate.add(1, 'day')) {
     const date = new Date(formatDate(iDate.toDate()));
-    console.log(`Creating ${iDate.format('YYYY-MM-DD')}...`);
+    console.log(`Creating ${formatDate(iDate.toDate())}...`);
     const sales: SaleSearchResult[] = await prisma.sale.findMany({
       where: {
         orderedAt: {
-          lt: new Date(iDate.add(1, 'day').format('YYYY-MM-DD 00:00:00')),
+          lt: new Date(iDate.add(1, 'day').toDate()),
         },
+        status: true,
       },
       select: {
         id: true,
@@ -168,7 +169,7 @@ const createStatisticsAndMemberStatistics = async () => {
       date
     );
     await createStatisticSales(statistic, sales, date);
-    console.log(`Finished ${iDate.format('YYYY-MM-DD')}`);
+    console.log(`Finished ${formatDate(iDate.toDate())}`);
   }
   console.log('Finished creating statistics & memberStatistics');
 };
@@ -184,7 +185,7 @@ const toMember = (
     mobile: complexMember.mobile,
     primaryAddress: complexMember.primaryAddress,
     secondaryAddress: complexMember.secondaryAddress,
-    userId: complexMember.userId,
+    ID: complexMember.ID,
     username: complexMember.username,
     city: complexMember.city,
     password: hashedPassword,
@@ -203,9 +204,7 @@ const syncMembers = async () => {
       mlmMembers,
       async (member) => {
         let assetId: string = member.assetId;
-        while (
-          mlmMembers.findIndex((mb) => mb.assetId === assetId && mb.userId !== member.userId) >= 0
-        ) {
+        while (mlmMembers.findIndex((mb) => mb.assetId === assetId && mb.ID !== member.ID) >= 0) {
           assetId = generateRandomString(6);
         }
         const result = await prisma.member.create({

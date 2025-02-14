@@ -1,9 +1,9 @@
+import { Prisma } from '@prisma/client';
 import { Service, Inject } from 'typedi';
 
 import { PrismaService } from '@/service/prisma';
 
 import { StatisticsQueryArgs, UpdateStatisticsInput } from './statistics.type';
-import { Prisma } from '@prisma/client';
 
 @Service()
 export class StatisticsService {
@@ -46,6 +46,18 @@ export class StatisticsService {
   async getLatestStatistics() {
     // TODO: `to` should be renamed to `endBlockTime`
     return this.prisma.statistics.findFirst({ orderBy: { to: 'desc' } });
+  }
+
+  async getLatestNStatistics(limit: number) {
+    return this.prisma.statistics.findMany({
+      orderBy: {
+        issuedAt: 'desc',
+      },
+      where: {
+        status: true,
+      },
+      take: limit,
+    });
   }
 
   async getStatisticsById(id: string) {

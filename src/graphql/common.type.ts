@@ -1,11 +1,7 @@
 import { IsEmail } from 'class-validator';
-import { Field, ID, InputType, ObjectType } from 'type-graphql';
-
-@ObjectType()
-export class ManySuccessResponse {
-  @Field()
-  count: number;
-}
+import { createUnionType, Field, ID, InputType, Int, ObjectType } from 'type-graphql';
+import { FrontActionEnum, SuccessResult } from './enum';
+import { GraphQLJSONObject } from 'graphql-type-json';
 
 @InputType()
 export class IDInput {
@@ -19,20 +15,6 @@ export class IDsInput {
   ids: string[];
 }
 
-export enum SuccessResult {
-  success = 'success',
-  failed = 'failed',
-}
-
-@ObjectType()
-export class SuccessResponse {
-  @Field()
-  result: SuccessResult;
-
-  @Field({ nullable: true })
-  message?: string;
-}
-
 @InputType()
 export class EmailInput {
   @Field()
@@ -44,4 +26,152 @@ export class EmailInput {
 export class TokenInput {
   @Field()
   token: string;
+}
+
+@ObjectType()
+export class ManySuccessResponse {
+  @Field()
+  count: number;
+}
+
+@ObjectType()
+export class CountResponse {
+  @Field()
+  count: number;
+}
+
+@InputType()
+export class ResetPasswordTokenInput {
+  @Field()
+  token: string;
+
+  @Field()
+  password: string;
+}
+
+@ObjectType()
+export class VerifyTokenResponse {
+  @Field()
+  @IsEmail()
+  email: string;
+
+  @Field()
+  token: string;
+}
+
+@ObjectType()
+export class FrontActionCreate12FreeBonusSale {
+  @Field(() => FrontActionEnum)
+  type: FrontActionEnum.CREATE12FREEBONUSSALE;
+
+  @Field(() => ID)
+  memberId: string;
+
+  @Field()
+  username: string;
+
+  @Field()
+  fullName: string;
+
+  @Field(() => ID)
+  packageId: string;
+
+  @Field()
+  packageName: string;
+
+  @Field()
+  paymentMethod: string;
+
+  @Field(() => Int)
+  sponsorCnt: number;
+
+  @Field(() => Boolean)
+  isWithinSponsorRollDuration: boolean;
+}
+
+@ObjectType()
+export class FrontActionUpdate12FreeBonusSale {
+  @Field(() => FrontActionEnum)
+  type: FrontActionEnum.UPDATE12FREEBONUSSALE;
+
+  @Field(() => ID)
+  id: string;
+
+  @Field()
+  ID: number;
+
+  @Field(() => ID)
+  oldPackageId: string;
+
+  @Field()
+  oldPackageName: string;
+
+  @Field(() => ID)
+  newPackageId: string;
+
+  @Field()
+  newPackageName: string;
+
+  @Field(() => Boolean)
+  status: boolean;
+}
+
+@ObjectType()
+export class FrontActionRemove12FreeBonusSale {
+  @Field(() => FrontActionEnum)
+  type: FrontActionEnum.REMOVE12FREEBONUSSALE;
+
+  @Field(() => ID)
+  id: string;
+
+  @Field()
+  ID: number;
+}
+
+export const FrontActionExtraTypes = createUnionType({
+  name: 'FrontActionExtra',
+  types: () =>
+    [
+      FrontActionCreate12FreeBonusSale,
+      FrontActionUpdate12FreeBonusSale,
+      FrontActionRemove12FreeBonusSale,
+    ] as const,
+  resolveType: ({ type }) => {
+    switch (type) {
+      case FrontActionEnum.CREATE12FREEBONUSSALE:
+        return FrontActionCreate12FreeBonusSale;
+      case FrontActionEnum.UPDATE12FREEBONUSSALE:
+        return FrontActionUpdate12FreeBonusSale;
+      case FrontActionEnum.REMOVE12FREEBONUSSALE:
+        return FrontActionRemove12FreeBonusSale;
+    }
+    return undefined;
+  },
+});
+
+@ObjectType()
+export class FrontAction {
+  @Field(() => FrontActionEnum)
+  action: FrontActionEnum;
+
+  @Field()
+  message: string;
+
+  @Field(() => FrontActionExtraTypes, { nullable: true })
+  extra?: typeof FrontActionExtraTypes;
+}
+
+@ObjectType()
+export class FrontActionBasic {
+  @Field(() => [FrontAction], { nullable: null })
+  frontActions?: FrontAction[];
+}
+
+@ObjectType()
+export class SuccessResponse extends FrontActionBasic {
+  @Field(() => SuccessResult)
+  result: SuccessResult;
+
+  @Field({ nullable: true })
+  message?: string;
 }

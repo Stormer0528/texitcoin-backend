@@ -15,19 +15,19 @@ import graphqlFields from 'graphql-fields';
 import { GraphQLResolveInfo } from 'graphql';
 
 import { UserRole } from '@/type';
+import { Context } from '@/context';
 
-import { StatisticsSale } from './statisticsSale.entity';
+import { IDInput, IDsInput, ManySuccessResponse } from '../../graphql/common.type';
 import {
   StatisticsSaleResponse,
   StatisticsSaleQueryArgs,
   CreateStatisticsSaleInput,
   CreateManyStatisticsSaleInput,
 } from './statisticsSale.type';
-import { StatisticsSaleService } from './statisticsSale.service';
-import { Context } from '@/context';
+import { StatisticsSale } from './statisticsSale.entity';
 import { Statistics } from '../statistics/statistics.entity';
 import { Sale } from '../sale/sale.entity';
-import { IDInput, IDsInput, ManySuccessResponse } from '../../graphql/common.type';
+import { StatisticsSaleService } from './statisticsSale.service';
 
 @Service()
 @Resolver(() => StatisticsSale)
@@ -63,7 +63,7 @@ export class StatisticsSaleResolver {
     return response;
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Mutation(() => StatisticsSale)
   async createStatisticsSale(
     @Arg('data') data: CreateStatisticsSaleInput
@@ -71,7 +71,7 @@ export class StatisticsSaleResolver {
     return this.service.createStatisticsSale(data);
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Mutation(() => ManySuccessResponse)
   async createManyStatisticsSales(
     @Arg('data') data: CreateManyStatisticsSaleInput
@@ -79,24 +79,24 @@ export class StatisticsSaleResolver {
     return await this.service.createManyStatisticsSales(data);
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Mutation(() => ManySuccessResponse)
   async removeManyStatisticsSales(@Arg('data') data: IDsInput): Promise<ManySuccessResponse> {
     return await this.service.removeManyStatisticsSales(data);
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Mutation(() => ManySuccessResponse)
   async removeStatisticsSalesByStaitisId(@Arg('data') data: IDInput): Promise<ManySuccessResponse> {
     return await this.service.removeStatisticsSalesByStatisticId(data);
   }
 
-  @FieldResolver({ nullable: 'itemsAndList' })
+  @FieldResolver({ nullable: true })
   async sale(@Root() statisticsSale: StatisticsSale, @Ctx() ctx: Context): Promise<Sale> {
     return ctx.dataLoader.get('saleForStatisticsSaleLoader').load(statisticsSale.saleId);
   }
 
-  @FieldResolver({ nullable: 'itemsAndList' })
+  @FieldResolver({ nullable: true })
   async statistics(
     @Root() statisticsSale: StatisticsSale,
     @Ctx() ctx: Context

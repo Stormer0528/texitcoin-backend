@@ -18,8 +18,12 @@ export const authChecker: AuthChecker<Context> = async ({ context: { user, isAdm
     }
 
     // Check '@Authorized(...)' roles overlap
-    if (roles.includes(UserRole.Admin)) {
+    if (roles.includes(UserRole.ADMIN)) {
       return isAdmin;
+    }
+
+    if (roles.includes(UserRole.MEMBER)) {
+      return !isAdmin;
     }
 
     return true;

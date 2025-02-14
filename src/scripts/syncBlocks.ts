@@ -1,8 +1,8 @@
 import { PrismaClient } from '@prisma/client';
 import Bluebird from 'bluebird';
 
-import { rpcCommand } from '../utils/rpcCommand';
 import { GET_BLOCK_COUNT, GET_BLOCK_HASH, GET_BLOCK, GET_NETWORK_HASH_PS } from '../consts';
+import { rpcCommand } from '../utils/rpcCommand';
 
 const prisma = new PrismaClient();
 

@@ -2,11 +2,13 @@ import type { IncomingMessage } from 'http';
 import { StandaloneServerContextFunctionArgument } from '@apollo/server/dist/esm/standalone';
 import { ContextFunction } from '@apollo/server';
 import { Admin, Member, PrismaClient } from '@prisma/client';
+import Container from 'typedi';
 
 import { verifyToken } from '@/utils/auth';
 import RootDataLoader from './graphql/loader';
+import { PrismaService } from './service/prisma';
 
-const prisma = new PrismaClient({ log: ['query'] });
+const prisma = Container.get(PrismaService);
 
 export interface Context {
   user?: Member | Admin;
@@ -20,8 +22,8 @@ export const context: ContextFunction<[StandaloneServerContextFunctionArgument],
   req,
 }): Promise<Context> => {
   const token = req.headers.authorization?.split(' ')[1];
-  let user: Member | Admin;
-  let isAdmin: boolean;
+  let user: Member | Admin = null;
+  let isAdmin: boolean = false;
   if (token) {
     const { id, isAdmin: admin } = verifyToken(token) as any;
     isAdmin = admin;

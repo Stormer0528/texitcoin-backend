@@ -15,24 +15,27 @@ import graphqlFields from 'graphql-fields';
 import { GraphQLResolveInfo } from 'graphql';
 
 import { UserRole } from '@/type';
+import { Context } from '@/context';
 
-import { Statistics } from './statistics.entity';
+import { IDsInput, ManySuccessResponse } from '../../graphql/common.type';
 import {
   StatisticsResponse,
   StatisticsQueryArgs,
   CreateStatisticsInput,
   UpdateStatisticsInput,
   CreateStatisticsMemberStatisticsInput,
+  ConfirmStatistics,
 } from './statistics.type';
-import { StatisticsService } from './statistics.service';
-import { Context } from '@/context';
+import { Statistics } from './statistics.entity';
 import { MemberStatistics } from '../memberStatistics/memberStatistics.entity';
-import { BlockService } from '../block/block.service';
 import { StatisticsSale } from '../statisticsSale/statisticsSale.entity';
+import { StatisticsService } from './statistics.service';
+import { BlockService } from '../block/block.service';
 import { MemberStatisticsService } from '../memberStatistics/memberStatistics.service';
 import { StatisticsSaleService } from '../statisticsSale/statisticsSale.service';
-import { IDInput, IDsInput, ManySuccessResponse } from '../../graphql/common.type';
 import { MemberStatisticsWalletService } from '../memberStatisticsWallet/memberStatisticsWallet.service';
+import { MemberService } from '../member/member.service';
+import { Transaction } from '@/graphql/decorator';
 
 @Service()
 @Resolver(() => Statistics)
@@ -42,9 +45,11 @@ export class StatisticsResolver {
     private readonly memberStatisticsService: MemberStatisticsService,
     private readonly statisticsSaleService: StatisticsSaleService,
     private readonly memberStatisticsWalletService: MemberStatisticsWalletService,
-    private readonly blockService: BlockService
+    private readonly blockService: BlockService,
+    private readonly memberService: MemberService
   ) {}
 
+  @Authorized()
   @Query(() => StatisticsResponse)
   async statistics(
     @Ctx() ctx: Context,
@@ -81,9 +86,29 @@ export class StatisticsResolver {
     return response;
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
+  @Transaction()
   @Mutation(() => Statistics)
   async createStatistics(@Arg('data') data: CreateStatisticsInput): Promise<Statistics> {
+    const members = await this.memberService.getMembers({
+      where: {
+        id: {
+          in: data.memberStatistics.map((memberstatistic) => memberstatistic.memberId),
+        },
+        memberWallets: {
+          none: {},
+        },
+      },
+      orderBy: [],
+      parsePage: {},
+    });
+
+    if (members.length) {
+      throw new Error(
+        `There are members with no wallets - ${members.map((mb) => mb.username).join(',')}`
+      );
+    }
+
     if (data.id) {
       this.memberStatisticsService.removeMemberStatisticsByStatisticId({
         id: data.id,
@@ -151,24 +176,30 @@ export class StatisticsResolver {
     return statistic;
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Mutation(() => Statistics)
   async updateStatistics(@Arg('data') data: UpdateStatisticsInput): Promise<Statistics> {
     return await this.statisticsService.updateStatistics(data);
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
+  @Transaction()
   @Mutation(() => Statistics)
-  async confirmStatistics(@Arg('data') data: IDInput): Promise<Statistics> {
+  async confirmStatistics(@Arg('data') data: ConfirmStatistics): Promise<Statistics> {
+    if (!data.transactionId) {
+      throw new Error('Transaction ID is required');
+    }
     const statistic = await this.statisticsService.updateStatistics({
       id: data.id,
       status: true,
+      transactionId: data.transactionId,
     });
     await this.memberStatisticsWalletService.createMemberStatisticsWalletByStatistic(statistic);
     return statistic;
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
+  @Transaction()
   @Mutation(() => ManySuccessResponse)
   async removeManyStatistics(@Arg('data') data: IDsInput): Promise<ManySuccessResponse> {
     await this.memberStatisticsService.removeMemberStatisticsByStatisticIds(data);
@@ -176,7 +207,7 @@ export class StatisticsResolver {
     return await this.statisticsService.removeStatisticByIds(data.ids);
   }
 
-  @FieldResolver({ nullable: 'itemsAndList' })
+  @FieldResolver({ nullable: true })
   async memberStatistics(
     @Root() statistics: Statistics,
     @Ctx() ctx: Context
@@ -184,7 +215,7 @@ export class StatisticsResolver {
     return ctx.dataLoader.get('memberStatisticsForStatisticsLoader').load(statistics.id);
   }
 
-  @FieldResolver({ nullable: 'itemsAndList' })
+  @FieldResolver({ nullable: true })
   async statisticsSales(
     @Root() statistics: Statistics,
     @Ctx() ctx: Context

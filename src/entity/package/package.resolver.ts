@@ -15,22 +15,30 @@ import graphqlFields from 'graphql-fields';
 import { GraphQLResolveInfo } from 'graphql';
 
 import { UserRole } from '@/type';
-import { Package } from './package.entity';
-import { PackageService } from './package.service';
+import { Context } from '@/context';
+
+import { Transaction } from '@/graphql/decorator';
+import { IDInput, SuccessResponse } from '@/graphql/common.type';
 import {
   CreatePackageInput,
   PackageQueryArgs,
   PackageResponse,
   UpdatePackageInput,
 } from './package.type';
-import { Context } from '@/context';
+import { Package } from './package.entity';
 import { Sale } from '../sale/sale.entity';
-import { IDInput } from '@/graphql/common.type';
+import { PackageService } from './package.service';
+import { SuccessResult } from '@/graphql/enum';
+import { PaymentMethodLinkService } from '../paymentMethodLink/paymentMethodLink.service';
+import { PaymentMethodLink } from '../paymentMethodLink/paymentMethodLink.entity';
 
 @Service()
 @Resolver(() => Package)
 export class PackageResolver {
-  constructor(private readonly service: PackageService) {}
+  constructor(
+    private readonly service: PackageService,
+    private readonly paymentMethodLinkService: PaymentMethodLinkService
+  ) {}
 
   @Query(() => PackageResponse)
   async packages(
@@ -61,26 +69,45 @@ export class PackageResolver {
     return response;
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
+  @Transaction()
   @Mutation(() => Package)
   async createPackage(@Arg('data') data: CreatePackageInput): Promise<Package> {
     return this.service.createPackage(data);
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
+  @Transaction()
   @Mutation(() => Package)
   async updatePackage(@Arg('data') data: UpdatePackageInput): Promise<Package> {
     return this.service.updatePackage(data);
   }
 
-  @Authorized([UserRole.Admin])
-  @Mutation(() => Package)
-  async removePackage(@Arg('data') data: IDInput): Promise<Package> {
-    return this.service.removePackage(data);
+  @Authorized([UserRole.ADMIN])
+  @Transaction()
+  @Mutation(() => SuccessResponse)
+  async removePackage(@Arg('data') data: IDInput): Promise<SuccessResponse> {
+    await this.paymentMethodLinkService.removePaymentMethodLinksByPaymentMethodId(data.id);
+    await this.service.removePackage(data);
+    return {
+      result: SuccessResult.success,
+    };
   }
 
-  @FieldResolver({ nullable: 'itemsAndList' })
+  @FieldResolver({ nullable: true })
   async sales(@Root() pkg: Package, @Ctx() ctx: Context): Promise<Sale[]> {
     return ctx.dataLoader.get('salesForPackageLoader').load(pkg.id);
+  }
+  @FieldResolver({ nullable: true })
+  async paymentMethodLinks(
+    @Root() pkg: Package,
+    @Ctx() ctx: Context
+  ): Promise<PaymentMethodLink[]> {
+    return ctx.dataLoader.get('paymentMethodLinksForPackageLoader').load(pkg.id);
+  }
+
+  @FieldResolver()
+  async freeShare(@Root() pkg: Package, @Ctx() ctx: Context): Promise<boolean> {
+    return ctx.dataLoader.get('freeShareForPackageLoader').load(pkg.id);
   }
 }

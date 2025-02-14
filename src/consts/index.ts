@@ -1,3 +1,8 @@
+import path from 'path';
+import dotenv from 'dotenv';
+
+dotenv.config();
+
 export const MEMBERS = ['james', 'CryptoCowboy', 'TXgoldrush', 'lissa', 'stepheb'];
 
 export const USERS = [
@@ -44,6 +49,22 @@ export const PACKAGES = [
   '5553932b-b87d-45b0-b459-dad44582348e',
 ];
 
+export const PAYMENT_METHODS = [
+  'fa51399b-ea7f-4a03-9258-2ea85699f710',
+  'b94920c9-309d-4d12-b9f8-5065d359b239',
+  '0e73ff77-a6ea-44dd-949f-720905f34f2d',
+  '2cf180fd-3888-4b8c-956f-dae2e06f5dab',
+  '2a7ef882-8923-4c24-9a32-7e930bd8ee91',
+  'e1e86e96-a1ec-4ba5-b74e-a7111e18284e',
+  '01828920-ea4b-40a1-ac4e-58613b896ade',
+  'c5d87c08-4d4c-4243-acc7-466925791501',
+];
+
+export const GROUP_SETTINGS = [
+  '0d8c0f7a-cd9c-4a95-aa97-4d8d27595166',
+  'c63565e9-c321-47a3-8ba8-f2297b30ca36',
+];
+
 export const rpc_url = process.env.RPC_URL;
 export const rpc_username = process.env.RPC_USERNAME;
 export const rpc_password = process.env.RPC_PASSWORD;
@@ -55,3 +76,66 @@ export const GET_BLOCK_COUNT = 'getblockcount';
 export const GET_NETWORK_HASH_PS = 'getnetworkhashps';
 
 export const DEFAULT_PASSWORD = '123456789';
+
+export const DAILY_BLOCK_LIMIT = 30;
+export const WEEKLY_BLOCK_LIMIT = 13;
+export const MONTHLY_BLOCK_LIMIT = 12;
+export const BLOCK_LIMIT = 200;
+
+export const DAILY_MINER_LIMIT = 20;
+export const WEEKLY_MINER_LIMIT = 15;
+export const MONTHLY_MINER_LIMIT = 12;
+export const QUATER_MINER_LIMIT = 16;
+
+export const DAILY_MINER_REWARD_LIMIT = 20;
+export const WEEKLY_MINER_REWARD_LIMIT = 15;
+export const MONTHLY_MINER_REWARD_LIMIT = 12;
+export const QUATER_MINER_REWARD_LIMIT = 16;
+
+export const WEEKLY_COMMISSION_LIMIT = 15;
+export const MONTHLY_COMMISSION_LIMIT = 12;
+export const QUATER_COMMISSION_LIMIT = 16;
+
+export const DAILY_STATISTICS_LIMIT = 20;
+export const WEEKLY_STATISTICS_LIMIT = 15;
+export const MONTHLY_STATISTICS_LIMIT = 12;
+export const QUATER_STATISTICS_LIMIT = 16;
+
+export const SPONSOR_BONOUS_CNT = 3;
+
+export const NO_PRODUCT = '916170a2-6b73-450d-9c2a-6ee9cceab30a';
+
+export const PLACEMENT_ROOT = 'affe34e8-891b-41c2-8405-d31df4dadb8c';
+
+export const UPLOAD_DIR = process.env.UPLOAD_DIR ?? path.join(process.cwd(), 'upload');
+export const PAYMENT_UPLOAD_DIR = path.join(UPLOAD_DIR, 'payment');
+export const EMAIL_ATTACHMENT_UPLOAD_DIR = path.join(UPLOAD_DIR, 'email');
+export const WEEKLY_REPORT_UPLOAD_DIR = path.join(UPLOAD_DIR, 'weekly_report');
+
+export const COMMISSION_PREVIEW_COMMAND = `cd ${process.cwd()} && ./node_modules/.bin/ts-node -r tsconfig-paths/register src/scripts/weeklyCommission.ts`;
+export const GENERATE_WEEKLY_REPORT_COMMAND = `cd ${process.cwd()} && ./node_modules/.bin/ts-node -r tsconfig-paths/register src/scripts/weeklyReport.ts`;
+
+export const GET_MINING_INFO = 'texitcoin-cli getmininginfo';
+
+export const PROFITABILITY_CALCULATION_DAY = '2026-02-28';
+
+export const EXPECTED_TXC_COST = 16;
+
+export const REWARD_PER_BLOCK = 254;
+
+export const LIMIT_COMMISSION_L_POINT = 9;
+export const LIMIT_COMMISSION_R_POINT = 9;
+
+export const WEEK_START = '2024-03-31';
+
+export const P2P_PAYMENT_METHOD = 'PEER';
+export const P2P_TRANSACTION_FEE = 0.05; // 5%
+export const COMMISSION_PAYMENT_METHOD = 'COMMISSION';
+
+export const BOGO_COMMISSION_PRODUCT_1 = 'e298ddb2-7984-4b48-971d-b42b746b1b25';
+export const BOGO_COMMISSION_PRODUCT_2 = '053fddd3-d390-4943-8e25-523623b72150';
+export const BOGO_COMMISSION_PRODUCT_3 = 'fa29870f-a2c5-432f-bc89-0d69aa0623ae';
+
+export const SPONSOR_ROLL_DURATION = 30; //in days
+
+export const INFINITE = Number(1e20);

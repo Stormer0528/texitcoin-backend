@@ -1,34 +1,21 @@
 import { Service } from 'typedi';
-import {
-  Arg,
-  Args,
-  Resolver,
-  Query,
-  Mutation,
-  Info,
-  Authorized,
-  FieldResolver,
-  Root,
-  Ctx,
-  Field,
-} from 'type-graphql';
+import { Args, Resolver, Query, Info, Authorized, FieldResolver, Root, Ctx } from 'type-graphql';
 import graphqlFields from 'graphql-fields';
 import { GraphQLResolveInfo } from 'graphql';
 
-import { UserRole } from '@/type';
+import { Context } from '@/context';
+
 import { MemberStatisticsWallet } from './memberStatisticsWallet.entity';
-import { MemberStatisticsWalletService } from './memberStatisticsWallet.service';
 import {
-  CreateMemberStatisticsWalletInput,
   DailyRewards,
   FromToQueryArgs,
   MemberStatisticsWalletQueryArgs,
   MemberStatisticsWalletResponse,
   RewardsByWallets,
 } from './memberStatisticsWallet.type';
-import { Context } from '@/context';
 import { MemberStatistics } from '../memberStatistics/memberStatistics.entity';
 import { MemberWallet } from '../memberWallet/memberWallet.entity';
+import { MemberStatisticsWalletService } from './memberStatisticsWallet.service';
 
 @Service()
 @Resolver(() => MemberStatisticsWallet)
@@ -84,7 +71,7 @@ export class MemberStatisticsWalletResolver {
     return {
       rewards: await this.service.getRewardsByWallets({
         ...query,
-        memberId: query.memberId ?? ctx.user.id,
+        memberId: ctx.isAdmin ? query.memberId : ctx.user.id,
       }),
     };
   }
@@ -94,7 +81,7 @@ export class MemberStatisticsWalletResolver {
   async dailyRewards(@Ctx() ctx: Context, @Args() query: FromToQueryArgs): Promise<DailyRewards> {
     const dailyRewards = await this.service.getDailyRewards({
       ...query,
-      memberId: query.memberId ?? ctx.user.id,
+      memberId: ctx.isAdmin ? query.memberId : ctx.user.id,
     });
     return {
       rewards: dailyRewards.map((reward) => ({

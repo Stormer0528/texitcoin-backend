@@ -1,7 +1,9 @@
 import { ObjectType, Field, ID } from 'type-graphql';
 
 import { BaseEntity } from '@/graphql/baseEntity';
+
 import { Sale } from '../sale/sale.entity';
+import { PaymentMethodLink } from '../paymentMethodLink/paymentMethodLink.entity';
 
 @ObjectType()
 export class Package extends BaseEntity {
@@ -23,6 +25,18 @@ export class Package extends BaseEntity {
   @Field()
   token: number;
 
-  @Field(() => [Sale], { nullable: 'itemsAndList' })
+  @Field()
+  point: number;
+
+  @Field()
+  enrollVisibility: boolean;
+
+  @Field(() => [Sale], { nullable: true })
   sales?: Sale[];
+
+  @Field(() => [PaymentMethodLink], { nullable: true })
+  paymentMethodLinks?: PaymentMethodLink[];
+
+  @Field()
+  freeShare?: boolean;
 }

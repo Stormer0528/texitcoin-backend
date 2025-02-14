@@ -1,8 +1,9 @@
 import type { Prisma } from '@prisma/client';
 import { ObjectType, InputType, Field, ArgsType, ID } from 'type-graphql';
 
-import { PaginatedResponse } from '@/graphql/paginatedResponse';
 import { QueryArgsBase } from '@/graphql/queryArgs';
+import { PaginatedResponse } from '@/graphql/paginatedResponse';
+
 import { StatisticsSale } from './statisticsSale.entity';
 
 // StatisticsSale Query Args
@@ -12,7 +13,7 @@ export class StatisticsSaleQueryArgs extends QueryArgsBase<Prisma.StatisticsSale
 // StatisticsSale list response with pagination ( total )
 @ObjectType()
 export class StatisticsSaleResponse extends PaginatedResponse {
-  @Field(() => [StatisticsSale], { nullable: 'itemsAndList' })
+  @Field(() => [StatisticsSale], { nullable: true })
   statisticsSales?: StatisticsSale[];
 }
 

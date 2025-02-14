@@ -1,8 +1,10 @@
 import { Service, Inject } from 'typedi';
 
 import { PrismaService } from '@/service/prisma';
-import { CreatePackageInput, PackageQueryArgs, UpdatePackageInput } from './package.type';
+
 import { IDInput } from '@/graphql/common.type';
+import { CreatePackageInput, PackageQueryArgs, UpdatePackageInput } from './package.type';
+import { NO_PRODUCT } from '@/consts';
 
 @Service()
 export class PackageService {
@@ -31,30 +33,66 @@ export class PackageService {
   }
 
   async createPackage(data: CreatePackageInput) {
-    return this.prisma.package.create({
+    return await this.prisma.package.create({
       data,
     });
   }
 
+  async isFreeShare(id: string) {
+    const groupSetting = await this.prisma.groupSetting.findFirst({
+      where: {
+        OR: [{ sponsorBonusPackageId: id }, { rollSponsorBonusPackageId: id }],
+      },
+    });
+    return Boolean(groupSetting);
+  }
   async updatePackage(data: UpdatePackageInput) {
+    const freeShare = await this.isFreeShare(data.id);
+    const noProduct = data.id === NO_PRODUCT;
+    if (noProduct) {
+      throw new Error('Can not edit this product.');
+    }
     const sale = await this.prisma.sale.findFirst({
       where: {
         packageId: data.id,
       },
     });
-    if (sale) {
-      throw new Error('This package can not be updated');
-    }
+    const { status: oldStatus, enrollVisibility: oldEnrollVisibility } =
+      await this.prisma.package.findUnique({
+        where: {
+          id: data.id,
+        },
+      });
+    const newStatus = 'status' in data ? data.status : oldStatus;
+    const newEnrollVisibility =
+      'enrollVisibility' in data ? data.enrollVisibility : oldEnrollVisibility;
 
-    return this.prisma.package.update({
+    const updateData: Omit<UpdatePackageInput, 'id'> =
+      freeShare || sale
+        ? {
+            productName: data.productName,
+            enrollVisibility: newStatus && newEnrollVisibility,
+            status: newStatus,
+          }
+        : {
+            ...data,
+            enrollVisibility: newStatus && newEnrollVisibility,
+            status: newStatus,
+          };
+    return await this.prisma.package.update({
       where: {
         id: data.id,
       },
-      data,
+      data: updateData,
     });
   }
 
   async removePackage(data: IDInput) {
+    const freeShare = await this.isFreeShare(data.id);
+    const noProduct = data.id === NO_PRODUCT;
+    if (freeShare || noProduct) {
+      throw new Error('Can not remove this product.');
+    }
     return this.prisma.package.delete({
       where: {
         id: data.id,

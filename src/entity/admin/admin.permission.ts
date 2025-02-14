@@ -1,4 +1,5 @@
 import { MiddlewareFn } from 'type-graphql';
+
 import { Context } from '@/context';
 
 export const userPermission: MiddlewareFn<Context> = async (

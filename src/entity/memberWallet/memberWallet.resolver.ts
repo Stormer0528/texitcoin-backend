@@ -15,18 +15,21 @@ import graphqlFields from 'graphql-fields';
 import { GraphQLResolveInfo } from 'graphql';
 
 import { UserRole } from '@/type';
-import { MemberWallet } from './memberWallet.entity';
+import { Context } from '@/context';
+
+import { SuccessResponse } from '@/graphql/common.type';
 import {
   MemberWalletQueryArgs,
   MemberWalletResponse,
   UpdateMemberWalletInput,
 } from './memberWallet.type';
-import { MemberWalletService } from './memberWallet.service';
-import { Context } from '@/context';
+import { MemberWallet } from './memberWallet.entity';
 import { Member } from '../member/member.entity';
 import { Payout } from '../payout/payout.entity';
 import { MemberStatisticsWallet } from '../memberStatisticsWallet/memberStatisticsWallet.entity';
-import { ManySuccessResponse, SuccessResponse, SuccessResult } from '@/graphql/common.type';
+import { MemberWalletService } from './memberWallet.service';
+import { Transaction } from '@/graphql/decorator';
+import { SuccessResult } from '@/graphql/enum';
 
 @Service()
 @Resolver(() => MemberWallet)
@@ -61,7 +64,8 @@ export class MemberWalletResolver {
     return response;
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
+  @Transaction()
   @Mutation(() => SuccessResponse)
   async updateMemberWallet(@Arg('data') data: UpdateMemberWalletInput): Promise<SuccessResponse> {
     await this.service.updateManyMemberWallet(data);
@@ -80,7 +84,7 @@ export class MemberWalletResolver {
     return ctx.dataLoader.get('payoutForMemberWalletLoader').load(memberWallet.payoutId);
   }
 
-  @FieldResolver({ nullable: 'itemsAndList' })
+  @FieldResolver({ nullable: true })
   async memberStatisticsWallets(
     @Root() member: MemberWallet,
     @Ctx() ctx: Context

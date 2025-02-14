@@ -1,11 +1,11 @@
 import type { Prisma } from '@prisma/client';
 import { ObjectType, InputType, Field, ArgsType, ID } from 'type-graphql';
 
-import { PaginatedResponse } from '@/graphql/paginatedResponse';
 import { QueryArgsBase } from '@/graphql/queryArgs';
+import { PaginatedResponse } from '@/graphql/paginatedResponse';
 
 import { Statistics } from '@/entity/statistics/statistics.entity';
-import { CreateMemberStatisticsInput } from '../memberStatistics/memberStatistics.type';
+import { BaseEntity } from '@/graphql/baseEntity';
 
 // Statistics Query Args
 @ArgsType()
@@ -14,7 +14,7 @@ export class StatisticsQueryArgs extends QueryArgsBase<Prisma.StatisticsWhereInp
 // Statistics list response with pagination ( total )
 @ObjectType()
 export class StatisticsResponse extends PaginatedResponse {
-  @Field(() => [Statistics], { nullable: 'itemsAndList' })
+  @Field(() => [Statistics], { nullable: true })
   statistics?: Statistics[];
 }
 
@@ -63,8 +63,11 @@ export class CreateStatisticsInput {
 
 @InputType()
 export class ConfirmStatistics {
-  @Field()
+  @Field(() => ID)
   id: string;
+
+  @Field(() => ID)
+  transactionId: string;
 }
 
 @ObjectType()
@@ -91,4 +94,7 @@ export class UpdateStatisticsInput {
 
   @Field({ nullable: true })
   status?: boolean;
+
+  @Field(() => ID, { nullable: true })
+  transactionId?: string;
 }

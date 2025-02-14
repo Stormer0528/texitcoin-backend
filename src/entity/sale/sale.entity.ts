@@ -1,17 +1,20 @@
-import { ObjectType, Field, ID } from 'type-graphql';
+import { ObjectType, Field, ID, Authorized, Int } from 'type-graphql';
 
 import { BaseEntity } from '@/graphql/baseEntity';
+
 import { Member } from '../member/member.entity';
 import { Package } from '../package/package.entity';
 import { StatisticsSale } from '../statisticsSale/statisticsSale.entity';
+import { UserRole } from '@/type';
+import { Proof } from '../proof/proof.entity';
 
 @ObjectType()
 export class Sale extends BaseEntity {
   @Field(() => ID)
   id: string;
 
-  @Field()
-  invoiceNo: number;
+  @Field(() => Int)
+  ID: number;
 
   @Field()
   paymentMethod: string;
@@ -34,6 +37,22 @@ export class Sale extends BaseEntity {
   @Field()
   orderedAt: Date;
 
-  @Field(() => [StatisticsSale], { nullable: 'itemsAndList' })
+  @Field()
+  sponsorCnt: number;
+
+  @Field(() => ID, { nullable: true })
+  toMemberId?: string;
+
+  @Field()
+  isMetal: boolean;
+
+  @Field(() => Member, { nullable: true })
+  toMember?: Member;
+
+  @Field(() => [StatisticsSale], { nullable: true })
   statisticsSales?: StatisticsSale[];
+
+  @Authorized([UserRole.ADMIN])
+  @Field(() => Proof, { nullable: true })
+  proof?: Proof;
 }

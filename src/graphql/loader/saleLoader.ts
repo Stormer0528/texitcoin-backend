@@ -4,6 +4,7 @@ import RootDataLoader from '.';
 import { Member } from '@/entity/member/member.entity';
 import { Package } from '@/entity/package/package.entity';
 import { StatisticsSale } from '@/entity/statisticsSale/statisticsSale.entity';
+import { Proof } from '@/entity/proof/proof.entity';
 
 export const memberForSaleLoader = (parent: RootDataLoader) => {
   return new DataLoader<string, Member>(
@@ -62,6 +63,31 @@ export const statisticsSalesForSaleLoader = (parent: RootDataLoader) => {
       });
 
       return saleIds.map((id) => statisticsSalesMap[id] ?? []);
+    },
+    {
+      ...parent.dataLoaderOptions,
+    }
+  );
+};
+
+export const proofForSaleLoader = (parent: RootDataLoader) => {
+  return new DataLoader<string, Proof>(
+    async (saleIds: string[]) => {
+      const proofs = await parent.prisma.proof.findMany({
+        where: {
+          refId: {
+            in: saleIds,
+          },
+          type: 'SALE',
+        },
+      });
+
+      const proofsMap: Record<string, Proof> = {};
+      proofs.forEach((proof) => {
+        proofsMap[proof.refId] = proof;
+      });
+
+      return saleIds.map((id) => proofsMap[id]);
     },
     {
       ...parent.dataLoaderOptions,

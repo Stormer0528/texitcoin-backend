@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Miner Introducer Milestone Notification</title>
+  <style>
+    .logo-container {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .logo-container img {
+      max-width: 100px;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      color: #333;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+
+    .section {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      color: #007bff;
+      font-size: 24px;
+    }
+
+    p {
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    .note {
+      font-size: 16px;
+      margin-top: 20px;
+    }
+
+    footer {
+      margin-top: 20px;
+      font-size: 14px;
+      color: #666;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="section">
+    <div class="logo-container">
+      <a href="https://admin.minetxc.com" target="_blank">
+        <img src="https://i.ibb.co/gbBt13wk/logo-100.png" alt="Texitcoin" />
+      </a>
+    </div>
+    <div class="container">
+      <h1>Miner Reached Third Introducer!</h1>
+      <p>Hello Admin,</p>
+      <p>The miner <strong>{{minerName}}</strong> (username: <strong>{{minerUsername}}</strong>) has gained third introducer.</p>
+      <p><strong>Total Introducers:</strong> {{totalIntroducers}}</p>
+      {{#if bonusGroup}}
+        <p><strong>Group:</strong> {{bonusGroup}}</p>
+      {{/if}}
+      {{#if bonusType}}
+        <p class="note"><strong>Bonus Type:</strong> {{bonusType}}</p>
+      {{/if}}
+      <p>You can log in to the admin panel to review the miner's activity and take any necessary actions.</p>
+
+      <footer>
+        <p>Thank you,</p>
+        <p>The Texitcoin Team</p>
+      </footer>
+    </div>
+  </div>
+</body>
+
+</html>

@@ -16,24 +16,21 @@ import graphqlFields from 'graphql-fields';
 import { GraphQLResolveInfo } from 'graphql';
 
 import { UserRole } from '@/type';
+import { Context } from '@/context';
 
-import { MemberStatistics } from './memberStatistics.entity';
 import {
   MemberStatisticsResponse,
   MemberStatisticsQueryArgs,
   CreateMemberStatisticsInput,
-  MemberOverview,
-  MemberOverviewInput,
   CreateManyMemberStatisticsInput,
 } from './memberStatistics.type';
-import { MemberStatisticsService } from './memberStatistics.service';
-import { Member } from '../member/member.entity';
-import { Context } from '@/context';
-import { Statistics } from '../statistics/statistics.entity';
-import { MemberService } from '../member/member.service';
 import { IDInput, IDsInput, ManySuccessResponse } from '../../graphql/common.type';
+import { MemberStatistics } from './memberStatistics.entity';
+import { Member } from '../member/member.entity';
+import { Statistics } from '../statistics/statistics.entity';
 import { MemberStatisticsWallet } from '../memberStatisticsWallet/memberStatisticsWallet.entity';
-import { userPermission } from '../admin/admin.permission';
+import { MemberStatisticsService } from './memberStatistics.service';
+import { MemberService } from '../member/member.service';
 
 @Service()
 @Resolver(() => MemberStatistics)
@@ -81,7 +78,7 @@ export class MemberStatisticsResolver {
     return response;
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Mutation(() => MemberStatistics)
   async createMemberStatistics(
     @Arg('data') data: CreateMemberStatisticsInput
@@ -89,7 +86,7 @@ export class MemberStatisticsResolver {
     return this.service.createMemberStatistics(data);
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Mutation(() => ManySuccessResponse)
   async createManyMemberStatistics(
     @Arg('data') data: CreateManyMemberStatisticsInput
@@ -97,13 +94,13 @@ export class MemberStatisticsResolver {
     return await this.service.createManyMemberStatistics(data);
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Mutation(() => ManySuccessResponse)
   async removeManyMemberStatistics(@Arg('data') data: IDsInput): Promise<ManySuccessResponse> {
     return await this.service.removeManyMemberStatistics(data);
   }
 
-  @Authorized([UserRole.Admin])
+  @Authorized([UserRole.ADMIN])
   @Mutation(() => ManySuccessResponse)
   async removeMemberStatisticsByStaitisId(
     @Arg('data') data: IDInput
@@ -111,12 +108,12 @@ export class MemberStatisticsResolver {
     return await this.service.removeMemberStatisticsByStatisticId(data);
   }
 
-  @FieldResolver({ nullable: 'itemsAndList' })
+  @FieldResolver({ nullable: true })
   async member(@Root() memberStatistics: MemberStatistics, @Ctx() ctx: Context): Promise<Member> {
     return ctx.dataLoader.get('memberForMemberStatisticsLoader').load(memberStatistics.memberId);
   }
 
-  @FieldResolver({ nullable: 'itemsAndList' })
+  @FieldResolver({ nullable: true })
   async statistics(
     @Root() memberStatistics: MemberStatistics,
     @Ctx() ctx: Context
@@ -126,36 +123,11 @@ export class MemberStatisticsResolver {
       .load(memberStatistics.statisticsId);
   }
 
-  @FieldResolver({ nullable: 'itemsAndList' })
+  @FieldResolver({ nullable: true })
   async memberStatisticsWallets(
     @Root() memberStatistics: MemberStatistics,
     @Ctx() ctx: Context
   ): Promise<MemberStatisticsWallet[]> {
     return ctx.dataLoader.get('walletsForMemberStatisticsLoader').load(memberStatistics.id);
-  }
-
-  @Authorized()
-  @UseMiddleware(userPermission)
-  @Query(() => MemberOverview)
-  async memberOverview(@Arg('data') { id }: MemberOverviewInput): Promise<MemberOverview> {
-    const { txcShared: totalTXCShared } = await this.service.getTotalTXCShared(id);
-    const { hashPower: lastHashPower } = await this.service.getMemberStatistic({
-      where: {
-        memberId: id,
-      },
-      select: {
-        hashPower: true,
-      },
-      orderBy: {
-        issuedAt: 'desc',
-      },
-    });
-    const { createdAt: joinDate } = await this.memberService.getMemberById(id);
-
-    return {
-      lastHashPower,
-      totalTXCShared,
-      joinDate,
-    };
   }
 }

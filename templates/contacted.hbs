@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>You Have a New Contact Request - Texitcoin</title>
+  <style>
+    .logo-container {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .logo-container img {
+      max-width: 100px;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      color: #333;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+
+    .section {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      color: #007bff;
+      font-size: 24px;
+    }
+
+    p {
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    .note {
+      font-size: 16px;
+      color: #666;
+      margin-top: 20px;
+      font-weight: bold;
+    }
+
+    .note a {
+      color: #666;
+      text-decoration: none;
+    }
+
+    .note a:hover {
+      text-decoration: underline;
+    }
+
+    footer {
+      margin-top: 20px;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .contact-info {
+      margin-top: 20px;
+    }
+
+    .contact-info a {
+      color: #007bff;
+      text-decoration: none;
+    }
+
+    .contact-info a:hover {
+      text-decoration: underline;
+    }
+
+    .no-message {
+      font-style: italic;
+      color: #888;
+      font-weight: normal;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="section">
+    <div class="logo-container">
+      <a href="https://admin.minetxc.com" target="_blank"><img src="https://i.ibb.co/gbBt13wk/logo-100.png" alt="Texitcoin" /></a>
+    </div>
+    <div class="container">
+      <h1>You Have a New Contact Request!</h1>
+      <p>Hello Admin,</p>
+      <p>You have received a new message from a client, {{fullName}}. Here are the details:</p>
+
+      <p><strong>Name:</strong> {{fullName}}</p>
+      <p><strong>Email:</strong> {{email}}</p>
+      {{#if message}}
+        <p><strong>Message:</strong> {{message}}</p>
+      {{else}}
+        <p><strong>Message:</strong> <span class="no-message">No message</span></p>
+      {{/if}}
+
+      <p>Make sure to respond promptly to assist the client with their inquiry.</p>
+
+      <p>If you need any further information or assistance, feel free to reach out to the client directly.</p>
+
+      <footer>
+        <p>Thank you,</p>
+        <p>The Texitcoin Team</p>
+      </footer>
+    </div>
+  </div>
+</body>
+
+</html>

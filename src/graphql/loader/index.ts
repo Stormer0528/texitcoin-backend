@@ -12,6 +12,18 @@ import * as payoutLoader from './payoutLoader';
 import * as statisticsSaleLoader from './statisticsSaleLoader';
 import * as memberStatisticsWalletLoader from './memberStatisticsWalletLoader';
 import * as memberWalletLoader from './memberWalletLoader';
+import * as weeklyCommissionLoader from './weeklyCommissionLoader';
+import * as adminNotesLoader from './adminNotesLoader';
+import * as adminLoader from './adminLoader';
+import * as proofLoader from './proofLoader';
+import * as paymentMethodLoader from './paymentMethodLoader';
+import * as paymentMethodLinkLoader from './paymentMethodLinkLoader';
+import * as notificationLoader from './notificationLoader';
+import * as weeklyReportLoader from './weeklyReportLoader';
+import * as groupSettingLoader from './groupSettingLoader';
+import * as balanceLoader from './balanceLoader';
+import * as emailLoader from './emailLoader';
+import * as recipientLoader from './recipientLoader';
 import { Member } from '@/entity/member/member.entity';
 import { Admin } from '@/entity/admin/admin.entity';
 
@@ -30,6 +42,18 @@ const loaderMakers = {
   ...statisticsSaleLoader,
   ...memberStatisticsWalletLoader,
   ...memberWalletLoader,
+  ...weeklyCommissionLoader,
+  ...adminLoader,
+  ...adminNotesLoader,
+  ...proofLoader,
+  ...paymentMethodLoader,
+  ...paymentMethodLinkLoader,
+  ...notificationLoader,
+  ...weeklyReportLoader,
+  ...groupSettingLoader,
+  ...balanceLoader,
+  ...emailLoader,
+  ...recipientLoader,
 } as const;
 
 type LoaderMakers = typeof loaderMakers;
