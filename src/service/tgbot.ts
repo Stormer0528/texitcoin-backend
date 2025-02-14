@@ -32,9 +32,9 @@ export class TelegramBotService {
       Phone: ${phone}
       Package: ${pkg}
       Payment method: ${paymentMethod}
-      Sponsor: ${sponsor}
-      Promo: ${promo}
-      Coin ID: ${coinID}`
+      Sponsor: ${sponsor ?? ''}
+      Promo: ${promo ?? ''}
+      Coin ID: ${coinID ?? ''}`
     );
   }
 }
